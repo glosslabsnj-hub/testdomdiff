@@ -1,11 +1,21 @@
 import { Link } from "react-router-dom";
-import { Cross, Settings, LogOut, Clock, Crown, Sparkles, User } from "lucide-react";
+import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const DashboardHeader = () => {
   const { profile, subscription, daysRemaining, signOut } = useAuth();
+  const { isAdmin } = useAdminCheck();
 
   const handleSignOut = async () => {
     await signOut();
@@ -48,6 +58,30 @@ const DashboardHeader = () => {
     return "Brother";
   };
 
+  const getFullName = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    }
+    if (profile?.first_name) {
+      return profile.first_name;
+    }
+    return profile?.email || "Member";
+  };
+
+  const getPlanName = () => {
+    if (!subscription) return "No active plan";
+    switch (subscription.plan_type) {
+      case "coaching":
+        return "1:1 Redemption Coaching";
+      case "transformation":
+        return "12-Week Transformation";
+      case "membership":
+        return "Discipline Membership";
+      default:
+        return "Active Plan";
+    }
+  };
+
   return (
     <header className="bg-charcoal border-b border-border">
       <div className="section-container py-4">
@@ -77,22 +111,68 @@ const DashboardHeader = () => {
               {getPlanBadge()}
             </div>
 
-            {/* Welcome Message */}
-            <span className="text-sm text-muted-foreground hidden lg:block">
-              Welcome, <span className="text-foreground font-medium">{getDisplayName()}</span>
-            </span>
-
-            {/* Settings */}
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/dashboard/settings">
-                <Settings className="w-4 h-4" />
-              </Link>
-            </Button>
-
-            {/* Logout */}
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4" />
-            </Button>
+            {/* Account Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 px-3">
+                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-primary font-semibold text-sm">
+                      {getDisplayName().charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="hidden sm:block text-sm font-medium text-foreground">
+                    {getDisplayName()}
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-charcoal border-border">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium text-foreground">{getFullName()}</p>
+                    <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border" />
+                
+                {/* Plan Status */}
+                <div className="px-2 py-2">
+                  <p className="text-xs text-muted-foreground mb-1">Current Plan</p>
+                  <div className="flex items-center gap-2">
+                    {getPlanBadge()}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{getPlanName()}</p>
+                  {subscription?.plan_type === "transformation" && daysRemaining !== null && (
+                    <p className="text-xs text-primary mt-1 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {daysRemaining} days remaining
+                    </p>
+                  )}
+                </div>
+                
+                <DropdownMenuSeparator className="bg-border" />
+                
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/admin" className="flex items-center gap-2 text-gold">
+                        <Shield className="w-4 h-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-border" />
+                  </>
+                )}
+                
+                <DropdownMenuItem 
+                  onClick={handleSignOut}
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -113,9 +193,6 @@ const DashboardHeader = () => {
         {subscription?.plan_type !== "transformation" && subscription && (
           <div className="flex md:hidden items-center gap-2 mt-3 pt-3 border-t border-border">
             {getPlanBadge()}
-            <span className="text-sm text-muted-foreground">
-              Welcome, {getDisplayName()}
-            </span>
           </div>
         )}
       </div>
