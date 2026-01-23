@@ -135,45 +135,70 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await Promise.all([
-          fetchProfile(session.user.id),
-          fetchSubscription(session.user.id),
-        ]);
-      }
-      
-      if (mounted) setLoading(false);
-    });
+    const safeSetLoading = (value: boolean) => {
+      if (mounted) setLoading(value);
+    };
 
-    // Listen for auth changes
+    safeSetLoading(true);
+
+    // IMPORTANT: set up the auth state change listener BEFORE fetching the session
+    // to avoid missing updates during initial load.
     const {
       data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-        await fetchSubscription(session.user.id);
-      } else {
-        setProfile(null);
-        setSubscription(null);
+
+      try {
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          await Promise.all([
+            fetchProfile(session.user.id),
+            fetchSubscription(session.user.id),
+          ]);
+        } else {
+          setProfile(null);
+          setSubscription(null);
+        }
+      } catch (err) {
+        console.error("Auth state change error:", err);
+      } finally {
+        safeSetLoading(false);
       }
-      
-      if (mounted) setLoading(false);
     });
+
+    (async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+
+        if (!mounted) return;
+
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+
+        if (data.session?.user) {
+          await Promise.all([
+            fetchProfile(data.session.user.id),
+            fetchSubscription(data.session.user.id),
+          ]);
+        }
+      } catch (err) {
+        console.error("Error getting initial session:", err);
+      } finally {
+        safeSetLoading(false);
+      }
+    })();
+
+    // Safety net: never spin forever if something upstream hangs unexpectedly.
+    const timeout = window.setTimeout(() => {
+      safeSetLoading(false);
+    }, 12000);
 
     return () => {
       mounted = false;
+      window.clearTimeout(timeout);
       authSubscription.unsubscribe();
     };
   }, []);
