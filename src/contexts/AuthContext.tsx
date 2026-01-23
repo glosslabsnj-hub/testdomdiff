@@ -54,12 +54,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const withTimeout = async <T,>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> => {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        window.setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+      ),
+    ]);
+  };
+
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
+    console.log("[Auth] fetchProfile start", userId);
+
+    const { data, error } = await withTimeout<any>(
+      supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+      8000,
+      "fetchProfile"
+    );
+
+    console.log("[Auth] fetchProfile done", { hasData: !!data, error: error ?? null });
 
     if (error) {
       setProfile(null);
@@ -70,14 +83,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchSubscription = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    console.log("[Auth] fetchSubscription start", userId);
+
+    const { data, error } = await withTimeout<any>(
+      supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      8000,
+      "fetchSubscription"
+    );
+
+    console.log("[Auth] fetchSubscription done", {
+      hasData: !!data,
+      status: (data as any)?.status,
+      plan: (data as any)?.plan_type,
+      error: error ?? null,
+    });
 
     if (!error && data) {
       setSubscription(data as Subscription);
