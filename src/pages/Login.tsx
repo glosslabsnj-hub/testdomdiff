@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,15 +36,34 @@ const planOptions: { value: PlanType; label: string; icon: React.ReactNode; desc
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
 
-  const [isSignUp, setIsSignUp] = useState(false);
+  // Check URL params for mode and plan (from checkout redirect)
+  const urlMode = searchParams.get("mode");
+  const urlPlan = searchParams.get("plan") as PlanType | null;
+
+  const [isSignUp, setIsSignUp] = useState(urlMode === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>("transformation");
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>(
+    urlPlan && ["membership", "transformation", "coaching"].includes(urlPlan) 
+      ? urlPlan 
+      : "transformation"
+  );
+
+  // Update state if URL params change
+  useEffect(() => {
+    if (urlMode === "signup") {
+      setIsSignUp(true);
+    }
+    if (urlPlan && ["membership", "transformation", "coaching"].includes(urlPlan)) {
+      setSelectedPlan(urlPlan);
+    }
+  }, [urlMode, urlPlan]);
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/dashboard";
 

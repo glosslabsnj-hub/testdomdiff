@@ -47,6 +47,9 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
+            <Button variant="ghost" size="default" asChild>
+              <Link to="/login">Login</Link>
+            </Button>
             <Button variant="gold" size="default" asChild>
               <Link to="/checkout">Get Started</Link>
             </Button>
@@ -81,7 +84,12 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
-            <Button variant="gold" size="lg" className="mt-4" asChild>
+            <Button variant="ghost" size="lg" className="mt-4" asChild>
+              <Link to="/login" onClick={() => setIsOpen(false)}>
+                Login
+              </Link>
+            </Button>
+            <Button variant="gold" size="lg" asChild>
               <Link to="/checkout" onClick={() => setIsOpen(false)}>
                 Get Started
               </Link>

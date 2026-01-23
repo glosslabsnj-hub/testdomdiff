@@ -40,7 +40,8 @@ const Checkout = () => {
     // In production, this would redirect to Stripe Checkout
     setTimeout(() => {
       setIsProcessing(false);
-      navigate("/intake");
+      // Navigate to login with signup mode and selected plan
+      navigate(`/login?mode=signup&plan=${plan}`);
     }, 1500);
   };
 
