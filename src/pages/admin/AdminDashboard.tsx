@@ -81,13 +81,13 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-charcoal border border-border flex-wrap h-auto gap-1 p-1">
-            <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-2" />Overview</TabsTrigger>
-            <TabsTrigger value="clients"><Users className="h-4 w-4 mr-2" />Clients</TabsTrigger>
-            <TabsTrigger value="leads"><MessageSquare className="h-4 w-4 mr-2" />Leads</TabsTrigger>
-            <TabsTrigger value="products"><Package className="h-4 w-4 mr-2" />Products</TabsTrigger>
-            <TabsTrigger value="orders"><ShoppingBag className="h-4 w-4 mr-2" />Orders</TabsTrigger>
-            <TabsTrigger value="content"><BookOpen className="h-4 w-4 mr-2" />Content</TabsTrigger>
+          <TabsList className="bg-charcoal border border-border flex-wrap h-auto gap-1 p-1.5 w-full justify-start">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 sm:px-3"><TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden xs:inline">Overview</span><span className="xs:hidden">Stats</span></TabsTrigger>
+            <TabsTrigger value="clients" className="text-xs sm:text-sm px-2 sm:px-3"><Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Clients</TabsTrigger>
+            <TabsTrigger value="leads" className="text-xs sm:text-sm px-2 sm:px-3"><MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Leads</TabsTrigger>
+            <TabsTrigger value="products" className="text-xs sm:text-sm px-2 sm:px-3"><Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden sm:inline">Products</span><span className="sm:hidden">Shop</span></TabsTrigger>
+            <TabsTrigger value="orders" className="text-xs sm:text-sm px-2 sm:px-3"><ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Orders</TabsTrigger>
+            <TabsTrigger value="content" className="text-xs sm:text-sm px-2 sm:px-3"><BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Content</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -99,24 +99,75 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="clients" className="space-y-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-charcoal border-border" /></div>
-              <Select value={planFilter} onValueChange={setPlanFilter}><SelectTrigger className="w-full sm:w-[150px] bg-charcoal border-border"><SelectValue placeholder="All Plans" /></SelectTrigger><SelectContent><SelectItem value="all">All Plans</SelectItem><SelectItem value="transformation">12-Week</SelectItem><SelectItem value="membership">Monthly</SelectItem><SelectItem value="coaching">Coaching</SelectItem></SelectContent></Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}><SelectTrigger className="w-full sm:w-[150px] bg-charcoal border-border"><SelectValue placeholder="All Statuses" /></SelectTrigger><SelectContent><SelectItem value="all">All Statuses</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="cancelled">Cancelled</SelectItem><SelectItem value="expired">Expired</SelectItem></SelectContent></Select>
+          <TabsContent value="clients" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search clients..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-charcoal border-border" />
+              </div>
+              <div className="flex gap-2 sm:gap-4">
+                <Select value={planFilter} onValueChange={setPlanFilter}>
+                  <SelectTrigger className="flex-1 sm:w-[130px] bg-charcoal border-border text-xs sm:text-sm">
+                    <SelectValue placeholder="All Plans" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Plans</SelectItem>
+                    <SelectItem value="transformation">12-Week</SelectItem>
+                    <SelectItem value="membership">Monthly</SelectItem>
+                    <SelectItem value="coaching">Coaching</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="flex-1 sm:w-[130px] bg-charcoal border-border text-xs sm:text-sm">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            {clientsLoading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : (
-              <div className="bg-charcoal rounded-lg border border-border overflow-hidden">
+            {clientsLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : clientAnalytics?.clients.length === 0 ? (
+              <div className="text-center py-12 bg-charcoal rounded-lg border border-border">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No clients found</p>
+              </div>
+            ) : (
+              <div className="bg-charcoal rounded-lg border border-border overflow-x-auto">
                 <Table>
-                  <TableHeader><TableRow className="border-border"><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Plan</TableHead><TableHead>Status</TableHead><TableHead>Joined</TableHead></TableRow></TableHeader>
+                  <TableHeader>
+                    <TableRow className="border-border">
+                      <TableHead className="text-xs sm:text-sm">Name</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Email</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Plan</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Status</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden md:table-cell">Joined</TableHead>
+                    </TableRow>
+                  </TableHeader>
                   <TableBody>
                     {clientAnalytics?.clients.map((client) => (
-                      <TableRow key={client.id} className="border-border cursor-pointer hover:bg-muted/50" onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}>
-                        <TableCell className="font-medium">{client.first_name || client.last_name ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "—"}</TableCell>
-                        <TableCell className="text-muted-foreground">{client.email}</TableCell>
-                        <TableCell>{client.activeSubscription ? getPlanBadge(client.activeSubscription.plan_type) : "—"}</TableCell>
+                      <TableRow 
+                        key={client.id} 
+                        className="border-border cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors" 
+                        onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}
+                      >
+                        <TableCell className="font-medium text-xs sm:text-sm">
+                          <div>
+                            <span className="block">{client.first_name || client.last_name ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "—"}</span>
+                            <span className="text-muted-foreground text-xs sm:hidden">{client.email}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-xs sm:text-sm hidden sm:table-cell">{client.email}</TableCell>
+                        <TableCell>{client.activeSubscription ? getPlanBadge(client.activeSubscription.plan_type) : <span className="text-muted-foreground text-xs">—</span>}</TableCell>
                         <TableCell>{client.activeSubscription ? getStatusBadge(client.activeSubscription.status) : getStatusBadge("none")}</TableCell>
-                        <TableCell className="text-muted-foreground">{format(new Date(client.created_at), "MMM d, yyyy")}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs sm:text-sm hidden md:table-cell">{format(new Date(client.created_at), "MMM d, yyyy")}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -138,14 +189,14 @@ export default function AdminDashboard() {
 
           <TabsContent value="orders"><OrdersManager /></TabsContent>
 
-          <TabsContent value="content" className="space-y-8">
-            <Tabs defaultValue="workouts" className="space-y-6">
-              <TabsList className="bg-background border border-border flex-wrap h-auto gap-1 p-1">
-                <TabsTrigger value="workouts" className="gap-2"><Dumbbell className="h-4 w-4" />Workouts</TabsTrigger>
-                <TabsTrigger value="program" className="gap-2"><Calendar className="h-4 w-4" />12-Week</TabsTrigger>
-                <TabsTrigger value="faith" className="gap-2"><Cross className="h-4 w-4" />Faith</TabsTrigger>
-                <TabsTrigger value="nutrition" className="gap-2"><Utensils className="h-4 w-4" />Nutrition</TabsTrigger>
-                <TabsTrigger value="discipline" className="gap-2"><Clock className="h-4 w-4" />Discipline</TabsTrigger>
+          <TabsContent value="content" className="space-y-6">
+            <Tabs defaultValue="workouts" className="space-y-4 sm:space-y-6">
+              <TabsList className="bg-background border border-border flex-wrap h-auto gap-1 p-1 w-full justify-start">
+                <TabsTrigger value="workouts" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Dumbbell className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Workouts</span><span className="sm:hidden">Gym</span></TabsTrigger>
+                <TabsTrigger value="program" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />12-Week</TabsTrigger>
+                <TabsTrigger value="faith" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Cross className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Faith</TabsTrigger>
+                <TabsTrigger value="nutrition" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Utensils className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Nutrition</span><span className="sm:hidden">Food</span></TabsTrigger>
+                <TabsTrigger value="discipline" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Discipline</span><span className="sm:hidden">Daily</span></TabsTrigger>
               </TabsList>
               <TabsContent value="workouts"><WorkoutContentManager /></TabsContent>
               <TabsContent value="program"><ProgramWeeksManager /></TabsContent>

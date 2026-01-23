@@ -56,34 +56,40 @@ export default function FaithLessonsManager() {
       </div>
       <p className="text-muted-foreground text-sm">Edit weekly faith lessons. Toggle "Published" to make visible to members.</p>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {lessons.map((lesson) => (
           <Card
             key={lesson.id}
-            className="bg-charcoal border-border cursor-pointer hover:border-primary/50 transition-all"
+            className="bg-charcoal border-border cursor-pointer hover:border-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all group"
             onClick={() => openEditDialog(lesson)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openEditDialog(lesson);
+              }
+            }}
           >
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-display text-lg flex-shrink-0">
+            <CardContent className="p-3 sm:p-4 pointer-events-none">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-display text-sm sm:text-lg flex-shrink-0">
                   {lesson.week_number}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold truncate">{lesson.title || `Week ${lesson.week_number} Lesson`}</h3>
+                  <h3 className="font-semibold text-xs sm:text-sm truncate mb-1">{lesson.title || `Week ${lesson.week_number}`}</h3>
+                  <div className="flex items-center gap-1.5">
+                    {lesson.is_published ? (
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">Published</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs">Draft</Badge>
+                    )}
+                    <Edit className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  {lesson.is_published ? (
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Published</Badge>
-                  ) : (
-                    <Badge variant="secondary">Draft</Badge>
-                  )}
                   {lesson.scripture && (
-                    <p className="text-xs text-muted-foreground mt-2 truncate">{lesson.scripture}</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 truncate hidden sm:block">{lesson.scripture}</p>
                   )}
                 </div>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); openEditDialog(lesson); }}>
-                  <Edit className="h-4 w-4" />
-                </Button>
               </div>
             </CardContent>
           </Card>

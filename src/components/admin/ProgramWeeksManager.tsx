@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Edit, Loader2 } from "lucide-react";
+import { Calendar, Edit, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -106,23 +106,34 @@ export default function ProgramWeeksManager() {
       {phases.map((phase) => (
         <div key={phase.name} className="space-y-3">
           <h3 className="text-lg font-semibold text-primary">{phase.name} Phase</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {phase.weeks.map((week) => (
               <Card
                 key={week.id}
-                className="bg-charcoal border-border cursor-pointer hover:border-primary/50 transition-all"
+                className="bg-charcoal border-border cursor-pointer hover:border-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all group"
                 onClick={() => openEditDialog(week)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openEditDialog(week);
+                  }
+                }}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4 pointer-events-none">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 rounded bg-primary text-primary-foreground flex items-center justify-center font-display">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-primary text-primary-foreground flex items-center justify-center font-display text-sm sm:text-base">
                       {week.week_number}
                     </div>
-                    <Badge className={getPhaseColor(week.phase)}>{week.phase}</Badge>
+                    <div className="flex items-center gap-1.5">
+                      <Badge className={`${getPhaseColor(week.phase)} text-xs`}>{week.phase}</Badge>
+                      <Edit className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                   </div>
-                  <h4 className="font-medium text-sm truncate">{week.title || `Week ${week.week_number}`}</h4>
+                  <h4 className="font-medium text-xs sm:text-sm truncate">{week.title || `Week ${week.week_number}`}</h4>
                   {week.focus_description && (
-                    <p className="text-xs text-muted-foreground mt-1 truncate">{week.focus_description}</p>
+                    <p className="text-xs text-muted-foreground mt-1 truncate hidden sm:block">{week.focus_description}</p>
                   )}
                 </CardContent>
               </Card>
