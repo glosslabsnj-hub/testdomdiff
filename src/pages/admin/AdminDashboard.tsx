@@ -1,270 +1,136 @@
-import { useNavigate } from 'react-router-dom';
-import { useAdminCheck } from '@/hooks/useAdminCheck';
-import { useChatLeadAnalytics } from '@/hooks/useChatLeadAnalytics';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { 
-  Users, 
-  TrendingUp, 
-  MessageSquare, 
-  Target,
-  Calendar,
-  BarChart3,
-  ArrowLeft,
-  Loader2
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Calendar, Target, Package, Loader2, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ClientDetailPanel from "@/components/admin/ClientDetailPanel";
+import ProductManager from "@/components/admin/ProductManager";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
+import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
-  const { analytics, isLoading: analyticsLoading, error } = useChatLeadAnalytics();
+  const { analytics: leadAnalytics, isLoading: leadsLoading, error: leadsError } = useChatLeadAnalytics();
+  
+  const [planFilter, setPlanFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const { analytics: clientAnalytics, loading: clientsLoading, error: clientsError } = useClientAnalytics({
+    planType: planFilter, status: statusFilter, search: searchQuery,
+  });
+
+  const [selectedClient, setSelectedClient] = useState<ClientWithSubscription | null>(null);
+  const [detailPanelOpen, setDetailPanelOpen] = useState(false);
 
   if (adminLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gold" />
-      </div>
-    );
+    return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="section-container py-20 text-center">
-          <h1 className="headline-section mb-4">Access Denied</h1>
-          <p className="text-muted-foreground mb-8">You don't have permission to view this page.</p>
-          <Button variant="gold" onClick={() => navigate('/dashboard')}>
-            Go to Dashboard
-          </Button>
-        </main>
-        <Footer />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <h1 className="text-2xl font-bold text-foreground mb-4">Access Denied</h1>
+        <p className="text-muted-foreground mb-6">You don't have permission to view this page.</p>
+        <Button variant="gold" onClick={() => navigate("/dashboard")}>Go to Dashboard</Button>
       </div>
     );
   }
 
-  const isLoading = analyticsLoading;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "active": return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>;
+      case "cancelled": return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Cancelled</Badge>;
+      case "expired": return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Expired</Badge>;
+      default: return <Badge variant="secondary">No Sub</Badge>;
+    }
+  };
+
+  const getPlanBadge = (planType: string) => {
+    switch (planType) {
+      case "transformation": return <Badge className="bg-primary/20 text-primary border-primary/30">12-Week</Badge>;
+      case "membership": return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Monthly</Badge>;
+      case "coaching": return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Coaching</Badge>;
+      default: return null;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="section-container py-12">
-        {/* Header */}
+      <main className="flex-1 section-container py-8 pt-24">
         <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate('/dashboard')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="headline-section">Lead Analytics</h1>
-            <p className="text-muted-foreground">Chatbot conversation insights</p>
-          </div>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}><ArrowLeft className="h-5 w-5" /></Button>
+          <div><h1 className="headline-card">Admin Dashboard</h1><p className="text-muted-foreground text-sm">Manage clients, leads, and products</p></div>
         </div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-gold" />
-          </div>
-        ) : error ? (
-          <div className="text-center py-20">
-            <p className="text-destructive">{error}</p>
-          </div>
-        ) : analytics ? (
-          <>
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-charcoal border-border">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Total Leads
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-gold" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-foreground">{analytics.totalLeads}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {analytics.leadsToday} today, {analytics.leadsThisWeek} this week
-                  </p>
-                </CardContent>
-              </Card>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="bg-charcoal border border-border">
+            <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-2" />Overview</TabsTrigger>
+            <TabsTrigger value="clients"><Users className="h-4 w-4 mr-2" />Clients</TabsTrigger>
+            <TabsTrigger value="leads"><MessageSquare className="h-4 w-4 mr-2" />Leads</TabsTrigger>
+            <TabsTrigger value="products"><Package className="h-4 w-4 mr-2" />Products</TabsTrigger>
+          </TabsList>
 
-              <Card className="bg-charcoal border-border">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Avg Messages
-                  </CardTitle>
-                  <MessageSquare className="h-4 w-4 text-gold" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-foreground">
-                    {analytics.avgMessageCount.toFixed(1)}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    per conversation
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-charcoal border-border">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Conversions
-                  </CardTitle>
-                  <TrendingUp className="h-4 w-4 text-gold" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-foreground">{analytics.conversions}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {analytics.conversionRate.toFixed(1)}% rate
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-charcoal border-border">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Today's Leads
-                  </CardTitle>
-                  <Calendar className="h-4 w-4 text-gold" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-foreground">{analytics.leadsToday}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    new conversations
-                  </p>
-                </CardContent>
-              </Card>
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Clients</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-primary">{clientsLoading ? "..." : clientAnalytics?.totalClients || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Active Subscriptions</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-green-400">{clientsLoading ? "..." : clientAnalytics?.activeClients || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Leads Today</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.leadsToday || 0}</div></CardContent></Card>
             </div>
+          </TabsContent>
 
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              {/* Program Interest */}
-              <Card className="bg-charcoal border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
-                    <BarChart3 className="h-5 w-5 text-gold" />
-                    Program Interest
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {Object.keys(analytics.programInterest).length > 0 ? (
-                    <div className="space-y-4">
-                      {Object.entries(analytics.programInterest)
-                        .sort(([, a], [, b]) => b - a)
-                        .map(([program, count]) => {
-                          const percentage = (count / analytics.totalLeads) * 100;
-                          return (
-                            <div key={program}>
-                              <div className="flex justify-between text-sm mb-1">
-                                <span className="capitalize text-foreground">{program}</span>
-                                <span className="text-muted-foreground">{count} ({percentage.toFixed(0)}%)</span>
-                              </div>
-                              <div className="h-2 bg-charcoal-dark rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gold rounded-full transition-all"
-                                  style={{ width: `${percentage}%` }}
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-sm">No program interest data yet</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Top Goals */}
-              <Card className="bg-charcoal border-border">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Target className="h-5 w-5 text-gold" />
-                    Top Goals
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {Object.keys(analytics.topGoals).length > 0 ? (
-                    <div className="space-y-3">
-                      {Object.entries(analytics.topGoals)
-                        .sort(([, a], [, b]) => b - a)
-                        .slice(0, 6)
-                        .map(([goal, count]) => (
-                          <div key={goal} className="flex items-center justify-between">
-                            <span className="text-sm text-foreground truncate max-w-[200px]">{goal}</span>
-                            <span className="text-sm text-gold font-medium">{count}</span>
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-sm">No goal data yet</p>
-                  )}
-                </CardContent>
-              </Card>
+          <TabsContent value="clients" className="space-y-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-charcoal border-border" /></div>
+              <Select value={planFilter} onValueChange={setPlanFilter}><SelectTrigger className="w-full sm:w-[150px] bg-charcoal border-border"><SelectValue placeholder="All Plans" /></SelectTrigger><SelectContent><SelectItem value="all">All Plans</SelectItem><SelectItem value="transformation">12-Week</SelectItem><SelectItem value="membership">Monthly</SelectItem><SelectItem value="coaching">Coaching</SelectItem></SelectContent></Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}><SelectTrigger className="w-full sm:w-[150px] bg-charcoal border-border"><SelectValue placeholder="All Statuses" /></SelectTrigger><SelectContent><SelectItem value="all">All Statuses</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="cancelled">Cancelled</SelectItem><SelectItem value="expired">Expired</SelectItem></SelectContent></Select>
             </div>
+            {clientsLoading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : (
+              <div className="bg-charcoal rounded-lg border border-border overflow-hidden">
+                <Table>
+                  <TableHeader><TableRow className="border-border"><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Plan</TableHead><TableHead>Status</TableHead><TableHead>Joined</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {clientAnalytics?.clients.map((client) => (
+                      <TableRow key={client.id} className="border-border cursor-pointer hover:bg-muted/50" onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}>
+                        <TableCell className="font-medium">{client.first_name || client.last_name ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "—"}</TableCell>
+                        <TableCell className="text-muted-foreground">{client.email}</TableCell>
+                        <TableCell>{client.activeSubscription ? getPlanBadge(client.activeSubscription.plan_type) : "—"}</TableCell>
+                        <TableCell>{client.activeSubscription ? getStatusBadge(client.activeSubscription.status) : getStatusBadge("none")}</TableCell>
+                        <TableCell className="text-muted-foreground">{format(new Date(client.created_at), "MMM d, yyyy")}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </TabsContent>
 
-            {/* Recent Leads Table */}
-            <Card className="bg-charcoal border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Recent Conversations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {analytics.recentLeads.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border">
-                          <th className="text-left py-3 px-2 text-muted-foreground font-medium">Date</th>
-                          <th className="text-left py-3 px-2 text-muted-foreground font-medium">First Message</th>
-                          <th className="text-left py-3 px-2 text-muted-foreground font-medium">Goal</th>
-                          <th className="text-left py-3 px-2 text-muted-foreground font-medium">Interest</th>
-                          <th className="text-left py-3 px-2 text-muted-foreground font-medium">Messages</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {analytics.recentLeads.map((lead) => (
-                          <tr key={lead.id} className="border-b border-border/50 hover:bg-charcoal-dark/50">
-                            <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
-                              {new Date(lead.created_at).toLocaleDateString()}
-                            </td>
-                            <td className="py-3 px-2 text-foreground max-w-[200px] truncate">
-                              {lead.first_message || '-'}
-                            </td>
-                            <td className="py-3 px-2 text-foreground max-w-[150px] truncate">
-                              {lead.goal || '-'}
-                            </td>
-                            <td className="py-3 px-2">
-                              {lead.interested_program ? (
-                                <span className="px-2 py-1 bg-gold/10 text-gold rounded-full text-xs capitalize">
-                                  {lead.interested_program}
-                                </span>
-                              ) : (
-                                <span className="text-muted-foreground">-</span>
-                              )}
-                            </td>
-                            <td className="py-3 px-2 text-foreground text-center">
-                              {lead.message_count}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm text-center py-8">No conversations yet</p>
-                )}
-              </CardContent>
-            </Card>
-          </>
-        ) : null}
+          <TabsContent value="leads" className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-primary">{leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Avg Messages</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.averageMessages?.toFixed(1) || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Conversions</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-green-400">{leadsLoading ? "..." : leadAnalytics?.conversions || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Today</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.leadsToday || 0}</div></CardContent></Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="products"><ProductManager /></TabsContent>
+        </Tabs>
       </main>
       <Footer />
+      <ClientDetailPanel client={selectedClient} open={detailPanelOpen} onClose={() => setDetailPanelOpen(false)} />
     </div>
   );
 }

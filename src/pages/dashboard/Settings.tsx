@@ -1,21 +1,32 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
+import AvatarUpload from "@/components/AvatarUpload";
 import { z } from "zod";
 
 const profileSchema = z.object({
   first_name: z.string().trim().max(50, "First name must be less than 50 characters").optional(),
   last_name: z.string().trim().max(50, "Last name must be less than 50 characters").optional(),
   phone: z.string().trim().max(20, "Phone must be less than 20 characters").optional(),
+});
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 export default function Settings() {
@@ -32,6 +43,17 @@ export default function Settings() {
     phone: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -51,11 +73,16 @@ export default function Settings() {
     setIsSaved(false);
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({ ...prev, [name]: value }));
+    setPasswordErrors(prev => ({ ...prev, [name]: "" }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    // Validate with zod
     const validation = profileSchema.safeParse({
       first_name: formData.first_name || undefined,
       last_name: formData.last_name || undefined,
@@ -95,7 +122,6 @@ export default function Settings() {
         description: "Your changes have been saved successfully.",
       });
 
-      // Reset saved state after a few seconds
       setTimeout(() => setIsSaved(false), 3000);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -106,6 +132,67 @@ export default function Settings() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordErrors({});
+
+    const validation = passwordSchema.safeParse(passwordData);
+
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {};
+      validation.error.errors.forEach(err => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setPasswordErrors(fieldErrors);
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      // First verify current password by attempting a sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: profile?.email || "",
+        password: passwordData.currentPassword,
+      });
+
+      if (signInError) {
+        setPasswordErrors({ currentPassword: "Current password is incorrect" });
+        setIsChangingPassword(false);
+        return;
+      }
+
+      // Update password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: passwordData.newPassword,
+      });
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Password updated",
+        description: "Your password has been changed successfully.",
+      });
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error: any) {
+      console.error("Error changing password:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change password. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -126,16 +213,31 @@ export default function Settings() {
           </Button>
           <div>
             <h1 className="headline-card">Account Settings</h1>
-            <p className="text-muted-foreground text-sm">Manage your profile information</p>
+            <p className="text-muted-foreground text-sm">Manage your profile and security</p>
           </div>
         </div>
 
-        <div className="max-w-2xl">
+        <div className="max-w-2xl space-y-6">
+          {/* Profile Picture */}
+          <Card className="bg-charcoal border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground">Profile Picture</CardTitle>
+              <CardDescription>
+                Upload a profile picture to personalize your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AvatarUpload 
+                currentAvatarUrl={profile?.avatar_url}
+              />
+            </CardContent>
+          </Card>
+
           {/* Profile Information */}
           <Card className="bg-charcoal border-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-foreground">
-                <User className="h-5 w-5 text-gold" />
+                <User className="h-5 w-5 text-primary" />
                 Profile Information
               </CardTitle>
               <CardDescription>
@@ -252,8 +354,109 @@ export default function Settings() {
             </CardContent>
           </Card>
 
+          {/* Security - Password Change */}
+          <Card className="bg-charcoal border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Lock className="h-5 w-5 text-primary" />
+                Security
+              </CardTitle>
+              <CardDescription>
+                Change your password
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                {/* Current Password */}
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="currentPassword"
+                      name="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={passwordData.currentPassword}
+                      onChange={handlePasswordChange}
+                      placeholder="Enter current password"
+                      className="bg-charcoal-dark border-border pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.currentPassword && (
+                    <p className="text-sm text-destructive">{passwordErrors.currentPassword}</p>
+                  )}
+                </div>
+
+                {/* New Password */}
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      name="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      value={passwordData.newPassword}
+                      onChange={handlePasswordChange}
+                      placeholder="Enter new password (min 8 characters)"
+                      className="bg-charcoal-dark border-border pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.newPassword && (
+                    <p className="text-sm text-destructive">{passwordErrors.newPassword}</p>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordChange}
+                    placeholder="Confirm new password"
+                    className="bg-charcoal-dark border-border"
+                  />
+                  {passwordErrors.confirmPassword && (
+                    <p className="text-sm text-destructive">{passwordErrors.confirmPassword}</p>
+                  )}
+                </div>
+
+                <Button 
+                  type="submit" 
+                  variant="goldOutline"
+                  disabled={isChangingPassword}
+                  className="mt-2"
+                >
+                  {isChangingPassword ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Changing...
+                    </>
+                  ) : (
+                    "Change Password"
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
           {/* Account Info Card */}
-          <Card className="bg-charcoal border-border mt-6">
+          <Card className="bg-charcoal border-border">
             <CardHeader>
               <CardTitle className="text-foreground text-base">Account Status</CardTitle>
             </CardHeader>
