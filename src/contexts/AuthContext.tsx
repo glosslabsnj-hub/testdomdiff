@@ -54,11 +54,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .from("profiles")
       .select("*")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
-    if (!error && data) {
-      setProfile(data as Profile);
+    if (error) {
+      setProfile(null);
+      return;
     }
+
+    setProfile(data ? (data as Profile) : null);
   };
 
   const fetchSubscription = async (userId: string) => {
@@ -69,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (!error && data) {
       setSubscription(data as Subscription);
@@ -120,12 +123,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
-        fetchSubscription(session.user.id);
+        await Promise.all([
+          fetchProfile(session.user.id),
+          fetchSubscription(session.user.id),
+        ]);
       }
       setLoading(false);
     });
