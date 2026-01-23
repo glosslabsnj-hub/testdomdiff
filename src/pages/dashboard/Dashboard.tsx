@@ -7,12 +7,10 @@ import {
   Utensils, 
   ClipboardCheck, 
   BookOpen, 
-  TrendingUp,
-  Cross,
-  Settings,
-  LogOut
+  TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DashboardHeader from "@/components/DashboardHeader";
 
 const Dashboard = () => {
   const tiles = [
@@ -84,34 +82,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Dashboard Header */}
-      <header className="bg-charcoal border-b border-border">
-        <div className="section-container py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <Cross className="w-6 h-6 text-primary" />
-              <span className="font-display text-xl tracking-wider">
-                DOM <span className="text-primary">DIFFERENT</span>
-              </span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground hidden sm:block">
-                Welcome, Brother
-              </span>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/dashboard/settings">
-                  <Settings className="w-4 h-4" />
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <LogOut className="w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader />
 
       {/* Dashboard Content */}
       <main className="section-container py-12">
