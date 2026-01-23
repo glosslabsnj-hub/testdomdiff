@@ -4,46 +4,137 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Crown, Sparkles, User } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+type PlanType = "membership" | "transformation" | "coaching";
+
+const planOptions: { value: PlanType; label: string; icon: React.ReactNode; description: string }[] = [
+  {
+    value: "membership",
+    label: "Monthly Membership",
+    icon: <User className="w-5 h-5" />,
+    description: "$79.99/mo - Ongoing access",
+  },
+  {
+    value: "transformation",
+    label: "12-Week Transformation",
+    icon: <Sparkles className="w-5 h-5" />,
+    description: "$749.99 - 98 days access",
+  },
+  {
+    value: "coaching",
+    label: "1:1 Coaching",
+    icon: <Crown className="w-5 h-5" />,
+    description: "$1,250/mo - Premium access",
+  },
+];
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn } = useAuth();
+  const { signIn, signUp } = useAuth();
   const { toast } = useToast();
 
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>("transformation");
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/dashboard";
+
+  const createDevSubscription = async (userId: string, planType: PlanType) => {
+    const now = new Date();
+    const expiresAt = planType === "transformation" 
+      ? new Date(now.getTime() + 98 * 24 * 60 * 60 * 1000) // 98 days
+      : null;
+
+    const { error } = await supabase.from("subscriptions").insert({
+      user_id: userId,
+      plan_type: planType,
+      status: "active",
+      started_at: now.toISOString(),
+      expires_at: expiresAt?.toISOString() || null,
+    });
+
+    if (error) {
+      console.error("Error creating dev subscription:", error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await signIn(email, password);
+    if (isSignUp) {
+      // Sign up flow
+      const { error, data } = await signUp(email, password);
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Sign Up Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Wait briefly for auth to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        try {
+          // Create dev subscription
+          await createDevSubscription(user.id, selectedPlan);
+          
+          toast({
+            title: "Account Created!",
+            description: `Welcome! You have ${selectedPlan} access. Complete your intake to continue.`,
+          });
+          
+          // Navigate to intake
+          navigate("/intake", { replace: true });
+        } catch (err) {
+          toast({
+            title: "Subscription Error",
+            description: "Account created but subscription failed. Please contact support.",
+            variant: "destructive",
+          });
+        }
+      }
+    } else {
+      // Sign in flow
+      const { error } = await signIn(email, password);
+
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       toast({
-        title: "Login Failed",
-        description: error.message,
-        variant: "destructive",
+        title: "Welcome back!",
+        description: "You've successfully logged in.",
       });
-      setIsLoading(false);
-      return;
+
+      navigate(from, { replace: true });
     }
 
-    toast({
-      title: "Welcome back!",
-      description: "You've successfully logged in.",
-    });
-
-    navigate(from, { replace: true });
+    setIsLoading(false);
   };
 
   return (
@@ -55,15 +146,31 @@ const Login = () => {
           <div className="max-w-md mx-auto">
             <div className="text-center mb-8">
               <h1 className="headline-section mb-4">
-                Welcome <span className="text-primary">Back</span>
+                {isSignUp ? (
+                  <>Create <span className="text-primary">Account</span></>
+                ) : (
+                  <>Welcome <span className="text-primary">Back</span></>
+                )}
               </h1>
               <p className="text-muted-foreground">
-                Sign in to access your dashboard
+                {isSignUp 
+                  ? "Sign up to access your training portal" 
+                  : "Sign in to access your dashboard"
+                }
               </p>
               <div className="divider-gold mt-4" />
             </div>
 
             <div className="bg-card p-8 rounded-lg border border-border">
+              {/* Dev Mode Banner */}
+              {isSignUp && (
+                <div className="mb-6 p-3 rounded-lg bg-primary/10 border border-primary/30">
+                  <p className="text-xs text-primary text-center font-medium">
+                    🛠️ Development Mode — Select a plan to test dashboard access
+                  </p>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -89,6 +196,7 @@ const Login = () => {
                       className="bg-charcoal border-border pr-10"
                       placeholder="••••••••"
                       required
+                      minLength={6}
                     />
                     <button
                       type="button"
@@ -100,6 +208,39 @@ const Login = () => {
                   </div>
                 </div>
 
+                {/* Plan Selection (only for sign up) */}
+                {isSignUp && (
+                  <div>
+                    <Label className="mb-3 block">Select Test Plan</Label>
+                    <div className="space-y-2">
+                      {planOptions.map((plan) => (
+                        <button
+                          key={plan.value}
+                          type="button"
+                          onClick={() => setSelectedPlan(plan.value)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+                            selectedPlan === plan.value
+                              ? "border-primary bg-primary/10"
+                              : "border-border bg-charcoal hover:border-primary/50"
+                          }`}
+                        >
+                          <div className={`p-2 rounded-full ${
+                            selectedPlan === plan.value 
+                              ? "bg-primary text-primary-foreground" 
+                              : "bg-muted text-muted-foreground"
+                          }`}>
+                            {plan.icon}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{plan.label}</p>
+                            <p className="text-xs text-muted-foreground">{plan.description}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <Button
                   type="submit"
                   variant="gold"
@@ -110,21 +251,26 @@ const Login = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Signing in...
+                      {isSignUp ? "Creating Account..." : "Signing in..."}
                     </>
                   ) : (
-                    "Sign In"
+                    isSignUp ? "Create Account" : "Sign In"
                   )}
                 </Button>
               </form>
 
               <div className="mt-6 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Don't have an account?{" "}
-                  <Link to="/programs" className="text-primary hover:underline">
-                    View our programs
-                  </Link>
-                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  {isSignUp ? (
+                    <>Already have an account? <span className="text-primary hover:underline">Sign In</span></>
+                  ) : (
+                    <>Don't have an account? <span className="text-primary hover:underline">Create Account</span></>
+                  )}
+                </button>
               </div>
             </div>
           </div>
