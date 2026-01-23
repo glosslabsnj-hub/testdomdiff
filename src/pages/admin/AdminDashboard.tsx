@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ClientDetailPanel from "@/components/admin/ClientDetailPanel";
 import ProductManager from "@/components/admin/ProductManager";
+import OrdersManager from "@/components/admin/OrdersManager";
 import WorkoutContentManager from "@/components/admin/WorkoutContentManager";
 import FaithLessonsManager from "@/components/admin/FaithLessonsManager";
 import ProgramWeeksManager from "@/components/admin/ProgramWeeksManager";
@@ -84,6 +85,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="clients"><Users className="h-4 w-4 mr-2" />Clients</TabsTrigger>
             <TabsTrigger value="leads"><MessageSquare className="h-4 w-4 mr-2" />Leads</TabsTrigger>
             <TabsTrigger value="products"><Package className="h-4 w-4 mr-2" />Products</TabsTrigger>
+            <TabsTrigger value="orders"><ShoppingBag className="h-4 w-4 mr-2" />Orders</TabsTrigger>
             <TabsTrigger value="content"><BookOpen className="h-4 w-4 mr-2" />Content</TabsTrigger>
           </TabsList>
 
@@ -132,6 +134,8 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="products"><ProductManager /></TabsContent>
+
+          <TabsContent value="orders"><OrdersManager /></TabsContent>
 
           <TabsContent value="content" className="space-y-8">
             <Tabs defaultValue="workouts" className="space-y-6">
