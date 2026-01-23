@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Calendar, Target, Package, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ClientDetailPanel from "@/components/admin/ClientDetailPanel";
 import ProductManager from "@/components/admin/ProductManager";
+import WorkoutContentManager from "@/components/admin/WorkoutContentManager";
+import FaithLessonsManager from "@/components/admin/FaithLessonsManager";
+import ProgramWeeksManager from "@/components/admin/ProgramWeeksManager";
+import DisciplineManager from "@/components/admin/DisciplineManager";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -75,11 +79,12 @@ export default function AdminDashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-charcoal border border-border">
+          <TabsList className="bg-charcoal border border-border flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="overview"><TrendingUp className="h-4 w-4 mr-2" />Overview</TabsTrigger>
             <TabsTrigger value="clients"><Users className="h-4 w-4 mr-2" />Clients</TabsTrigger>
             <TabsTrigger value="leads"><MessageSquare className="h-4 w-4 mr-2" />Leads</TabsTrigger>
             <TabsTrigger value="products"><Package className="h-4 w-4 mr-2" />Products</TabsTrigger>
+            <TabsTrigger value="content"><BookOpen className="h-4 w-4 mr-2" />Content</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -127,6 +132,21 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="products"><ProductManager /></TabsContent>
+
+          <TabsContent value="content" className="space-y-8">
+            <Tabs defaultValue="workouts" className="space-y-6">
+              <TabsList className="bg-background border border-border">
+                <TabsTrigger value="workouts">Workouts</TabsTrigger>
+                <TabsTrigger value="program">12-Week Program</TabsTrigger>
+                <TabsTrigger value="faith">Faith Lessons</TabsTrigger>
+                <TabsTrigger value="discipline">Discipline</TabsTrigger>
+              </TabsList>
+              <TabsContent value="workouts"><WorkoutContentManager /></TabsContent>
+              <TabsContent value="program"><ProgramWeeksManager /></TabsContent>
+              <TabsContent value="faith"><FaithLessonsManager /></TabsContent>
+              <TabsContent value="discipline"><DisciplineManager /></TabsContent>
+            </Tabs>
+          </TabsContent>
         </Tabs>
       </main>
       <Footer />

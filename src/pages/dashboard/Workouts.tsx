@@ -1,34 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Dumbbell, Plus } from "lucide-react";
+import { ArrowLeft, Dumbbell, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
 
 const Workouts = () => {
-  const templates = [
-    {
-      id: "cell-block-push",
-      name: "Cell Block Push (Template)",
-      focus: "Chest, Shoulders, Triceps",
-      description: "Prison-style push workout. Minimal equipment, maximum intensity.",
-    },
-    {
-      id: "yard-legs",
-      name: "Yard Legs (Template)",
-      focus: "Quads, Hamstrings, Glutes",
-      description: "Lower body work that builds power and endurance.",
-    },
-    {
-      id: "lockdown-pull",
-      name: "Lockdown Pull (Template)",
-      focus: "Back, Biceps, Rear Delts",
-      description: "Pull movements for a strong, defined back.",
-    },
-    {
-      id: "full-body-circuit",
-      name: "Full Body Circuit (Template)",
-      focus: "Total Body Conditioning",
-      description: "High-intensity circuit for conditioning and fat loss.",
-    },
-  ];
+  const { templates, loading } = useWorkoutTemplates();
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,33 +30,44 @@ const Workouts = () => {
         <div className="bg-charcoal p-6 rounded-lg border border-primary/30 mb-8">
           <p className="text-sm text-primary uppercase tracking-wider mb-2">How to Use These Templates</p>
           <p className="text-muted-foreground">
-            Each template provides a structure with blank sections. Dom will fill in 
-            specific exercises, sets, and reps based on your program phase.
+            Each template provides a complete workout with warm-up, main work, finisher, and cool-down sections.
+            Follow the exercises, sets, and reps as prescribed.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {templates.map((template) => (
-            <Link
-              key={template.id}
-              to={`/dashboard/workouts/${template.id}`}
-              className="p-6 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group"
-            >
-              <Dumbbell className="w-8 h-8 text-primary mb-4" />
-              <h3 className="headline-card mb-1 group-hover:text-primary transition-colors">
-                {template.name}
-              </h3>
-              <p className="text-sm text-primary mb-2">{template.focus}</p>
-              <p className="text-sm text-muted-foreground">{template.description}</p>
-            </Link>
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : templates.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No workout templates available yet.</p>
+            <p className="text-sm text-muted-foreground mt-2">Check back soon!</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {templates.filter(t => t.is_active).map((template) => (
+              <Link
+                key={template.id}
+                to={`/dashboard/workouts/${template.template_slug}`}
+                className="p-6 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group"
+              >
+                <Dumbbell className="w-8 h-8 text-primary mb-4" />
+                <h3 className="headline-card mb-1 group-hover:text-primary transition-colors">
+                  {template.name}
+                </h3>
+                <p className="text-sm text-primary mb-2">{template.focus}</p>
+                <p className="text-sm text-muted-foreground">{template.description}</p>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Week Builder Section */}
         <div className="bg-card p-8 rounded-lg border border-border">
-          <h2 className="headline-card mb-4">Week Builder (Template)</h2>
+          <h2 className="headline-card mb-4">Week Builder</h2>
           <p className="text-muted-foreground mb-6">
-            Assign workout templates to each day of the week. Build your personalized schedule.
+            Your weekly workout schedule based on your current program week.
           </p>
           
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-6">
@@ -98,8 +85,7 @@ const Workouts = () => {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Click on a day to assign a workout template. This will be fully functional 
-            once Dom populates the workout content.
+            Your weekly schedule will be assigned based on your program week.
           </p>
         </div>
       </div>
