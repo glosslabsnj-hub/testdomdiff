@@ -37,7 +37,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, refreshSubscription } = useAuth();
   const { toast } = useToast();
 
   // Check URL params for mode and plan (from checkout redirect)
@@ -91,9 +91,11 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    const safeEmail = email.trim().toLowerCase();
+
     if (isSignUp) {
       // Sign up flow
-      const { error, data } = await signUp(email, password);
+      const { error, data } = await signUp(safeEmail, password);
 
       if (error) {
         toast({
@@ -105,16 +107,13 @@ const Login = () => {
         return;
       }
 
-      // Wait briefly for auth to complete
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const newUserId = data?.user?.id ?? data?.session?.user?.id;
 
-      // Get the current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
+      if (newUserId) {
         try {
           // Create dev subscription
-          await createDevSubscription(user.id, selectedPlan);
+          await createDevSubscription(newUserId, selectedPlan);
+          await refreshSubscription();
           
           toast({
             title: "Account Created!",
@@ -130,10 +129,16 @@ const Login = () => {
             variant: "destructive",
           });
         }
+      } else {
+        toast({
+          title: "Sign Up Error",
+          description: "Account created but session was not established. Please try signing in.",
+          variant: "destructive",
+        });
       }
     } else {
       // Sign in flow
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(safeEmail, password);
 
       if (error) {
         toast({

@@ -1,14 +1,26 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Lock, CreditCard } from "lucide-react";
+import { Lock, CreditCard } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+type PlanType = "membership" | "transformation" | "coaching";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const plan = searchParams.get("plan") || "transformation";
+  const { user, profile, refreshSubscription } = useAuth();
+  const { toast } = useToast();
+
+  const planParam = searchParams.get("plan");
+  const plan: PlanType =
+    planParam === "membership" || planParam === "transformation" || planParam === "coaching"
+      ? planParam
+      : "transformation";
   const [isProcessing, setIsProcessing] = useState(false);
 
   const plans = {
@@ -34,15 +46,55 @@ const Checkout = () => {
 
   const selectedPlan = plans[plan as keyof typeof plans] || plans.transformation;
 
+  const createDevSubscription = async (userId: string, planType: PlanType) => {
+    const now = new Date();
+    const expiresAt = planType === "transformation"
+      ? new Date(now.getTime() + 98 * 24 * 60 * 60 * 1000)
+      : null;
+
+    const { error } = await supabase.from("subscriptions").insert({
+      user_id: userId,
+      plan_type: planType,
+      status: "active",
+      started_at: now.toISOString(),
+      expires_at: expiresAt?.toISOString() || null,
+    });
+
+    if (error) throw error;
+  };
+
   const handleCheckout = async () => {
     setIsProcessing(true);
-    // Stripe integration placeholder
-    // In production, this would redirect to Stripe Checkout
-    setTimeout(() => {
+    try {
+      // Stripe integration placeholder
+      // In production, this would redirect to Stripe Checkout
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // If not logged in, start at account creation
+      if (!user) {
+        navigate(`/login?mode=signup&plan=${plan}`);
+        return;
+      }
+
+      // Dev mode: create subscription for existing logged-in user
+      await createDevSubscription(user.id, plan);
+      await refreshSubscription();
+
+      // Keep your required flow: intake must be completed after purchase
+      if (!profile?.intake_completed_at) {
+        navigate("/intake", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (err: any) {
+      toast({
+        title: "Checkout Error",
+        description: err?.message || "Unable to complete checkout. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsProcessing(false);
-      // Navigate to login with signup mode and selected plan
-      navigate(`/login?mode=signup&plan=${plan}`);
-    }, 1500);
+    }
   };
 
   return (
