@@ -72,12 +72,12 @@ export default function ProgramWeeksManager() {
   const WorkoutSelect = ({ value, onChange, day }: { value: string; onChange: (v: string) => void; day: string }) => (
     <div>
       <label className="text-sm font-medium mb-1 block">{day}</label>
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value || "none"} onValueChange={(v) => onChange(v === "none" ? "" : v)}>
         <SelectTrigger className="bg-charcoal border-border">
           <SelectValue placeholder="Rest / No workout" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">Rest / No workout</SelectItem>
+          <SelectItem value="none">Rest / No workout</SelectItem>
           {templates.map((t) => (
             <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
           ))}
