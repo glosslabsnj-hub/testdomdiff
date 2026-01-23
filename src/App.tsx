@@ -4,8 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import CartDrawer from "@/components/shop/CartDrawer";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Programs from "./pages/Programs";
@@ -36,6 +38,9 @@ import Privacy from "./pages/legal/Privacy";
 import Refund from "./pages/legal/Refund";
 import Disclaimer from "./pages/legal/Disclaimer";
 import Shop from "./pages/Shop";
+import ProductDetail from "./pages/shop/ProductDetail";
+import ShopCheckout from "./pages/shop/Checkout";
+import OrderConfirmation from "./pages/shop/OrderConfirmation";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -48,23 +53,27 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/programs" element={<Programs />} />
-            <Route path="/programs/membership" element={<Membership />} />
-            <Route path="/programs/transformation" element={<Transformation />} />
-            <Route path="/programs/coaching" element={<Coaching />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/book-call" element={<BookCall />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/access-expired" element={<AccessExpired />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/refund" element={<Refund />} />
-            <Route path="/disclaimer" element={<Disclaimer />} />
-            <Route path="/shop" element={<Shop />} />
+          <CartProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/programs" element={<Programs />} />
+              <Route path="/programs/membership" element={<Membership />} />
+              <Route path="/programs/transformation" element={<Transformation />} />
+              <Route path="/programs/coaching" element={<Coaching />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/book-call" element={<BookCall />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/access-expired" element={<AccessExpired />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/refund" element={<Refund />} />
+              <Route path="/disclaimer" element={<Disclaimer />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/shop/:productId" element={<ProductDetail />} />
+              <Route path="/shop/checkout" element={<ShopCheckout />} />
+              <Route path="/shop/confirmation" element={<OrderConfirmation />} />
 
             {/* Intake - requires auth but not completed intake */}
             <Route
@@ -200,9 +209,11 @@ const App = () => (
               }
             />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <ChatWidget />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <CartDrawer />
+            <ChatWidget />
+          </CartProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

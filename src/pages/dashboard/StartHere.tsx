@@ -1,42 +1,85 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, Circle } from "lucide-react";
+import { ArrowLeft, Check, Circle, Loader2, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUserChecklist } from "@/hooks/useUserChecklist";
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+
+const CHECKLIST_ITEMS = [
+  {
+    category: "Profile Setup",
+    items: [
+      { id: "profile-1", label: "Complete your intake form" },
+      { id: "profile-2", label: "Set your training days" },
+      { id: "profile-3", label: "Choose your equipment level" },
+    ],
+  },
+  {
+    category: "Training Preparation",
+    items: [
+      { id: "training-1", label: "Review workout templates" },
+      { id: "training-2", label: "Create your first week's schedule" },
+      { id: "training-3", label: "Set up your training space" },
+    ],
+  },
+  {
+    category: "Discipline Foundations",
+    items: [
+      { id: "discipline-1", label: "Review daily discipline routine templates" },
+      { id: "discipline-2", label: "Set your wake time" },
+      { id: "discipline-3", label: "Commit to your morning routine" },
+    ],
+  },
+  {
+    category: "Progress Tracking",
+    items: [
+      { id: "progress-1", label: "Take starting photos" },
+      { id: "progress-2", label: "Record starting measurements" },
+      { id: "progress-3", label: "Set your first 4-week goals" },
+    ],
+  },
+];
+
+const totalItems = CHECKLIST_ITEMS.reduce((acc, cat) => acc + cat.items.length, 0);
 
 const StartHere = () => {
-  const checklist = [
-    {
-      category: "Profile Setup",
-      items: [
-        { id: "1", label: "Complete your intake form", completed: true },
-        { id: "2", label: "Set your training days", completed: false },
-        { id: "3", label: "Choose your equipment level", completed: false },
-      ],
-    },
-    {
-      category: "Training Preparation",
-      items: [
-        { id: "4", label: "Review workout templates", completed: false },
-        { id: "5", label: "Create your first week's schedule", completed: false },
-        { id: "6", label: "Set up your training space", completed: false },
-      ],
-    },
-    {
-      category: "Discipline Foundations",
-      items: [
-        { id: "7", label: "Review daily discipline routine templates", completed: false },
-        { id: "8", label: "Set your wake time", completed: false },
-        { id: "9", label: "Commit to your morning routine", completed: false },
-      ],
-    },
-    {
-      category: "Progress Tracking",
-      items: [
-        { id: "10", label: "Take starting photos", completed: false },
-        { id: "11", label: "Record starting measurements", completed: false },
-        { id: "12", label: "Set your first 4-week goals", completed: false },
-      ],
-    },
-  ];
+  const { loading, toggleItem, isItemCompleted, getCompletionPercent } = useUserChecklist();
+  const { toast } = useToast();
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const completionPercent = getCompletionPercent(totalItems);
+
+  const handleToggle = async (itemId: string) => {
+    try {
+      setTogglingId(itemId);
+      await toggleItem(itemId);
+      
+      const wasCompleted = isItemCompleted(itemId);
+      if (!wasCompleted) {
+        toast({
+          title: "Nice work!",
+          description: "Keep building momentum.",
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to update checklist",
+        variant: "destructive",
+      });
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,36 +99,54 @@ const StartHere = () => {
             Complete your Week 0 setup. Check off each item as you complete it.
           </p>
 
+          {/* Progress Bar */}
           <div className="bg-charcoal p-6 rounded-lg border border-primary/30 mb-8">
-            <p className="text-sm text-primary uppercase tracking-wider mb-2">Template Notice</p>
-            <p className="text-muted-foreground">
-              This is a template for the Start Here checklist. Dom will customize 
-              the content and add specific instructions for each item.
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Your Progress</span>
+              </div>
+              <span className="text-2xl font-bold text-primary">{completionPercent}%</span>
+            </div>
+            <Progress value={completionPercent} className="h-3" />
+            <p className="text-sm text-muted-foreground mt-2">
+              {completionPercent === 100 
+                ? "🎉 You're ready to crush it!"
+                : `${totalItems - Math.round(completionPercent / 100 * totalItems)} items remaining`}
             </p>
           </div>
 
           <div className="space-y-8">
-            {checklist.map((section, sectionIndex) => (
+            {CHECKLIST_ITEMS.map((section, sectionIndex) => (
               <div key={sectionIndex}>
                 <h2 className="headline-card mb-4 text-primary">{section.category}</h2>
                 <div className="space-y-3">
-                  {section.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-4 p-4 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors cursor-pointer"
-                    >
-                      {item.completed ? (
-                        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                          <Check className="w-4 h-4 text-primary-foreground" />
-                        </div>
-                      ) : (
-                        <Circle className="w-6 h-6 text-muted-foreground" />
-                      )}
-                      <span className={item.completed ? "line-through text-muted-foreground" : ""}>
-                        {item.label}
-                      </span>
-                    </div>
-                  ))}
+                  {section.items.map((item) => {
+                    const completed = isItemCompleted(item.id);
+                    const isToggling = togglingId === item.id;
+
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleToggle(item.id)}
+                        disabled={isToggling}
+                        className="w-full flex items-center gap-4 p-4 rounded-lg bg-card border border-border hover:border-primary/50 transition-all cursor-pointer text-left disabled:opacity-50"
+                      >
+                        {isToggling ? (
+                          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        ) : completed ? (
+                          <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-4 h-4 text-primary-foreground" />
+                          </div>
+                        ) : (
+                          <Circle className="w-6 h-6 text-muted-foreground" />
+                        )}
+                        <span className={completed ? "line-through text-muted-foreground" : ""}>
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ))}

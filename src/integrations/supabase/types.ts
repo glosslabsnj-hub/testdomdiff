@@ -65,6 +65,195 @@ export type Database = {
         }
         Relationships: []
       }
+      check_ins: {
+        Row: {
+          changes: string | null
+          created_at: string
+          faith_reflection: string | null
+          id: string
+          steps_avg: number | null
+          struggles: string | null
+          submitted_at: string
+          updated_at: string
+          user_id: string
+          waist: number | null
+          week_number: number
+          weight: number | null
+          wins: string | null
+          workouts_completed: number | null
+        }
+        Insert: {
+          changes?: string | null
+          created_at?: string
+          faith_reflection?: string | null
+          id?: string
+          steps_avg?: number | null
+          struggles?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+          waist?: number | null
+          week_number: number
+          weight?: number | null
+          wins?: string | null
+          workouts_completed?: number | null
+        }
+        Update: {
+          changes?: string | null
+          created_at?: string
+          faith_reflection?: string | null
+          id?: string
+          steps_avg?: number | null
+          struggles?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+          waist?: number | null
+          week_number?: number
+          weight?: number | null
+          wins?: string | null
+          workouts_completed?: number | null
+        }
+        Relationships: []
+      }
+      habit_logs: {
+        Row: {
+          completed: boolean
+          created_at: string
+          habit_name: string
+          id: string
+          log_date: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          habit_name: string
+          id?: string
+          log_date: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          habit_name?: string
+          id?: string
+          log_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string | null
+          product_image: string | null
+          product_name: string
+          quantity: number
+          size: string | null
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id?: string | null
+          product_image?: string | null
+          product_name: string
+          quantity?: number
+          size?: string | null
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string | null
+          product_image?: string | null
+          product_name?: string
+          quantity?: number
+          size?: string | null
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          notes: string | null
+          shipping_address: Json
+          shipping_cost: number
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          shipping_address?: Json
+          shipping_cost?: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          subtotal: number
+          tax?: number
+          total: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          notes?: string | null
+          shipping_address?: Json
+          shipping_cost?: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null
@@ -170,6 +359,48 @@ export type Database = {
         }
         Relationships: []
       }
+      progress_entries: {
+        Row: {
+          compliance_pct: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          steps_avg: number | null
+          updated_at: string
+          user_id: string
+          waist: number | null
+          week_number: number
+          weight: number | null
+          workouts: number | null
+        }
+        Insert: {
+          compliance_pct?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          steps_avg?: number | null
+          updated_at?: string
+          user_id: string
+          waist?: number | null
+          week_number: number
+          weight?: number | null
+          workouts?: number | null
+        }
+        Update: {
+          compliance_pct?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          steps_avg?: number | null
+          updated_at?: string
+          user_id?: string
+          waist?: number | null
+          week_number?: number
+          weight?: number | null
+          workouts?: number | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancelled_at: string | null
@@ -208,6 +439,30 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_checklist: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          item_id?: string
           user_id?: string
         }
         Relationships: []
