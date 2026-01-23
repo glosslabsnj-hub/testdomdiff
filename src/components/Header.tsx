@@ -1,13 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Cross } from "lucide-react";
+import { Menu, X, Cross, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+  const { isAdmin } = useAdminCheck();
 
   // Base nav links (always shown)
   const navLinks = [
@@ -50,6 +52,19 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className={`flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider transition-colors ${
+                  isActive("/admin")
+                    ? "text-gold"
+                    : "text-muted-foreground hover:text-gold"
+                }`}
+              >
+                <Shield className="w-4 h-4" />
+                Admin
+              </Link>
+            )}
             {user ? (
               <Button variant="gold" size="default" asChild>
                 <Link to="/dashboard">My Dashboard</Link>
@@ -95,6 +110,20 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-2 text-lg font-semibold uppercase tracking-wider py-2 ${
+                  isActive("/admin")
+                    ? "text-gold"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <Shield className="w-5 h-5" />
+                Admin
+              </Link>
+            )}
             {user ? (
               <Button variant="gold" size="lg" className="mt-4" asChild>
                 <Link to="/dashboard" onClick={() => setIsOpen(false)}>
