@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -7,11 +7,30 @@ interface Message {
 }
 
 const STORAGE_KEY = 'dom-sales-chat-messages';
+const SESSION_KEY = 'dom-sales-chat-session';
+
+// Generate a unique session ID
+function generateSessionId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+}
 
 export function useSalesChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sessionIdRef = useRef<string>('');
+  const { user } = useAuth();
+
+  // Initialize or load session ID
+  useEffect(() => {
+    const storedSession = localStorage.getItem(SESSION_KEY);
+    if (storedSession) {
+      sessionIdRef.current = storedSession;
+    } else {
+      sessionIdRef.current = generateSessionId();
+      localStorage.setItem(SESSION_KEY, sessionIdRef.current);
+    }
+  }, []);
 
   // Load messages from localStorage on mount
   useEffect(() => {
@@ -42,11 +61,6 @@ export function useSalesChat() {
     setError(null);
 
     try {
-      const { data: { url } } = await supabase.functions.invoke('sales-chat', {
-        body: { messages: updatedMessages },
-      });
-
-      // For non-streaming fallback, handle the response directly
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sales-chat`,
         {
@@ -55,11 +69,21 @@ export function useSalesChat() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages: updatedMessages }),
+          body: JSON.stringify({ 
+            messages: updatedMessages,
+            sessionId: sessionIdRef.current,
+            userId: user?.id || null,
+          }),
         }
       );
 
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Too many requests. Please wait a moment.');
+        }
+        if (response.status === 402) {
+          throw new Error('Service temporarily unavailable.');
+        }
         throw new Error('Failed to get response');
       }
 
@@ -100,7 +124,7 @@ export function useSalesChat() {
                   return newMessages;
                 });
               }
-            } catch (e) {
+            } catch {
               // Skip invalid JSON chunks
             }
           }
@@ -114,7 +138,7 @@ export function useSalesChat() {
       }
     } catch (err) {
       console.error('Chat error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
       // Remove the empty assistant message if error occurred
       setMessages(prev => {
         if (prev[prev.length - 1]?.role === 'assistant' && !prev[prev.length - 1]?.content) {
@@ -125,11 +149,14 @@ export function useSalesChat() {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, user?.id]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
     localStorage.removeItem(STORAGE_KEY);
+    // Generate new session for fresh conversation
+    sessionIdRef.current = generateSessionId();
+    localStorage.setItem(SESSION_KEY, sessionIdRef.current);
   }, []);
 
   return {
