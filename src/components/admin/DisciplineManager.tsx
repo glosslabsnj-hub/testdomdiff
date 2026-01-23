@@ -68,38 +68,40 @@ export default function DisciplineManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="headline-card">Daily Discipline Routines</h2>
-        <Button variant="gold" onClick={() => openDialog()}>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="headline-card text-lg sm:text-xl">Daily Discipline Routines</h2>
+        <Button variant="gold" onClick={() => openDialog()} className="w-full sm:w-auto text-sm">
           <Plus className="h-4 w-4 mr-2" /> Add Routine Item
         </Button>
       </div>
-      <p className="text-muted-foreground text-sm">Configure morning and evening routine templates for members.</p>
+      <p className="text-muted-foreground text-xs sm:text-sm">Configure morning and evening routine templates for members.</p>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
         <Card className="bg-charcoal border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Sun className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Morning Routine
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 sm:px-6">
             {morningRoutines.length === 0 ? (
               <p className="text-muted-foreground text-sm py-4 text-center">No morning routine items</p>
             ) : (
               <div className="space-y-2">
                 {morningRoutines.map((routine) => (
-                  <div key={routine.id} className="flex items-center gap-3 p-3 rounded bg-background border border-border">
-                    <span className="text-sm font-mono text-primary w-20">{routine.time_slot}</span>
-                    <span className="text-sm flex-1">{routine.action_text}</span>
-                    <Button variant="ghost" size="icon" onClick={() => openDialog(routine)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(routine.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                  <div key={routine.id} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded bg-background border border-border">
+                    <span className="text-xs sm:text-sm font-mono text-primary w-16 sm:w-20 flex-shrink-0">{routine.time_slot}</span>
+                    <span className="text-xs sm:text-sm flex-1 min-w-0 truncate">{routine.action_text}</span>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => openDialog(routine)}>
+                        <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleDelete(routine.id)}>
+                        <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -109,26 +111,28 @@ export default function DisciplineManager() {
 
         <Card className="bg-charcoal border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Moon className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Evening Routine
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 sm:px-6">
             {eveningRoutines.length === 0 ? (
               <p className="text-muted-foreground text-sm py-4 text-center">No evening routine items</p>
             ) : (
               <div className="space-y-2">
                 {eveningRoutines.map((routine) => (
-                  <div key={routine.id} className="flex items-center gap-3 p-3 rounded bg-background border border-border">
-                    <span className="text-sm font-mono text-primary w-20">{routine.time_slot}</span>
-                    <span className="text-sm flex-1">{routine.action_text}</span>
-                    <Button variant="ghost" size="icon" onClick={() => openDialog(routine)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(routine.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                  <div key={routine.id} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded bg-background border border-border">
+                    <span className="text-xs sm:text-sm font-mono text-primary w-16 sm:w-20 flex-shrink-0">{routine.time_slot}</span>
+                    <span className="text-xs sm:text-sm flex-1 min-w-0 truncate">{routine.action_text}</span>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => openDialog(routine)}>
+                        <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => handleDelete(routine.id)}>
+                        <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

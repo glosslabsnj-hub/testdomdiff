@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dumbbell, Plus, Edit, Trash2, ArrowLeft, Loader2 } from "lucide-react";
+import { Dumbbell, Plus, Edit, Trash2, ArrowLeft, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -206,24 +206,33 @@ export default function WorkoutContentManager() {
       </div>
       <p className="text-muted-foreground text-sm">Click a template to add/edit exercises</p>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
         {templates.map((template) => (
           <Card
             key={template.id}
-            className="bg-charcoal border-border cursor-pointer hover:border-primary/50 transition-all"
+            className="bg-charcoal border-border cursor-pointer hover:border-primary/50 hover:scale-[1.01] active:scale-[0.99] transition-all group"
             onClick={() => setSelectedTemplate(template)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSelectedTemplate(template);
+              }
+            }}
           >
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <Dumbbell className="w-8 h-8 text-primary flex-shrink-0" />
-                <div className="flex-1">
+            <CardContent className="p-4 sm:p-6 pointer-events-none">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <Dumbbell className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold">{template.name}</h3>
-                    {!template.is_active && <Badge variant="secondary">Inactive</Badge>}
+                    <h3 className="font-semibold text-sm sm:text-base truncate">{template.name}</h3>
+                    {!template.is_active && <Badge variant="secondary" className="text-xs">Inactive</Badge>}
                   </div>
-                  <p className="text-sm text-primary mb-2">{template.focus}</p>
-                  <p className="text-sm text-muted-foreground">{template.description}</p>
+                  <p className="text-xs sm:text-sm text-primary mb-1 sm:mb-2 truncate">{template.focus}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{template.description}</p>
                 </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </div>
             </CardContent>
           </Card>
