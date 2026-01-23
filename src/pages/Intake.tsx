@@ -12,7 +12,7 @@ import Header from "@/components/Header";
 const Intake = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 3;
   const [formData, setFormData] = useState({
     // Step 1: Basic Info
     firstName: "",
@@ -26,14 +26,9 @@ const Intake = () => {
     goal: "",
     experience: "",
     equipment: "",
-    daysPerWeek: "",
     injuries: "",
-    // Step 3: Nutrition & Lifestyle
-    nutritionApproach: "",
-    biggestStruggle: "",
-    // Step 4: Faith & Commitment
+    // Step 3: Faith & Commitment
     faithCommitment: false,
-    startDate: "today",
   });
 
   const updateForm = (field: string, value: string | boolean) => {
@@ -181,21 +176,6 @@ const Intake = () => {
               </RadioGroup>
             </div>
             <div>
-              <Label className="text-base">Training Days Per Week *</Label>
-              <RadioGroup
-                value={formData.daysPerWeek}
-                onValueChange={(value) => updateForm("daysPerWeek", value)}
-                className="mt-3 grid grid-cols-4 gap-3"
-              >
-                {["3", "4", "5", "6"].map((option) => (
-                  <div key={option} className="flex items-center justify-center p-4 rounded-lg bg-charcoal border border-border hover:border-primary/50">
-                    <RadioGroupItem value={option} id={`days-${option}`} className="sr-only" />
-                    <Label htmlFor={`days-${option}`} className="cursor-pointer text-lg font-bold">{option}</Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-            <div>
               <Label htmlFor="injuries">Any injuries or limitations?</Label>
               <Textarea
                 id="injuries"
@@ -209,51 +189,6 @@ const Intake = () => {
           </div>
         );
       case 3:
-        return (
-          <div className="space-y-6">
-            <div>
-              <Label className="text-base">Nutrition Approach Preference *</Label>
-              <RadioGroup
-                value={formData.nutritionApproach}
-                onValueChange={(value) => updateForm("nutritionApproach", value)}
-                className="mt-3 space-y-2"
-              >
-                {[
-                  "Simple Templates (meal structure guides)",
-                  "Macro Tracking (optional, more detailed)",
-                  "Just tell me what to eat",
-                ].map((option) => (
-                  <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
-                    <RadioGroupItem value={option} id={option} />
-                    <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-            <div>
-              <Label className="text-base">What's your biggest struggle? *</Label>
-              <RadioGroup
-                value={formData.biggestStruggle}
-                onValueChange={(value) => updateForm("biggestStruggle", value)}
-                className="mt-3 space-y-2"
-              >
-                {[
-                  "Discipline / Consistency",
-                  "Food Cravings",
-                  "Sleep Quality",
-                  "Stress Management",
-                  "Time Management",
-                ].map((option) => (
-                  <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
-                    <RadioGroupItem value={option} id={option} />
-                    <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          </div>
-        );
-      case 4:
         return (
           <div className="space-y-6">
             <div className="p-6 rounded-lg bg-charcoal border border-primary/30">
@@ -274,25 +209,6 @@ const Intake = () => {
                 </Label>
               </div>
             </div>
-            <div>
-              <Label className="text-base">When do you want to start? *</Label>
-              <RadioGroup
-                value={formData.startDate}
-                onValueChange={(value) => updateForm("startDate", value)}
-                className="mt-3 space-y-2"
-              >
-                {[
-                  { value: "today", label: "Today - I'm ready now" },
-                  { value: "tomorrow", label: "Tomorrow - Need one day to prepare" },
-                  { value: "monday", label: "Next Monday - Fresh start of the week" },
-                ].map((option) => (
-                  <div key={option.value} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
-                    <RadioGroupItem value={option.value} id={option.value} />
-                    <Label htmlFor={option.value} className="cursor-pointer flex-1">{option.label}</Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
           </div>
         );
       default:
@@ -303,7 +219,6 @@ const Intake = () => {
   const stepTitles = [
     "Basic Information",
     "Training Profile",
-    "Nutrition & Lifestyle",
     "Faith & Commitment",
   ];
 
