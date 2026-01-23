@@ -35,6 +35,7 @@ import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
 import Refund from "./pages/legal/Refund";
 import Disclaimer from "./pages/legal/Disclaimer";
+import Shop from "./pages/Shop";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/refund" element={<Refund />} />
             <Route path="/disclaimer" element={<Disclaimer />} />
+            <Route path="/shop" element={<Shop />} />
 
             {/* Intake - requires auth but not completed intake */}
             <Route
