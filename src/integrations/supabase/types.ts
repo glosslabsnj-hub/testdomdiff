@@ -116,6 +116,84 @@ export type Database = {
         }
         Relationships: []
       }
+      discipline_routines: {
+        Row: {
+          action_text: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          routine_type: string
+          time_slot: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_text: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          routine_type: string
+          time_slot: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_text?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          routine_type?: string
+          time_slot?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      faith_lessons: {
+        Row: {
+          action_steps: string | null
+          big_idea: string | null
+          created_at: string | null
+          id: string
+          is_published: boolean | null
+          reflection_questions: string | null
+          scripture: string | null
+          teaching_content: string | null
+          title: string | null
+          updated_at: string | null
+          week_number: number
+          weekly_challenge: string | null
+        }
+        Insert: {
+          action_steps?: string | null
+          big_idea?: string | null
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          reflection_questions?: string | null
+          scripture?: string | null
+          teaching_content?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number: number
+          weekly_challenge?: string | null
+        }
+        Update: {
+          action_steps?: string | null
+          big_idea?: string | null
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          reflection_questions?: string | null
+          scripture?: string | null
+          teaching_content?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number?: number
+          weekly_challenge?: string | null
+        }
+        Relationships: []
+      }
       habit_logs: {
         Row: {
           completed: boolean
@@ -140,6 +218,39 @@ export type Database = {
           id?: string
           log_date?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_guidelines: {
+        Row: {
+          content: Json | null
+          content_type: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json | null
+          content_type: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json | null
+          content_type?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -359,6 +470,106 @@ export type Database = {
         }
         Relationships: []
       }
+      program_weeks: {
+        Row: {
+          conditioning_notes: string | null
+          created_at: string | null
+          focus_description: string | null
+          id: string
+          phase: string
+          recovery_notes: string | null
+          scripture_reference: string | null
+          title: string | null
+          updated_at: string | null
+          week_number: number
+          workout_friday: string | null
+          workout_monday: string | null
+          workout_saturday: string | null
+          workout_thursday: string | null
+          workout_tuesday: string | null
+          workout_wednesday: string | null
+        }
+        Insert: {
+          conditioning_notes?: string | null
+          created_at?: string | null
+          focus_description?: string | null
+          id?: string
+          phase: string
+          recovery_notes?: string | null
+          scripture_reference?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number: number
+          workout_friday?: string | null
+          workout_monday?: string | null
+          workout_saturday?: string | null
+          workout_thursday?: string | null
+          workout_tuesday?: string | null
+          workout_wednesday?: string | null
+        }
+        Update: {
+          conditioning_notes?: string | null
+          created_at?: string | null
+          focus_description?: string | null
+          id?: string
+          phase?: string
+          recovery_notes?: string | null
+          scripture_reference?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number?: number
+          workout_friday?: string | null
+          workout_monday?: string | null
+          workout_saturday?: string | null
+          workout_thursday?: string | null
+          workout_tuesday?: string | null
+          workout_wednesday?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_weeks_workout_friday_fkey"
+            columns: ["workout_friday"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_weeks_workout_monday_fkey"
+            columns: ["workout_monday"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_weeks_workout_saturday_fkey"
+            columns: ["workout_saturday"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_weeks_workout_thursday_fkey"
+            columns: ["workout_thursday"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_weeks_workout_tuesday_fkey"
+            columns: ["workout_tuesday"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_weeks_workout_wednesday_fkey"
+            columns: ["workout_wednesday"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       progress_entries: {
         Row: {
           compliance_pct: number | null
@@ -485,6 +696,95 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      workout_exercises: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          exercise_name: string
+          id: string
+          notes: string | null
+          reps_or_time: string | null
+          rest: string | null
+          scaling_options: string | null
+          section_type: string
+          sets: string | null
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          scaling_options?: string | null
+          section_type: string
+          sets?: string | null
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          scaling_options?: string | null
+          section_type?: string
+          sets?: string | null
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_exercises_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          focus: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          template_slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          focus?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          template_slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          focus?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          template_slug?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
