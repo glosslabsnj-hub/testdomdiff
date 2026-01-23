@@ -7,13 +7,19 @@ import {
   Utensils, 
   ClipboardCheck, 
   BookOpen, 
-  TrendingUp
+  TrendingUp,
+  Users,
+  Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
-  const tiles = [
+  const { subscription } = useAuth();
+  const isCoaching = subscription?.plan_type === "coaching";
+
+  const baseTiles = [
     {
       icon: Play,
       title: "Start Here",
@@ -78,7 +84,30 @@ const Dashboard = () => {
       href: "/dashboard/progress",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
+    {
+      icon: Users,
+      title: "Community",
+      subtitle: "Brotherhood Access",
+      description: "Connect with fellow warriors. Accountability and support.",
+      href: "/dashboard/community",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
   ];
+
+  // Add coaching portal tile for 1:1 coaching subscribers
+  const tiles = isCoaching
+    ? [
+        ...baseTiles,
+        {
+          icon: Crown,
+          title: "1:1 Coaching",
+          subtitle: "Premium Access",
+          description: "Your exclusive coaching portal. Direct access to Dom.",
+          href: "/dashboard/coaching",
+          color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
+        },
+      ]
+    : baseTiles;
 
   return (
     <div className="min-h-screen bg-background">

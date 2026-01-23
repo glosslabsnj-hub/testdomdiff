@@ -27,6 +27,8 @@ import Nutrition from "./pages/dashboard/Nutrition";
 import CheckIn from "./pages/dashboard/CheckIn";
 import Faith from "./pages/dashboard/Faith";
 import Progress from "./pages/dashboard/Progress";
+import Community from "./pages/dashboard/Community";
+import CoachingPortal from "./pages/dashboard/CoachingPortal";
 import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
 import Refund from "./pages/legal/Refund";
@@ -155,6 +157,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Progress />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/community"
+              element={
+                <ProtectedRoute>
+                  <Community />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/coaching"
+              element={
+                <ProtectedRoute>
+                  <CoachingPortal />
                 </ProtectedRoute>
               }
             />
