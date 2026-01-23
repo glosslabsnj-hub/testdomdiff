@@ -4,6 +4,25 @@ import { useProducts } from "@/hooks/useProducts";
 import { ShoppingBag, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+// Import product images
+import hoodieImage from "@/assets/products/hoodie.jpg";
+import teeImage from "@/assets/products/tee.jpg";
+import joggersImage from "@/assets/products/joggers.jpg";
+import beanieImage from "@/assets/products/beanie.jpg";
+
+// Fallback images by product name pattern
+const getProductImage = (productName: string, dbImageUrl: string | null): string => {
+  if (dbImageUrl) return dbImageUrl;
+  
+  const nameLower = productName.toLowerCase();
+  if (nameLower.includes("hoodie") || nameLower.includes("sweatshirt")) return hoodieImage;
+  if (nameLower.includes("tee") || nameLower.includes("t-shirt")) return teeImage;
+  if (nameLower.includes("jogger") || nameLower.includes("sweatpants")) return joggersImage;
+  if (nameLower.includes("beanie") || nameLower.includes("hat")) return beanieImage;
+  
+  return "";
+};
+
 const Shop = () => {
   const { products, loading } = useProducts(true);
 
@@ -51,17 +70,20 @@ const Shop = () => {
                 >
                   {/* Product Image */}
                   <div className="aspect-square bg-charcoal relative overflow-hidden">
-                    {product.image_url ? (
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <ShoppingBag className="w-16 h-16 text-muted-foreground" />
-                      </div>
-                    )}
+                    {(() => {
+                      const imageUrl = getProductImage(product.name, product.image_url);
+                      return imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ShoppingBag className="w-16 h-16 text-muted-foreground" />
+                        </div>
+                      );
+                    })()}
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <span className="bg-gold text-background px-4 py-2 font-semibold text-sm uppercase tracking-wider">
