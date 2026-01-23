@@ -4,6 +4,7 @@ import { Menu, X, Cross, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import CartButton from "@/components/shop/CartButton";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +54,7 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
+            <CartButton />
             {isAdmin && (
               <Link
                 to="/admin"
