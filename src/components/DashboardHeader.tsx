@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield } from "lucide-react";
+import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -152,6 +152,13 @@ const DashboardHeader = () => {
                 
                 <DropdownMenuSeparator className="bg-border" />
                 
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link to="/dashboard/settings" className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                
                 {isAdmin && (
                   <>
                     <DropdownMenuItem asChild className="cursor-pointer">
@@ -160,9 +167,10 @@ const DashboardHeader = () => {
                         Admin Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-border" />
                   </>
                 )}
+                
+                <DropdownMenuSeparator className="bg-border" />
                 
                 <DropdownMenuItem 
                   onClick={handleSignOut}

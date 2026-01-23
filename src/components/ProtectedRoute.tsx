@@ -9,13 +9,25 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireIntake = true }: ProtectedRouteProps) => {
-  const { user, loading, hasAccess, profile } = useAuth();
+  const { user, loading, hasAccess, profile, subscription } = useAuth();
   const location = useLocation();
+
+  // Debug logging to help diagnose loading issues
+  console.log("ProtectedRoute Debug:", { 
+    path: location.pathname,
+    user: !!user, 
+    loading, 
+    hasAccess, 
+    profile: !!profile, 
+    subscription: subscription?.status,
+    intakeCompleted: !!profile?.intake_completed_at 
+  });
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading your dashboard...</p>
       </div>
     );
   }

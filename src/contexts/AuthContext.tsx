@@ -133,25 +133,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
         await Promise.all([
           fetchProfile(session.user.id),
           fetchSubscription(session.user.id),
         ]);
       }
-      setLoading(false);
+      
+      if (mounted) setLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
         await fetchProfile(session.user.id);
         await fetchSubscription(session.user.id);
@@ -159,10 +168,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setProfile(null);
         setSubscription(null);
       }
-      setLoading(false);
+      
+      if (mounted) setLoading(false);
     });
 
     return () => {
+      mounted = false;
       authSubscription.unsubscribe();
     };
   }, []);

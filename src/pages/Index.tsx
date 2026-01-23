@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Flame, Cross, Target, BookOpen, Trophy, ArrowRight, ChevronDown } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import MerchShowcase from "@/components/MerchShowcase";
 import heroImage from "@/assets/hero-image.jpg";
 import storyImage from "@/assets/story-image.jpg";
 import trainingImage from "@/assets/training-image.jpg";
@@ -122,7 +123,8 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up opacity-0 delay-300">
               <Button variant="hero" size="hero" asChild className="glow-gold">
                 <Link to="/programs/transformation">
-                  Start 12-Week Transformation
+                  <span className="hidden sm:inline">Start 12-Week Transformation</span>
+                  <span className="sm:hidden">Start Transformation</span>
                 </Link>
               </Button>
               <Button variant="heroOutline" size="hero" asChild>
@@ -362,6 +364,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Merch Showcase Section */}
+      <MerchShowcase />
 
       {/* Final CTA Section */}
       <section className="py-24 md:py-40 bg-background relative overflow-hidden">
