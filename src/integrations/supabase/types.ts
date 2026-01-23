@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          age: number | null
+          created_at: string
+          email: string
+          equipment: string | null
+          experience: string | null
+          faith_commitment: boolean | null
+          first_name: string | null
+          goal: string | null
+          height: string | null
+          id: string
+          injuries: string | null
+          intake_completed_at: string | null
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+          weight: string | null
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          email: string
+          equipment?: string | null
+          experience?: string | null
+          faith_commitment?: boolean | null
+          first_name?: string | null
+          goal?: string | null
+          height?: string | null
+          id?: string
+          injuries?: string | null
+          intake_completed_at?: string | null
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          weight?: string | null
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          email?: string
+          equipment?: string | null
+          experience?: string | null
+          faith_commitment?: boolean | null
+          first_name?: string | null
+          goal?: string | null
+          height?: string | null
+          id?: string
+          injuries?: string | null
+          intake_completed_at?: string | null
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          weight?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          plan_type: Database["public"]["Enums"]["plan_type"]
+          started_at: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_type: Database["public"]["Enums"]["plan_type"]
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_type?: Database["public"]["Enums"]["plan_type"]
+          started_at?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +124,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      plan_type: "membership" | "transformation" | "coaching"
+      subscription_status: "active" | "cancelled" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +252,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      plan_type: ["membership", "transformation", "coaching"],
+      subscription_status: ["active", "cancelled", "expired"],
+    },
   },
 } as const

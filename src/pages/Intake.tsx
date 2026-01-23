@@ -6,18 +6,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { Check, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Intake = () => {
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const totalSteps = 3;
   const [formData, setFormData] = useState({
     // Step 1: Basic Info
-    firstName: "",
-    lastName: "",
-    email: "",
+    firstName: profile?.first_name || "",
+    lastName: profile?.last_name || "",
+    email: user?.email || "",
     phone: "",
     age: "",
     height: "",
@@ -35,10 +41,79 @@ const Intake = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
-    // In production, this would save to database
-    console.log("Form submitted:", formData);
-    navigate("/intake-complete");
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to complete the intake.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Check if profile exists
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      const profileData = {
+        user_id: user.id,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        age: formData.age ? parseInt(formData.age) : null,
+        height: formData.height,
+        weight: formData.weight,
+        goal: formData.goal,
+        experience: formData.experience,
+        equipment: formData.equipment,
+        injuries: formData.injuries,
+        faith_commitment: formData.faithCommitment,
+        intake_completed_at: new Date().toISOString(),
+      };
+
+      let error;
+      if (existingProfile) {
+        // Update existing profile
+        const result = await supabase
+          .from("profiles")
+          .update(profileData)
+          .eq("user_id", user.id);
+        error = result.error;
+      } else {
+        // Insert new profile
+        const result = await supabase
+          .from("profiles")
+          .insert(profileData);
+        error = result.error;
+      }
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Intake Complete!",
+        description: "Your profile has been saved. Welcome to the program!",
+      });
+
+      navigate("/intake-complete");
+    } catch (error: any) {
+      console.error("Error saving profile:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -77,6 +152,7 @@ const Intake = () => {
                 onChange={(e) => updateForm("email", e.target.value)}
                 className="bg-charcoal border-border"
                 required
+                disabled={!!user?.email}
               />
             </div>
             <div>
@@ -278,10 +354,19 @@ const Intake = () => {
                   <Button
                     variant="gold"
                     onClick={handleSubmit}
-                    disabled={!formData.faithCommitment}
+                    disabled={!formData.faithCommitment || isSubmitting}
                     className="gap-2"
                   >
-                    Complete Intake <Check className="w-4 h-4" />
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        Complete Intake <Check className="w-4 h-4" />
+                      </>
+                    )}
                   </Button>
                 )}
               </div>
