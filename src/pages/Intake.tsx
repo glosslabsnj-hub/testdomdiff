@@ -1,0 +1,381 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Check, ArrowRight, ArrowLeft } from "lucide-react";
+import Header from "@/components/Header";
+
+const Intake = () => {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const totalSteps = 4;
+  const [formData, setFormData] = useState({
+    // Step 1: Basic Info
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    age: "",
+    height: "",
+    weight: "",
+    // Step 2: Training
+    goal: "",
+    experience: "",
+    equipment: "",
+    daysPerWeek: "",
+    injuries: "",
+    // Step 3: Nutrition & Lifestyle
+    nutritionApproach: "",
+    biggestStruggle: "",
+    // Step 4: Faith & Commitment
+    faithCommitment: false,
+    startDate: "today",
+  });
+
+  const updateForm = (field: string, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = () => {
+    // In production, this would save to database
+    console.log("Form submitted:", formData);
+    navigate("/intake-complete");
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName">First Name *</Label>
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) => updateForm("firstName", e.target.value)}
+                  className="bg-charcoal border-border"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Last Name *</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => updateForm("lastName", e.target.value)}
+                  className="bg-charcoal border-border"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => updateForm("email", e.target.value)}
+                className="bg-charcoal border-border"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => updateForm("phone", e.target.value)}
+                className="bg-charcoal border-border"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="age">Age *</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  value={formData.age}
+                  onChange={(e) => updateForm("age", e.target.value)}
+                  className="bg-charcoal border-border"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="height">Height *</Label>
+                <Input
+                  id="height"
+                  placeholder="5'10"
+                  value={formData.height}
+                  onChange={(e) => updateForm("height", e.target.value)}
+                  className="bg-charcoal border-border"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="weight">Weight (lbs) *</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  value={formData.weight}
+                  onChange={(e) => updateForm("weight", e.target.value)}
+                  className="bg-charcoal border-border"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div>
+              <Label className="text-base">What's your primary goal? *</Label>
+              <RadioGroup
+                value={formData.goal}
+                onValueChange={(value) => updateForm("goal", value)}
+                className="mt-3 space-y-2"
+              >
+                {["Fat Loss", "Build Muscle", "Both - Recomposition"].map((option) => (
+                  <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
+                    <RadioGroupItem value={option} id={option} />
+                    <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div>
+              <Label className="text-base">Training Experience *</Label>
+              <RadioGroup
+                value={formData.experience}
+                onValueChange={(value) => updateForm("experience", value)}
+                className="mt-3 space-y-2"
+              >
+                {["Beginner (0-1 years)", "Intermediate (1-3 years)", "Advanced (3+ years)"].map((option) => (
+                  <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
+                    <RadioGroupItem value={option} id={option} />
+                    <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div>
+              <Label className="text-base">Available Equipment *</Label>
+              <RadioGroup
+                value={formData.equipment}
+                onValueChange={(value) => updateForm("equipment", value)}
+                className="mt-3 space-y-2"
+              >
+                {["Bodyweight Only", "Dumbbells Available", "Resistance Bands", "Full Gym Access"].map((option) => (
+                  <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
+                    <RadioGroupItem value={option} id={option} />
+                    <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div>
+              <Label className="text-base">Training Days Per Week *</Label>
+              <RadioGroup
+                value={formData.daysPerWeek}
+                onValueChange={(value) => updateForm("daysPerWeek", value)}
+                className="mt-3 grid grid-cols-4 gap-3"
+              >
+                {["3", "4", "5", "6"].map((option) => (
+                  <div key={option} className="flex items-center justify-center p-4 rounded-lg bg-charcoal border border-border hover:border-primary/50">
+                    <RadioGroupItem value={option} id={`days-${option}`} className="sr-only" />
+                    <Label htmlFor={`days-${option}`} className="cursor-pointer text-lg font-bold">{option}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div>
+              <Label htmlFor="injuries">Any injuries or limitations?</Label>
+              <Textarea
+                id="injuries"
+                value={formData.injuries}
+                onChange={(e) => updateForm("injuries", e.target.value)}
+                placeholder="List any injuries, surgeries, or physical limitations..."
+                className="bg-charcoal border-border mt-2"
+                rows={3}
+              />
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div>
+              <Label className="text-base">Nutrition Approach Preference *</Label>
+              <RadioGroup
+                value={formData.nutritionApproach}
+                onValueChange={(value) => updateForm("nutritionApproach", value)}
+                className="mt-3 space-y-2"
+              >
+                {[
+                  "Simple Templates (meal structure guides)",
+                  "Macro Tracking (optional, more detailed)",
+                  "Just tell me what to eat",
+                ].map((option) => (
+                  <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
+                    <RadioGroupItem value={option} id={option} />
+                    <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div>
+              <Label className="text-base">What's your biggest struggle? *</Label>
+              <RadioGroup
+                value={formData.biggestStruggle}
+                onValueChange={(value) => updateForm("biggestStruggle", value)}
+                className="mt-3 space-y-2"
+              >
+                {[
+                  "Discipline / Consistency",
+                  "Food Cravings",
+                  "Sleep Quality",
+                  "Stress Management",
+                  "Time Management",
+                ].map((option) => (
+                  <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
+                    <RadioGroupItem value={option} id={option} />
+                    <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+          </div>
+        );
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div className="p-6 rounded-lg bg-charcoal border border-primary/30">
+              <h3 className="headline-card mb-4 text-primary">Faith Commitment</h3>
+              <p className="text-muted-foreground mb-6">
+                This program is built on Christian faith principles. Scripture, prayer, 
+                and God-led discipline are core components — not optional add-ons.
+              </p>
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="faithCommitment"
+                  checked={formData.faithCommitment}
+                  onCheckedChange={(checked) => updateForm("faithCommitment", checked as boolean)}
+                />
+                <Label htmlFor="faithCommitment" className="cursor-pointer leading-relaxed">
+                  I understand and embrace that faith is the foundation of this program. 
+                  I'm ready to integrate spiritual disciplines alongside physical training.
+                </Label>
+              </div>
+            </div>
+            <div>
+              <Label className="text-base">When do you want to start? *</Label>
+              <RadioGroup
+                value={formData.startDate}
+                onValueChange={(value) => updateForm("startDate", value)}
+                className="mt-3 space-y-2"
+              >
+                {[
+                  { value: "today", label: "Today - I'm ready now" },
+                  { value: "tomorrow", label: "Tomorrow - Need one day to prepare" },
+                  { value: "monday", label: "Next Monday - Fresh start of the week" },
+                ].map((option) => (
+                  <div key={option.value} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
+                    <RadioGroupItem value={option.value} id={option.value} />
+                    <Label htmlFor={option.value} className="cursor-pointer flex-1">{option.label}</Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const stepTitles = [
+    "Basic Information",
+    "Training Profile",
+    "Nutrition & Lifestyle",
+    "Faith & Commitment",
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      <section className="pt-32 pb-20">
+        <div className="section-container">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="headline-section mb-4">
+                Complete Your <span className="text-primary">Intake</span>
+              </h1>
+              <p className="text-muted-foreground">
+                This information helps us build your personalized framework.
+              </p>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Step {step} of {totalSteps}</span>
+                <span className="text-sm text-primary">{stepTitles[step - 1]}</span>
+              </div>
+              <div className="h-2 bg-charcoal rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${(step / totalSteps) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Form */}
+            <div className="bg-card p-8 rounded-lg border border-border">
+              {renderStep()}
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+                <Button
+                  variant="ghost"
+                  onClick={() => setStep((s) => Math.max(1, s - 1))}
+                  disabled={step === 1}
+                  className="gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </Button>
+                {step < totalSteps ? (
+                  <Button
+                    variant="gold"
+                    onClick={() => setStep((s) => Math.min(totalSteps, s + 1))}
+                    className="gap-2"
+                  >
+                    Continue <ArrowRight className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="gold"
+                    onClick={handleSubmit}
+                    disabled={!formData.faithCommitment}
+                    className="gap-2"
+                  >
+                    Complete Intake <Check className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Intake;
