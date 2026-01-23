@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_leads: {
+        Row: {
+          conversion_action: string | null
+          converted_at: string | null
+          created_at: string
+          experience_level: string | null
+          first_message: string | null
+          goal: string | null
+          id: string
+          interested_program: string | null
+          message_count: number | null
+          pain_points: string[] | null
+          recommended_program: string | null
+          session_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          conversion_action?: string | null
+          converted_at?: string | null
+          created_at?: string
+          experience_level?: string | null
+          first_message?: string | null
+          goal?: string | null
+          id?: string
+          interested_program?: string | null
+          message_count?: number | null
+          pain_points?: string[] | null
+          recommended_program?: string | null
+          session_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          conversion_action?: string | null
+          converted_at?: string | null
+          created_at?: string
+          experience_level?: string | null
+          first_message?: string | null
+          goal?: string | null
+          id?: string
+          interested_program?: string | null
+          message_count?: number | null
+          pain_points?: string[] | null
+          recommended_program?: string | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
