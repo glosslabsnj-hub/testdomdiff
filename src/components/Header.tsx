@@ -2,19 +2,23 @@ import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X, Cross } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
     { href: "/programs", label: "Programs" },
     { href: "/book-call", label: "Book a Call" },
+    // Dashboard link only for logged-in users
+    ...(user ? [{ href: "/dashboard", label: "Dashboard" }] : []),
   ];
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + "/");
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -47,12 +51,20 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" size="default" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button variant="gold" size="default" asChild>
-              <Link to="/checkout">Get Started</Link>
-            </Button>
+            {user ? (
+              <Button variant="gold" size="default" asChild>
+                <Link to="/dashboard">My Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="default" asChild>
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button variant="gold" size="default" asChild>
+                  <Link to="/checkout">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -84,16 +96,26 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
-            <Button variant="ghost" size="lg" className="mt-4" asChild>
-              <Link to="/login" onClick={() => setIsOpen(false)}>
-                Login
-              </Link>
-            </Button>
-            <Button variant="gold" size="lg" asChild>
-              <Link to="/checkout" onClick={() => setIsOpen(false)}>
-                Get Started
-              </Link>
-            </Button>
+            {user ? (
+              <Button variant="gold" size="lg" className="mt-4" asChild>
+                <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                  My Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="lg" className="mt-4" asChild>
+                  <Link to="/login" onClick={() => setIsOpen(false)}>
+                    Login
+                  </Link>
+                </Button>
+                <Button variant="gold" size="lg" asChild>
+                  <Link to="/checkout" onClick={() => setIsOpen(false)}>
+                    Get Started
+                  </Link>
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       )}
