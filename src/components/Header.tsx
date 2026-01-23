@@ -9,13 +9,12 @@ const Header = () => {
   const location = useLocation();
   const { user } = useAuth();
 
+  // Base nav links (always shown)
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
     { href: "/programs", label: "Programs" },
     { href: "/book-call", label: "Book a Call" },
-    // Dashboard link only for logged-in users
-    ...(user ? [{ href: "/dashboard", label: "Dashboard" }] : []),
   ];
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + "/");

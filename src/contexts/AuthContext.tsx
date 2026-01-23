@@ -30,6 +30,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshSubscription: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +85,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshSubscription = async () => {
     if (user) {
       await fetchSubscription(user.id);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id);
     }
   };
 
@@ -198,6 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signIn,
         signOut,
         refreshSubscription,
+        refreshProfile,
       }}
     >
       {children}

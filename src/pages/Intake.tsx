@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Intake = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,6 +97,9 @@ const Intake = () => {
       if (error) {
         throw error;
       }
+
+      // Refresh the profile in context so ProtectedRoute sees the update
+      await refreshProfile();
 
       toast({
         title: "Intake Complete!",
