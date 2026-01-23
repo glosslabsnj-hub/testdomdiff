@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import WorkoutContentManager from "@/components/admin/WorkoutContentManager";
 import FaithLessonsManager from "@/components/admin/FaithLessonsManager";
 import ProgramWeeksManager from "@/components/admin/ProgramWeeksManager";
 import DisciplineManager from "@/components/admin/DisciplineManager";
+import NutritionManager from "@/components/admin/NutritionManager";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -139,15 +140,17 @@ export default function AdminDashboard() {
 
           <TabsContent value="content" className="space-y-8">
             <Tabs defaultValue="workouts" className="space-y-6">
-              <TabsList className="bg-background border border-border">
-                <TabsTrigger value="workouts">Workouts</TabsTrigger>
-                <TabsTrigger value="program">12-Week Program</TabsTrigger>
-                <TabsTrigger value="faith">Faith Lessons</TabsTrigger>
-                <TabsTrigger value="discipline">Discipline</TabsTrigger>
+              <TabsList className="bg-background border border-border flex-wrap h-auto gap-1 p-1">
+                <TabsTrigger value="workouts" className="gap-2"><Dumbbell className="h-4 w-4" />Workouts</TabsTrigger>
+                <TabsTrigger value="program" className="gap-2"><Calendar className="h-4 w-4" />12-Week</TabsTrigger>
+                <TabsTrigger value="faith" className="gap-2"><Cross className="h-4 w-4" />Faith</TabsTrigger>
+                <TabsTrigger value="nutrition" className="gap-2"><Utensils className="h-4 w-4" />Nutrition</TabsTrigger>
+                <TabsTrigger value="discipline" className="gap-2"><Clock className="h-4 w-4" />Discipline</TabsTrigger>
               </TabsList>
               <TabsContent value="workouts"><WorkoutContentManager /></TabsContent>
               <TabsContent value="program"><ProgramWeeksManager /></TabsContent>
               <TabsContent value="faith"><FaithLessonsManager /></TabsContent>
+              <TabsContent value="nutrition"><NutritionManager /></TabsContent>
               <TabsContent value="discipline"><DisciplineManager /></TabsContent>
             </Tabs>
           </TabsContent>
