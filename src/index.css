@@ -94,6 +94,7 @@
   .headline-hero {
     font-family: var(--font-display);
     @apply text-5xl md:text-7xl lg:text-8xl tracking-wider leading-none;
+    text-shadow: 0 4px 30px hsl(0 0% 0% / 0.5);
   }
 
   /* Section headlines */
@@ -116,20 +117,20 @@
   /* Gritty texture overlay */
   .texture-overlay {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.03;
+    opacity: 0.04;
     @apply pointer-events-none absolute inset-0;
   }
 
-  /* Gold gradient button */
+  /* Enhanced gold gradient button */
   .btn-gold {
-    background: var(--gradient-gold);
-    box-shadow: var(--shadow-gold);
+    background: linear-gradient(135deg, hsl(43 74% 55%), hsl(43 74% 45%));
+    box-shadow: 0 4px 20px -5px hsl(43 74% 49% / 0.4), inset 0 1px 0 hsl(43 74% 70% / 0.3);
     @apply text-black font-bold uppercase tracking-widest transition-all duration-300;
   }
 
   .btn-gold:hover {
     @apply scale-105;
-    box-shadow: 0 6px 40px -5px hsl(43 74% 49% / 0.5);
+    box-shadow: 0 8px 40px -5px hsl(43 74% 49% / 0.6), inset 0 1px 0 hsl(43 74% 70% / 0.3);
   }
 
   /* Outline button */
@@ -156,9 +157,10 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Gold divider */
+  /* Gold divider - enhanced with glow */
   .divider-gold {
     @apply h-1 w-20 bg-primary mx-auto;
+    box-shadow: 0 0 20px hsl(43 74% 49% / 0.5);
   }
 
   /* Animated underline */
@@ -173,6 +175,26 @@
 
   .underline-gold:hover::after {
     @apply scale-x-100;
+  }
+
+  /* Glow effect for featured elements */
+  .glow-gold {
+    box-shadow: 0 0 40px -10px hsl(43 74% 49% / 0.4);
+  }
+
+  /* Image overlay styles */
+  .image-overlay-dark {
+    @apply relative overflow-hidden;
+  }
+
+  .image-overlay-dark::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent;
+  }
+
+  /* Subtle vignette effect */
+  .vignette {
+    box-shadow: inset 0 0 100px hsl(0 0% 0% / 0.5);
   }
 }
 
