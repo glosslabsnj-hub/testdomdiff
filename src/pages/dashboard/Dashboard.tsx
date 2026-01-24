@@ -144,12 +144,25 @@ const Dashboard = () => {
   ];
 
   // Build tiles array based on subscription tier
-  let tiles = [...baseTiles];
+  let tiles = [];
   
+  // Start Here is always first
+  tiles.push(baseTiles[0]);
+  
+  // For Transformation/Coaching users, 12-Week Program comes second
   if (isTransformation || isCoaching) {
-    tiles = [...tiles, ...transformationTiles];
+    tiles.push(transformationTiles[0]); // 12-Week Program
   }
   
+  // Then the rest of the base tiles (skip Start Here since it's already added)
+  tiles = [...tiles, ...baseTiles.slice(1)];
+  
+  // Add remaining transformation tiles (Nutrition, Skill-Building)
+  if (isTransformation || isCoaching) {
+    tiles = [...tiles, ...transformationTiles.slice(1)];
+  }
+  
+  // Add coaching-only tiles
   if (isCoaching) {
     tiles = [...tiles, ...coachingTiles];
   }
