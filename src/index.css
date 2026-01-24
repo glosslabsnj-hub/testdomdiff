@@ -2,61 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DOM DIFFERENT - Faith + Discipline Design System */
+/* REDEEMED STRENGTH - Faith + Discipline Design System */
 /* Gritty prison discipline meets God-led transformation */
+/* Enhanced color palette with depth and warmth */
 
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    /* Core palette - Dark/Gritty */
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
+    /* Core palette - Deep/Rich Blacks with warmth */
+    --background: 20 15% 4%;
+    --foreground: 40 20% 96%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 20 12% 7%;
+    --card-foreground: 40 20% 96%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 20 12% 7%;
+    --popover-foreground: 40 20% 96%;
 
-    /* Gold accent - Redemption/Victory */
-    --primary: 43 74% 49%;
-    --primary-foreground: 0 0% 5%;
+    /* Primary - Warm Amber Gold (richer, warmer) */
+    --primary: 38 92% 50%;
+    --primary-foreground: 20 15% 4%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 20 10% 12%;
+    --secondary-foreground: 40 20% 96%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 20 8% 16%;
+    --muted-foreground: 30 10% 55%;
 
-    --accent: 43 74% 49%;
-    --accent-foreground: 0 0% 5%;
+    /* Accent - Copper/Bronze for variety */
+    --accent: 25 85% 45%;
+    --accent-foreground: 40 20% 96%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 20% 96%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 15%;
-    --ring: 43 74% 49%;
+    --border: 25 12% 18%;
+    --input: 20 10% 14%;
+    --ring: 38 92% 50%;
 
     --radius: 0.5rem;
 
-    /* Custom tokens */
-    --gold: 43 74% 49%;
-    --gold-light: 43 74% 60%;
-    --gold-dark: 43 74% 35%;
-    --charcoal: 0 0% 8%;
-    --charcoal-light: 0 0% 12%;
-    --charcoal-dark: 0 0% 5%;
+    /* Extended Gold Palette */
+    --gold: 38 92% 50%;
+    --gold-light: 40 90% 62%;
+    --gold-dark: 35 85% 38%;
+    --gold-muted: 38 50% 45%;
     
-    /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(43 74% 49%), hsl(43 74% 35%));
-    --gradient-dark: linear-gradient(180deg, hsl(0 0% 8%), hsl(0 0% 5%));
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 8%) 50%, hsl(0 0% 5%) 100%);
+    /* Copper/Bronze Secondary */
+    --copper: 25 85% 45%;
+    --copper-light: 28 80% 55%;
+    --copper-dark: 22 75% 35%;
     
-    /* Shadows */
-    --shadow-gold: 0 4px 30px -5px hsl(43 74% 49% / 0.3);
-    --shadow-strong: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
+    /* Warm Charcoals */
+    --charcoal: 20 12% 7%;
+    --charcoal-light: 20 10% 11%;
+    --charcoal-dark: 20 15% 4%;
+    
+    /* Steel accent for contrast */
+    --steel: 210 15% 25%;
+    --steel-light: 210 12% 35%;
+    
+    /* Success/Progress */
+    --success: 142 70% 45%;
+    --success-foreground: 142 70% 95%;
+    
+    /* Gradients - More dynamic */
+    --gradient-gold: linear-gradient(135deg, hsl(40 90% 55%), hsl(35 85% 42%));
+    --gradient-gold-radial: radial-gradient(ellipse at top, hsl(38 92% 50% / 0.15), transparent 60%);
+    --gradient-copper: linear-gradient(135deg, hsl(28 80% 50%), hsl(22 75% 38%));
+    --gradient-dark: linear-gradient(180deg, hsl(20 12% 7%), hsl(20 15% 4%));
+    --gradient-hero: linear-gradient(180deg, hsl(20 15% 4%) 0%, hsl(20 12% 8%) 50%, hsl(20 15% 4%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(20 12% 7%) 0%, hsl(25 15% 10%) 100%);
+    --gradient-ambient: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(38 92% 50% / 0.08), transparent);
+    
+    /* Enhanced Shadows */
+    --shadow-gold: 0 4px 30px -5px hsl(38 92% 50% / 0.35);
+    --shadow-gold-lg: 0 8px 45px -8px hsl(38 92% 50% / 0.45);
+    --shadow-copper: 0 4px 25px -5px hsl(25 85% 45% / 0.3);
+    --shadow-strong: 0 25px 50px -12px hsl(0 0% 0% / 0.6);
+    --shadow-inner-glow: inset 0 1px 0 hsl(40 90% 70% / 0.15);
     
     /* Typography */
     --font-display: 'Bebas Neue', sans-serif;
@@ -64,8 +89,8 @@
   }
 
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
+    --background: 20 15% 4%;
+    --foreground: 40 20% 96%;
   }
 }
 
@@ -114,42 +139,64 @@
     @apply text-primary;
   }
 
-  /* Gritty texture overlay */
+  /* Gritty texture overlay - warmer */
   .texture-overlay {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.04;
+    opacity: 0.035;
     @apply pointer-events-none absolute inset-0;
   }
 
   /* Enhanced gold gradient button */
   .btn-gold {
-    background: linear-gradient(135deg, hsl(43 74% 55%), hsl(43 74% 45%));
-    box-shadow: 0 4px 20px -5px hsl(43 74% 49% / 0.4), inset 0 1px 0 hsl(43 74% 70% / 0.3);
+    background: linear-gradient(135deg, hsl(40 90% 55%), hsl(35 85% 45%));
+    box-shadow: 
+      0 4px 20px -5px hsl(38 92% 50% / 0.45), 
+      inset 0 1px 0 hsl(45 90% 75% / 0.25),
+      inset 0 -1px 0 hsl(30 80% 35% / 0.3);
     @apply text-black font-bold uppercase tracking-widest transition-all duration-300;
   }
 
   .btn-gold:hover {
     @apply scale-105;
-    box-shadow: 0 8px 40px -5px hsl(43 74% 49% / 0.6), inset 0 1px 0 hsl(43 74% 70% / 0.3);
+    background: linear-gradient(135deg, hsl(42 92% 58%), hsl(36 88% 48%));
+    box-shadow: 
+      0 8px 40px -5px hsl(38 92% 50% / 0.6), 
+      inset 0 1px 0 hsl(45 90% 80% / 0.3),
+      inset 0 -1px 0 hsl(30 80% 35% / 0.3);
   }
 
   /* Outline button */
   .btn-outline-gold {
     @apply border-2 border-primary text-primary font-bold uppercase tracking-widest transition-all duration-300;
+    box-shadow: 0 0 20px -8px hsl(38 92% 50% / 0.3);
   }
 
   .btn-outline-gold:hover {
     @apply bg-primary text-black;
+    box-shadow: 0 0 30px -5px hsl(38 92% 50% / 0.5);
   }
 
-  /* Card styles */
+  /* Card styles - warmer */
   .card-dark {
     @apply bg-card border border-border rounded-lg;
+    background: linear-gradient(145deg, hsl(20 12% 8%), hsl(20 12% 6%));
   }
 
   .card-elevated {
     @apply bg-charcoal-light border border-border rounded-lg;
     box-shadow: var(--shadow-strong);
+    background: linear-gradient(145deg, hsl(20 10% 11%), hsl(20 12% 8%));
+  }
+
+  /* Card with subtle gold accent */
+  .card-accent {
+    @apply bg-card border border-border rounded-lg relative overflow-hidden;
+  }
+  
+  .card-accent::before {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-px;
+    background: linear-gradient(90deg, transparent, hsl(38 92% 50% / 0.5), transparent);
   }
 
   /* Section container */
@@ -159,8 +206,9 @@
 
   /* Gold divider - enhanced with glow */
   .divider-gold {
-    @apply h-1 w-20 bg-primary mx-auto;
-    box-shadow: 0 0 20px hsl(43 74% 49% / 0.5);
+    @apply h-1 w-20 mx-auto rounded-full;
+    background: linear-gradient(90deg, hsl(35 85% 40%), hsl(40 92% 55%), hsl(35 85% 40%));
+    box-shadow: 0 0 25px hsl(38 92% 50% / 0.5);
   }
 
   /* Animated underline */
@@ -179,7 +227,12 @@
 
   /* Glow effect for featured elements */
   .glow-gold {
-    box-shadow: 0 0 40px -10px hsl(43 74% 49% / 0.4);
+    box-shadow: 0 0 50px -10px hsl(38 92% 50% / 0.4);
+  }
+  
+  /* Copper glow for variety */
+  .glow-copper {
+    box-shadow: 0 0 40px -10px hsl(25 85% 45% / 0.35);
   }
 
   /* Image overlay styles */
@@ -192,17 +245,42 @@
     @apply absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent;
   }
 
-  /* Subtle vignette effect */
+  /* Subtle vignette effect - warmer */
   .vignette {
-    box-shadow: inset 0 0 100px hsl(0 0% 0% / 0.5);
+    box-shadow: inset 0 0 120px hsl(20 20% 0% / 0.6);
+  }
+  
+  /* Ambient glow background */
+  .ambient-glow {
+    position: relative;
+  }
+  
+  .ambient-glow::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, hsl(38 92% 50% / 0.06), transparent 50%);
+  }
+  
+  /* Warm gradient background section */
+  .section-warm {
+    background: linear-gradient(180deg, hsl(20 15% 4%) 0%, hsl(22 12% 6%) 50%, hsl(20 15% 4%) 100%);
   }
 }
 
 @layer utilities {
-  /* Background utilities */
-  .bg-charcoal { background-color: hsl(0 0% 8%); }
-  .bg-charcoal-light { background-color: hsl(0 0% 12%); }
-  .bg-charcoal-dark { background-color: hsl(0 0% 5%); }
+  /* Background utilities - warmer tones */
+  .bg-charcoal { background-color: hsl(20 12% 7%); }
+  .bg-charcoal-light { background-color: hsl(20 10% 11%); }
+  .bg-charcoal-dark { background-color: hsl(20 15% 4%); }
+  
+  /* Copper utilities */
+  .text-copper { color: hsl(25 85% 45%); }
+  .bg-copper { background-color: hsl(25 85% 45%); }
+  .border-copper { border-color: hsl(25 85% 45%); }
+  
+  /* Steel utilities */
+  .text-steel { color: hsl(210 15% 40%); }
+  .bg-steel { background-color: hsl(210 15% 25%); }
   
   /* Animation utilities */
   .animate-fade-in {
@@ -215,6 +293,10 @@
 
   .animate-scale-in {
     animation: scaleIn 0.4s ease-out forwards;
+  }
+  
+  .animate-glow-pulse {
+    animation: glowPulse 3s ease-in-out infinite;
   }
 
   @keyframes fadeIn {
@@ -241,6 +323,15 @@
     to { 
       opacity: 1;
       transform: scale(1);
+    }
+  }
+  
+  @keyframes glowPulse {
+    0%, 100% { 
+      box-shadow: 0 0 30px -10px hsl(38 92% 50% / 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 50px -10px hsl(38 92% 50% / 0.5);
     }
   }
 
