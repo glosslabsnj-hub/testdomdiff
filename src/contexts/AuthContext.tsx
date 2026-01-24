@@ -18,6 +18,7 @@ interface Profile {
   email: string;
   phone: string | null;
   avatar_url: string | null;
+  goal: string | null;
   intake_completed_at: string | null;
   created_at: string;
 }
