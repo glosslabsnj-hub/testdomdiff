@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -15,21 +15,32 @@ import {
   Trophy,
   Clock,
   CheckCircle2,
-  Circle
+  Moon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useProgramWeeks, useWorkoutTemplates, ProgramWeek, WorkoutTemplate } from "@/hooks/useWorkoutContent";
+import { useProgramWeeks, type ProgramWeek } from "@/hooks/useWorkoutContent";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 
-interface WorkoutExercise {
+interface ProgramDayWorkout {
   id: string;
-  exercise_name: string;
+  week_id: string;
+  day_of_week: string;
+  workout_name: string;
+  workout_description: string | null;
+  is_rest_day: boolean;
+  display_order: number;
+}
+
+interface ProgramDayExercise {
+  id: string;
+  day_workout_id: string;
   section_type: string;
+  exercise_name: string;
   sets: string | null;
   reps_or_time: string | null;
   rest: string | null;
@@ -37,66 +48,68 @@ interface WorkoutExercise {
   display_order: number;
 }
 
+const DAYS_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
 const Program = () => {
   const { weeks, loading: weeksLoading } = useProgramWeeks();
-  const { templates, loading: templatesLoading } = useWorkoutTemplates();
   const { subscription } = useAuth();
   const [expandedWeek, setExpandedWeek] = useState<number | null>(1);
-  const [exercisesByTemplate, setExercisesByTemplate] = useState<Record<string, WorkoutExercise[]>>({});
-  const [loadingExercises, setLoadingExercises] = useState(false);
-  const [currentWeek, setCurrentWeek] = useState(1); // TODO: Calculate from subscription start date
+  const [dayWorkouts, setDayWorkouts] = useState<ProgramDayWorkout[]>([]);
+  const [exercisesByDay, setExercisesByDay] = useState<Record<string, ProgramDayExercise[]>>({});
+  const [loadingWorkouts, setLoadingWorkouts] = useState(true);
+  const [currentWeek] = useState(1); // TODO: Calculate from subscription start date
 
-  const loading = weeksLoading || templatesLoading;
-
-  // Fetch exercises for all templates used in program weeks
+  // Fetch all day workouts and exercises
   useEffect(() => {
-    const fetchAllExercises = async () => {
-      if (weeks.length === 0 || templates.length === 0) return;
+    const fetchWorkoutsAndExercises = async () => {
+      if (weeks.length === 0) return;
       
-      setLoadingExercises(true);
-      const templateIds = new Set<string>();
-      
-      weeks.forEach(week => {
-        [week.workout_monday, week.workout_tuesday, week.workout_wednesday, 
-         week.workout_thursday, week.workout_friday, week.workout_saturday]
-          .filter(Boolean)
-          .forEach(id => templateIds.add(id as string));
-      });
+      setLoadingWorkouts(true);
+      const weekIds = weeks.map(w => w.id);
 
       try {
-        const { data, error } = await supabase
-          .from("workout_exercises")
+        // Fetch day workouts
+        const { data: workoutsData, error: workoutsError } = await supabase
+          .from("program_day_workouts")
           .select("*")
-          .in("template_id", Array.from(templateIds))
+          .in("week_id", weekIds)
           .order("display_order");
 
-        if (error) throw error;
+        if (workoutsError) throw workoutsError;
+        setDayWorkouts((workoutsData || []) as ProgramDayWorkout[]);
 
-        const grouped: Record<string, WorkoutExercise[]> = {};
-        (data || []).forEach((ex: any) => {
-          if (!grouped[ex.template_id]) grouped[ex.template_id] = [];
-          grouped[ex.template_id].push(ex);
-        });
-        setExercisesByTemplate(grouped);
+        // Fetch exercises for all day workouts
+        const dayIds = (workoutsData || []).map((d: any) => d.id);
+        if (dayIds.length > 0) {
+          const { data: exercisesData, error: exercisesError } = await supabase
+            .from("program_day_exercises")
+            .select("*")
+            .in("day_workout_id", dayIds)
+            .order("display_order");
+
+          if (exercisesError) throw exercisesError;
+
+          const grouped: Record<string, ProgramDayExercise[]> = {};
+          (exercisesData || []).forEach((ex: any) => {
+            if (!grouped[ex.day_workout_id]) grouped[ex.day_workout_id] = [];
+            grouped[ex.day_workout_id].push(ex);
+          });
+          setExercisesByDay(grouped);
+        }
       } catch (e) {
-        console.error("Error fetching exercises:", e);
+        console.error("Error fetching program data:", e);
       } finally {
-        setLoadingExercises(false);
+        setLoadingWorkouts(false);
       }
     };
 
-    fetchAllExercises();
-  }, [weeks, templates]);
+    fetchWorkoutsAndExercises();
+  }, [weeks]);
 
   // Only transformation and coaching users can access
   if (subscription?.plan_type === "membership") {
     return <UpgradePrompt feature="12-Week Program" upgradeTo="transformation" />;
   }
-
-  const getTemplateById = (id: string | null): WorkoutTemplate | null => {
-    if (!id) return null;
-    return templates.find((t) => t.id === id) || null;
-  };
 
   const phases = [
     { phase: "foundation", name: "Foundation", weeks: "1-4", icon: Target, color: "from-blue-500 to-blue-600", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", textColor: "text-blue-400" },
@@ -110,6 +123,8 @@ const Program = () => {
   const completedWeeks = Math.min(currentWeek - 1, 12);
   const progressPercent = (completedWeeks / 12) * 100;
 
+  const loading = weeksLoading || loadingWorkouts;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -118,17 +133,68 @@ const Program = () => {
     );
   }
 
-  const WorkoutCard = ({ templateId, day }: { templateId: string; day: string }) => {
-    const template = getTemplateById(templateId);
-    const exercises = exercisesByTemplate[templateId] || [];
+  // Helper to get workouts for a specific week
+  const getWorkoutsForWeek = (weekId: string) => {
+    return dayWorkouts
+      .filter(w => w.week_id === weekId)
+      .sort((a, b) => DAYS_ORDER.indexOf(a.day_of_week) - DAYS_ORDER.indexOf(b.day_of_week));
+  };
+
+  const ExerciseRow = ({ exercise, isMain = false }: { exercise: ProgramDayExercise; isMain?: boolean }) => (
+    <div className={`flex items-start gap-3 p-3 rounded ${isMain ? 'bg-charcoal' : 'bg-charcoal/50'}`}>
+      <div className="flex-1">
+        <p className={`font-medium ${isMain ? 'text-foreground' : 'text-muted-foreground'}`}>
+          {exercise.exercise_name}
+        </p>
+        {exercise.notes && (
+          <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
+        )}
+      </div>
+      <div className="flex items-center gap-3 text-sm flex-wrap justify-end">
+        {exercise.sets && (
+          <Badge variant="secondary" className="text-xs">
+            {exercise.sets} sets
+          </Badge>
+        )}
+        {exercise.reps_or_time && (
+          <Badge variant="outline" className="text-xs">
+            {exercise.reps_or_time}
+          </Badge>
+        )}
+        {exercise.rest && (
+          <span className="text-xs text-muted-foreground">Rest: {exercise.rest}</span>
+        )}
+      </div>
+    </div>
+  );
+
+  const WorkoutCard = ({ workout }: { workout: ProgramDayWorkout }) => {
+    const exercises = exercisesByDay[workout.id] || [];
     const [isOpen, setIsOpen] = useState(false);
 
-    if (!template) return null;
+    const dayLabel = workout.day_of_week.charAt(0).toUpperCase() + workout.day_of_week.slice(1);
 
     const mainExercises = exercises.filter(e => e.section_type === "main");
     const warmupExercises = exercises.filter(e => e.section_type === "warmup");
     const finisherExercises = exercises.filter(e => e.section_type === "finisher");
     const cooldownExercises = exercises.filter(e => e.section_type === "cooldown");
+
+    if (workout.is_rest_day) {
+      return (
+        <div className="flex items-center gap-4 p-4 rounded-lg bg-charcoal/50 border border-border">
+          <div className="w-12 h-12 rounded-lg bg-muted/20 flex items-center justify-center">
+            <Moon className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{dayLabel}</p>
+            <h4 className="font-medium text-muted-foreground">{workout.workout_name}</h4>
+            {workout.workout_description && (
+              <p className="text-sm text-muted-foreground/70">{workout.workout_description}</p>
+            )}
+          </div>
+        </div>
+      );
+    }
 
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -139,14 +205,16 @@ const Program = () => {
                 <Dumbbell className="w-6 h-6 text-primary" />
               </div>
               <div className="text-left">
-                <p className="text-xs text-primary uppercase tracking-wider font-medium">{day}</p>
-                <h4 className="font-display text-lg">{template.name}</h4>
-                <p className="text-sm text-muted-foreground">{template.focus}</p>
+                <p className="text-xs text-primary uppercase tracking-wider font-medium">{dayLabel}</p>
+                <h4 className="font-display text-lg">{workout.workout_name}</h4>
+                {workout.workout_description && (
+                  <p className="text-sm text-muted-foreground">{workout.workout_description}</p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-xs">
-                {mainExercises.length} exercises
+                {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
               </Badge>
               {isOpen ? (
                 <ChevronDown className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -158,15 +226,9 @@ const Program = () => {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="mt-2 p-4 rounded-lg bg-background border border-border space-y-4">
-            {template.description && (
-              <p className="text-sm text-muted-foreground italic border-l-2 border-primary pl-3">
-                {template.description}
-              </p>
-            )}
-
             {warmupExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
+                <h5 className="text-xs uppercase tracking-wider text-yellow-400 mb-2 flex items-center gap-2">
                   <Clock className="w-3 h-3" /> Warm-Up
                 </h5>
                 <div className="space-y-2">
@@ -192,7 +254,7 @@ const Program = () => {
 
             {finisherExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-orange-400 mb-2 flex items-center gap-2">
+                <h5 className="text-xs uppercase tracking-wider text-red-400 mb-2 flex items-center gap-2">
                   <Flame className="w-3 h-3" /> Finisher
                 </h5>
                 <div className="space-y-2">
@@ -205,7 +267,7 @@ const Program = () => {
 
             {cooldownExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-green-400 mb-2 flex items-center gap-2">
+                <h5 className="text-xs uppercase tracking-wider text-blue-400 mb-2 flex items-center gap-2">
                   <Heart className="w-3 h-3" /> Cool-Down
                 </h5>
                 <div className="space-y-2">
@@ -216,62 +278,25 @@ const Program = () => {
               </div>
             )}
 
-            <div className="pt-3 border-t border-border">
-              <Button variant="gold" size="sm" asChild>
-                <Link to={`/dashboard/workouts/${template.template_slug}`}>
-                  Open Full Workout
-                </Link>
-              </Button>
-            </div>
+            {exercises.length === 0 && (
+              <p className="text-sm text-muted-foreground italic text-center py-4">
+                Exercises to be added by your coach
+              </p>
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
     );
   };
 
-  const ExerciseRow = ({ exercise, isMain = false }: { exercise: WorkoutExercise; isMain?: boolean }) => (
-    <div className={`flex items-start gap-3 p-3 rounded ${isMain ? 'bg-charcoal' : 'bg-charcoal/50'}`}>
-      <div className="flex-1">
-        <p className={`font-medium ${isMain ? 'text-foreground' : 'text-muted-foreground'}`}>
-          {exercise.exercise_name}
-        </p>
-        {exercise.notes && (
-          <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
-        )}
-      </div>
-      <div className="flex items-center gap-3 text-sm">
-        {exercise.sets && (
-          <Badge variant="secondary" className="text-xs">
-            {exercise.sets} sets
-          </Badge>
-        )}
-        {exercise.reps_or_time && (
-          <Badge variant="outline" className="text-xs">
-            {exercise.reps_or_time}
-          </Badge>
-        )}
-        {exercise.rest && (
-          <span className="text-xs text-muted-foreground">Rest: {exercise.rest}</span>
-        )}
-      </div>
-    </div>
-  );
-
   const WeekCard = ({ week }: { week: ProgramWeek }) => {
     const phaseInfo = getPhaseInfo(week.phase);
     const isExpanded = expandedWeek === week.week_number;
     const isCurrentWeek = currentWeek === week.week_number;
     const isCompleted = week.week_number < currentWeek;
-    const isFuture = week.week_number > currentWeek;
 
-    const workoutDays = [
-      { day: "Monday", id: week.workout_monday },
-      { day: "Tuesday", id: week.workout_tuesday },
-      { day: "Wednesday", id: week.workout_wednesday },
-      { day: "Thursday", id: week.workout_thursday },
-      { day: "Friday", id: week.workout_friday },
-      { day: "Saturday", id: week.workout_saturday },
-    ].filter((d) => d.id);
+    const weekWorkouts = getWorkoutsForWeek(week.id);
+    const workoutCount = weekWorkouts.filter(w => !w.is_rest_day).length;
 
     return (
       <div className={`rounded-xl border transition-all ${
@@ -308,7 +333,7 @@ const Program = () => {
 
               {/* Week Info */}
               <div>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Badge className={`${phaseInfo.bgColor} ${phaseInfo.textColor} ${phaseInfo.borderColor} border text-xs`}>
                     {phaseInfo.name}
                   </Badge>
@@ -336,7 +361,7 @@ const Program = () => {
 
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-sm text-muted-foreground">{workoutDays.length} workouts</p>
+                <p className="text-sm text-muted-foreground">{workoutCount} workout{workoutCount !== 1 ? 's' : ''}</p>
               </div>
               {isExpanded ? (
                 <ChevronDown className="w-5 h-5 text-primary" />
@@ -378,15 +403,15 @@ const Program = () => {
                 <Calendar className="w-4 h-4 text-primary" />
                 Weekly Workout Schedule
               </h4>
-              {workoutDays.length > 0 ? (
+              {weekWorkouts.length > 0 ? (
                 <div className="space-y-3">
-                  {workoutDays.map(({ day, id }) => (
-                    <WorkoutCard key={day} templateId={id as string} day={day} />
+                  {weekWorkouts.map((workout) => (
+                    <WorkoutCard key={workout.id} workout={workout} />
                   ))}
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground italic p-4 rounded bg-charcoal text-center">
-                  Workouts to be assigned by your coach
+                  Workouts to be configured by your coach
                 </p>
               )}
             </div>

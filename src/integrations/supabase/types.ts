@@ -497,6 +497,103 @@ export type Database = {
         }
         Relationships: []
       }
+      program_day_exercises: {
+        Row: {
+          created_at: string | null
+          day_workout_id: string
+          display_order: number | null
+          exercise_name: string
+          id: string
+          notes: string | null
+          reps_or_time: string | null
+          rest: string | null
+          scaling_options: string | null
+          section_type: string
+          sets: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_workout_id: string
+          display_order?: number | null
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          scaling_options?: string | null
+          section_type: string
+          sets?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_workout_id?: string
+          display_order?: number | null
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          scaling_options?: string | null
+          section_type?: string
+          sets?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_day_exercises_day_workout_id_fkey"
+            columns: ["day_workout_id"]
+            isOneToOne: false
+            referencedRelation: "program_day_workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_day_workouts: {
+        Row: {
+          created_at: string | null
+          day_of_week: string
+          display_order: number | null
+          id: string
+          is_rest_day: boolean | null
+          updated_at: string | null
+          week_id: string
+          workout_description: string | null
+          workout_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: string
+          display_order?: number | null
+          id?: string
+          is_rest_day?: boolean | null
+          updated_at?: string | null
+          week_id: string
+          workout_description?: string | null
+          workout_name: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: string
+          display_order?: number | null
+          id?: string
+          is_rest_day?: boolean | null
+          updated_at?: string | null
+          week_id?: string
+          workout_description?: string | null
+          workout_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_day_workouts_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "program_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       program_weeks: {
         Row: {
           conditioning_notes: string | null
