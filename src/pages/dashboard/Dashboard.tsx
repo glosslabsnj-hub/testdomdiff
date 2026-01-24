@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
   Play, 
@@ -12,11 +13,13 @@ import {
   Crown,
   Briefcase,
   GraduationCap,
-  MessageCircle
+  MessageCircle,
+  Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useAuth } from "@/contexts/AuthContext";
+import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 
 const Dashboard = () => {
   const { subscription } = useAuth();
@@ -24,6 +27,9 @@ const Dashboard = () => {
   const isCoaching = planType === "coaching";
   const isTransformation = planType === "transformation";
   const isMembership = planType === "membership";
+  
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [lockedFeature, setLockedFeature] = useState("");
 
   // Define all tiles - themed based on subscription tier
   // Coaching (Free World) = Probation terms
@@ -159,19 +165,29 @@ const Dashboard = () => {
     },
   };
 
+  // Define locked tiles for Solitary users (shown but trigger modal)
+  const lockedTilesForMembership = [
+    { ...allTiles.program, locked: true, featureName: "The Sentence (12-Week Program)" },
+    { ...allTiles.nutrition, locked: true, featureName: "Chow Hall (Nutrition)" },
+    { ...allTiles.skills, locked: true, featureName: "Work Release (Skill-Building)" },
+    { ...allTiles.community, locked: true, featureName: "The Yard (Community)" },
+  ];
+
   // Build tiles in exact order specified by user:
   // Start Here → 12-Week (if applicable) → Workout Templates → Daily Discipline → 
   // Nutrition Templates → Mindset + Faith → Weekly Check-In → Progress Tracker → 
   // Skill Building → Community → (Coaching extras at end)
   
-  let tiles = [];
+  let tiles: Array<typeof allTiles.startHere & { locked?: boolean; featureName?: string }> = [];
   
   // 1. Start Here (always first)
   tiles.push(allTiles.startHere);
   
-  // 2. 12-Week Program (Transformation/Coaching only)
+  // 2. 12-Week Program (Transformation/Coaching only, locked for membership)
   if (isTransformation || isCoaching) {
     tiles.push(allTiles.program);
+  } else if (isMembership) {
+    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("12-Week"))!);
   }
   
   // 3. Workout Templates
@@ -180,9 +196,11 @@ const Dashboard = () => {
   // 4. Daily Discipline
   tiles.push(allTiles.discipline);
   
-  // 5. Nutrition Templates (Transformation/Coaching only)
+  // 5. Nutrition Templates (Transformation/Coaching only, locked for membership)
   if (isTransformation || isCoaching) {
     tiles.push(allTiles.nutrition);
+  } else if (isMembership) {
+    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Nutrition"))!);
   }
   
   // 6. Mindset + Faith
@@ -194,14 +212,18 @@ const Dashboard = () => {
   // 8. Progress Tracker
   tiles.push(allTiles.progress);
   
-  // 9. Skill-Building (Transformation/Coaching only)
+  // 9. Skill-Building (Transformation/Coaching only, locked for membership)
   if (isTransformation || isCoaching) {
     tiles.push(allTiles.skills);
+  } else if (isMembership) {
+    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Skill"))!);
   }
   
-  // 10. Community - NOT available for Solitary (membership) users
+  // 10. Community - Locked for Solitary (membership) users but shown
   if (!isMembership) {
     tiles.push(allTiles.community);
+  } else {
+    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Community"))!);
   }
   
   // 11-13. Coaching-only tiles at the end
@@ -210,6 +232,14 @@ const Dashboard = () => {
     tiles.push(allTiles.messages);
     tiles.push(allTiles.coaching);
   }
+
+  const handleTileClick = (tile: typeof tiles[0], e: React.MouseEvent) => {
+    if (tile.locked) {
+      e.preventDefault();
+      setLockedFeature(tile.featureName || "This feature");
+      setUpgradeModalOpen(true);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -231,18 +261,35 @@ const Dashboard = () => {
           {tiles.map((tile, index) => (
             <Link
               key={index}
-              to={tile.href}
-              className={`block p-6 rounded-lg border transition-all hover:scale-105 ${tile.color}`}
+              to={tile.locked ? "#" : tile.href}
+              onClick={(e) => handleTileClick(tile, e)}
+              className={`block p-6 rounded-lg border transition-all hover:scale-105 ${tile.color} ${
+                tile.locked ? "relative opacity-75" : ""
+              }`}
             >
+              {tile.locked && (
+                <div className="absolute top-3 right-3">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                </div>
+              )}
               <tile.icon className="w-10 h-10 text-primary mb-4" />
               <p className="text-xs text-primary uppercase tracking-wider mb-1">
                 {tile.subtitle}
               </p>
               <h3 className="headline-card mb-2">{tile.title}</h3>
               <p className="text-sm text-muted-foreground">{tile.description}</p>
+              {tile.locked && (
+                <p className="text-xs text-primary mt-2 font-semibold">Upgrade to Unlock</p>
+              )}
             </Link>
           ))}
         </div>
+        
+        <SolitaryUpgradeModal
+          open={upgradeModalOpen}
+          onOpenChange={setUpgradeModalOpen}
+          feature={lockedFeature}
+        />
 
         {/* Quick Actions */}
         <div className="mt-12 p-8 bg-charcoal rounded-lg border border-border">
