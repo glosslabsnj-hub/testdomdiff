@@ -169,6 +169,42 @@
   );
 }
 
+/* Fluorescent light flicker overlay */
+.fluorescent-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 49;
+  background: linear-gradient(
+    180deg,
+    hsl(200 15% 70% / 0.03) 0%,
+    transparent 30%,
+    transparent 70%,
+    hsl(200 15% 70% / 0.02) 100%
+  );
+  animation: fluorescent-flicker 8s linear infinite;
+}
+
+@keyframes fluorescent-flicker {
+  0%, 100% { opacity: 0; }
+  2% { opacity: 1; }
+  4% { opacity: 0; }
+  8% { opacity: 1; }
+  9% { opacity: 0; }
+  12% { opacity: 0.7; }
+  20% { opacity: 0; }
+  25% { opacity: 1; }
+  30% { opacity: 0; }
+  70% { opacity: 0; }
+  72% { opacity: 1; }
+  77% { opacity: 0; }
+  80% { opacity: 0.8; }
+  82% { opacity: 0; }
+  92% { opacity: 0.5; }
+  94% { opacity: 1; }
+  97% { opacity: 0; }
+}
+
 @layer components {
   /* Hero headline style */
   .headline-hero {
