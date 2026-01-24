@@ -49,6 +49,8 @@ import ShopCheckout from "./pages/shop/Checkout";
 import OrderConfirmation from "./pages/shop/OrderConfirmation";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,8 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/book-call" element={<BookCall />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/access-expired" element={<AccessExpired />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />

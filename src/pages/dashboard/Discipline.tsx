@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useMilestones } from "@/hooks/useMilestones";
 import { useRoutineTimeOverrides } from "@/hooks/useRoutineTimeOverrides";
+import { useCustomRoutines } from "@/hooks/useCustomRoutines";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -21,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TemplateSelector from "@/components/discipline/TemplateSelector";
 import RoutineTimeEditor from "@/components/discipline/RoutineTimeEditor";
+import AddCustomRoutineDialog from "@/components/discipline/AddCustomRoutineDialog";
+import CustomRoutineItem from "@/components/discipline/CustomRoutineItem";
 import { MorningBriefing, WardenTip } from "@/components/warden";
 
 const JOURNAL_PROMPTS = [
@@ -51,6 +54,19 @@ const Discipline = () => {
 
   const { checkStreakMilestones } = useMilestones();
 
+  // Custom routines hook
+  const {
+    getMorningCustomRoutines,
+    getEveningCustomRoutines,
+    addCustomRoutine,
+    updateCustomRoutine,
+    deleteCustomRoutine,
+    loading: customRoutinesLoading,
+  } = useCustomRoutines();
+
+  // Get custom routines for completion tracking
+  const morningCustomRoutines = getMorningCustomRoutines();
+  const eveningCustomRoutines = getEveningCustomRoutines();
   const [journalDrafts, setJournalDrafts] = useState<Record<string, string>>({});
   const [savingJournal, setSavingJournal] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -322,6 +338,30 @@ const Discipline = () => {
                   })}
                 </div>
               )}
+              
+              {/* Custom Morning Routines */}
+              {morningCustomRoutines.length > 0 && (
+                <div className="space-y-3 mt-4 pt-4 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Custom Tasks</p>
+                  {morningCustomRoutines.map((item) => (
+                    <CustomRoutineItem
+                      key={item.id}
+                      routine={item}
+                      completed={isRoutineCompleted(`custom_${item.id}`)}
+                      completionTime={getCompletionTime(`custom_${item.id}`)}
+                      onToggle={() => toggleRoutineCompletion(`custom_${item.id}`)}
+                      onUpdate={updateCustomRoutine}
+                      onDelete={deleteCustomRoutine}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Add Custom Morning Routine */}
+              <AddCustomRoutineDialog
+                routineType="morning"
+                onAdd={async (data) => addCustomRoutine({ ...data, display_order: 0, is_active: true })}
+              />
             </div>
 
             {/* Evening Routine */}
@@ -386,6 +426,30 @@ const Discipline = () => {
                   })}
                 </div>
               )}
+              
+              {/* Custom Evening Routines */}
+              {eveningCustomRoutines.length > 0 && (
+                <div className="space-y-3 mt-4 pt-4 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Custom Tasks</p>
+                  {eveningCustomRoutines.map((item) => (
+                    <CustomRoutineItem
+                      key={item.id}
+                      routine={item}
+                      completed={isRoutineCompleted(`custom_${item.id}`)}
+                      completionTime={getCompletionTime(`custom_${item.id}`)}
+                      onToggle={() => toggleRoutineCompletion(`custom_${item.id}`)}
+                      onUpdate={updateCustomRoutine}
+                      onDelete={deleteCustomRoutine}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Add Custom Evening Routine */}
+              <AddCustomRoutineDialog
+                routineType="evening"
+                onAdd={async (data) => addCustomRoutine({ ...data, display_order: 0, is_active: true })}
+              />
             </div>
           </div>
         )}
