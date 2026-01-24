@@ -53,9 +53,8 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      {/* Atmospheric overlays for cell block effect */}
+      {/* Vignette overlay for cell block atmosphere */}
       <div className="vignette-overlay" aria-hidden="true" />
-      <div className="fluorescent-overlay" aria-hidden="true" />
       <Toaster />
       <Sonner />
       <BrowserRouter>
