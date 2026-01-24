@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dumbbell, Plus, Edit, Trash2, ArrowLeft, Loader2, ArrowRight } from "lucide-react";
+import { Dumbbell, Plus, Edit, Trash2, ArrowLeft, Loader2, ArrowRight, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useWorkoutTemplates, useWorkoutExercises, WorkoutTemplate, WorkoutExercise } from "@/hooks/useWorkoutContent";
 
 const SECTION_TYPES = [
@@ -32,6 +34,13 @@ export default function WorkoutContentManager() {
     notes: "",
     scaling_options: "",
     display_order: 0,
+  });
+
+  // Template settings dialog
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [templateSettings, setTemplateSettings] = useState({
+    is_bodyweight: false,
+    video_url: "",
   });
 
   const openExerciseDialog = (exercise?: WorkoutExercise) => {
@@ -88,6 +97,23 @@ export default function WorkoutContentManager() {
     exercises: exercises.filter((e) => e.section_type === section.value),
   }));
 
+  const openSettingsDialog = () => {
+    if (selectedTemplate) {
+      setTemplateSettings({
+        is_bodyweight: selectedTemplate.is_bodyweight || false,
+        video_url: selectedTemplate.video_url || "",
+      });
+      setSettingsDialogOpen(true);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    if (!selectedTemplate) return;
+    await updateTemplate(selectedTemplate.id, templateSettings);
+    setSelectedTemplate({ ...selectedTemplate, ...templateSettings });
+    setSettingsDialogOpen(false);
+  };
+
   if (templatesLoading) {
     return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -99,11 +125,19 @@ export default function WorkoutContentManager() {
           <Button variant="ghost" size="icon" onClick={() => setSelectedTemplate(null)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h2 className="headline-card">{selectedTemplate.name}</h2>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h2 className="headline-card">{selectedTemplate.name}</h2>
+              {selectedTemplate.is_bodyweight && (
+                <Badge variant="outline" className="text-xs">Bodyweight</Badge>
+              )}
+            </div>
             <p className="text-muted-foreground text-sm">{selectedTemplate.focus}</p>
           </div>
-          <Button variant="gold" className="ml-auto" onClick={() => openExerciseDialog()}>
+          <Button variant="outline" size="sm" onClick={openSettingsDialog}>
+            Settings
+          </Button>
+          <Button variant="gold" onClick={() => openExerciseDialog()}>
             <Plus className="h-4 w-4 mr-2" /> Add Exercise
           </Button>
         </div>
@@ -195,6 +229,47 @@ export default function WorkoutContentManager() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Template Settings Dialog */}
+        <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
+          <DialogContent className="bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Template Settings</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="is_bodyweight">Bodyweight Only</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Available to Membership tier (no equipment)
+                  </p>
+                </div>
+                <Switch
+                  id="is_bodyweight"
+                  checked={templateSettings.is_bodyweight}
+                  onCheckedChange={(v) => setTemplateSettings({ ...templateSettings, is_bodyweight: v })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="video_url">Video URL</Label>
+                <Input
+                  id="video_url"
+                  value={templateSettings.video_url}
+                  onChange={(e) => setTemplateSettings({ ...templateSettings, video_url: e.target.value })}
+                  placeholder="https://www.youtube.com/embed/..."
+                  className="bg-charcoal border-border mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  YouTube or Vimeo embed URL for this workout
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setSettingsDialogOpen(false)}>Cancel</Button>
+              <Button variant="gold" onClick={handleSaveSettings}>Save Settings</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -225,9 +300,11 @@ export default function WorkoutContentManager() {
               <div className="flex items-start gap-3 sm:gap-4">
                 <Dumbbell className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-semibold text-sm sm:text-base truncate">{template.name}</h3>
                     {!template.is_active && <Badge variant="secondary" className="text-xs">Inactive</Badge>}
+                    {template.is_bodyweight && <Badge variant="outline" className="text-xs">Bodyweight</Badge>}
+                    {template.video_url && <Video className="w-3 h-3 text-primary" />}
                   </div>
                   <p className="text-xs sm:text-sm text-primary mb-1 sm:mb-2 truncate">{template.focus}</p>
                   <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{template.description}</p>

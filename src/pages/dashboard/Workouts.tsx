@@ -1,10 +1,27 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Dumbbell, Plus, Loader2 } from "lucide-react";
+import { ArrowLeft, Dumbbell, Plus, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
+  const { subscription } = useAuth();
+  
+  const planType = subscription?.plan_type;
+  const isMembershipOnly = planType === "membership";
+
+  // Filter templates based on subscription tier
+  // Membership users only see bodyweight templates
+  const visibleTemplates = templates.filter(t => 
+    t.is_active && (!isMembershipOnly || t.is_bodyweight)
+  );
+
+  // Count of templates user can't see
+  const lockedCount = isMembershipOnly 
+    ? templates.filter(t => t.is_active && !t.is_bodyweight).length 
+    : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,7 +39,9 @@ const Workouts = () => {
               Workout <span className="text-primary">Templates</span>
             </h1>
             <p className="text-muted-foreground">
-              Prison-style frameworks. You fill in the work.
+              {isMembershipOnly 
+                ? "Bodyweight workouts. No equipment needed."
+                : "Prison-style frameworks. You fill in the work."}
             </p>
           </div>
         </div>
@@ -39,28 +58,57 @@ const Workouts = () => {
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : templates.length === 0 ? (
+        ) : visibleTemplates.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No workout templates available yet.</p>
             <p className="text-sm text-muted-foreground mt-2">Check back soon!</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {templates.filter(t => t.is_active).map((template) => (
-              <Link
-                key={template.id}
-                to={`/dashboard/workouts/${template.template_slug}`}
-                className="p-6 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group"
-              >
-                <Dumbbell className="w-8 h-8 text-primary mb-4" />
-                <h3 className="headline-card mb-1 group-hover:text-primary transition-colors">
-                  {template.name}
-                </h3>
-                <p className="text-sm text-primary mb-2">{template.focus}</p>
-                <p className="text-sm text-muted-foreground">{template.description}</p>
-              </Link>
-            ))}
-          </div>
+          <>
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {visibleTemplates.map((template) => (
+                <Link
+                  key={template.id}
+                  to={`/dashboard/workouts/${template.template_slug}`}
+                  className="p-6 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <Dumbbell className="w-8 h-8 text-primary" />
+                    {template.is_bodyweight && (
+                      <Badge variant="outline" className="text-xs">Bodyweight</Badge>
+                    )}
+                  </div>
+                  <h3 className="headline-card mb-1 group-hover:text-primary transition-colors">
+                    {template.name}
+                  </h3>
+                  <p className="text-sm text-primary mb-2">{template.focus}</p>
+                  <p className="text-sm text-muted-foreground">{template.description}</p>
+                </Link>
+              ))}
+            </div>
+
+            {/* Locked content indicator for membership users */}
+            {isMembershipOnly && lockedCount > 0 && (
+              <div className="p-6 rounded-lg bg-card border border-border mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                    <Lock className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <div className="flex-grow">
+                    <p className="font-medium">
+                      +{lockedCount} more templates available
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Upgrade to the 12-Week Transformation for the full progressive workout library
+                    </p>
+                  </div>
+                  <Button variant="gold" size="sm" asChild>
+                    <Link to="/programs/transformation">Upgrade</Link>
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Week Builder Section */}
@@ -85,7 +133,9 @@ const Workouts = () => {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Your weekly schedule will be assigned based on your program week.
+            {isMembershipOnly 
+              ? "Build your own weekly schedule using the bodyweight templates above."
+              : "Your weekly schedule will be assigned based on your program week."}
           </p>
         </div>
       </div>

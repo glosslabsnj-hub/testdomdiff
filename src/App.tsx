@@ -32,6 +32,9 @@ import Faith from "./pages/dashboard/Faith";
 import Progress from "./pages/dashboard/Progress";
 import Community from "./pages/dashboard/Community";
 import CoachingPortal from "./pages/dashboard/CoachingPortal";
+import SkillBuilding from "./pages/dashboard/SkillBuilding";
+import AdvancedSkills from "./pages/dashboard/AdvancedSkills";
+import DirectMessages from "./pages/dashboard/DirectMessages";
 import Settings from "./pages/dashboard/Settings";
 import Terms from "./pages/legal/Terms";
 import Privacy from "./pages/legal/Privacy";
@@ -187,6 +190,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <CoachingPortal />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/skills"
+              element={
+                <ProtectedRoute>
+                  <SkillBuilding />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/advanced-skills"
+              element={
+                <ProtectedRoute>
+                  <AdvancedSkills />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/messages"
+              element={
+                <ProtectedRoute>
+                  <DirectMessages />
                 </ProtectedRoute>
               }
             />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Edit, Loader2, ChevronRight } from "lucide-react";
+import { Calendar, Edit, Loader2, ChevronRight, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { useProgramWeeks, ProgramWeek, useWorkoutTemplates } from "@/hooks/useWorkoutContent";
 
 export default function ProgramWeeksManager() {
@@ -26,6 +27,9 @@ export default function ProgramWeeksManager() {
     conditioning_notes: "",
     recovery_notes: "",
     scripture_reference: "",
+    video_url: "",
+    video_title: "",
+    video_description: "",
   });
 
   const openEditDialog = (week: ProgramWeek) => {
@@ -42,6 +46,9 @@ export default function ProgramWeeksManager() {
       conditioning_notes: week.conditioning_notes || "",
       recovery_notes: week.recovery_notes || "",
       scripture_reference: week.scripture_reference || "",
+      video_url: week.video_url || "",
+      video_title: week.video_title || "",
+      video_description: week.video_description || "",
     });
     setDialogOpen(true);
   };
@@ -56,6 +63,9 @@ export default function ProgramWeeksManager() {
       workout_thursday: form.workout_thursday || null,
       workout_friday: form.workout_friday || null,
       workout_saturday: form.workout_saturday || null,
+      video_url: form.video_url || null,
+      video_title: form.video_title || null,
+      video_description: form.video_description || null,
     });
     setDialogOpen(false);
   };
@@ -127,6 +137,7 @@ export default function ProgramWeeksManager() {
                       {week.week_number}
                     </div>
                     <div className="flex items-center gap-1.5">
+                      {week.video_url && <Video className="w-3 h-3 text-primary" />}
                       <Badge className={`${getPhaseColor(week.phase)} text-xs`}>{week.phase}</Badge>
                       <Edit className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
@@ -173,17 +184,54 @@ export default function ProgramWeeksManager() {
             </div>
 
             <div className="border-t border-border pt-4 space-y-4">
+              <h4 className="font-medium flex items-center gap-2">
+                <Video className="w-4 h-4 text-primary" />
+                Week Video
+              </h4>
               <div>
-                <label className="text-sm font-medium mb-1 block">Conditioning Notes</label>
-                <Textarea value={form.conditioning_notes} onChange={(e) => setForm({ ...form, conditioning_notes: e.target.value })} className="bg-charcoal border-border" placeholder="Cardio, HIIT, or other conditioning notes..." />
+                <Label htmlFor="video_url">Video URL (YouTube/Vimeo embed)</Label>
+                <Input 
+                  id="video_url"
+                  value={form.video_url} 
+                  onChange={(e) => setForm({ ...form, video_url: e.target.value })} 
+                  className="bg-charcoal border-border mt-1" 
+                  placeholder="https://www.youtube.com/embed/..." 
+                />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Recovery Notes</label>
-                <Textarea value={form.recovery_notes} onChange={(e) => setForm({ ...form, recovery_notes: e.target.value })} className="bg-charcoal border-border" placeholder="Stretching, mobility, rest day guidance..." />
+                <Label htmlFor="video_title">Video Title</Label>
+                <Input 
+                  id="video_title"
+                  value={form.video_title} 
+                  onChange={(e) => setForm({ ...form, video_title: e.target.value })} 
+                  className="bg-charcoal border-border mt-1" 
+                  placeholder="e.g., Week 1 Overview" 
+                />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Scripture Reference</label>
-                <Input value={form.scripture_reference} onChange={(e) => setForm({ ...form, scripture_reference: e.target.value })} className="bg-charcoal border-border" placeholder="e.g., Philippians 4:13" />
+                <Label htmlFor="video_description">Video Description</Label>
+                <Textarea 
+                  id="video_description"
+                  value={form.video_description} 
+                  onChange={(e) => setForm({ ...form, video_description: e.target.value })} 
+                  className="bg-charcoal border-border mt-1" 
+                  placeholder="Brief description of the video content" 
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-4 space-y-4">
+              <div>
+                <Label htmlFor="conditioning_notes">Conditioning Notes</Label>
+                <Textarea value={form.conditioning_notes} onChange={(e) => setForm({ ...form, conditioning_notes: e.target.value })} className="bg-charcoal border-border mt-1" placeholder="Cardio, HIIT, or other conditioning notes..." />
+              </div>
+              <div>
+                <Label htmlFor="recovery_notes">Recovery Notes</Label>
+                <Textarea value={form.recovery_notes} onChange={(e) => setForm({ ...form, recovery_notes: e.target.value })} className="bg-charcoal border-border mt-1" placeholder="Stretching, mobility, rest day guidance..." />
+              </div>
+              <div>
+                <Label htmlFor="scripture_reference">Scripture Reference</Label>
+                <Input value={form.scripture_reference} onChange={(e) => setForm({ ...form, scripture_reference: e.target.value })} className="bg-charcoal border-border mt-1" placeholder="e.g., Philippians 4:13" />
               </div>
             </div>
           </div>

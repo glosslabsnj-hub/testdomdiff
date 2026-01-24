@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Dumbbell, Target, BookOpen, Heart, Loader2 } from "lucide-react";
+import { ArrowLeft, Dumbbell, Target, BookOpen, Heart, Loader2, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useProgramWeeks, useWorkoutTemplates } from "@/hooks/useWorkoutContent";
+import { useAuth } from "@/contexts/AuthContext";
+import UpgradePrompt from "@/components/UpgradePrompt";
 
 const Program = () => {
   const { weeks, loading: weeksLoading } = useProgramWeeks();
   const { templates, loading: templatesLoading } = useWorkoutTemplates();
+  const { subscription } = useAuth();
+
+  // Only transformation and coaching users can access
+  if (subscription?.plan_type === "membership") {
+    return <UpgradePrompt feature="12-Week Program" upgradeTo="transformation" />;
+  }
 
   const loading = weeksLoading || templatesLoading;
 
@@ -119,6 +127,29 @@ const Program = () => {
                       </div>
                     ) : (
                       <p className="text-sm text-muted-foreground italic mb-3">Schedule to be assigned</p>
+                    )}
+
+                    {/* Weekly Video */}
+                    {week.video_url && (
+                      <div className="mb-3 p-4 rounded bg-charcoal border border-primary/30">
+                        <div className="flex items-center gap-2 mb-2">
+                          <PlayCircle className="w-4 h-4 text-primary" />
+                          <span className="text-sm text-primary font-medium">
+                            {week.video_title || "Week Video"}
+                          </span>
+                        </div>
+                        <div className="aspect-video rounded overflow-hidden bg-background">
+                          <iframe
+                            src={week.video_url}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                        {week.video_description && (
+                          <p className="text-sm text-muted-foreground mt-2">{week.video_description}</p>
+                        )}
+                      </div>
                     )}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

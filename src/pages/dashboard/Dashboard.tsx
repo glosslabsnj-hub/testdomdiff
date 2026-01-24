@@ -9,7 +9,10 @@ import {
   BookOpen, 
   TrendingUp,
   Users,
-  Crown
+  Crown,
+  Briefcase,
+  GraduationCap,
+  MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -17,8 +20,12 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const { subscription } = useAuth();
-  const isCoaching = subscription?.plan_type === "coaching";
+  const planType = subscription?.plan_type;
+  const isCoaching = planType === "coaching";
+  const isTransformation = planType === "transformation";
+  const isMembership = planType === "membership";
 
+  // Base tiles available to ALL users
   const baseTiles = [
     {
       icon: Play,
@@ -31,17 +38,11 @@ const Dashboard = () => {
     {
       icon: Dumbbell,
       title: "Workout Templates",
-      subtitle: "Prison-Style Frameworks",
-      description: "Access all workout templates. Build your sessions.",
+      subtitle: isMembership ? "Bodyweight Workouts" : "Prison-Style Frameworks",
+      description: isMembership 
+        ? "Access bodyweight workout templates. No equipment needed."
+        : "Access all workout templates. Build your sessions.",
       href: "/dashboard/workouts",
-      color: "bg-charcoal border-border hover:border-primary/50",
-    },
-    {
-      icon: Calendar,
-      title: "12-Week Program",
-      subtitle: "Template Framework",
-      description: "View the complete 12-week structure and weekly breakdown.",
-      href: "/dashboard/program",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     {
@@ -50,14 +51,6 @@ const Dashboard = () => {
       subtitle: "Routine Templates",
       description: "Morning and evening routines. Build your daily structure.",
       href: "/dashboard/discipline",
-      color: "bg-charcoal border-border hover:border-primary/50",
-    },
-    {
-      icon: Utensils,
-      title: "Nutrition Templates",
-      subtitle: "Meal Structure",
-      description: "Simple meal templates and grocery list builders.",
-      href: "/dashboard/nutrition",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     {
@@ -94,20 +87,72 @@ const Dashboard = () => {
     },
   ];
 
-  // Add coaching portal tile for 1:1 coaching subscribers
-  const tiles = isCoaching
-    ? [
-        ...baseTiles,
-        {
-          icon: Crown,
-          title: "1:1 Coaching",
-          subtitle: "Premium Access",
-          description: "Your exclusive coaching portal. Direct access to Dom.",
-          href: "/dashboard/coaching",
-          color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
-        },
-      ]
-    : baseTiles;
+  // Transformation-only tiles (also available to coaching)
+  const transformationTiles = [
+    {
+      icon: Calendar,
+      title: "12-Week Program",
+      subtitle: "Assigned Schedule",
+      description: "Your complete 12-week structure with weekly breakdown and videos.",
+      href: "/dashboard/program",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+    {
+      icon: Utensils,
+      title: "Nutrition Templates",
+      subtitle: "Meal Structure",
+      description: "Simple meal templates and grocery list builders.",
+      href: "/dashboard/nutrition",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+    {
+      icon: Briefcase,
+      title: "Skill-Building",
+      subtitle: "Money-Making Skills",
+      description: "Learn skills to build your hustle and create income.",
+      href: "/dashboard/skills",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+  ];
+
+  // Coaching-only tiles
+  const coachingTiles = [
+    {
+      icon: GraduationCap,
+      title: "Advanced Hustle",
+      subtitle: "Next-Level Skills",
+      description: "Advanced business strategies for serious entrepreneurs.",
+      href: "/dashboard/advanced-skills",
+      color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
+    },
+    {
+      icon: MessageCircle,
+      title: "Message Dom",
+      subtitle: "Direct Access",
+      description: "Direct messaging with your coach. Get answers fast.",
+      href: "/dashboard/messages",
+      color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
+    },
+    {
+      icon: Crown,
+      title: "1:1 Coaching",
+      subtitle: "Premium Access",
+      description: "Your exclusive coaching portal. Direct access to Dom.",
+      href: "/dashboard/coaching",
+      color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
+    },
+  ];
+
+  // Build tiles array based on subscription tier
+  let tiles = [...baseTiles];
+  
+  if (isTransformation || isCoaching) {
+    tiles = [...tiles, ...transformationTiles];
+  }
+  
+  if (isCoaching) {
+    tiles = [...tiles, ...coachingTiles];
+  }
 
   return (
     <div className="min-h-screen bg-background">

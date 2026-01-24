@@ -116,6 +116,33 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       discipline_routines: {
         Row: {
           action_text: string
@@ -481,6 +508,9 @@ export type Database = {
           scripture_reference: string | null
           title: string | null
           updated_at: string | null
+          video_description: string | null
+          video_title: string | null
+          video_url: string | null
           week_number: number
           workout_friday: string | null
           workout_monday: string | null
@@ -499,6 +529,9 @@ export type Database = {
           scripture_reference?: string | null
           title?: string | null
           updated_at?: string | null
+          video_description?: string | null
+          video_title?: string | null
+          video_url?: string | null
           week_number: number
           workout_friday?: string | null
           workout_monday?: string | null
@@ -517,6 +550,9 @@ export type Database = {
           scripture_reference?: string | null
           title?: string | null
           updated_at?: string | null
+          video_description?: string | null
+          video_title?: string | null
+          video_url?: string | null
           week_number?: number
           workout_friday?: string | null
           workout_monday?: string | null
@@ -609,6 +645,54 @@ export type Database = {
           week_number?: number
           weight?: number | null
           workouts?: number | null
+        }
+        Relationships: []
+      }
+      skill_lessons: {
+        Row: {
+          action_steps: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_advanced: boolean | null
+          is_published: boolean | null
+          resources: Json | null
+          title: string
+          updated_at: string | null
+          video_url: string | null
+          week_number: number
+        }
+        Insert: {
+          action_steps?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_advanced?: boolean | null
+          is_published?: boolean | null
+          resources?: Json | null
+          title: string
+          updated_at?: string | null
+          video_url?: string | null
+          week_number: number
+        }
+        Update: {
+          action_steps?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_advanced?: boolean | null
+          is_published?: boolean | null
+          resources?: Json | null
+          title?: string
+          updated_at?: string | null
+          video_url?: string | null
+          week_number?: number
         }
         Relationships: []
       }
@@ -760,9 +844,11 @@ export type Database = {
           focus: string | null
           id: string
           is_active: boolean | null
+          is_bodyweight: boolean | null
           name: string
           template_slug: string
           updated_at: string | null
+          video_url: string | null
         }
         Insert: {
           created_at?: string | null
@@ -771,9 +857,11 @@ export type Database = {
           focus?: string | null
           id?: string
           is_active?: boolean | null
+          is_bodyweight?: boolean | null
           name: string
           template_slug: string
           updated_at?: string | null
+          video_url?: string | null
         }
         Update: {
           created_at?: string | null
@@ -782,9 +870,11 @@ export type Database = {
           focus?: string | null
           id?: string
           is_active?: boolean | null
+          is_bodyweight?: boolean | null
           name?: string
           template_slug?: string
           updated_at?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
