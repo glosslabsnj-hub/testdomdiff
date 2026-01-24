@@ -75,6 +75,24 @@ export function useWorkoutTemplates() {
     }
   };
 
+  const createTemplate = async (template: Omit<WorkoutTemplate, "id" | "created_at" | "updated_at">) => {
+    try {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .insert(template)
+        .select()
+        .single();
+
+      if (error) throw error;
+      await fetchTemplates();
+      toast({ title: "Success", description: "Template created" });
+      return data as WorkoutTemplate;
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+      return null;
+    }
+  };
+
   const updateTemplate = async (id: string, updates: Partial<WorkoutTemplate>) => {
     try {
       const { error } = await supabase
@@ -92,11 +110,31 @@ export function useWorkoutTemplates() {
     }
   };
 
+  const deleteTemplate = async (id: string) => {
+    try {
+      // First delete all exercises for this template
+      await supabase.from("workout_exercises").delete().eq("template_id", id);
+      
+      const { error } = await supabase
+        .from("workout_templates")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      await fetchTemplates();
+      toast({ title: "Success", description: "Template deleted" });
+      return true;
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchTemplates();
   }, []);
 
-  return { templates, loading, fetchTemplates, updateTemplate };
+  return { templates, loading, fetchTemplates, createTemplate, updateTemplate, deleteTemplate };
 }
 
 export function useWorkoutExercises(templateId: string | null) {

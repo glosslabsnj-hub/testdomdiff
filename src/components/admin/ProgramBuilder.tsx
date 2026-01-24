@@ -69,6 +69,11 @@ export default function ProgramBuilder() {
     rest: "",
     notes: "",
   });
+  
+  // For picking from template exercises
+  const [pickFromTemplate, setPickFromTemplate] = useState(false);
+  const [exerciseTemplateId, setExerciseTemplateId] = useState<string>("");
+  const [allTemplateExercises, setAllTemplateExercises] = useState<any[]>([]);
 
   // Hooks
   const { workouts: dayWorkouts, loading: daysLoading, createWorkout, updateWorkout, deleteWorkout } = 
@@ -189,6 +194,10 @@ export default function ProgramBuilder() {
   // Exercise functions
   const openExerciseDialog = (dayWorkout: ProgramDayWorkout, exercise?: ProgramDayExercise) => {
     setSelectedDayWorkout(dayWorkout);
+    setPickFromTemplate(false);
+    setExerciseTemplateId("");
+    setAllTemplateExercises([]);
+    
     if (exercise) {
       setEditingExercise(exercise);
       setExerciseForm({
@@ -211,6 +220,37 @@ export default function ProgramBuilder() {
       });
     }
     setExerciseDialogOpen(true);
+  };
+
+  // Load exercises when template is selected for exercise picker
+  const loadTemplateExercisesForPicker = async (templateId: string) => {
+    setExerciseTemplateId(templateId);
+    if (!templateId) {
+      setAllTemplateExercises([]);
+      return;
+    }
+    
+    const { data } = await import("@/integrations/supabase/client").then(m => 
+      m.supabase
+        .from("workout_exercises")
+        .select("*")
+        .eq("template_id", templateId)
+        .order("display_order")
+    );
+    setAllTemplateExercises(data || []);
+  };
+
+  // Apply selected template exercise to form
+  const applyTemplateExercise = (ex: any) => {
+    setExerciseForm({
+      section_type: ex.section_type,
+      exercise_name: ex.exercise_name,
+      sets: ex.sets || "",
+      reps_or_time: ex.reps_or_time || "",
+      rest: ex.rest || "",
+      notes: ex.notes || "",
+    });
+    setPickFromTemplate(false);
   };
 
   const saveExercise = async () => {
@@ -556,9 +596,9 @@ export default function ProgramBuilder() {
           </DialogContent>
         </Dialog>
 
-        {/* Exercise Dialog - Simplified */}
+        {/* Exercise Dialog - With Template Picker */}
         <Dialog open={exerciseDialogOpen} onOpenChange={setExerciseDialogOpen}>
-          <DialogContent className="bg-card border-border max-w-md">
+          <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Dumbbell className="h-5 w-5 text-primary" />
@@ -566,6 +606,68 @@ export default function ProgramBuilder() {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              {/* Option to pick from template - only when adding new */}
+              {!editingExercise && (
+                <div className="p-4 rounded-lg bg-charcoal border border-border">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <Label className="text-base">Pick from Template</Label>
+                      <p className="text-xs text-muted-foreground">Use an existing exercise with pre-filled details</p>
+                    </div>
+                    <Switch
+                      checked={pickFromTemplate}
+                      onCheckedChange={(v) => {
+                        setPickFromTemplate(v);
+                        if (!v) {
+                          setExerciseTemplateId("");
+                          setAllTemplateExercises([]);
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {pickFromTemplate && (
+                    <div className="space-y-3">
+                      <Select value={exerciseTemplateId} onValueChange={loadTemplateExercisesForPicker}>
+                        <SelectTrigger className="bg-background border-border">
+                          <SelectValue placeholder="Select a template..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {templates.filter(t => t.is_active).map((t) => (
+                            <SelectItem key={t.id} value={t.id}>
+                              {t.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      {allTemplateExercises.length > 0 && (
+                        <div className="max-h-48 overflow-y-auto space-y-1 rounded border border-border p-2 bg-background">
+                          {allTemplateExercises.map((ex) => (
+                            <button
+                              key={ex.id}
+                              type="button"
+                              className="w-full text-left p-2 rounded hover:bg-primary/10 transition-colors"
+                              onClick={() => applyTemplateExercise(ex)}
+                            >
+                              <p className="font-medium text-sm">{ex.exercise_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {[ex.sets && `${ex.sets} sets`, ex.reps_or_time, ex.rest].filter(Boolean).join(" • ")}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {exerciseTemplateId && allTemplateExercises.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-2">No exercises in this template</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Main form fields */}
               <div>
                 <Label>Section</Label>
                 <Select value={exerciseForm.section_type} onValueChange={(v: any) => setExerciseForm({ ...exerciseForm, section_type: v })}>
