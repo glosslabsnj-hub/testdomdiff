@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Play, 
@@ -15,16 +15,46 @@ import {
   GraduationCap,
   MessageCircle,
   Lock,
-  AlertTriangle
+  AlertTriangle,
+  Info,
+  X,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
 import { WardenBrief } from "@/components/warden";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// Tooltip explanations for prison terminology
+const tileTooltips: Record<string, string> = {
+  "Intake Processing": "Complete your orientation and get set up",
+  "The Sentence": "Your structured 12-week transformation program",
+  "Yard Time": "Your workout library — train like you mean it",
+  "Lights On / Lights Out": "Morning and evening discipline routines",
+  "Chow Hall": "Nutrition guidance and meal planning",
+  "Chapel": "Weekly faith lessons and mindset training",
+  "Roll Call": "Submit your weekly check-in for accountability",
+  "Time Served": "Track your transformation progress",
+  "Work Release": "Build income-generating skills for life outside",
+  "The Yard": "Connect with your brothers in the community",
+};
+
+// Benefit messages for locked tiles
+const lockedBenefits: Record<string, string> = {
+  "The Sentence (12-Week Program)": "Unlock structured 12-week progression",
+  "Chapel (Faith & Mindset)": "Unlock weekly scripture & mindset training",
+  "Work Release (Skill-Building)": "Unlock money-making hustle skills",
+  "The Yard (Community)": "Connect with your brothers on this journey",
+};
 
 const Dashboard = () => {
-  const { subscription } = useAuth();
+  const { subscription, profile } = useAuth();
   const planType = subscription?.plan_type;
   const isCoaching = planType === "coaching";
   const isTransformation = planType === "transformation";
@@ -32,6 +62,31 @@ const Dashboard = () => {
   
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+
+  // Show welcome banner for new users (within 7 days of intake)
+  useEffect(() => {
+    if (profile?.intake_completed_at) {
+      const intakeDate = new Date(profile.intake_completed_at);
+      const daysSinceIntake = (Date.now() - intakeDate.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceIntake <= 7) {
+        const dismissed = localStorage.getItem("welcomeBannerDismissed");
+        if (!dismissed) {
+          setShowWelcomeBanner(true);
+        }
+      }
+    }
+  }, [profile]);
+
+  const dismissWelcomeBanner = () => {
+    setShowWelcomeBanner(false);
+    localStorage.setItem("welcomeBannerDismissed", "true");
+  };
+
+  // Check if user is new (within 7 days)
+  const isNewUser = profile?.intake_completed_at 
+    ? (Date.now() - new Date(profile.intake_completed_at).getTime()) / (1000 * 60 * 60 * 24) <= 7
+    : false;
 
   // Define all tiles - themed based on subscription tier
   const allTiles = {
@@ -44,6 +99,7 @@ const Dashboard = () => {
         : "Complete your intake processing. Get oriented with the program.",
       href: "/dashboard/start-here",
       color: "dashboard-tile border-primary/30",
+      isNew: isNewUser,
     },
     program: {
       icon: Calendar,
@@ -54,6 +110,7 @@ const Dashboard = () => {
         : "Your 12-week sentence. Structured progression with weekly breakdown.",
       href: "/dashboard/program",
       color: "dashboard-tile",
+      isNew: false,
     },
     workouts: {
       icon: Dumbbell,
@@ -66,6 +123,7 @@ const Dashboard = () => {
           : "Full workout library. Build your sessions like we built ours inside."),
       href: "/dashboard/workouts",
       color: "dashboard-tile",
+      isNew: false,
     },
     discipline: {
       icon: Clock,
@@ -76,6 +134,7 @@ const Dashboard = () => {
         : "Morning and evening routines. Structure breeds discipline.",
       href: "/dashboard/discipline",
       color: "dashboard-tile",
+      isNew: false,
     },
     nutrition: {
       icon: Utensils,
@@ -86,6 +145,7 @@ const Dashboard = () => {
         : "Simple meal templates. Fuel the machine, feed the soul.",
       href: "/dashboard/nutrition",
       color: "dashboard-tile",
+      isNew: false,
     },
     faith: {
       icon: BookOpen,
@@ -96,6 +156,7 @@ const Dashboard = () => {
         : "Weekly lessons on faith, discipline, and mental fortitude.",
       href: "/dashboard/faith",
       color: "dashboard-tile",
+      isNew: false,
     },
     checkIn: {
       icon: ClipboardCheck,
@@ -106,6 +167,7 @@ const Dashboard = () => {
         : "Submit your weekly report. Accountability is freedom.",
       href: "/dashboard/check-in",
       color: "dashboard-tile",
+      isNew: false,
     },
     progress: {
       icon: TrendingUp,
@@ -116,6 +178,7 @@ const Dashboard = () => {
         : "Track your transformation. See how far you've come.",
       href: "/dashboard/progress",
       color: "dashboard-tile",
+      isNew: false,
     },
     skills: {
       icon: Briefcase,
@@ -126,6 +189,7 @@ const Dashboard = () => {
         : "Learn money-making skills. Build your hustle for the outside.",
       href: "/dashboard/skills",
       color: "dashboard-tile",
+      isNew: false,
     },
     community: {
       icon: Users,
@@ -136,6 +200,7 @@ const Dashboard = () => {
         : "Connect with fellow inmates. Iron sharpens iron.",
       href: "/dashboard/community",
       color: "dashboard-tile",
+      isNew: false,
     },
     advancedSkills: {
       icon: GraduationCap,
@@ -144,6 +209,7 @@ const Dashboard = () => {
       description: "Advanced business strategies for building real wealth.",
       href: "/dashboard/advanced-skills",
       color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
+      isNew: false,
     },
     messages: {
       icon: MessageCircle,
@@ -152,6 +218,7 @@ const Dashboard = () => {
       description: "Direct messaging with your coach. Get answers when you need them.",
       href: "/dashboard/messages",
       color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
+      isNew: false,
     },
     coaching: {
       icon: Crown,
@@ -160,10 +227,11 @@ const Dashboard = () => {
       description: "Your exclusive coaching portal. Premium access to Dom.",
       href: "/dashboard/coaching",
       color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
+      isNew: false,
     },
   };
 
-  // Define locked tiles for Solitary users - crimson-tinted
+  // Define locked tiles for Solitary users
   const lockedTilesForMembership = [
     { ...allTiles.program, locked: true, featureName: "The Sentence (12-Week Program)" },
     { ...allTiles.faith, locked: true, featureName: "Chapel (Faith & Mindset)" },
@@ -171,7 +239,8 @@ const Dashboard = () => {
     { ...allTiles.community, locked: true, featureName: "The Yard (Community)" },
   ];
   
-  let tiles: Array<typeof allTiles.startHere & { locked?: boolean; featureName?: string }> = [];
+  type TileType = typeof allTiles.startHere & { locked?: boolean; featureName?: string };
+  const tiles: TileType[] = [];
   
   tiles.push(allTiles.startHere);
   
@@ -183,11 +252,8 @@ const Dashboard = () => {
   
   tiles.push(allTiles.workouts);
   tiles.push(allTiles.discipline);
-  
-  // Nutrition is available to all tiers (basic for Solitary, full for others)
   tiles.push(allTiles.nutrition);
   
-  // Faith is locked for Solitary
   if (isTransformation || isCoaching) {
     tiles.push(allTiles.faith);
   } else if (isMembership) {
@@ -214,7 +280,7 @@ const Dashboard = () => {
     tiles.push(allTiles.coaching);
   }
 
-  const handleTileClick = (tile: typeof tiles[0], e: React.MouseEvent) => {
+  const handleTileClick = (tile: TileType, e: React.MouseEvent) => {
     if (tile.locked) {
       e.preventDefault();
       setLockedFeature(tile.featureName || "This feature");
@@ -225,6 +291,30 @@ const Dashboard = () => {
   return (
     <DashboardLayout showBreadcrumb={false}>
       <div className="section-container py-8">
+        {/* Welcome Banner for New Users */}
+        {showWelcomeBanner && (
+          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/20 to-primary/5 border border-primary/30 relative">
+            <button 
+              onClick={dismissWelcomeBanner}
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-start gap-4 pr-8">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">Welcome to the block.</h3>
+                <p className="text-sm text-muted-foreground">
+                  Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Intake Processing</Link> to get oriented, 
+                  then hit <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">Yard Time</Link> for your first workout.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* The Warden's Weekly Brief */}
         <div className="mb-8">
           <WardenBrief />
@@ -239,34 +329,65 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Tiles Grid with Steel Plate Effect */}
+        {/* Tiles Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {tiles.map((tile, index) => (
             <Link
               key={index}
               to={tile.locked ? "#" : tile.href}
               onClick={(e) => handleTileClick(tile, e)}
-              className={`block transition-all duration-300 ${
+              className={`block transition-all duration-300 relative ${
                 tile.locked 
                   ? "tile-locked opacity-80 hover:opacity-90" 
                   : tile.color
               }`}
             >
+              {/* New User Badge */}
+              {tile.isNew && (
+                <div className="absolute -top-2 -right-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full animate-pulse">
+                  START HERE
+                </div>
+              )}
+              
               {tile.locked && (
                 <div className="absolute top-3 right-3 flex items-center gap-1">
                   <Lock className="w-4 h-4 text-crimson" />
                 </div>
               )}
-              <tile.icon className={`w-10 h-10 mb-4 ${tile.locked ? "text-crimson/60" : "text-primary"}`} />
+              
+              <div className="flex items-start justify-between">
+                <tile.icon className={`w-10 h-10 mb-4 ${tile.locked ? "text-crimson/60" : "text-primary"}`} />
+                
+                {/* Tooltip for terminology */}
+                {tileTooltips[tile.title] && !tile.locked && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={(e) => e.preventDefault()}
+                        className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                      >
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[200px] text-center">
+                      <p className="text-sm">{tileTooltips[tile.title]}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+              
               <p className={`text-xs uppercase tracking-wider mb-1 ${tile.locked ? "text-crimson/70" : "text-primary"}`}>
                 {tile.subtitle}
               </p>
               <h3 className="headline-card mb-2">{tile.title}</h3>
               <p className="text-sm text-muted-foreground">{tile.description}</p>
-              {tile.locked && (
+              
+              {tile.locked && tile.featureName && (
                 <div className="mt-3 flex items-center gap-2">
                   <AlertTriangle className="w-3 h-3 text-crimson" />
-                  <p className="text-xs text-crimson font-semibold">Requires Upgrade</p>
+                  <p className="text-xs text-crimson font-semibold">
+                    {lockedBenefits[tile.featureName] || "Requires Upgrade"}
+                  </p>
                 </div>
               )}
             </Link>
@@ -279,7 +400,7 @@ const Dashboard = () => {
           feature={lockedFeature}
         />
 
-        {/* Quick Actions - Steel plate style */}
+        {/* Quick Actions */}
         <div className="mt-12 steel-plate p-8 border border-steel-light/20">
           <h3 className="headline-card mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-4">
