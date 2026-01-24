@@ -246,6 +246,7 @@ export default function ProgramBuilder() {
           rest: ex.rest,
           notes: ex.notes,
           scaling_options: ex.scaling_options,
+          demo_url: null,
           display_order: idx,
         }));
         await bulkCreateExercises(exercisesToCreate);
@@ -336,6 +337,7 @@ export default function ProgramBuilder() {
         day_workout_id: selectedDayWorkout.id,
         display_order: currentExercises.length,
         scaling_options: null,
+        demo_url: null,
       });
     }
     await fetchAllExercises();
