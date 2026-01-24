@@ -81,14 +81,14 @@ const CheckIn = () => {
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
         <div className="max-w-2xl">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="headline-section mb-2">Weekly <span className="text-primary">Check-In</span></h1>
-              <p className="text-muted-foreground">Submit your weekly accountability check-in.</p>
+              <h1 className="headline-section mb-2">Roll <span className="text-primary">Call</span></h1>
+              <p className="text-muted-foreground">Submit your weekly accountability report to stay compliant.</p>
             </div>
             <Button
               variant={showHistory ? "gold" : "goldOutline"}
@@ -96,7 +96,7 @@ const CheckIn = () => {
               className="gap-2"
             >
               <History className="w-4 h-4" />
-              {showHistory ? "New Check-In" : "View History"}
+              {showHistory ? "New Report" : "View Past Reports"}
             </Button>
           </div>
 
@@ -152,7 +152,7 @@ const CheckIn = () => {
           ) : (
             <div className="space-y-6 bg-card p-8 rounded-lg border border-border">
               <div className="bg-primary/10 p-4 rounded-lg border border-primary/30 mb-6">
-                <p className="text-sm font-semibold text-primary">Week {formData.week_number} Check-In</p>
+                <p className="text-sm font-semibold text-primary">Count {formData.week_number} Report</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -253,7 +253,7 @@ const CheckIn = () => {
                 ) : (
                   <Send className="w-4 h-4" />
                 )}
-                Submit Check-In
+                Report In
               </Button>
             </div>
           )}

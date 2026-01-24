@@ -212,7 +212,7 @@ export default function Settings() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="headline-card">Account Settings</h1>
+            <h1 className="headline-card">Inmate Settings</h1>
             <p className="text-muted-foreground text-sm">Manage your profile and security</p>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-foreground">
                 <User className="h-5 w-5 text-primary" />
-                Profile Information
+                Inmate Profile
               </CardTitle>
               <CardDescription>
                 Update your personal details below

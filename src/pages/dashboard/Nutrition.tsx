@@ -152,15 +152,15 @@ const Nutrition = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">
-            Your <span className="text-primary">Meal Plan</span>
+            Chow <span className="text-primary">Hall</span>
           </h1>
           <p className="text-muted-foreground">
-            Personalized nutrition based on your goal and body composition.
+            Your tray is ready. Personalized nutrition based on your goal and body composition.
           </p>
         </div>
 
@@ -170,7 +170,7 @@ const Nutrition = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <ChefHat className="h-5 w-5 text-primary" />
-                Your Daily Targets
+                Your Tray
               </CardTitle>
             </CardHeader>
             <CardContent>

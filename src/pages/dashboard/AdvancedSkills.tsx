@@ -33,7 +33,7 @@ const AdvancedSkills = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
         <div className="mb-8">
@@ -53,11 +53,11 @@ const AdvancedSkills = () => {
         <div className="bg-gradient-to-br from-charcoal to-primary/5 p-6 rounded-lg border border-primary/30 mb-8">
           <div className="flex items-center gap-3 mb-2">
             <GraduationCap className="w-5 h-5 text-primary" />
-            <p className="text-sm text-primary uppercase tracking-wider">Premium Content</p>
+            <p className="text-sm text-primary uppercase tracking-wider">Trustee-Level Access</p>
           </div>
           <p className="text-muted-foreground">
-            As a 1:1 coaching member, you have access to advanced strategies that go beyond the basics.
-            This content is designed for men ready to build real businesses and create lasting wealth.
+            As a Free World member, you have trustee-level access to advanced strategies that go beyond the basics.
+            This content is designed for men ready to build real businesses and create lasting wealth on the outside.
           </p>
         </div>
 
@@ -132,10 +132,10 @@ const AdvancedSkills = () => {
 
         <div className="mt-8 flex gap-4">
           <Button variant="gold" asChild>
-            <Link to="/dashboard/skills">View All Skill Lessons</Link>
+            <Link to="/dashboard/skills">View All Work Release Lessons</Link>
           </Button>
           <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Dashboard</Link>
+            <Link to="/dashboard">Back to Cell Block</Link>
           </Button>
         </div>
       </div>

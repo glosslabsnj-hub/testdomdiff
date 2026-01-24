@@ -296,9 +296,9 @@ const Intake = () => {
   };
 
   const stepTitles = [
-    "Basic Information",
-    "Training Profile",
-    "Faith & Commitment",
+    "Booking Info",
+    "Inmate Assessment",
+    "Oath & Commitment",
   ];
 
   return (
@@ -310,17 +310,17 @@ const Intake = () => {
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
               <h1 className="headline-section mb-4">
-                Complete Your <span className="text-primary">Intake</span>
+                Complete Your <span className="text-primary">Processing</span>
               </h1>
               <p className="text-muted-foreground">
-                This information helps us build your personalized framework.
+                This information helps us build your personalized program.
               </p>
             </div>
 
             {/* Progress Bar */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Step {step} of {totalSteps}</span>
+                <span className="text-sm text-muted-foreground">Processing Step {step} of {totalSteps}</span>
                 <span className="text-sm text-primary">{stepTitles[step - 1]}</span>
               </div>
               <div className="h-2 bg-charcoal rounded-full overflow-hidden">
@@ -363,11 +363,11 @@ const Intake = () => {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Saving...
+                        Processing...
                       </>
                     ) : (
                       <>
-                        Complete Intake <Check className="w-4 h-4" />
+                        Complete Processing <Check className="w-4 h-4" />
                       </>
                     )}
                   </Button>

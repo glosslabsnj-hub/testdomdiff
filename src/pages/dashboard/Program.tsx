@@ -571,7 +571,7 @@ const Program = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
         {/* Hero Section */}
@@ -579,20 +579,20 @@ const Program = () => {
           <div className="relative z-10">
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <Badge className="bg-primary/20 text-primary border-primary/30">
-                Your Transformation Journey
+                Your Sentence
               </Badge>
               {userTrack && (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <Target className="w-3 h-3" />
-                  {userTrack.name} Track
+                  {userTrack.name} Block
                 </Badge>
               )}
             </div>
             <h1 className="font-display text-4xl md:text-5xl mb-3">
-              12-Week <span className="text-primary">Program</span>
+              The <span className="text-primary">Sentence</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mb-6">
-              {userTrack?.description || "Complete body and mind transformation through three strategic phases. Each week builds on the last to maximize your results."}
+              {userTrack?.description || "12 weeks of structured transformation through three strategic phases. Each week builds on the last. Complete your sentence and emerge different."}
             </p>
 
             {/* Progress Bar */}

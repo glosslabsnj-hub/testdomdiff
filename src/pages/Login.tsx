@@ -172,15 +172,15 @@ const Login = () => {
             <div className="text-center mb-8">
               <h1 className="headline-section mb-4">
                 {isSignUp ? (
-                  <>Create <span className="text-primary">Account</span></>
+                  <>Enter <span className="text-primary">The System</span></>
                 ) : (
-                  <>Welcome <span className="text-primary">Back</span></>
+                  <>Check <span className="text-primary">Back In</span></>
                 )}
               </h1>
               <p className="text-muted-foreground">
                 {isSignUp 
-                  ? "Sign up to access your training portal" 
-                  : "Sign in to access your dashboard"
+                  ? "Begin processing to access your cell block" 
+                  : "Re-enter the system to access your block"
                 }
               </p>
               <div className="divider-gold mt-4" />
@@ -191,7 +191,7 @@ const Login = () => {
               {isSignUp && (
                 <div className="mb-6 p-3 rounded-lg bg-primary/10 border border-primary/30">
                   <p className="text-xs text-primary text-center font-medium">
-                    🛠️ Development Mode — Select a plan to test dashboard access
+                    🛠️ Processing Center — Select your block assignment
                   </p>
                 </div>
               )}
@@ -236,7 +236,7 @@ const Login = () => {
                 {/* Plan Selection (only for sign up) */}
                 {isSignUp && (
                   <div>
-                    <Label className="mb-3 block">Select Test Plan</Label>
+                    <Label className="mb-3 block">Select Your Block</Label>
                     <div className="space-y-2">
                       {planOptions.map((plan) => (
                         <button
@@ -276,10 +276,10 @@ const Login = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {isSignUp ? "Creating Account..." : "Signing in..."}
+                      {isSignUp ? "Processing..." : "Re-entering..."}
                     </>
                   ) : (
-                    isSignUp ? "Create Account" : "Sign In"
+                    isSignUp ? "Begin Processing" : "Re-Enter"
                   )}
                 </Button>
               </form>
@@ -291,9 +291,9 @@ const Login = () => {
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   {isSignUp ? (
-                    <>Already have an account? <span className="text-primary hover:underline">Sign In</span></>
+                    <>Already in the system? <span className="text-primary hover:underline">Re-Enter</span></>
                   ) : (
-                    <>Don't have an account? <span className="text-primary hover:underline">Create Account</span></>
+                    <>New to the system? <span className="text-primary hover:underline">Begin Processing</span></>
                   )}
                 </button>
               </div>

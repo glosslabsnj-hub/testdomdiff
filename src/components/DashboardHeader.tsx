@@ -101,7 +101,7 @@ const DashboardHeader = () => {
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
                 <Clock className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium text-primary">
-                  {daysRemaining} days left
+                  {daysRemaining} days on sentence
                 </span>
               </div>
             )}
@@ -145,7 +145,7 @@ const DashboardHeader = () => {
                   {subscription?.plan_type === "transformation" && daysRemaining !== null && (
                     <p className="text-xs text-primary mt-1 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {daysRemaining} days remaining
+                      {daysRemaining} days on sentence
                     </p>
                   )}
                 </div>
@@ -190,7 +190,7 @@ const DashboardHeader = () => {
             <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
               <Clock className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-primary">
-                {daysRemaining} days left
+                {daysRemaining} days on sentence
               </span>
             </div>
             {getPlanBadge()}

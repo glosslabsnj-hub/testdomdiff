@@ -54,28 +54,28 @@ const SkillBuilding = () => {
     {
       id: "resume",
       icon: FileText,
-      title: "Resume Builder",
+      title: "Release Documents",
       description: "Create a professional resume that gets you hired",
       tab: "resume"
     },
     {
       id: "interview",
       icon: Users,
-      title: "Interview Prep",
+      title: "Parole Board Prep",
       description: "Practice common questions and ace your interviews",
       tab: "interview"
     },
     {
       id: "jobs",
       icon: Target,
-      title: "Job Search Tools",
+      title: "Employment Office",
       description: "Find opportunities and track your applications",
       tab: "jobs"
     },
     {
       id: "hustle",
       icon: DollarSign,
-      title: "Side Hustle Ideas",
+      title: "Yard Businesses",
       description: "Start making money while you build your career",
       tab: "hustle"
     }
@@ -106,12 +106,12 @@ const SkillBuilding = () => {
         <div className="bg-charcoal p-6 rounded-lg border border-primary/30 mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Briefcase className="w-5 h-5 text-primary" />
-            <p className="text-sm text-primary uppercase tracking-wider">Your Path to Financial Freedom</p>
+            <p className="text-sm text-primary uppercase tracking-wider">Building for Release</p>
           </div>
           <p className="text-muted-foreground">
             This isn't just about getting a job—it's about building a life. Each week you'll learn a new skill 
-            that can generate income. From side hustles to business fundamentals—build the knowledge to 
-            support yourself and your family.
+            that can generate income. From yard businesses to legitimate enterprises—build the knowledge to 
+            support yourself and your family on the outside.
           </p>
         </div>
 
@@ -238,7 +238,7 @@ const SkillBuilding = () => {
 
         <div className="mt-8 flex gap-4">
           <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Dashboard</Link>
+            <Link to="/dashboard">Back to Cell Block</Link>
           </Button>
         </div>
       </div>

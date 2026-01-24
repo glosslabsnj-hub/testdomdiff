@@ -149,7 +149,7 @@ const Faith = () => {
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
         {/* Header with Progress */}
@@ -241,10 +241,10 @@ const Faith = () => {
         ) : (
           <Tabs defaultValue="lesson" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 bg-charcoal">
-              <TabsTrigger value="lesson">Lesson</TabsTrigger>
-              <TabsTrigger value="journal">Journal</TabsTrigger>
-              <TabsTrigger value="prayers">Prayers</TabsTrigger>
-              <TabsTrigger value="actions">Actions</TabsTrigger>
+              <TabsTrigger value="lesson">Sermon</TabsTrigger>
+              <TabsTrigger value="journal">Cell Notes</TabsTrigger>
+              <TabsTrigger value="prayers">Prayer Wall</TabsTrigger>
+              <TabsTrigger value="actions">Faith Walk</TabsTrigger>
             </TabsList>
 
             {/* Lesson Tab */}

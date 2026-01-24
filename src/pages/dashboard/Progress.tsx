@@ -104,15 +104,15 @@ const Progress = () => {
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
-        <h1 className="headline-section mb-2">Progress <span className="text-primary">Trackers</span></h1>
-        <p className="text-muted-foreground mb-8">Track your habits and progress over 12 weeks.</p>
+        <h1 className="headline-section mb-2">Time <span className="text-primary">Served</span></h1>
+        <p className="text-muted-foreground mb-8">Track your sentence progress over 12 weeks.</p>
 
         {/* 12-Week Progress Grid */}
         <div className="bg-card p-8 rounded-lg border border-border mb-8">
-          <h2 className="headline-card mb-6">12-Week Progress Grid</h2>
+          <h2 className="headline-card mb-6">Sentence Progress Grid</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -234,10 +234,10 @@ const Progress = () => {
         {/* Habit Tracker */}
         <div className="bg-card p-8 rounded-lg border border-border">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="headline-card">This Week's Habit Tracker</h2>
+            <h2 className="headline-card">Daily Compliance Tracker</h2>
             <div className="text-right">
               <p className="text-2xl font-bold text-primary">{weeklyCompliance}%</p>
-              <p className="text-xs text-muted-foreground">Weekly Compliance</p>
+              <p className="text-xs text-muted-foreground">Block Compliance Rate</p>
             </div>
           </div>
 
@@ -285,7 +285,7 @@ const Progress = () => {
 
         <div className="mt-8">
           <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Dashboard</Link>
+            <Link to="/dashboard">Back to Cell Block</Link>
           </Button>
         </div>
       </div>

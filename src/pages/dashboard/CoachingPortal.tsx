@@ -22,18 +22,18 @@ const CoachingPortal = () => {
             to="/dashboard"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-4 h-4" /> Back to Cell Block
           </Link>
           
           {/* Premium Header */}
           <div className="flex items-center gap-3 mb-2">
             <Crown className="w-8 h-8 text-primary" />
             <h1 className="headline-section">
-              <span className="text-primary">1:1 Coaching</span> Portal
+              <span className="text-primary">Free World</span> — P.O. Portal
             </h1>
           </div>
           <p className="text-muted-foreground">
-            Your exclusive access to direct coaching with Dom. Maximum accountability.
+            Your direct line to Dom. Maximum accountability on the outside.
           </p>
         </div>
 
@@ -41,20 +41,20 @@ const CoachingPortal = () => {
         <div className="grid md:grid-cols-2 gap-6 mb-12">
           <div className="p-6 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30">
             <Video className="w-10 h-10 text-primary mb-4" />
-            <h3 className="headline-card mb-2">Weekly 1:1 Calls</h3>
+            <h3 className="headline-card mb-2">Weekly P.O. Check-In</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Private video calls with Dom every week. Strategy, accountability, and personalized guidance.
+              Private video calls with Dom every week. Strategy, accountability, and personalized guidance for life on the outside.
             </p>
             <Button variant="gold" asChild>
-              <Link to="/book-call">Schedule Your Call</Link>
+              <Link to="/book-call">Schedule Report</Link>
             </Button>
           </div>
 
           <div className="p-6 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30">
             <MessageCircle className="w-10 h-10 text-primary mb-4" />
-            <h3 className="headline-card mb-2">Direct Messaging</h3>
+            <h3 className="headline-card mb-2">Direct Line to Your P.O.</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Direct access to Dom via text/voice messaging. Get answers when you need them.
+              Direct access to Dom via messaging. Get answers when you need them on the outside.
             </p>
             <div className="p-4 bg-background/50 rounded border border-border text-center">
               <p className="text-xs text-muted-foreground">Access via your preferred platform</p>
@@ -88,13 +88,13 @@ const CoachingPortal = () => {
         <div className="p-8 bg-charcoal rounded-lg border border-border mb-8">
           <div className="flex items-center gap-3 mb-6">
             <Star className="w-6 h-6 text-primary" />
-            <h3 className="headline-card">Your Coaching Notes</h3>
+            <h3 className="headline-card">Case File Notes</h3>
           </div>
           <p className="text-muted-foreground text-sm mb-4">
-            Notes and action items from your coaching sessions will appear here.
+            Notes and action items from your P.O. check-ins will appear here.
           </p>
           <div className="p-6 bg-background/50 rounded border border-dashed border-border text-center">
-            <p className="text-sm text-muted-foreground">No coaching notes yet. Schedule your first call to get started.</p>
+            <p className="text-sm text-muted-foreground">No case notes yet. Schedule your first check-in to get started.</p>
           </div>
         </div>
 
@@ -103,10 +103,10 @@ const CoachingPortal = () => {
           <h3 className="headline-card mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-4">
             <Button variant="gold" asChild>
-              <Link to="/book-call">Book Coaching Call</Link>
+              <Link to="/book-call">Schedule P.O. Check-In</Link>
             </Button>
             <Button variant="goldOutline" asChild>
-              <Link to="/dashboard/check-in">Submit Check-In</Link>
+              <Link to="/dashboard/check-in">Submit Weekly Report</Link>
             </Button>
           </div>
         </div>
