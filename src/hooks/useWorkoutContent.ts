@@ -218,19 +218,20 @@ export function useProgramWeeks(trackId?: string | null) {
   const { toast } = useToast();
 
   const fetchWeeks = async (filterTrackId?: string | null) => {
+    // Don't fetch if no trackId is provided - wait for it
+    if (!filterTrackId) {
+      setWeeks([]);
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from("program_weeks")
         .select("*")
+        .eq("track_id", filterTrackId)
         .order("week_number");
-      
-      // If a specific track ID is provided, filter by it
-      if (filterTrackId) {
-        query = query.eq("track_id", filterTrackId);
-      }
-
-      const { data, error } = await query;
 
       if (error) throw error;
       setWeeks((data || []) as ProgramWeek[]);

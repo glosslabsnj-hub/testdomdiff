@@ -27,8 +27,15 @@ interface RoutineCompletion {
   completedAt: string;
 }
 
+interface TemplateRoutineItem {
+  routine_type: "morning" | "evening";
+  time_slot: string;
+  action_text: string;
+  display_order: number;
+}
+
 export function useDailyDiscipline() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [routines, setRoutines] = useState<DisciplineRoutine[]>([]);
@@ -38,10 +45,46 @@ export function useDailyDiscipline() {
   const [journalEntries, setJournalEntries] = useState<DisciplineJournal[]>([]);
 
   const today = format(new Date(), "yyyy-MM-dd");
+  
+  // Get the user's selected template ID from profile
+  const templateId = (profile as any)?.discipline_template_id || null;
 
-  // Fetch routines
+  // Fetch routines from the user's selected template
   const fetchRoutines = useCallback(async () => {
     try {
+      // If user has a template selected, load from that template's JSON
+      if (templateId) {
+        const { data: templateData, error: templateError } = await supabase
+          .from("discipline_templates")
+          .select("id, routines")
+          .eq("id", templateId)
+          .single();
+
+        if (templateError) throw templateError;
+
+        // Parse the routines JSON from the template - handle the Json type
+        const routinesData = templateData?.routines;
+        const templateRoutines: TemplateRoutineItem[] = Array.isArray(routinesData) 
+          ? routinesData as unknown as TemplateRoutineItem[]
+          : [];
+        
+        if (templateRoutines.length > 0) {
+          // Convert template routines to DisciplineRoutine format with generated IDs
+          const mappedRoutines: DisciplineRoutine[] = templateRoutines.map((item, index) => ({
+            id: `${templateId}_${item.routine_type}_${index}`,
+            routine_type: item.routine_type as "morning" | "evening",
+            time_slot: item.time_slot,
+            action_text: item.action_text,
+            display_order: item.display_order,
+            is_active: true,
+          }));
+          
+          setRoutines(mappedRoutines);
+          return;
+        }
+      }
+      
+      // Fallback: Try loading from discipline_routines table (legacy support)
       const { data, error } = await supabase
         .from("discipline_routines")
         .select("*")
@@ -54,7 +97,7 @@ export function useDailyDiscipline() {
     } catch (e) {
       console.error("Error fetching routines:", e);
     }
-  }, []);
+  }, [templateId]);
 
   // Fetch today's completions from habit_logs
   const fetchCompletions = useCallback(async () => {
