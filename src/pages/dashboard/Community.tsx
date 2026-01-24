@@ -2,8 +2,19 @@ import { Link } from "react-router-dom";
 import { Users, MessageSquare, Trophy, Calendar, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
+import { useAuth } from "@/contexts/AuthContext";
+import UpgradePrompt from "@/components/UpgradePrompt";
 
 const Community = () => {
+  const { subscription } = useAuth();
+  
+  // Solitary (membership) users cannot access community
+  if (subscription?.plan_type === "membership") {
+    return <UpgradePrompt feature="The Yard (Community)" upgradeTo="transformation" />;
+  }
+  
+  const isCoaching = subscription?.plan_type === "coaching";
+  
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -17,10 +28,12 @@ const Community = () => {
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
           <h1 className="headline-section mb-2">
-            <span className="text-primary">Community</span> Access
+            <span className="text-primary">{isCoaching ? "The Network" : "The Yard"}</span> — Brotherhood
           </h1>
           <p className="text-muted-foreground">
-            Connect with fellow warriors. Stay accountable. Build together.
+            {isCoaching 
+              ? "Connect with fellow free men. Build lasting relationships."
+              : "Connect with fellow inmates. Iron sharpens iron."}
           </p>
         </div>
 
