@@ -94,11 +94,54 @@ export default function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Top Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Clients</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-primary">{clientsLoading ? "..." : clientAnalytics?.totalClients || 0}</div></CardContent></Card>
               <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Active Subscriptions</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-green-400">{clientsLoading ? "..." : clientAnalytics?.activeClients || 0}</div></CardContent></Card>
               <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}</div></CardContent></Card>
               <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Leads Today</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.leadsToday || 0}</div></CardContent></Card>
+            </div>
+
+            {/* Active Subscriptions by Program */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-blue-400">Solitary Confinement</CardTitle>
+                  <p className="text-xs text-muted-foreground">Monthly Membership</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-blue-400">{clientsLoading ? "..." : clientAnalytics?.clientsByPlan.membership || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">active members</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-primary">General Population</CardTitle>
+                  <p className="text-xs text-muted-foreground">12-Week Program</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-primary">{clientsLoading ? "..." : clientAnalytics?.clientsByPlan.transformation || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">active members</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-purple-400">Free World</CardTitle>
+                  <p className="text-xs text-muted-foreground">1:1 Coaching</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-purple-400">{clientsLoading ? "..." : clientAnalytics?.clientsByPlan.coaching || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">active members</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Additional Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Intake Completed</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{clientsLoading ? "..." : clientAnalytics?.intakeCompleted || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Expired</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-destructive">{clientsLoading ? "..." : clientAnalytics?.expiredClients || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Cancelled</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-yellow-400">{clientsLoading ? "..." : clientAnalytics?.cancelledClients || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Conversion Rate</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-primary">{leadsLoading || !leadAnalytics?.totalLeads ? "..." : `${Math.round(((leadAnalytics?.conversions || 0) / leadAnalytics.totalLeads) * 100)}%`}</div></CardContent></Card>
             </div>
           </TabsContent>
 
@@ -217,7 +260,7 @@ export default function AdminDashboard() {
         </Tabs>
       </main>
       <Footer />
-      <ClientDetailPanel client={selectedClient} open={detailPanelOpen} onClose={() => setDetailPanelOpen(false)} />
+      <ClientDetailPanel client={selectedClient} open={detailPanelOpen} onClose={() => setDetailPanelOpen(false)} onUpdate={() => { setDetailPanelOpen(false); }} />
     </div>
   );
 }

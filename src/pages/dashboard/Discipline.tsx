@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   ArrowLeft, Sun, Moon, Droplet, BookOpen, Check, Loader2, 
-  Flame, Clock, History, ChevronRight, Save
+  Flame, Clock, History, ChevronRight, Save, Settings2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import TemplateSelector from "@/components/discipline/TemplateSelector";
 
 const JOURNAL_PROMPTS = [
   "What were my 3 wins today?",
@@ -28,7 +29,7 @@ const JOURNAL_PROMPTS = [
 ];
 
 const Discipline = () => {
-  const { user } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const {
     loading,
     morningRoutines,
@@ -51,6 +52,9 @@ const Discipline = () => {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [journalHistory, setJournalHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(
+    (profile as any)?.discipline_template_id || null
+  );
 
   const today = format(new Date(), "EEEE, MMMM d, yyyy");
   const compliance = getTodayCompliance();
@@ -153,8 +157,12 @@ const Discipline = () => {
             </p>
           </div>
 
-          {/* Stats Row */}
-          <div className="flex flex-wrap gap-4">
+          {/* Stats Row and Template Selector */}
+          <div className="flex flex-wrap items-center gap-4">
+            <TemplateSelector 
+              currentTemplateId={currentTemplateId}
+              onTemplateChange={(id) => setCurrentTemplateId(id)}
+            />
             {/* Streak Badge */}
             <div className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-lg border",

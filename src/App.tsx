@@ -32,6 +32,7 @@ import Faith from "./pages/dashboard/Faith";
 import Progress from "./pages/dashboard/Progress";
 import Community from "./pages/dashboard/Community";
 import CoachingPortal from "./pages/dashboard/CoachingPortal";
+import BookPOCheckin from "./pages/dashboard/BookPOCheckin";
 import SkillBuilding from "./pages/dashboard/SkillBuilding";
 import AdvancedSkills from "./pages/dashboard/AdvancedSkills";
 import DirectMessages from "./pages/dashboard/DirectMessages";
@@ -190,6 +191,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <CoachingPortal />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/book-po-checkin"
+              element={
+                <ProtectedRoute>
+                  <BookPOCheckin />
                 </ProtectedRoute>
               }
             />
