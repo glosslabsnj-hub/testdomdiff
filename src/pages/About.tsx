@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import storyImage from "@/assets/story-image.jpg";
 import faithImage from "@/assets/faith-image.jpg";
 import trainingImage from "@/assets/training-image.jpg";
+import domPrisonImage from "@/assets/dom-prison-cropped.jpg";
 
 const About = () => {
   const timeline = [
@@ -137,12 +138,33 @@ const About = () => {
           </div>
 
           {/* The Transformation */}
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <div className="bg-charcoal rounded-lg p-8 border border-border relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl rounded-full" />
               <h3 className="headline-card text-center mb-6 relative z-10">
                 What Happened Behind Bars
               </h3>
+              
+              {/* Prison Photo - The Real Deal */}
+              <div className="mb-8 flex justify-center relative z-10">
+                <div className="relative group max-w-xs">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/30 to-primary/10 rounded-lg blur-lg opacity-50 group-hover:opacity-100 transition-opacity" />
+                  <img
+                    src={domPrisonImage}
+                    alt="Dom during his incarceration - where the transformation began"
+                    className="relative rounded-lg w-full aspect-[3/4] object-cover object-top border-2 border-primary/50 shadow-2xl"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-charcoal via-charcoal/90 to-transparent rounded-b-lg">
+                    <p className="text-xs text-primary font-semibold uppercase tracking-wider text-center">
+                      The Cell Block, 2021
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center mt-1">
+                      Where discipline was forged
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid md:grid-cols-3 gap-6 relative z-10">
                 <div className="text-center p-4 rounded-lg bg-background/50 border border-border">
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary/20 flex items-center justify-center">
