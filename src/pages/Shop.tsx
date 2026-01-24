@@ -18,27 +18,38 @@ const CATEGORIES = [
   { id: "all", name: "All Gear", description: "Everything in the commissary" },
   { id: "yard-gear", name: "Yard Gear", description: "Workout apparel for training" },
   { id: "cell-block", name: "Cell Block Essentials", description: "Everyday wear for the grind" },
-  { id: "trustee", name: "Trustee Collection", description: "Premium limited editions" },
+  { id: "chapel-store", name: "Chapel Store", description: "Faith tools for your spiritual walk" },
   { id: "release-day", name: "Release Day Fits", description: "Dress to impress" },
 ];
 
 // Map product categories to commissary categories
 const getCategoryFromProduct = (productCategory: string, productName: string): string => {
   const nameLower = productName.toLowerCase();
+  const catLower = productCategory.toLowerCase();
+  
+  // Chapel Store - faith items
+  if (catLower === "chapel-store" || nameLower.includes("bible") || nameLower.includes("rosary") || 
+      nameLower.includes("prayer") || nameLower.includes("scripture") || nameLower.includes("devotional")) {
+    return "chapel-store";
+  }
   
   // Yard Gear - workout stuff
-  if (nameLower.includes("hoodie") || nameLower.includes("jogger") || nameLower.includes("tank") || nameLower.includes("shorts")) {
+  if (catLower === "yard-gear" || nameLower.includes("hoodie") || nameLower.includes("jogger") || 
+      nameLower.includes("tank") || nameLower.includes("shorts") || nameLower.includes("resistance") ||
+      nameLower.includes("jump rope") || nameLower.includes("grip") || nameLower.includes("timer")) {
     return "yard-gear";
   }
   
-  // Cell Block Essentials - everyday wear
-  if (nameLower.includes("tee") || nameLower.includes("t-shirt") || nameLower.includes("beanie") || nameLower.includes("cap")) {
+  // Cell Block Essentials - everyday wear and essentials
+  if (catLower === "cell-block" || catLower === "essentials" || nameLower.includes("tee") || 
+      nameLower.includes("t-shirt") || nameLower.includes("beanie") || nameLower.includes("cap") ||
+      nameLower.includes("water bottle")) {
     return "cell-block";
   }
   
-  // Default based on product category
-  if (productCategory === "premium" || productCategory === "limited") {
-    return "trustee";
+  // Release Day Fits
+  if (catLower === "release-day") {
+    return "release-day";
   }
   
   return "cell-block"; // Default
@@ -185,7 +196,7 @@ const Shop = () => {
                             "text-xs",
                             productCategory === "yard-gear" && "bg-primary/20 text-primary",
                             productCategory === "cell-block" && "bg-blue-500/20 text-blue-400",
-                            productCategory === "trustee" && "bg-purple-500/20 text-purple-400",
+                            productCategory === "chapel-store" && "bg-purple-500/20 text-purple-400",
                             productCategory === "release-day" && "bg-emerald-500/20 text-emerald-400"
                           )}
                         >

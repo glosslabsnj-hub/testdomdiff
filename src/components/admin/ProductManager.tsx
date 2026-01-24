@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Upload, Loader2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Loader2, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,11 +20,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useProducts, type Product } from "@/hooks/useProducts";
 import { useToast } from "@/hooks/use-toast";
 
 const AVAILABLE_SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
+
+const PRODUCT_CATEGORIES = [
+  { value: "yard-gear", label: "Yard Gear", description: "Workout apparel" },
+  { value: "cell-block", label: "Cell Block Essentials", description: "Everyday wear" },
+  { value: "chapel-store", label: "Chapel Store", description: "Faith items" },
+  { value: "essentials", label: "Cell Essentials", description: "Tools & gear" },
+  { value: "release-day", label: "Release Day Fits", description: "Dress to impress" },
+];
 
 const ProductManager = () => {
   const { products, loading, createProduct, updateProduct, deleteProduct, uploadProductImage } = useProducts(false);
@@ -34,23 +49,30 @@ const ProductManager = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
-    category: "apparel",
+    category: "cell-block",
     sizes: [] as string[],
     is_active: true,
     display_order: 0,
   });
+
+  // Filter products by search
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const resetForm = () => {
     setFormData({
       name: "",
       description: "",
       price: "",
-      category: "apparel",
+      category: "cell-block",
       sizes: [],
       is_active: true,
       display_order: 0,
@@ -184,20 +206,35 @@ const ProductManager = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-xl font-semibold">Products</h2>
-        <Button variant="gold" onClick={openCreateDialog} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Product
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-initial sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-charcoal border-border"
+            />
+          </div>
+          <Button variant="gold" onClick={openCreateDialog} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Product
+          </Button>
+        </div>
       </div>
 
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <div className="text-center py-12 bg-card rounded-lg border border-border">
-          <p className="text-muted-foreground mb-4">No products yet</p>
-          <Button variant="goldOutline" onClick={openCreateDialog}>
-            Add Your First Product
-          </Button>
+          <p className="text-muted-foreground mb-4">
+            {searchQuery ? "No products match your search" : "No products yet"}
+          </p>
+          {!searchQuery && (
+            <Button variant="goldOutline" onClick={openCreateDialog}>
+              Add Your First Product
+            </Button>
+          )}
         </div>
       ) : (
         <div className="bg-card rounded-lg border border-border overflow-hidden">
@@ -212,7 +249,7 @@ const ProductManager = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -229,7 +266,9 @@ const ProductManager = () => {
                       )}
                       <div>
                         <p className="font-medium">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">{product.category}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {PRODUCT_CATEGORIES.find(c => c.value === product.category)?.label || product.category}
+                        </p>
                       </div>
                     </div>
                   </TableCell>
@@ -362,12 +401,24 @@ const ProductManager = () => {
               </div>
               <div>
                 <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
+                <Select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="bg-charcoal border-border"
-                />
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                >
+                  <SelectTrigger className="bg-charcoal border-border">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRODUCT_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        <div className="flex flex-col">
+                          <span>{cat.label}</span>
+                          <span className="text-xs text-muted-foreground">{cat.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

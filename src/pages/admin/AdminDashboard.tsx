@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar, Briefcase, ChefHat, BarChart3, Crown, Video, ClipboardCheck, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, ShoppingBag, Crown, ClipboardCheck, AlertTriangle, BookOpen, Calendar, Dumbbell, Cross, Utensils, ChefHat, Clock, Briefcase, Video, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,15 +26,21 @@ import CoachingClientsManager from "@/components/admin/CoachingClientsManager";
 import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
 import CheckInReviewManager from "@/components/admin/CheckInReviewManager";
 import ClientHealthAlertsPanel from "@/components/admin/ClientHealthAlertsPanel";
+import AdminQuickActions from "@/components/admin/AdminQuickActions";
+import ContentNavigation from "@/components/admin/ContentNavigation";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
+import { useAdminCheckIns } from "@/hooks/useAdminCheckIns";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
   const { analytics: leadAnalytics, isLoading: leadsLoading, error: leadsError } = useChatLeadAnalytics();
+  const { checkIns } = useAdminCheckIns();
   
+  const [activeTab, setActiveTab] = useState("overview");
+  const [contentSection, setContentSection] = useState("workouts");
   const [planFilter, setPlanFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,6 +51,9 @@ export default function AdminDashboard() {
 
   const [selectedClient, setSelectedClient] = useState<ClientWithSubscription | null>(null);
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
+
+  // Count pending check-ins
+  const pendingCheckIns = checkIns.filter(c => !c.coach_reviewed_at).length;
 
   if (adminLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -87,11 +96,19 @@ export default function AdminDashboard() {
           <div><h1 className="headline-card">Admin Dashboard</h1><p className="text-muted-foreground text-sm">Manage clients, leads, and products</p></div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-charcoal border border-border flex-wrap h-auto gap-1 p-1.5 w-full justify-start">
             <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 sm:px-3"><TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden xs:inline">Overview</span><span className="xs:hidden">Stats</span></TabsTrigger>
             <TabsTrigger value="clients" className="text-xs sm:text-sm px-2 sm:px-3"><Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Clients</TabsTrigger>
-            <TabsTrigger value="checkins" className="text-xs sm:text-sm px-2 sm:px-3"><ClipboardCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden sm:inline">Check-Ins</span><span className="sm:hidden">Review</span></TabsTrigger>
+            <TabsTrigger value="checkins" className="text-xs sm:text-sm px-2 sm:px-3 relative">
+              <ClipboardCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+              <span className="hidden sm:inline">Check-Ins</span><span className="sm:hidden">Review</span>
+              {pendingCheckIns > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
+                  {pendingCheckIns > 9 ? "9+" : pendingCheckIns}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="coaching" className="text-xs sm:text-sm px-2 sm:px-3"><Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-purple-400" /><span className="hidden sm:inline">Free World</span><span className="sm:hidden">VIP</span></TabsTrigger>
             <TabsTrigger value="leads" className="text-xs sm:text-sm px-2 sm:px-3"><MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Leads</TabsTrigger>
             <TabsTrigger value="products" className="text-xs sm:text-sm px-2 sm:px-3"><Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden sm:inline">Products</span><span className="sm:hidden">Shop</span></TabsTrigger>
@@ -107,6 +124,12 @@ export default function AdminDashboard() {
               <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}</div></CardContent></Card>
               <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Leads Today</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.leadsToday || 0}</div></CardContent></Card>
             </div>
+
+            {/* Quick Actions */}
+            <AdminQuickActions 
+              onNavigate={setActiveTab} 
+              pendingCheckIns={pendingCheckIns}
+            />
 
             {/* Active Subscriptions by Program */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -253,28 +276,26 @@ export default function AdminDashboard() {
           <TabsContent value="orders"><OrdersManager /></TabsContent>
 
           <TabsContent value="content" className="space-y-6">
-            <Tabs defaultValue="workouts" className="space-y-4 sm:space-y-6">
-              <TabsList className="bg-background border border-border flex-wrap h-auto gap-1 p-1 w-full justify-start">
-                <TabsTrigger value="program" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />12-Week Program</TabsTrigger>
-                <TabsTrigger value="workouts" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Dumbbell className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Templates</span><span className="sm:hidden">Gym</span></TabsTrigger>
-                <TabsTrigger value="faith" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Cross className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Faith</TabsTrigger>
-                <TabsTrigger value="nutrition" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Utensils className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Nutrition</span><span className="sm:hidden">Food</span></TabsTrigger>
-                <TabsTrigger value="mealplans" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><ChefHat className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Meal Plans</span><span className="sm:hidden">Meals</span></TabsTrigger>
-                <TabsTrigger value="discipline" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Discipline</span><span className="sm:hidden">Daily</span></TabsTrigger>
-                <TabsTrigger value="skills" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Skills</TabsTrigger>
-                <TabsTrigger value="welcome-videos" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Video className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Welcome Videos</span><span className="sm:hidden">Videos</span></TabsTrigger>
-                <TabsTrigger value="meal-analytics" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Meal Analytics</span><span className="sm:hidden">Stats</span></TabsTrigger>
-              </TabsList>
-              <TabsContent value="program"><ProgramBuilder /></TabsContent>
-              <TabsContent value="workouts"><WorkoutContentManager /></TabsContent>
-              <TabsContent value="faith"><FaithLessonsManager /></TabsContent>
-              <TabsContent value="nutrition"><NutritionManager /></TabsContent>
-              <TabsContent value="mealplans"><MealPlanManager /></TabsContent>
-              <TabsContent value="discipline"><DisciplineManager /></TabsContent>
-              <TabsContent value="skills"><SkillLessonsManager /></TabsContent>
-              <TabsContent value="welcome-videos"><WelcomeVideosManager /></TabsContent>
-              <TabsContent value="meal-analytics"><MealAnalyticsPanel /></TabsContent>
-            </Tabs>
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Sidebar Navigation for Content */}
+              <ContentNavigation 
+                activeSection={contentSection} 
+                onSelectSection={setContentSection}
+              />
+              
+              {/* Content Area */}
+              <div className="flex-1 min-w-0">
+                {contentSection === "program" && <ProgramBuilder />}
+                {contentSection === "workouts" && <WorkoutContentManager />}
+                {contentSection === "faith" && <FaithLessonsManager />}
+                {contentSection === "nutrition" && <NutritionManager />}
+                {contentSection === "mealplans" && <MealPlanManager />}
+                {contentSection === "meal-analytics" && <MealAnalyticsPanel />}
+                {contentSection === "discipline" && <DisciplineManager />}
+                {contentSection === "skills" && <SkillLessonsManager />}
+                {contentSection === "welcome-videos" && <WelcomeVideosManager />}
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>
