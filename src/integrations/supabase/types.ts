@@ -248,6 +248,47 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_feedback: {
+        Row: {
+          created_at: string
+          feedback_date: string
+          feedback_type: string
+          id: string
+          meal_id: string
+          notes: string | null
+          rating: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_date?: string
+          feedback_type: string
+          id?: string
+          meal_id: string
+          notes?: string | null
+          rating?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_date?: string
+          feedback_type?: string
+          id?: string
+          meal_id?: string
+          notes?: string | null
+          rating?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_feedback_meal_id_fkey"
+            columns: ["meal_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_meals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_plan_days: {
         Row: {
           created_at: string | null
@@ -1061,6 +1102,51 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_meal_swaps: {
+        Row: {
+          created_at: string
+          day_number: number
+          id: string
+          original_meal_id: string
+          swap_date: string
+          swapped_meal_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          id?: string
+          original_meal_id: string
+          swap_date?: string
+          swapped_meal_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          id?: string
+          original_meal_id?: string
+          swap_date?: string
+          swapped_meal_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_meal_swaps_original_meal_id_fkey"
+            columns: ["original_meal_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_meals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_meal_swaps_swapped_meal_id_fkey"
+            columns: ["swapped_meal_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_meals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

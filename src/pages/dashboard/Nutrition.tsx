@@ -1,34 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
   ArrowLeft, Loader2, ChefHat, Flame, Beef, Wheat, Droplet, 
-  Clock, Users, ChevronDown, ChevronUp, ShoppingCart, Printer
+  ShoppingCart, Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useMealPlanAssignment } from "@/hooks/useMealPlanAssignment";
+import { useMealFeedback } from "@/hooks/useMealFeedback";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
+import { MealCard } from "@/components/nutrition/MealCard";
+import { MealSwapDialog } from "@/components/nutrition/MealSwapDialog";
 import type { MealPlanMeal } from "@/hooks/useMealPlanAssignment";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"] as const;
-const MEAL_TYPE_ICONS: Record<string, string> = {
-  breakfast: "🌅",
-  lunch: "☀️",
-  dinner: "🌙",
-  snack: "🍎"
-};
 
 const Nutrition = () => {
   const { assignedPlan, userCalories, loading } = useMealPlanAssignment();
   const { subscription, profile } = useAuth();
+  const { 
+    addFeedback, 
+    removeFeedback, 
+    getMealFeedback, 
+    createSwap, 
+    removeSwap, 
+    getActiveSwap,
+    swaps 
+  } = useMealFeedback();
+  
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
   const [selectedDay, setSelectedDay] = useState("1");
+  const [swapDialogOpen, setSwapDialogOpen] = useState(false);
+  const [mealToSwap, setMealToSwap] = useState<MealPlanMeal | null>(null);
 
   // Only transformation and coaching users can access
   if (subscription?.plan_type === "membership") {
@@ -46,6 +54,12 @@ const Nutrition = () => {
       return next;
     });
   };
+
+  // Get all meals from the plan for swap options
+  const allMeals = useMemo(() => {
+    if (!assignedPlan) return [];
+    return assignedPlan.days.flatMap(day => day.meals);
+  }, [assignedPlan]);
 
   // Generate shopping list from all meals in the week
   const generateShoppingList = () => {
@@ -70,6 +84,39 @@ const Nutrition = () => {
     }));
   };
 
+  // Handle opening swap dialog
+  const handleOpenSwap = (meal: MealPlanMeal) => {
+    setMealToSwap(meal);
+    setSwapDialogOpen(true);
+  };
+
+  // Handle swap confirmation
+  const handleSwap = async (newMealId: string) => {
+    if (!mealToSwap) return;
+    const dayNumber = parseInt(selectedDay);
+    await createSwap(mealToSwap.id, newMealId, dayNumber);
+  };
+
+  // Handle revert swap
+  const handleRevert = async (originalMealId: string) => {
+    const swap = getActiveSwap(originalMealId);
+    if (swap) {
+      await removeSwap(swap.id);
+    }
+  };
+
+  // Get the effective meal (swapped or original)
+  const getEffectiveMeal = (originalMeal: MealPlanMeal): { meal: MealPlanMeal; isSwapped: boolean } => {
+    const swap = getActiveSwap(originalMeal.id);
+    if (swap) {
+      const swappedMeal = allMeals.find(m => m.id === swap.swapped_meal_id);
+      if (swappedMeal) {
+        return { meal: swappedMeal, isSwapped: true };
+      }
+    }
+    return { meal: originalMeal, isSwapped: false };
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -83,14 +130,17 @@ const Nutrition = () => {
     MEAL_TYPE_ORDER.indexOf(a.meal_type) - MEAL_TYPE_ORDER.indexOf(b.meal_type)
   ) || [];
 
-  // Calculate daily totals
+  // Calculate daily totals (using effective meals)
   const dailyTotals = sortedMeals.reduce(
-    (acc, meal) => ({
-      calories: acc.calories + meal.calories,
-      protein: acc.protein + meal.protein_g,
-      carbs: acc.carbs + meal.carbs_g,
-      fats: acc.fats + meal.fats_g
-    }),
+    (acc, originalMeal) => {
+      const { meal } = getEffectiveMeal(originalMeal);
+      return {
+        calories: acc.calories + meal.calories,
+        protein: acc.protein + meal.protein_g,
+        carbs: acc.carbs + meal.carbs_g,
+        fats: acc.fats + meal.fats_g
+      };
+    },
     { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
@@ -223,14 +273,26 @@ const Nutrition = () => {
                     </Card>
                   ) : (
                     <div className="space-y-4">
-                      {sortedMeals.map(meal => (
-                        <MealCard 
-                          key={meal.id} 
-                          meal={meal} 
-                          isExpanded={expandedMeals.has(meal.id)}
-                          onToggle={() => toggleMealExpanded(meal.id)}
-                        />
-                      ))}
+                      {sortedMeals.map(originalMeal => {
+                        const { meal, isSwapped } = getEffectiveMeal(originalMeal);
+                        const feedback = getMealFeedback(meal.id);
+                        
+                        return (
+                          <MealCard 
+                            key={originalMeal.id} 
+                            meal={meal} 
+                            isExpanded={expandedMeals.has(meal.id)}
+                            onToggle={() => toggleMealExpanded(meal.id)}
+                            userFeedback={feedback.map(f => ({ type: f.feedback_type }))}
+                            onLike={() => addFeedback(meal.id, "like")}
+                            onSkip={() => addFeedback(meal.id, "skip")}
+                            onMade={() => addFeedback(meal.id, "made")}
+                            onSwap={() => handleOpenSwap(originalMeal)}
+                            isSwapped={isSwapped}
+                            onRevert={isSwapped ? () => handleRevert(originalMeal.id) : undefined}
+                          />
+                        );
+                      })}
                     </div>
                   )}
                 </TabsContent>
@@ -280,138 +342,21 @@ const Nutrition = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Swap Dialog */}
+      {mealToSwap && userCalories && (
+        <MealSwapDialog
+          open={swapDialogOpen}
+          onOpenChange={setSwapDialogOpen}
+          currentMeal={mealToSwap}
+          availableMeals={allMeals}
+          onSwap={handleSwap}
+          targetCalories={userCalories.targetCalories}
+          targetProtein={userCalories.protein}
+        />
+      )}
     </div>
   );
 };
-
-// Meal Card Component
-function MealCard({ 
-  meal, 
-  isExpanded, 
-  onToggle 
-}: { 
-  meal: MealPlanMeal; 
-  isExpanded: boolean; 
-  onToggle: () => void;
-}) {
-  return (
-    <Card className="bg-card border-border overflow-hidden">
-      <Collapsible open={isExpanded} onOpenChange={onToggle}>
-        <CollapsibleTrigger asChild>
-          <div className="p-4 cursor-pointer hover:bg-muted/20 transition-colors">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg">{MEAL_TYPE_ICONS[meal.meal_type]}</span>
-                  <Badge variant="outline" className="text-xs capitalize">
-                    {meal.meal_type}
-                  </Badge>
-                </div>
-                <h4 className="font-semibold text-foreground">{meal.meal_name}</h4>
-                <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Flame className="h-3 w-3 text-orange-500" />
-                    {meal.calories} cal
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Beef className="h-3 w-3 text-red-500" />
-                    {meal.protein_g}g
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Wheat className="h-3 w-3 text-amber-500" />
-                    {meal.carbs_g}g
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Droplet className="h-3 w-3 text-blue-500" />
-                    {meal.fats_g}g
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                {(meal.prep_time_min > 0 || meal.cook_time_min > 0) && (
-                  <span className="text-xs flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {meal.prep_time_min + meal.cook_time_min} min
-                  </span>
-                )}
-                {isExpanded ? (
-                  <ChevronUp className="h-5 w-5" />
-                ) : (
-                  <ChevronDown className="h-5 w-5" />
-                )}
-              </div>
-            </div>
-          </div>
-        </CollapsibleTrigger>
-
-        <CollapsibleContent>
-          <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
-            {/* Prep Info */}
-            <div className="flex flex-wrap gap-4 text-sm">
-              {meal.prep_time_min > 0 && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>Prep: {meal.prep_time_min} min</span>
-                </div>
-              )}
-              {meal.cook_time_min > 0 && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>Cook: {meal.cook_time_min} min</span>
-                </div>
-              )}
-              {meal.servings > 1 && (
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>Servings: {meal.servings}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Ingredients */}
-            {meal.ingredients.length > 0 && (
-              <div>
-                <h5 className="font-medium text-foreground mb-2">Ingredients</h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {meal.ingredients.map((ing, i) => (
-                    <div 
-                      key={i} 
-                      className="flex items-center gap-2 p-2 rounded bg-charcoal border border-border text-sm"
-                    >
-                      <span className="font-medium text-primary">{ing.amount}</span>
-                      <span>{ing.item}</span>
-                      {ing.notes && (
-                        <span className="text-muted-foreground">({ing.notes})</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Instructions */}
-            {meal.instructions && (
-              <div>
-                <h5 className="font-medium text-foreground mb-2">Instructions</h5>
-                <div className="text-sm text-muted-foreground whitespace-pre-line">
-                  {meal.instructions}
-                </div>
-              </div>
-            )}
-
-            {/* Notes */}
-            {meal.notes && (
-              <div className="p-3 rounded bg-primary/10 border border-primary/20">
-                <p className="text-sm text-foreground">
-                  <span className="font-medium">💡 Tip:</span> {meal.notes}
-                </p>
-              </div>
-            )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
-  );
-}
 
 export default Nutrition;
