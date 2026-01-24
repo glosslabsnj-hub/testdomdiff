@@ -6,7 +6,6 @@ import {
   Camera, 
   Calendar, 
   Grid, 
-  Columns, 
   ZoomIn,
   Lock,
   Eye,
@@ -16,7 +15,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +27,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import DashboardLayout from "@/components/DashboardLayout";
+import ShareCollageDialog from "@/components/progress/ShareCollageDialog";
 
 type ViewMode = "grid" | "timeline";
 type FilterType = "all" | "before" | "during" | "after";
@@ -59,6 +60,7 @@ export default function PhotoGallery() {
   const [comparisonPhotos, setComparisonPhotos] = useState<[ProgressPhoto | null, ProgressPhoto | null]>([null, null]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   const isCoaching = subscription?.plan_type === "coaching";
 
@@ -132,6 +134,16 @@ export default function PhotoGallery() {
     setSelectedPhoto(filteredPhotos[newIndex]);
   };
 
+  // Calculate weeks difference for comparison photos
+  const getComparisonWeeksDiff = () => {
+    if (!comparisonPhotos[0] || !comparisonPhotos[1]) return 0;
+    const diffMs = Math.abs(
+      new Date(comparisonPhotos[1].created_at).getTime() - 
+      new Date(comparisonPhotos[0].created_at).getTime()
+    );
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -183,14 +195,23 @@ export default function PhotoGallery() {
                 {comparisonPhotos[0] && !comparisonPhotos[1] && " Now select the second photo."}
               </p>
               {comparisonPhotos[0] && comparisonPhotos[1] && (
-                <Button
-                  variant="gold"
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => setLightboxOpen(true)}
-                >
-                  View Comparison
-                </Button>
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    variant="gold"
+                    size="sm"
+                    onClick={() => setLightboxOpen(true)}
+                  >
+                    View Comparison
+                  </Button>
+                  <Button
+                    variant="goldOutline"
+                    size="sm"
+                    onClick={() => setShareDialogOpen(true)}
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share Transformation
+                  </Button>
+                </div>
               )}
             </div>
           )}
@@ -498,6 +519,15 @@ export default function PhotoGallery() {
           ) : null}
         </DialogContent>
       </Dialog>
+
+      {/* Share Collage Dialog */}
+      <ShareCollageDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        beforePhoto={comparisonPhotos[0]}
+        afterPhoto={comparisonPhotos[1]}
+        weeksDiff={getComparisonWeeksDiff()}
+      />
     </DashboardLayout>
   );
 }

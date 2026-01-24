@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { 
-  Plus, 
   ClipboardCheck, 
   Users, 
   Package, 
   Dumbbell,
-  BookOpen,
-  TrendingUp
+  TrendingUp,
+  Bell,
+  Camera,
+  Loader2,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface QuickAction {
   label: string;
@@ -56,6 +60,46 @@ interface AdminQuickActionsProps {
 }
 
 export default function AdminQuickActions({ onNavigate, pendingCheckIns = 0 }: AdminQuickActionsProps) {
+  const { toast } = useToast();
+  const [sendingNotification, setSendingNotification] = useState<string | null>(null);
+  const [sentNotifications, setSentNotifications] = useState<Set<string>>(new Set());
+
+  const sendNotification = async (type: "check_in_reminder" | "photo_reminder") => {
+    setSendingNotification(type);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-notifications", {
+        body: { type },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Notifications Sent",
+        description: data.message || `${type.replace("_", " ")} notifications sent successfully.`,
+      });
+      
+      setSentNotifications(prev => new Set([...prev, type]));
+      
+      // Reset the sent status after 5 seconds
+      setTimeout(() => {
+        setSentNotifications(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(type);
+          return newSet;
+        });
+      }, 5000);
+    } catch (error: any) {
+      console.error("Failed to send notifications:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send notifications.",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingNotification(null);
+    }
+  };
+
   return (
     <Card className="bg-charcoal border-border">
       <CardHeader className="pb-3">
@@ -64,7 +108,8 @@ export default function AdminQuickActions({ onNavigate, pendingCheckIns = 0 }: A
           Quick Actions
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {/* Navigation Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {QUICK_ACTIONS.map((action) => (
             <button
@@ -81,6 +126,53 @@ export default function AdminQuickActions({ onNavigate, pendingCheckIns = 0 }: A
               </span>
             </button>
           ))}
+        </div>
+
+        {/* Notification Triggers */}
+        <div className="pt-3 border-t border-border">
+          <div className="flex items-center gap-2 mb-3">
+            <Bell className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              Manual Notifications
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => sendNotification("check_in_reminder")}
+              disabled={sendingNotification !== null}
+            >
+              {sendingNotification === "check_in_reminder" ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : sentNotifications.has("check_in_reminder") ? (
+                <Check className="w-4 h-4 mr-2 text-green-500" />
+              ) : (
+                <ClipboardCheck className="w-4 h-4 mr-2" />
+              )}
+              Check-In Reminders
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => sendNotification("photo_reminder")}
+              disabled={sendingNotification !== null}
+            >
+              {sendingNotification === "photo_reminder" ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : sentNotifications.has("photo_reminder") ? (
+                <Check className="w-4 h-4 mr-2 text-green-500" />
+              ) : (
+                <Camera className="w-4 h-4 mr-2" />
+              )}
+              Photo Reminders
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Automated notifications run weekly. Use these buttons to trigger manually.
+          </p>
         </div>
       </CardContent>
     </Card>
