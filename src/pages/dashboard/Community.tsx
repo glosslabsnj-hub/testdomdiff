@@ -1,16 +1,39 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Users, MessageSquare, Trophy, Calendar, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useAuth } from "@/contexts/AuthContext";
-import UpgradePrompt from "@/components/UpgradePrompt";
+import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 
 const Community = () => {
   const { subscription } = useAuth();
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const isMembership = subscription?.plan_type === "membership";
   
-  // Solitary (membership) users cannot access community
-  if (subscription?.plan_type === "membership") {
-    return <UpgradePrompt feature="The Yard (Community)" upgradeTo="transformation" />;
+  // Solitary (membership) users see modal and redirect on close
+  useEffect(() => {
+    if (isMembership) {
+      setShowModal(true);
+    }
+  }, [isMembership]);
+
+  const handleModalClose = (open: boolean) => {
+    setShowModal(open);
+    if (!open) {
+      navigate("/dashboard");
+    }
+  };
+
+  if (isMembership) {
+    return (
+      <SolitaryUpgradeModal
+        open={showModal}
+        onOpenChange={handleModalClose}
+        feature="The Yard (Community)"
+      />
+    );
   }
   
   const isCoaching = subscription?.plan_type === "coaching";
