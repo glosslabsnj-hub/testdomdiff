@@ -838,6 +838,7 @@ export type Database = {
           injuries: string | null
           intake_completed_at: string | null
           last_name: string | null
+          onboarding_video_watched: boolean | null
           phone: string | null
           updated_at: string
           user_id: string
@@ -859,6 +860,7 @@ export type Database = {
           injuries?: string | null
           intake_completed_at?: string | null
           last_name?: string | null
+          onboarding_video_watched?: boolean | null
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -880,6 +882,7 @@ export type Database = {
           injuries?: string | null
           intake_completed_at?: string | null
           last_name?: string | null
+          onboarding_video_watched?: boolean | null
           phone?: string | null
           updated_at?: string
           user_id?: string
@@ -1149,6 +1152,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      program_welcome_videos: {
+        Row: {
+          created_at: string | null
+          id: string
+          plan_type: string
+          updated_at: string | null
+          video_description: string | null
+          video_title: string | null
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          plan_type: string
+          updated_at?: string | null
+          video_description?: string | null
+          video_title?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          plan_type?: string
+          updated_at?: string | null
+          video_description?: string | null
+          video_title?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
       }
       progress_entries: {
         Row: {

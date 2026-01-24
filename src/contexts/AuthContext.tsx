@@ -27,6 +27,7 @@ interface Profile {
   injuries: string | null;
   faith_commitment: boolean | null;
   intake_completed_at: string | null;
+  onboarding_video_watched: boolean | null;
   created_at: string;
 }
 
