@@ -1,21 +1,32 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Send, Check, History, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Check, History, Loader2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCheckIns, CheckInFormData } from "@/hooks/useCheckIns";
+import { useProgressPhotos } from "@/hooks/useProgressPhotos";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 
 const CheckIn = () => {
   const { checkIns, loading, submitCheckIn, getCurrentWeekNumber } = useCheckIns();
+  const { uploadPhoto, getPhotosByType } = useProgressPhotos();
+  const { subscription } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showPhotoUpload, setShowPhotoUpload] = useState(false);
 
+  const isCoaching = subscription?.plan_type === "coaching";
   const currentWeek = getCurrentWeekNumber();
+
+  // Get weekly photos for the current week
+  const duringPhotos = getPhotosByType("during");
+  const hasWeeklyPhoto = duringPhotos.some(p => p.week_number === currentWeek);
 
   const [formData, setFormData] = useState<CheckInFormData>({
     week_number: currentWeek,
@@ -38,13 +49,25 @@ const CheckIn = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handlePhotoUpload = async (file: File, options: { caption?: string; privacyLevel?: "private" | "coach_only" | "public" }) => {
+    const success = await uploadPhoto(file, "during", { ...options, weekNumber: currentWeek });
+    if (success) {
+      toast({
+        title: "Photo uploaded!",
+        description: `Week ${currentWeek} progress photo saved.`,
+      });
+      setShowPhotoUpload(false);
+    }
+    return success;
+  };
+
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
       await submitCheckIn(formData);
       toast({
-        title: "Check-in submitted!",
-        description: `Week ${formData.week_number} check-in saved successfully.`,
+        title: isCoaching ? "Report submitted!" : "Check-in submitted!",
+        description: `Week ${formData.week_number} ${isCoaching ? "report" : "check-in"} saved successfully.`,
       });
       // Reset form for next week
       setFormData({
@@ -81,14 +104,20 @@ const CheckIn = () => {
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to {isCoaching ? "Dashboard" : "Cell Block"}
         </Link>
 
         <div className="max-w-2xl">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="headline-section mb-2">Roll <span className="text-primary">Call</span></h1>
-              <p className="text-muted-foreground">Submit your weekly accountability report to stay compliant.</p>
+              <h1 className="headline-section mb-2">
+                {isCoaching ? "Weekly" : "Roll"} <span className="text-primary">{isCoaching ? "Report" : "Call"}</span>
+              </h1>
+              <p className="text-muted-foreground">
+                {isCoaching 
+                  ? "Submit your weekly progress report to stay on track."
+                  : "Submit your weekly accountability report to stay compliant."}
+              </p>
             </div>
             <Button
               variant={showHistory ? "gold" : "goldOutline"}
@@ -241,6 +270,33 @@ const CheckIn = () => {
                   onChange={(e) => handleChange("faith_reflection", e.target.value)}
                 />
               </div>
+
+              {/* Weekly Progress Photo (Optional) */}
+              <div className="border-t border-border pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <Label className="text-base">Weekly Progress Photo (Optional)</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Upload a photo to track your visual progress for Week {currentWeek}
+                    </p>
+                  </div>
+                  {hasWeeklyPhoto && (
+                    <span className="text-xs text-primary flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Photo uploaded
+                    </span>
+                  )}
+                </div>
+                
+                {!hasWeeklyPhoto && (
+                  <div className="max-w-xs">
+                    <PhotoUploadCard
+                      photoType="during"
+                      onUpload={handlePhotoUpload}
+                    />
+                  </div>
+                )}
+              </div>
+
               <Button
                 variant="gold"
                 size="lg"

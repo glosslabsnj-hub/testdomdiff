@@ -2,20 +2,24 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, Dumbbell, Clock, TrendingUp, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-const navItems = [
-  { icon: Home, label: "Home", href: "/dashboard" },
-  { icon: Dumbbell, label: "Workouts", href: "/dashboard/workouts" },
-  { icon: Clock, label: "Discipline", href: "/dashboard/discipline" },
-  { icon: TrendingUp, label: "Progress", href: "/dashboard/progress" },
-  { icon: Shield, label: "Warden", href: "#warden", isAction: true },
-];
+import { useAuth } from "@/contexts/AuthContext";
 
 export function MobileBottomNav() {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { subscription } = useAuth();
+  
+  const isCoaching = subscription?.plan_type === "coaching";
 
   if (!isMobile) return null;
+
+  const navItems = [
+    { icon: Home, label: "Home", href: "/dashboard" },
+    { icon: Dumbbell, label: isCoaching ? "Training" : "Workouts", href: "/dashboard/workouts" },
+    { icon: Clock, label: isCoaching ? "Structure" : "Discipline", href: "/dashboard/discipline" },
+    { icon: TrendingUp, label: "Progress", href: "/dashboard/progress" },
+    { icon: Shield, label: "Warden", href: "#warden", isAction: true },
+  ];
 
   const handleWardenClick = (e: React.MouseEvent) => {
     e.preventDefault();

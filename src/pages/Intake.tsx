@@ -6,19 +6,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, ArrowRight, ArrowLeft, Loader2, User, Target, Cross, Dumbbell, Activity, Shield } from "lucide-react";
+import { Check, ArrowRight, ArrowLeft, Loader2, User, Target, Cross, Dumbbell, Activity, Shield, Camera, SkipForward } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useProgressPhotos } from "@/hooks/useProgressPhotos";
 import { cn } from "@/lib/utils";
+import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 
 const Intake = () => {
   const navigate = useNavigate();
   const { user, profile, subscription, refreshProfile } = useAuth();
   const { toast } = useToast();
+  const { uploadPhoto, getPhotosByType } = useProgressPhotos();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const totalSteps = 3;
+  const [skippedPhotos, setSkippedPhotos] = useState(false);
+  const totalSteps = 4;
+  const isCoaching = subscription?.plan_type === "coaching";
   const [formData, setFormData] = useState({
     firstName: profile?.first_name || "",
     lastName: profile?.last_name || "",
@@ -124,8 +129,10 @@ const Intake = () => {
       await refreshProfile();
 
       toast({
-        title: "Processing Complete!",
-        description: "Welcome to the program. Your sentence begins now.",
+        title: isCoaching ? "Welcome Aboard!" : "Processing Complete!",
+        description: isCoaching 
+          ? "You're ready to begin. Let's get to work."
+          : "Welcome to the program. Your sentence begins now.",
       });
 
       navigate("/intake-complete");
@@ -160,7 +167,16 @@ const Intake = () => {
       icon: Cross,
       description: "Your commitment seals the deal"
     },
+    { 
+      title: "Photos", 
+      subtitle: isCoaching ? "Starting Point" : "Day 1 Mugshot",
+      icon: Camera,
+      description: "Document where you're starting (optional but encouraged)"
+    },
   ];
+
+  // Get existing before photos
+  const beforePhotos = getPhotosByType("before");
 
   const goalOptions = [
     { value: "Lose fat", icon: Activity, description: "Burn fat, get lean" },
@@ -395,7 +411,63 @@ const Intake = () => {
             {formData.faithCommitment && (
               <div className="text-center p-4 rounded-lg bg-primary/10 border border-primary/30">
                 <Check className="w-6 h-6 text-primary mx-auto mb-2" />
-                <p className="text-primary font-medium">You're ready to begin your sentence.</p>
+                <p className="text-primary font-medium">
+                  {isCoaching ? "You're ready to begin your journey." : "You're ready to begin your sentence."}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                <Camera className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">
+                {isCoaching ? "Document Your Starting Point" : "Day 1 Mugshot"}
+              </h3>
+              <p className="text-muted-foreground">
+                {isCoaching 
+                  ? "Take photos now to compare with your results later. These are private by default."
+                  : "Your transformation starts with proof. Upload your Day 1 photos for comparison later."}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <PhotoUploadCard
+                photoType="before"
+                existingPhotoUrl={beforePhotos[0]?.url}
+                onUpload={(file, options) => uploadPhoto(file, "before", options)}
+              />
+              <PhotoUploadCard
+                photoType="before"
+                existingPhotoUrl={beforePhotos[1]?.url}
+                onUpload={(file, options) => uploadPhoto(file, "before", options)}
+              />
+              <PhotoUploadCard
+                photoType="before"
+                existingPhotoUrl={beforePhotos[2]?.url}
+                onUpload={(file, options) => uploadPhoto(file, "before", options)}
+              />
+            </div>
+
+            <div className="p-4 rounded-lg bg-muted/50 border border-border">
+              <p className="text-sm text-muted-foreground text-center">
+                <strong>Privacy:</strong> These photos are private by default. Only you can see them unless you choose to share later.
+              </p>
+            </div>
+
+            {(beforePhotos.length > 0 || skippedPhotos) && (
+              <div className="text-center p-4 rounded-lg bg-primary/10 border border-primary/30">
+                <Check className="w-6 h-6 text-primary mx-auto mb-2" />
+                <p className="text-primary font-medium">
+                  {beforePhotos.length > 0 
+                    ? `${beforePhotos.length} photo${beforePhotos.length > 1 ? 's' : ''} uploaded. You're ready to complete intake.`
+                    : "You can always add photos later in the Progress section."}
+                </p>
               </div>
             )}
           </div>
@@ -414,6 +486,9 @@ const Intake = () => {
         return formData.goal && formData.experience;
       case 3:
         return formData.faithCommitment;
+      case 4:
+        // Photo step is optional - can always proceed
+        return true;
       default:
         return false;
     }
@@ -430,10 +505,12 @@ const Intake = () => {
               Entering: {getTierName()}
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              Inmate <span className="text-primary">Processing</span>
+              {isCoaching ? "Client" : "Inmate"} <span className="text-primary">{isCoaching ? "Onboarding" : "Processing"}</span>
             </h1>
             <p className="text-muted-foreground">
-              Complete your intake to access your program.
+              {isCoaching 
+                ? "Complete your profile to begin your coaching journey."
+                : "Complete your intake to access your program."}
             </p>
           </div>
         </div>
@@ -512,19 +589,30 @@ const Intake = () => {
                 </Button>
 
                 {step < totalSteps ? (
-                  <Button
-                    variant="gold"
-                    onClick={() => setStep((s) => Math.min(totalSteps, s + 1))}
-                    disabled={!canProceed()}
-                    className="gap-2"
-                  >
-                    Continue <ArrowRight className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    {step === 4 && beforePhotos.length === 0 && !skippedPhotos && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => setSkippedPhotos(true)}
+                        className="gap-2 text-muted-foreground"
+                      >
+                        <SkipForward className="w-4 h-4" /> Skip for now
+                      </Button>
+                    )}
+                    <Button
+                      variant="gold"
+                      onClick={() => setStep((s) => Math.min(totalSteps, s + 1))}
+                      disabled={!canProceed()}
+                      className="gap-2"
+                    >
+                      Continue <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
                 ) : (
                   <Button
                     variant="gold"
                     onClick={handleSubmit}
-                    disabled={!formData.faithCommitment || isSubmitting}
+                    disabled={isSubmitting}
                     className="gap-2"
                   >
                     {isSubmitting ? (
@@ -534,7 +622,7 @@ const Intake = () => {
                       </>
                     ) : (
                       <>
-                        Complete Processing <Check className="w-4 h-4" />
+                        {isCoaching ? "Complete Onboarding" : "Complete Processing"} <Check className="w-4 h-4" />
                       </>
                     )}
                   </Button>
