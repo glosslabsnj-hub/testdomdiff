@@ -68,6 +68,8 @@ export type Database = {
       check_ins: {
         Row: {
           changes: string | null
+          coach_notes: string | null
+          coach_reviewed_at: string | null
           created_at: string
           faith_reflection: string | null
           id: string
@@ -84,6 +86,8 @@ export type Database = {
         }
         Insert: {
           changes?: string | null
+          coach_notes?: string | null
+          coach_reviewed_at?: string | null
           created_at?: string
           faith_reflection?: string | null
           id?: string
@@ -100,6 +104,8 @@ export type Database = {
         }
         Update: {
           changes?: string | null
+          coach_notes?: string | null
+          coach_reviewed_at?: string | null
           created_at?: string
           faith_reflection?: string | null
           id?: string

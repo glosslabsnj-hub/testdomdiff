@@ -18,9 +18,10 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DashboardHeader from "@/components/DashboardHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
+import DashboardLayout from "@/components/DashboardLayout";
+import TodaysFocus from "@/components/TodaysFocus";
 
 const Dashboard = () => {
   const { subscription } = useAuth();
@@ -220,11 +221,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
+    <DashboardLayout showBreadcrumb={false}>
+      <div className="section-container py-8">
+        {/* Today's Focus Widget */}
+        <TodaysFocus />
 
-      <main className="section-container py-12">
-        <div className="mb-12">
+        <div className="mb-8">
           <h1 className="headline-section mb-2">
             Your <span className="text-primary">Cell Block</span>
           </h1>
@@ -290,8 +292,8 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 
