@@ -1,28 +1,14 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Dumbbell, Plus, Loader2, Lock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Dumbbell, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
-import { useAuth } from "@/contexts/AuthContext";
 import { WardenTip } from "@/components/warden";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
-  const { subscription } = useAuth();
-  
-  const planType = subscription?.plan_type;
-  const isMembershipOnly = planType === "membership";
 
-  // Filter templates based on subscription tier
-  // Membership users only see bodyweight templates
-  const visibleTemplates = templates.filter(t => 
-    t.is_active && (!isMembershipOnly || t.is_bodyweight)
-  );
-
-  // Count of templates user can't see
-  const lockedCount = isMembershipOnly 
-    ? templates.filter(t => t.is_active && !t.is_bodyweight).length 
-    : 0;
+  // Only show active bodyweight templates for all users
+  const visibleTemplates = templates.filter(t => t.is_active && t.is_bodyweight);
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,19 +26,14 @@ const Workouts = () => {
               <span className="text-primary">Yard Time</span> — Training Templates
             </h1>
             <p className="text-muted-foreground">
-              {isMembershipOnly 
-                ? "Bodyweight workouts. No equipment, no excuses. Prison-style training."
-                : "Full workout library. Build your sessions like we built ours on the inside."}
+              Bodyweight workouts. No equipment, no excuses. Prison-style training.
             </p>
           </div>
         </div>
 
         {/* Warden Tip */}
         <WardenTip 
-          tip={isMembershipOnly 
-            ? "Bodyweight builds real strength. No equipment, no excuses. Pick a template and get after it."
-            : "Full library unlocked. Remember: progressive overload is key. Track your lifts."
-          }
+          tip="Bodyweight builds real strength. No equipment, no excuses. Pick a template and get after it."
           className="mb-8"
         />
 
@@ -96,36 +77,14 @@ const Workouts = () => {
                 </Link>
               ))}
             </div>
-
-            {/* Locked content indicator for membership users */}
-            {isMembershipOnly && lockedCount > 0 && (
-              <div className="p-6 rounded-lg bg-card border border-border mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                    <Lock className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <div className="flex-grow">
-                    <p className="font-medium">
-                      +{lockedCount} more templates available
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Upgrade to the 12-Week Transformation for the full progressive workout library
-                    </p>
-                  </div>
-                  <Button variant="gold" size="sm" asChild>
-                    <Link to="/programs/transformation">Upgrade</Link>
-                  </Button>
-                </div>
-              </div>
-            )}
           </>
         )}
 
         {/* Week Builder Section */}
         <div className="bg-card p-8 rounded-lg border border-border">
-          <h2 className="headline-card mb-4">Week Builder</h2>
+          <h2 className="headline-card mb-4">Your Weekly Schedule</h2>
           <p className="text-muted-foreground mb-6">
-            Your weekly workout schedule based on your current program week.
+            Build your own weekly workout schedule using the templates above.
           </p>
           
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-6">
@@ -136,16 +95,14 @@ const Workouts = () => {
               >
                 <p className="text-sm font-bold mb-2">{day}</p>
                 <div className="h-16 border-2 border-dashed border-border rounded flex items-center justify-center">
-                  <Plus className="w-6 h-6 text-muted-foreground" />
+                  <Dumbbell className="w-6 h-6 text-muted-foreground" />
                 </div>
               </div>
             ))}
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {isMembershipOnly 
-              ? "Build your own weekly schedule using the bodyweight templates above."
-              : "Your weekly schedule will be assigned based on your program week."}
+            Assign workouts to each day of the week. Rest on Sundays.
           </p>
         </div>
       </div>

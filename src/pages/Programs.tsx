@@ -4,7 +4,6 @@ import { Check, ArrowRight, Users, Flame, Target } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProgramComparisonTable from "@/components/ProgramComparisonTable";
-import trainingImage from "@/assets/training-image.jpg";
 
 const Programs = () => {
   const programs = [
@@ -12,17 +11,16 @@ const Programs = () => {
       id: "membership",
       title: "Solitary Confinement",
       subtitle: "The Foundation",
-      price: "$79.99",
+      price: "$19.99",
       period: "/month",
       icon: Users,
       description: "Strip away the distractions. In Solitary, you get nothing but the essentials — the raw guidelines needed to perform. No noise. Just discipline.",
       features: [
-        "Bodyweight workout templates",
+        "4 bodyweight workout templates",
         "Daily discipline routine templates",
-        "Weekly check-in + habit trackers",
-        "Mindset + Faith lessons",
-        "Community access",
-        "Progress tracking templates",
+        "Basic nutrition template (one fixed meal)",
+        "Weekly check-in submissions",
+        "Progress tracking",
       ],
       href: "/programs/membership",
       cta: "Enter Solitary",
@@ -31,19 +29,18 @@ const Programs = () => {
       id: "transformation",
       title: "General Population",
       subtitle: "12 Weeks",
-      price: "$749.99",
+      price: "$299.99",
       period: "one-time",
       icon: Flame,
       description: "You've earned your place. In Gen Pop, you connect with peers, access video instruction, get nutrition plans, and start building your hustle.",
       features: [
-        "Full progressive workout library",
-        "Complete 12-week assigned schedule",
-        "Weekly video coaching from Dom",
-        "Nutrition templates + meal guides",
-        "Skill-building lessons",
-        "Phase progression (Foundation → Build → Peak)",
-        "Faith + mindset curriculum",
         "Everything in Solitary included",
+        "Full 12-week progressive program",
+        "Weekly video coaching from Dom",
+        "Full nutrition templates + meal swaps",
+        "Faith + mindset weekly curriculum",
+        "Skill-building lessons",
+        "Community access (The Yard)",
       ],
       href: "/programs/transformation",
       cta: "Join Gen Pop",
@@ -53,18 +50,17 @@ const Programs = () => {
       id: "coaching",
       title: "Free World 1:1 Coaching",
       subtitle: "Maximum Freedom",
-      price: "$1,250",
+      price: "$999.99",
       period: "/month",
       icon: Target,
       description: "You've done the time. Now live free. Direct access to Dom for personalized coaching, custom programming, and total accountability.",
       features: [
+        "Everything in Gen Pop included",
         "Weekly 1:1 video calls with Dom",
         "Direct messaging access",
         "Advanced skill-building lessons",
-        "Personalized programming",
+        "Custom-built programming",
         "Priority support",
-        "Custom nutrition guidance",
-        "Everything in Transformation included",
       ],
       href: "/programs/coaching",
       cta: "Apply for Coaching",
@@ -82,7 +78,7 @@ const Programs = () => {
           <div className="max-w-3xl">
             <p className="text-primary uppercase tracking-widest mb-4">Programs</p>
             <h1 className="headline-hero mb-6">
-              Choose Your <span className="text-primary">Path</span>
+              Pick Your <span className="text-primary">Block</span>
             </h1>
             <p className="text-xl text-muted-foreground">
               Three ways to transform. Same God-led discipline. Different levels of 
@@ -171,8 +167,8 @@ const Programs = () => {
         <div className="section-container text-center">
           <h3 className="headline-card mb-4">Not Sure Which Is Right For You?</h3>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
-            Start with the membership to test the waters. Upgrade to the 12-week when you're 
-            ready to commit. Apply for 1:1 when you need maximum accountability.
+            Start with Solitary to build the basics. Upgrade to Gen Pop when you're 
+            ready to commit. Apply for Free World when you need maximum accountability.
           </p>
           <Button variant="goldOutline" asChild>
             <Link to="/book-call" className="inline-flex items-center gap-2">

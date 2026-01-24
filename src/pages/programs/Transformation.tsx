@@ -43,8 +43,8 @@ const Transformation = () => {
       icon: UtensilsCrossed,
       items: [
         "Complete nutrition templates",
-        "Meal planning guides",
-        "Grocery lists and prep guides",
+        "Meal planning with swaps",
+        "TDEE-matched calorie targets",
         "Macro guidance for your goals",
       ],
     },
@@ -71,11 +71,11 @@ const Transformation = () => {
   ];
 
   const notIncluded = [
-    { item: "Weekly 1:1 video calls with Dom", upgrade: "Coaching" },
-    { item: "Direct messaging access to Dom", upgrade: "Coaching" },
-    { item: "Advanced skill-building lessons", upgrade: "Coaching" },
-    { item: "Custom-built programming", upgrade: "Coaching" },
-    { item: "Priority support", upgrade: "Coaching" },
+    { item: "Weekly 1:1 video calls with Dom", upgrade: "Free World" },
+    { item: "Direct messaging access to Dom", upgrade: "Free World" },
+    { item: "Advanced skill-building lessons", upgrade: "Free World" },
+    { item: "Custom-built programming", upgrade: "Free World" },
+    { item: "Priority support", upgrade: "Free World" },
   ];
 
   const features = [
@@ -106,8 +106,8 @@ const Transformation = () => {
     },
     {
       icon: Trophy,
-      title: "Nutrition Templates",
-      description: "Meal structure guides and grocery lists to fuel your transformation properly.",
+      title: "Community Access",
+      description: "Connect with your brothers in The Yard. Iron sharpens iron.",
     },
   ];
 
@@ -133,7 +133,7 @@ const Transformation = () => {
                 instruction, get nutrition plans, and start building your hustle.
               </p>
               <div className="flex items-baseline gap-2 mb-8">
-                <span className="text-5xl font-display text-primary">$749.99</span>
+                <span className="text-5xl font-display text-primary">$299.99</span>
                 <span className="text-muted-foreground text-xl">one-time</span>
               </div>
               <Button variant="hero" size="hero" asChild>
@@ -243,7 +243,7 @@ const Transformation = () => {
           <div className="bg-charcoal/50 p-6 rounded-lg border border-border">
             <h3 className="headline-card mb-4 flex items-center gap-2">
               <X className="w-5 h-5 text-muted-foreground" />
-              Available in Coaching Only
+              Available in Free World Only
             </h3>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
               {notIncluded.map((item, index) => (
@@ -273,7 +273,7 @@ const Transformation = () => {
             </div>
             <h3 className="headline-card mb-4">General Population</h3>
             <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-4xl font-display text-primary">$749.99</span>
+              <span className="text-4xl font-display text-primary">$299.99</span>
               <span className="text-muted-foreground">one-time</span>
             </div>
             <ul className="space-y-3 mb-8">
@@ -311,7 +311,7 @@ const Transformation = () => {
             You've earned your place. Time to build with the brotherhood.
           </p>
           <Button variant="hero" size="hero" asChild>
-            <Link to="/checkout?plan=transformation">Join Gen Pop — $749.99</Link>
+            <Link to="/checkout?plan=transformation">Join Gen Pop — $299.99</Link>
           </Button>
         </div>
       </section>

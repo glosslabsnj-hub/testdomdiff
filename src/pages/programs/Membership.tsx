@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, X, Users, Calendar, Clock, MessageSquare, BookOpen, ArrowRight, Dumbbell, UtensilsCrossed, Briefcase } from "lucide-react";
+import { Check, X, Calendar, Clock, BookOpen, ArrowRight, Dumbbell, UtensilsCrossed } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const Membership = () => {
   const features = [
     {
-      icon: BookOpen,
-      title: "Bodyweight Workout Templates",
-      description: "Access to bodyweight-only workout templates. No equipment required. Prison-style frameworks.",
+      icon: Dumbbell,
+      title: "4 Bodyweight Workout Templates",
+      description: "Cell Block Push, Yard Legs, Lockdown Pull, and Full Body Circuit. No equipment required.",
     },
     {
       icon: Calendar,
@@ -17,40 +17,39 @@ const Membership = () => {
       description: "Morning and evening routine templates to structure your day from wake to sleep.",
     },
     {
+      icon: UtensilsCrossed,
+      title: "Basic Nutrition Template",
+      description: "One fixed meal plan based on your goal — fat loss, muscle building, or recomposition.",
+    },
+    {
       icon: Clock,
-      title: "Weekly Checklists",
-      description: "Track your workouts, habits, and progress with proven accountability frameworks.",
+      title: "Weekly Check-Ins",
+      description: "Submit your weekly progress and stay accountable to the program.",
     },
     {
-      icon: MessageSquare,
-      title: "Community Access",
-      description: "Connect with other men walking the same path. Brotherhood accountability.",
-    },
-    {
-      icon: Users,
-      title: "Mindset + Faith Lessons",
-      description: "Weekly lessons on faith, discipline, and mindset to renew your mind.",
+      icon: BookOpen,
+      title: "Progress Tracking",
+      description: "Track your workouts, habits, and transformation over time.",
     },
   ];
 
   const included = [
-    { item: "Bodyweight workout templates (no equipment)", included: true },
+    { item: "4 bodyweight workout templates", included: true },
     { item: "Daily discipline routine templates", included: true },
-    { item: "Mindset + Faith weekly lessons", included: true },
-    { item: "Weekly habit tracker templates", included: true },
-    { item: "Progress tracking templates", included: true },
-    { item: "Community access", included: true },
+    { item: "Basic nutrition template (one fixed meal)", included: true },
     { item: "Weekly check-in submissions", included: true },
+    { item: "Progress tracking", included: true },
   ];
 
   const notIncluded = [
-    { item: "Full progressive workout library", upgrade: "Transformation" },
-    { item: "12-Week assigned schedule", upgrade: "Transformation" },
-    { item: "Nutrition templates & meal guides", upgrade: "Transformation" },
-    { item: "Skill-building lessons", upgrade: "Transformation" },
-    { item: "Weekly video coaching", upgrade: "Transformation" },
-    { item: "Direct messaging to Dom", upgrade: "Coaching" },
-    { item: "Weekly 1:1 video calls", upgrade: "Coaching" },
+    { item: "Faith + mindset lessons", upgrade: "Gen Pop" },
+    { item: "Full progressive workout library", upgrade: "Gen Pop" },
+    { item: "12-Week assigned schedule", upgrade: "Gen Pop" },
+    { item: "Full nutrition templates & meal swaps", upgrade: "Gen Pop" },
+    { item: "Skill-building lessons", upgrade: "Gen Pop" },
+    { item: "Community access (The Yard)", upgrade: "Gen Pop" },
+    { item: "Direct messaging to Dom", upgrade: "Free World" },
+    { item: "Weekly 1:1 video calls", upgrade: "Free World" },
   ];
 
   return (
@@ -71,11 +70,11 @@ const Membership = () => {
               the raw guidelines needed to perform. No noise. Just discipline.
             </p>
             <div className="flex items-baseline gap-2 mb-8">
-              <span className="text-5xl font-display text-primary">$79.99</span>
+              <span className="text-5xl font-display text-primary">$19.99</span>
               <span className="text-muted-foreground text-xl">/month</span>
             </div>
             <Button variant="hero" size="hero" asChild>
-              <Link to="/checkout?plan=membership">Join Membership</Link>
+              <Link to="/checkout?plan=membership">Enter Solitary</Link>
             </Button>
           </div>
         </div>
@@ -172,7 +171,7 @@ const Membership = () => {
           <div className="max-w-lg mx-auto bg-charcoal p-8 rounded-lg border border-border">
             <h3 className="headline-card mb-4">Solitary Confinement</h3>
             <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-4xl font-display text-primary">$79.99</span>
+              <span className="text-4xl font-display text-primary">$19.99</span>
               <span className="text-muted-foreground">/month</span>
             </div>
             <ul className="space-y-3 mb-8">
@@ -209,7 +208,7 @@ const Membership = () => {
             Strip away the noise. Start with the essentials.
           </p>
           <Button variant="hero" size="hero" asChild>
-            <Link to="/checkout?plan=membership">Enter Solitary — $79.99/mo</Link>
+            <Link to="/checkout?plan=membership">Enter Solitary — $19.99/mo</Link>
           </Button>
         </div>
       </section>

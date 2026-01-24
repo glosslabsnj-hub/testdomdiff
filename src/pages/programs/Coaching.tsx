@@ -144,7 +144,7 @@ const Coaching = () => {
                 and maximum accountability for men ready to thrive on the outside.
               </p>
               <div className="flex items-baseline gap-2 mb-8">
-                <span className="text-5xl font-display text-primary">$1,250</span>
+                <span className="text-5xl font-display text-primary">$999.99</span>
                 <span className="text-muted-foreground text-xl">/month</span>
               </div>
               <Button variant="hero" size="hero" asChild>
@@ -283,7 +283,7 @@ const Coaching = () => {
             </div>
             <h3 className="headline-card mb-4">Free World 1:1 Coaching</h3>
             <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-4xl font-display text-primary">$1,250</span>
+              <span className="text-4xl font-display text-primary">$999.99</span>
               <span className="text-muted-foreground">/month</span>
             </div>
             <ul className="space-y-3 mb-8">
