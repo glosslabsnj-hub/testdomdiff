@@ -217,7 +217,7 @@
     background: linear-gradient(180deg, hsl(210 4% 16% / 0.2) 0%, transparent 30%);
   }
 
-  /* Dashboard tile - cold cell aesthetic */
+  /* Dashboard tile - cold cell aesthetic with iron bars */
   .dashboard-tile {
     @apply relative overflow-hidden rounded-lg p-6 transition-all duration-300;
     background: linear-gradient(180deg, hsl(210 5% 11%) 0%, hsl(210 7% 7%) 100%);
@@ -228,6 +228,39 @@
       0 4px 16px -6px hsl(0 0% 0% / 0.4);
   }
   
+  /* Iron bar pattern overlay */
+  .dashboard-tile::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: 
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 32px,
+        hsl(210 5% 20% / 0.08) 32px,
+        hsl(210 5% 20% / 0.08) 34px
+      );
+    z-index: 0;
+  }
+  
+  /* Gold glow line on hover */
+  .dashboard-tile::after {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-px;
+    background: linear-gradient(90deg, transparent, hsl(45 85% 55% / 0.3), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .dashboard-tile:hover::after {
+    opacity: 1;
+  }
+  
+  .dashboard-tile > * {
+    position: relative;
+    z-index: 1;
+  }
+  
   .dashboard-tile:hover {
     border-color: hsl(45 85% 55% / 0.35);
     box-shadow: 
@@ -235,18 +268,6 @@
       inset 0 -1px 0 hsl(210 10% 4% / 0.5),
       0 8px 28px -8px hsl(45 85% 55% / 0.15);
     transform: translateY(-2px);
-  }
-  
-  .dashboard-tile::before {
-    content: '';
-    @apply absolute top-0 left-0 right-0 h-px;
-    background: linear-gradient(90deg, transparent, hsl(45 85% 55% / 0.25), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  
-  .dashboard-tile:hover::before {
-    opacity: 1;
   }
 
   /* ========== LOCKED TILE - Cold Gray ========== */

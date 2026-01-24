@@ -281,7 +281,9 @@ const Dashboard = () => {
               <Link to="/dashboard/check-in">Submit Weekly Check-In</Link>
             </Button>
             <Button variant="goldOutline" asChild>
-              <Link to="/dashboard/workouts">Start Today's Workout</Link>
+              <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"}>
+                {isMembership ? "Start Your Workout" : "Start Today's Workout"}
+              </Link>
             </Button>
             <Button variant="steel" asChild>
               <Link to="/book-call">Book a Coaching Call</Link>
