@@ -31,8 +31,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-// Tooltip explanations for prison terminology
-const tileTooltips: Record<string, string> = {
+// Tooltip explanations for prison terminology (used for non-coaching tiers)
+const prisonTooltips: Record<string, string> = {
   "Intake Processing": "Complete your orientation and get set up",
   "The Sentence": "Your structured 12-week transformation program",
   "Yard Time": "Your workout library — train like you mean it",
@@ -43,6 +43,20 @@ const tileTooltips: Record<string, string> = {
   "Time Served": "Track your transformation progress",
   "Work Release": "Build income-generating skills for life outside",
   "The Yard": "Connect with your brothers in the community",
+};
+
+// Tooltip explanations for coaching/Free World tier
+const coachingTooltips: Record<string, string> = {
+  "Orientation": "Complete your setup and get started",
+  "Your Program": "Your personalized 12-week journey",
+  "Training Sessions": "Your complete workout library",
+  "Daily Structure": "Morning and evening habit routines",
+  "Meal Planning": "Nutrition guidance and meal templates",
+  "Faith & Mindset": "Weekly growth lessons",
+  "Weekly Report": "Submit your accountability check-in",
+  "Progress Report": "Track your transformation journey",
+  "Career Building": "Build income-generating skills",
+  "The Network": "Connect with your brotherhood",
 };
 
 // Benefit messages for locked tiles
@@ -305,10 +319,16 @@ const Dashboard = () => {
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Welcome to the block.</h3>
+                <h3 className="font-semibold text-foreground mb-1">
+                  {isCoaching ? "Welcome aboard." : "Welcome to the block."}
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Intake Processing</Link> to get oriented, 
-                  then hit <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">Yard Time</Link> for your first workout.
+                  Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">
+                    {isCoaching ? "Orientation" : "Intake Processing"}
+                  </Link> to get {isCoaching ? "set up" : "oriented"}, 
+                  then hit <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">
+                    {isCoaching ? "Training Sessions" : "Yard Time"}
+                  </Link> for your first workout.
                 </p>
               </div>
             </div>
@@ -322,10 +342,12 @@ const Dashboard = () => {
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">
-            Your <span className="text-primary">Cell Block</span>
+            Your <span className="text-primary">{isCoaching ? "Dashboard" : "Cell Block"}</span>
           </h1>
           <p className="text-muted-foreground">
-            Access your templates, track your progress, and stay disciplined.
+            {isCoaching 
+              ? "Access your programs, track your progress, and stay focused."
+              : "Access your templates, track your progress, and stay disciplined."}
           </p>
         </div>
 
@@ -358,22 +380,26 @@ const Dashboard = () => {
               <div className="flex items-start justify-between">
                 <tile.icon className={`w-10 h-10 mb-4 ${tile.locked ? "text-crimson/60" : "text-primary"}`} />
                 
-                {/* Tooltip for terminology */}
-                {tileTooltips[tile.title] && !tile.locked && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={(e) => e.preventDefault()}
-                        className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                      >
-                        <Info className="w-4 h-4" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-[200px] text-center">
-                      <p className="text-sm">{tileTooltips[tile.title]}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
+                {/* Tooltip for terminology - use appropriate tooltip map based on tier */}
+                {(() => {
+                  const tooltipMap = isCoaching ? coachingTooltips : prisonTooltips;
+                  const tooltipText = tooltipMap[tile.title];
+                  return tooltipText && !tile.locked && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button 
+                          onClick={(e) => e.preventDefault()}
+                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[200px] text-center">
+                        <p className="text-sm">{tooltipText}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })()}
               </div>
               
               <p className={`text-xs uppercase tracking-wider mb-1 ${tile.locked ? "text-crimson/70" : "text-primary"}`}>

@@ -30,6 +30,13 @@ const SOLITARY_CHECKLIST = [
       { id: "solitary-6", label: "Submit your first weekly check-in at Roll Call", href: "/dashboard/check-in", description: "Report your weight, wins, and struggles" },
     ],
   },
+  {
+    category: "Documentation",
+    timeEstimate: "5 min",
+    items: [
+      { id: "solitary-7", label: "Upload your starting photos in Time Served", href: "/dashboard/progress", description: "Document Day 1 for future comparison" },
+    ],
+  },
 ];
 
 const GEN_POP_CHECKLIST = [
@@ -116,14 +123,14 @@ const StartHere = () => {
       case "coaching":
         return {
           name: "Free World",
-          subtitle: "Elite Coaching Orientation",
-          description: "Welcome to the highest level of accountability. You have direct access to Dom and a personalized transformation plan.",
+          subtitle: "Client Orientation",
+          description: "Welcome to elite coaching. Complete your orientation to maximize your investment.",
           checklist: FREE_WORLD_CHECKLIST,
           accentClass: "text-green-400",
           bgClass: "from-green-500/20",
           borderClass: "border-green-500/30",
-          backLabel: "Back to Base",
-          ctaLabel: "Start Training Sessions",
+          backLabel: "Back to Dashboard",
+          ctaLabel: "Start Training",
           ctaHref: "/dashboard/program",
         };
       case "transformation":

@@ -238,7 +238,7 @@ const SkillBuilding = () => {
 
         <div className="mt-8 flex gap-4">
           <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Cell Block</Link>
+            <Link to="/dashboard">Back to Dashboard</Link>
           </Button>
         </div>
       </div>

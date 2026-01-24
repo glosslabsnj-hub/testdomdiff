@@ -1,28 +1,32 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Camera } from "lucide-react";
+import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Camera, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProgressEntries } from "@/hooks/useProgressEntries";
 import { useHabitLogs, DEFAULT_HABITS } from "@/hooks/useHabitLogs";
 import { useProgressPhotos } from "@/hooks/useProgressPhotos";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 import PhotoComparison from "@/components/progress/PhotoComparison";
 import { WardenTip } from "@/components/warden";
+import { cn } from "@/lib/utils";
 
 const Progress = () => {
   const { entries, loading: entriesLoading, updateEntry } = useProgressEntries();
   const { loading: habitsLoading, toggleHabit, isHabitCompleted, getWeekDays, getWeeklyCompliancePercent } = useHabitLogs();
   const { photos, loading: photosLoading, uploadPhoto, deletePhoto, getPhotosByType } = useProgressPhotos();
+  const { subscription } = useAuth();
   const { toast } = useToast();
   const [editingWeek, setEditingWeek] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Record<string, string>>({});
   const [savingWeek, setSavingWeek] = useState<number | null>(null);
   const [togglingHabit, setTogglingHabit] = useState<string | null>(null);
 
+  const isCoaching = subscription?.plan_type === "coaching";
   const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
   const weekDays = getWeekDays();
   const weeklyCompliance = getWeeklyCompliancePercent();
@@ -30,6 +34,11 @@ const Progress = () => {
   const beforePhotos = getPhotosByType("before");
   const duringPhotos = getPhotosByType("during");
   const afterPhotos = getPhotosByType("after");
+  
+  // Get photos organized by week
+  const getWeeklyPhotos = (weekNumber: number) => {
+    return duringPhotos.filter(p => p.week_number === weekNumber);
+  };
 
   const getEntryValue = (weekNumber: number, field: string): string => {
     if (editingWeek === weekNumber && editValues[field] !== undefined) {
@@ -114,11 +123,17 @@ const Progress = () => {
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to {isCoaching ? "Dashboard" : "Cell Block"}
         </Link>
 
-        <h1 className="headline-section mb-2">Time <span className="text-primary">Served</span></h1>
-        <p className="text-muted-foreground mb-4">Track your sentence progress over 12 weeks.</p>
+        <h1 className="headline-section mb-2">
+          {isCoaching ? "Progress" : "Time"} <span className="text-primary">{isCoaching ? "Report" : "Served"}</span>
+        </h1>
+        <p className="text-muted-foreground mb-4">
+          {isCoaching 
+            ? "Track your transformation journey over 12 weeks."
+            : "Track your sentence progress over 12 weeks."}
+        </p>
 
         {/* Warden Tip */}
         <WardenTip 
@@ -312,11 +327,11 @@ const Progress = () => {
           </TabsContent>
 
           <TabsContent value="photos" className="space-y-8">
-            {/* Photo Upload Section */}
+            {/* Starting Photos Section */}
             <div className="bg-card p-6 rounded-lg border border-border">
-              <h2 className="headline-card mb-2">Transformation Photos</h2>
+              <h2 className="headline-card mb-2">Starting Photos (Day 1)</h2>
               <p className="text-muted-foreground text-sm mb-6">
-                Document your physical transformation. Upload before, during, and after photos to see your progress.
+                Your Day 1 documentation. These are private by default.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -327,16 +342,89 @@ const Progress = () => {
                   onDelete={beforePhotos[0] ? () => deletePhoto(beforePhotos[0].id, beforePhotos[0].storage_path) : undefined}
                 />
                 <PhotoUploadCard
-                  photoType="during"
-                  existingPhotoUrl={duringPhotos[0]?.url}
-                  onUpload={(file, options) => uploadPhoto(file, "during", options)}
-                  onDelete={duringPhotos[0] ? () => deletePhoto(duringPhotos[0].id, duringPhotos[0].storage_path) : undefined}
+                  photoType="before"
+                  existingPhotoUrl={beforePhotos[1]?.url}
+                  onUpload={(file, options) => uploadPhoto(file, "before", options)}
+                  onDelete={beforePhotos[1] ? () => deletePhoto(beforePhotos[1].id, beforePhotos[1].storage_path) : undefined}
                 />
+                <PhotoUploadCard
+                  photoType="before"
+                  existingPhotoUrl={beforePhotos[2]?.url}
+                  onUpload={(file, options) => uploadPhoto(file, "before", options)}
+                  onDelete={beforePhotos[2] ? () => deletePhoto(beforePhotos[2].id, beforePhotos[2].storage_path) : undefined}
+                />
+              </div>
+            </div>
+
+            {/* Weekly Progress Timeline */}
+            <div className="bg-card p-6 rounded-lg border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <h2 className="headline-card">Weekly Progress Timeline</h2>
+              </div>
+              <p className="text-muted-foreground text-sm mb-6">
+                Upload a photo each week to track your visual transformation over 12 weeks.
+              </p>
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                {weeks.map((week) => {
+                  const weekPhoto = getWeeklyPhotos(week)[0];
+                  return (
+                    <div 
+                      key={week}
+                      className={cn(
+                        "relative aspect-square rounded-lg border-2 overflow-hidden",
+                        weekPhoto ? "border-primary" : "border-dashed border-border"
+                      )}
+                    >
+                      <div className="absolute top-1 left-1 z-10 px-1.5 py-0.5 bg-background/80 rounded text-xs font-bold">
+                        W{week}
+                      </div>
+                      {weekPhoto ? (
+                        <img
+                          src={weekPhoto.url}
+                          alt={`Week ${week}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-charcoal">
+                          <Camera className="w-6 h-6 text-muted-foreground/50" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground mt-4">
+                Add weekly photos via your Weekly {isCoaching ? "Report" : "Check-in"} or upload directly here.
+              </p>
+            </div>
+
+            {/* Final Results Section */}
+            <div className="bg-card p-6 rounded-lg border border-border">
+              <h2 className="headline-card mb-2">Final Results (After)</h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Upload your final transformation photos when you complete your 12 weeks.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <PhotoUploadCard
                   photoType="after"
                   existingPhotoUrl={afterPhotos[0]?.url}
                   onUpload={(file, options) => uploadPhoto(file, "after", options)}
                   onDelete={afterPhotos[0] ? () => deletePhoto(afterPhotos[0].id, afterPhotos[0].storage_path) : undefined}
+                />
+                <PhotoUploadCard
+                  photoType="after"
+                  existingPhotoUrl={afterPhotos[1]?.url}
+                  onUpload={(file, options) => uploadPhoto(file, "after", options)}
+                  onDelete={afterPhotos[1] ? () => deletePhoto(afterPhotos[1].id, afterPhotos[1].storage_path) : undefined}
+                />
+                <PhotoUploadCard
+                  photoType="after"
+                  existingPhotoUrl={afterPhotos[2]?.url}
+                  onUpload={(file, options) => uploadPhoto(file, "after", options)}
+                  onDelete={afterPhotos[2] ? () => deletePhoto(afterPhotos[2].id, afterPhotos[2].storage_path) : undefined}
                 />
               </div>
             </div>
@@ -348,7 +436,7 @@ const Progress = () => {
 
         <div className="mt-8">
           <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Cell Block</Link>
+            <Link to="/dashboard">Back to {isCoaching ? "Dashboard" : "Cell Block"}</Link>
           </Button>
         </div>
       </div>

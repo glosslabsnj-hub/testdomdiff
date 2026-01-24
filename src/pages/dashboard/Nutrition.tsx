@@ -153,7 +153,7 @@ const Nutrition = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
 
         <div className="mb-8">

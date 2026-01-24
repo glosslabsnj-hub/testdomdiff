@@ -2,10 +2,13 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Dumbbell, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
+import { useAuth } from "@/contexts/AuthContext";
 import { WardenTip } from "@/components/warden";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
+  const { subscription } = useAuth();
+  const isCoaching = subscription?.plan_type === "coaching";
 
   // Only show active bodyweight templates for all users
   const visibleTemplates = templates.filter(t => t.is_active && t.is_bodyweight);
@@ -17,16 +20,18 @@ const Workouts = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to {isCoaching ? "Dashboard" : "Cell Block"}
         </Link>
 
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="headline-section mb-2">
-              <span className="text-primary">Yard Time</span> — Training Templates
+              <span className="text-primary">{isCoaching ? "Training" : "Yard Time"}</span> — {isCoaching ? "Workout Library" : "Training Templates"}
             </h1>
             <p className="text-muted-foreground">
-              Bodyweight workouts. No equipment, no excuses. Prison-style training.
+              {isCoaching 
+                ? "Your complete workout library. Train with purpose."
+                : "Bodyweight workouts. No equipment, no excuses. Prison-style training."}
             </p>
           </div>
         </div>
