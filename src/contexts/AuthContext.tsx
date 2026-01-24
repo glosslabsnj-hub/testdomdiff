@@ -29,6 +29,8 @@ interface Profile {
   intake_completed_at: string | null;
   onboarding_video_watched: boolean | null;
   created_at: string;
+  display_name: string | null;
+  display_name_preference: string | null;
 }
 
 interface AuthContextType {

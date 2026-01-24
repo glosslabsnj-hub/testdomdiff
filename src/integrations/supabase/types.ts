@@ -989,6 +989,8 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           discipline_template_id: string | null
+          display_name: string | null
+          display_name_preference: string | null
           email: string
           equipment: string | null
           experience: string | null
@@ -1012,6 +1014,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           discipline_template_id?: string | null
+          display_name?: string | null
+          display_name_preference?: string | null
           email: string
           equipment?: string | null
           experience?: string | null
@@ -1035,6 +1039,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           discipline_template_id?: string | null
+          display_name?: string | null
+          display_name_preference?: string | null
           email?: string
           equipment?: string | null
           experience?: string | null

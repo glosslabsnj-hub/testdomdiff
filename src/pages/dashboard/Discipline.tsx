@@ -24,6 +24,7 @@ import TemplateSelector from "@/components/discipline/TemplateSelector";
 import RoutineTimeEditor from "@/components/discipline/RoutineTimeEditor";
 import AddCustomRoutineDialog from "@/components/discipline/AddCustomRoutineDialog";
 import CustomRoutineItem from "@/components/discipline/CustomRoutineItem";
+import DraggableRoutineList from "@/components/discipline/DraggableRoutineList";
 import { MorningBriefing, WardenTip } from "@/components/warden";
 
 const JOURNAL_PROMPTS = [
@@ -61,6 +62,7 @@ const Discipline = () => {
     addCustomRoutine,
     updateCustomRoutine,
     deleteCustomRoutine,
+    reorderCustomRoutines,
     loading: customRoutinesLoading,
   } = useCustomRoutines();
 
@@ -341,19 +343,17 @@ const Discipline = () => {
               
               {/* Custom Morning Routines */}
               {morningCustomRoutines.length > 0 && (
-                <div className="space-y-3 mt-4 pt-4 border-t border-border/50">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Custom Tasks</p>
-                  {morningCustomRoutines.map((item) => (
-                    <CustomRoutineItem
-                      key={item.id}
-                      routine={item}
-                      completed={isRoutineCompleted(`custom_${item.id}`)}
-                      completionTime={getCompletionTime(`custom_${item.id}`)}
-                      onToggle={() => toggleRoutineCompletion(`custom_${item.id}`)}
-                      onUpdate={updateCustomRoutine}
-                      onDelete={deleteCustomRoutine}
-                    />
-                  ))}
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Your Custom Tasks</p>
+                  <DraggableRoutineList
+                    routines={morningCustomRoutines}
+                    onReorder={(orderedIds) => reorderCustomRoutines("morning", orderedIds)}
+                    onToggle={toggleRoutineCompletion}
+                    isCompleted={isRoutineCompleted}
+                    getCompletionTime={getCompletionTime}
+                    onUpdate={updateCustomRoutine}
+                    onDelete={deleteCustomRoutine}
+                  />
                 </div>
               )}
               
@@ -429,19 +429,17 @@ const Discipline = () => {
               
               {/* Custom Evening Routines */}
               {eveningCustomRoutines.length > 0 && (
-                <div className="space-y-3 mt-4 pt-4 border-t border-border/50">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Custom Tasks</p>
-                  {eveningCustomRoutines.map((item) => (
-                    <CustomRoutineItem
-                      key={item.id}
-                      routine={item}
-                      completed={isRoutineCompleted(`custom_${item.id}`)}
-                      completionTime={getCompletionTime(`custom_${item.id}`)}
-                      onToggle={() => toggleRoutineCompletion(`custom_${item.id}`)}
-                      onUpdate={updateCustomRoutine}
-                      onDelete={deleteCustomRoutine}
-                    />
-                  ))}
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Your Custom Tasks</p>
+                  <DraggableRoutineList
+                    routines={eveningCustomRoutines}
+                    onReorder={(orderedIds) => reorderCustomRoutines("evening", orderedIds)}
+                    onToggle={toggleRoutineCompletion}
+                    isCompleted={isRoutineCompleted}
+                    getCompletionTime={getCompletionTime}
+                    onUpdate={updateCustomRoutine}
+                    onDelete={deleteCustomRoutine}
+                  />
                 </div>
               )}
               
