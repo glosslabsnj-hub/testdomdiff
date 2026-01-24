@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +48,12 @@ export default function Settings() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Display name state
+  const [displayNamePreference, setDisplayNamePreference] = useState<string>("full_name");
+  const [displayName, setDisplayName] = useState("");
+  const [isSavingDisplay, setIsSavingDisplay] = useState(false);
+  const [displaySaved, setDisplaySaved] = useState(false);
+
   // Password change state
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -66,6 +73,8 @@ export default function Settings() {
         email: profile.email || "",
         phone: profile.phone || "",
       });
+      setDisplayNamePreference(profile.display_name_preference || "full_name");
+      setDisplayName(profile.display_name || "");
     }
   }, [profile]);
 
@@ -136,6 +145,67 @@ export default function Settings() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDisplayNameSave = async () => {
+    if (displayNamePreference === "nickname" && !displayName.trim()) {
+      toast({
+        title: "Nickname required",
+        description: "Please enter a nickname or choose a different display option.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingDisplay(true);
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          display_name: displayName.trim() || null,
+          display_name_preference: displayNamePreference,
+        })
+        .eq("id", profile?.id);
+
+      if (error) throw error;
+
+      await refreshProfile();
+      setDisplaySaved(true);
+      
+      toast({
+        title: "Display settings updated",
+        description: "Your community display name has been saved.",
+      });
+
+      setTimeout(() => setDisplaySaved(false), 3000);
+    } catch (error) {
+      console.error("Error updating display settings:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update display settings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingDisplay(false);
+    }
+  };
+
+  // Get preview name based on current settings
+  const getPreviewName = () => {
+    if (displayNamePreference === "nickname" && displayName.trim()) {
+      return displayName.trim();
+    }
+    if (displayNamePreference === "first_name" && formData.first_name) {
+      return formData.first_name;
+    }
+    if (formData.first_name && formData.last_name) {
+      return `${formData.first_name} ${formData.last_name}`;
+    }
+    if (formData.first_name) {
+      return formData.first_name;
+    }
+    return formData.email?.split("@")[0] || "You";
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
@@ -354,6 +424,115 @@ export default function Settings() {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Community Display Name */}
+          <Card className="bg-charcoal border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                Community Display
+              </CardTitle>
+              <CardDescription>
+                Choose how your name appears in the community chat
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Preview */}
+              <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Preview</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
+                    {getPreviewName().slice(0, 2).toUpperCase()}
+                  </div>
+                  <span className="font-semibold text-foreground">{getPreviewName()}</span>
+                  <span className="text-xs text-muted-foreground">says: "Iron sharpens iron!"</span>
+                </div>
+              </div>
+
+              {/* Display Preference */}
+              <div className="space-y-3">
+                <Label>Display as</Label>
+                <RadioGroup 
+                  value={displayNamePreference} 
+                  onValueChange={setDisplayNamePreference}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors">
+                    <RadioGroupItem value="full_name" id="full_name" />
+                    <Label htmlFor="full_name" className="flex-1 cursor-pointer">
+                      <span className="font-medium">Full Name</span>
+                      <p className="text-xs text-muted-foreground">
+                        {formData.first_name && formData.last_name 
+                          ? `${formData.first_name} ${formData.last_name}`
+                          : formData.first_name || "Set your name above"}
+                      </p>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors">
+                    <RadioGroupItem value="first_name" id="first_name_opt" />
+                    <Label htmlFor="first_name_opt" className="flex-1 cursor-pointer">
+                      <span className="font-medium">First Name Only</span>
+                      <p className="text-xs text-muted-foreground">
+                        {formData.first_name || "Set your first name above"}
+                      </p>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary/30 transition-colors">
+                    <RadioGroupItem value="nickname" id="nickname" />
+                    <Label htmlFor="nickname" className="flex-1 cursor-pointer">
+                      <span className="font-medium">Nickname</span>
+                      <p className="text-xs text-muted-foreground">
+                        Use a custom name in the community
+                      </p>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Nickname Input (conditional) */}
+              {displayNamePreference === "nickname" && (
+                <div className="space-y-2">
+                  <Label htmlFor="display_name">Your Nickname</Label>
+                  <Input
+                    id="display_name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Enter your nickname"
+                    maxLength={30}
+                    className="bg-charcoal-dark border-border"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Max 30 characters. Keep it clean, soldier.
+                  </p>
+                </div>
+              )}
+
+              {/* Save Button */}
+              <Button
+                variant="gold"
+                onClick={handleDisplayNameSave}
+                disabled={isSavingDisplay}
+                className="min-w-[140px]"
+              >
+                {isSavingDisplay ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : displaySaved ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Saved
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Display Settings
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
 

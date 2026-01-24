@@ -27,6 +27,8 @@ export interface CommunityMessage {
   user_first_name?: string;
   user_last_name?: string;
   user_avatar_url?: string;
+  user_display_name?: string;
+  user_display_name_preference?: string;
 }
 
 export function useCommunityChannels() {
@@ -96,7 +98,9 @@ export function useCommunityMessages(channelId: string | null) {
             email,
             first_name,
             last_name,
-            avatar_url
+            avatar_url,
+            display_name,
+            display_name_preference
           )
         `)
         .eq("channel_id", channelId)
@@ -122,6 +126,8 @@ export function useCommunityMessages(channelId: string | null) {
           user_first_name: msg.profiles?.first_name,
           user_last_name: msg.profiles?.last_name,
           user_avatar_url: msg.profiles?.avatar_url,
+          user_display_name: msg.profiles?.display_name,
+          user_display_name_preference: msg.profiles?.display_name_preference,
         }));
         setMessages(mapped);
       }
@@ -156,7 +162,7 @@ export function useCommunityMessages(channelId: string | null) {
           // Fetch profile data for the new message sender
           const { data: profile } = await supabase
             .from("profiles")
-            .select("email, first_name, last_name, avatar_url")
+            .select("email, first_name, last_name, avatar_url, display_name, display_name_preference")
             .eq("user_id", newMsg.user_id)
             .single();
           
@@ -166,6 +172,8 @@ export function useCommunityMessages(channelId: string | null) {
             user_first_name: profile?.first_name,
             user_last_name: profile?.last_name,
             user_avatar_url: profile?.avatar_url,
+            user_display_name: profile?.display_name,
+            user_display_name_preference: profile?.display_name_preference,
           };
           
           setMessages((prev) => [...prev, enrichedMsg]);

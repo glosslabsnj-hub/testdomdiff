@@ -113,6 +113,32 @@ export function useCustomRoutines() {
     }
   };
 
+  const reorderCustomRoutines = async (routineType: "morning" | "evening", orderedIds: string[]) => {
+    try {
+      // Batch update display_order for each routine
+      const updates = orderedIds.map((id, index) =>
+        supabase
+          .from("user_custom_routines")
+          .update({ display_order: index })
+          .eq("id", id)
+      );
+
+      const results = await Promise.all(updates);
+      const hasError = results.some(r => r.error);
+      
+      if (hasError) {
+        throw new Error("Failed to reorder some routines");
+      }
+
+      await fetchCustomRoutines();
+      return true;
+    } catch (e: any) {
+      console.error("Error reordering routines:", e);
+      toast({ title: "Error", description: "Failed to save new order", variant: "destructive" });
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchCustomRoutines();
   }, [user]);
@@ -127,6 +153,7 @@ export function useCustomRoutines() {
     addCustomRoutine,
     updateCustomRoutine,
     deleteCustomRoutine,
+    reorderCustomRoutines,
     refetch: fetchCustomRoutines,
     getMorningCustomRoutines,
     getEveningCustomRoutines,
