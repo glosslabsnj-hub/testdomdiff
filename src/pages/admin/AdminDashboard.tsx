@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar, Briefcase, ChefHat, BarChart3, Crown } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar, Briefcase, ChefHat, BarChart3, Crown, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
 import MealPlanManager from "@/components/admin/MealPlanManager";
 import MealAnalyticsPanel from "@/components/admin/MealAnalyticsPanel";
 import CoachingClientsManager from "@/components/admin/CoachingClientsManager";
+import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -251,6 +252,7 @@ export default function AdminDashboard() {
                 <TabsTrigger value="mealplans" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><ChefHat className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Meal Plans</span><span className="sm:hidden">Meals</span></TabsTrigger>
                 <TabsTrigger value="discipline" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Discipline</span><span className="sm:hidden">Daily</span></TabsTrigger>
                 <TabsTrigger value="skills" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Skills</TabsTrigger>
+                <TabsTrigger value="welcome-videos" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Video className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Welcome Videos</span><span className="sm:hidden">Videos</span></TabsTrigger>
                 <TabsTrigger value="meal-analytics" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Meal Analytics</span><span className="sm:hidden">Stats</span></TabsTrigger>
               </TabsList>
               <TabsContent value="program"><ProgramBuilder /></TabsContent>
@@ -260,6 +262,7 @@ export default function AdminDashboard() {
               <TabsContent value="mealplans"><MealPlanManager /></TabsContent>
               <TabsContent value="discipline"><DisciplineManager /></TabsContent>
               <TabsContent value="skills"><SkillLessonsManager /></TabsContent>
+              <TabsContent value="welcome-videos"><WelcomeVideosManager /></TabsContent>
               <TabsContent value="meal-analytics"><MealAnalyticsPanel /></TabsContent>
             </Tabs>
           </TabsContent>
