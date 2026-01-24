@@ -598,4 +598,144 @@
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
   .delay-500 { animation-delay: 500ms; }
+  
+  /* ========== MICRO-ANIMATION UTILITIES ========== */
+  
+  /* Checkbox completion pop animation */
+  .animate-check-pop {
+    animation: checkPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  
+  @keyframes checkPop {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  /* Success pulse on completion */
+  .animate-success-pulse {
+    animation: successPulse 0.6s ease-out;
+  }
+  
+  @keyframes successPulse {
+    0% { box-shadow: 0 0 0 0 hsl(160 50% 40% / 0.4); }
+    70% { box-shadow: 0 0 0 10px hsl(160 50% 40% / 0); }
+    100% { box-shadow: 0 0 0 0 hsl(160 50% 40% / 0); }
+  }
+  
+  /* Flame flicker for streaks */
+  .animate-flame {
+    animation: flameFlicker 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes flameFlicker {
+    0%, 100% { 
+      opacity: 1; 
+      transform: scale(1) rotate(0deg); 
+    }
+    25% { 
+      opacity: 0.9; 
+      transform: scale(1.05) rotate(-2deg); 
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(0.98) rotate(1deg); 
+    }
+    75% { 
+      opacity: 0.95; 
+      transform: scale(1.02) rotate(-1deg); 
+    }
+  }
+  
+  /* Subtle pulse for warnings */
+  .animate-pulse-subtle {
+    animation: pulseSubtle 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulseSubtle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+  }
+  
+  /* Gold shimmer effect for progress bars */
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(45 85% 55% / 0.15) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  /* Hover lift for cards and tiles */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Ring glow on focus/hover */
+  .ring-glow-gold {
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .ring-glow-gold:hover,
+  .ring-glow-gold:focus {
+    box-shadow: 0 0 0 2px hsl(45 85% 55% / 0.3);
+  }
+  
+  /* Frosted glass effect for locked tiles */
+  .frosted-lock {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  
+  .frosted-lock::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      hsl(210 8% 15% / 0.7) 0%,
+      hsl(210 8% 10% / 0.8) 100%
+    );
+    pointer-events: none;
+  }
+  
+  /* Lock icon shake on hover */
+  .lock-shake:hover {
+    animation: lockShake 0.4s ease-in-out;
+  }
+  
+  @keyframes lockShake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+  }
+  
+  /* Progress bar fill animation */
+  .progress-fill {
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Completion celebration burst */
+  .animate-celebrate {
+    animation: celebrate 0.5s ease-out;
+  }
+  
+  @keyframes celebrate {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
 }

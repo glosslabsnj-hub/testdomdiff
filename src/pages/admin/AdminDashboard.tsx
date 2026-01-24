@@ -30,6 +30,7 @@ import ClientHealthAlertsPanel from "@/components/admin/ClientHealthAlertsPanel"
 import AdminQuickActions from "@/components/admin/AdminQuickActions";
 import ContentNavigation from "@/components/admin/ContentNavigation";
 import ClientBulkActions from "@/components/admin/ClientBulkActions";
+import RevenueAnalytics from "@/components/admin/RevenueAnalytics";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -122,12 +123,15 @@ export default function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Revenue Analytics */}
+            <RevenueAnalytics />
+
             {/* Top Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Clients</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-primary">{clientsLoading ? "..." : clientAnalytics?.totalClients || 0}</div></CardContent></Card>
-              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Active Subscriptions</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-green-400">{clientsLoading ? "..." : clientAnalytics?.activeClients || 0}</div></CardContent></Card>
-              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}</div></CardContent></Card>
-              <Card className="bg-charcoal border-border"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Leads Today</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.leadsToday || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border hover-lift"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Clients</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-primary">{clientsLoading ? "..." : clientAnalytics?.totalClients || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border hover-lift"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Active Subscriptions</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-success">{clientsLoading ? "..." : clientAnalytics?.activeClients || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border hover-lift"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}</div></CardContent></Card>
+              <Card className="bg-charcoal border-border hover-lift"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Leads Today</CardTitle></CardHeader><CardContent><div className="text-3xl font-bold text-foreground">{leadsLoading ? "..." : leadAnalytics?.leadsToday || 0}</div></CardContent></Card>
             </div>
 
             {/* Quick Actions */}

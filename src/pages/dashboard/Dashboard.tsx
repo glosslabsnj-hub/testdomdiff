@@ -28,6 +28,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import OrientationModal from "@/components/OrientationModal";
 import { WardenBrief } from "@/components/warden";
 import { TransformationWidget } from "@/components/TransformationWidget";
+import WeeklyProgressCard from "@/components/WeeklyProgressCard";
+import StreakWarningBanner from "@/components/StreakWarningBanner";
 import {
   Tooltip,
   TooltipContent,
@@ -324,9 +326,12 @@ const Dashboard = () => {
   return (
     <DashboardLayout showBreadcrumb={false}>
       <div className="section-container py-8">
+        {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
+        <StreakWarningBanner />
+
         {/* Welcome Banner for New Users */}
         {showWelcomeBanner && (
-          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/20 to-primary/5 border border-primary/30 relative">
+          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/20 to-primary/5 border border-primary/30 relative animate-fade-in">
             <button 
               onClick={dismissWelcomeBanner}
               className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
@@ -359,6 +364,9 @@ const Dashboard = () => {
           <WardenBrief />
         </div>
 
+        {/* Weekly Progress Summary */}
+        <WeeklyProgressCard />
+
         {/* Transformation Progress Widget */}
         <TransformationWidget />
 
@@ -380,27 +388,32 @@ const Dashboard = () => {
               key={index}
               to={tile.locked ? "#" : tile.href}
               onClick={(e) => handleTileClick(tile, e)}
-              className={`block transition-all duration-300 relative ${
+              className={`block transition-all duration-300 relative group ${
                 tile.locked 
-                  ? "tile-locked opacity-80 hover:opacity-90" 
-                  : tile.color
+                  ? "tile-locked opacity-80 hover:opacity-90 frosted-lock" 
+                  : `${tile.color} hover-lift`
               }`}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               {/* New User Badge */}
               {tile.isNew && (
-                <div className="absolute -top-2 -right-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full animate-pulse">
+                <div className="absolute -top-2 -right-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full animate-pulse z-10">
                   START HERE
                 </div>
               )}
               
               {tile.locked && (
-                <div className="absolute top-3 right-3 flex items-center gap-1">
-                  <Lock className="w-4 h-4 text-crimson" />
+                <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+                  <Lock className="w-4 h-4 text-crimson lock-shake" />
                 </div>
               )}
               
-              <div className="flex items-start justify-between">
-                <tile.icon className={`w-10 h-10 mb-4 ${tile.locked ? "text-crimson/60" : "text-primary"}`} />
+              <div className="flex items-start justify-between relative z-10">
+                <tile.icon className={`w-10 h-10 mb-4 transition-transform duration-300 ${
+                  tile.locked 
+                    ? "text-crimson/60" 
+                    : "text-primary group-hover:scale-110"
+                }`} />
                 
                 {/* Tooltip for terminology - use appropriate tooltip map based on tier */}
                 {(() => {
@@ -424,14 +437,14 @@ const Dashboard = () => {
                 })()}
               </div>
               
-              <p className={`text-xs uppercase tracking-wider mb-1 ${tile.locked ? "text-crimson/70" : "text-primary"}`}>
+              <p className={`text-xs uppercase tracking-wider mb-1 relative z-10 ${tile.locked ? "text-crimson/70" : "text-primary"}`}>
                 {tile.subtitle}
               </p>
-              <h3 className="headline-card mb-2">{tile.title}</h3>
-              <p className="text-sm text-muted-foreground">{tile.description}</p>
+              <h3 className="headline-card mb-2 relative z-10">{tile.title}</h3>
+              <p className="text-sm text-muted-foreground relative z-10">{tile.description}</p>
               
               {tile.locked && tile.featureName && (
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-3 flex items-center gap-2 relative z-10">
                   <AlertTriangle className="w-3 h-3 text-crimson" />
                   <p className="text-xs text-crimson font-semibold">
                     {lockedBenefits[tile.featureName] || "Requires Upgrade"}
