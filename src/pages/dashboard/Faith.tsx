@@ -1,12 +1,26 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFaithLessons } from "@/hooks/useFaithLessons";
+import { useAuth } from "@/contexts/AuthContext";
+import { calculateCurrentWeek } from "@/lib/weekCalculator";
 
 const Faith = () => {
   const { lessons, loading } = useFaithLessons(true);
+  const { subscription } = useAuth();
+  
+  // Calculate current week from subscription start date
+  const calculatedWeek = useMemo(() => {
+    return calculateCurrentWeek(subscription?.started_at);
+  }, [subscription?.started_at]);
+  
   const [currentWeek, setCurrentWeek] = useState(1);
+  
+  // Initialize current week when calculated
+  useEffect(() => {
+    setCurrentWeek(calculatedWeek);
+  }, [calculatedWeek]);
 
   const currentLesson = lessons.find((l) => l.week_number === currentWeek);
   const hasContent = currentLesson && (

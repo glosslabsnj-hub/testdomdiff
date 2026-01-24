@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { TRANSFORMATION_DURATION_DAYS } from "@/lib/constants";
 
 type PlanType = "membership" | "transformation" | "coaching";
 
@@ -49,7 +50,7 @@ const Checkout = () => {
   const createDevSubscription = async (userId: string, planType: PlanType) => {
     const now = new Date();
     const expiresAt = planType === "transformation"
-      ? new Date(now.getTime() + 98 * 24 * 60 * 60 * 1000)
+      ? new Date(now.getTime() + TRANSFORMATION_DURATION_DAYS * 24 * 60 * 60 * 1000)
       : null;
 
     const { error } = await supabase.from("subscriptions").insert({
