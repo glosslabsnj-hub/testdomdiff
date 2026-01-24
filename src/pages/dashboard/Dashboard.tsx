@@ -25,111 +25,135 @@ const Dashboard = () => {
   const isTransformation = planType === "transformation";
   const isMembership = planType === "membership";
 
-  // Define all tiles with jail-themed names
+  // Define all tiles - themed based on subscription tier
+  // Coaching (Free World) = Probation terms
+  // Transformation (Gen Pop) = Prison terms
+  // Membership (Solitary) = Prison terms (restricted access)
+  
   const allTiles = {
     startHere: {
       icon: Play,
-      title: "Intake Processing",
-      subtitle: "Week 0 Orientation",
-      description: "Complete your intake processing. Get oriented with the program.",
+      title: isCoaching ? "Orientation" : "Intake Processing",
+      subtitle: isCoaching ? "Getting Started" : "Week 0 Orientation",
+      description: isCoaching 
+        ? "Complete your orientation. Get set up for success on the outside."
+        : "Complete your intake processing. Get oriented with the program.",
       href: "/dashboard/start-here",
       color: "bg-primary/10 border-primary/30",
     },
     program: {
       icon: Calendar,
-      title: "The Sentence",
-      subtitle: "12-Week Program",
-      description: "Your 12-week sentence. Structured progression with weekly breakdown.",
+      title: isCoaching ? "Your Program" : "The Sentence",
+      subtitle: isCoaching ? "12-Week Journey" : "12-Week Program",
+      description: isCoaching
+        ? "Your personalized 12-week program. Stay on track with weekly milestones."
+        : "Your 12-week sentence. Structured progression with weekly breakdown.",
       href: "/dashboard/program",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     workouts: {
       icon: Dumbbell,
-      title: "Yard Time",
-      subtitle: isMembership ? "Bodyweight Only" : "Full Iron Access",
-      description: isMembership 
-        ? "Bodyweight workouts. No equipment, no excuses."
-        : "Full workout library. Build your sessions like we built ours inside.",
+      title: isCoaching ? "Training Sessions" : "Yard Time",
+      subtitle: isCoaching ? "Your Workouts" : (isMembership ? "Bodyweight Only" : "Full Iron Access"),
+      description: isCoaching 
+        ? "Access your full workout library. Train like you mean it."
+        : (isMembership 
+          ? "Bodyweight workouts. No equipment, no excuses."
+          : "Full workout library. Build your sessions like we built ours inside."),
       href: "/dashboard/workouts",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     discipline: {
       icon: Clock,
-      title: "Lights On / Lights Out",
-      subtitle: "Daily Routines",
-      description: "Morning and evening routines. Structure breeds discipline.",
+      title: isCoaching ? "Daily Structure" : "Lights On / Lights Out",
+      subtitle: isCoaching ? "Morning & Evening" : "Daily Routines",
+      description: isCoaching
+        ? "Morning and evening routines. Build habits that stick."
+        : "Morning and evening routines. Structure breeds discipline.",
       href: "/dashboard/discipline",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     nutrition: {
       icon: Utensils,
-      title: "Chow Hall",
-      subtitle: "Meal Plans",
-      description: "Simple meal templates. Fuel the machine, feed the soul.",
+      title: isCoaching ? "Meal Planning" : "Chow Hall",
+      subtitle: isCoaching ? "Nutrition Guide" : "Meal Plans",
+      description: isCoaching
+        ? "Your personalized meal templates. Fuel for the free world."
+        : "Simple meal templates. Fuel the machine, feed the soul.",
       href: "/dashboard/nutrition",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     faith: {
       icon: BookOpen,
-      title: "Chapel",
-      subtitle: "Faith & Mindset",
-      description: "Weekly lessons on faith, discipline, and mental fortitude.",
+      title: isCoaching ? "Faith & Mindset" : "Chapel",
+      subtitle: isCoaching ? "Weekly Growth" : "Faith & Mindset",
+      description: isCoaching
+        ? "Weekly lessons on faith, purpose, and staying grounded."
+        : "Weekly lessons on faith, discipline, and mental fortitude.",
       href: "/dashboard/faith",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     checkIn: {
       icon: ClipboardCheck,
-      title: "Roll Call",
-      subtitle: "Weekly Check-In",
-      description: "Submit your weekly report. Accountability is freedom.",
+      title: isCoaching ? "Weekly Report" : "Roll Call",
+      subtitle: isCoaching ? "Check-In" : "Weekly Check-In",
+      description: isCoaching
+        ? "Submit your weekly report. Stay accountable to your goals."
+        : "Submit your weekly report. Accountability is freedom.",
       href: "/dashboard/check-in",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     progress: {
       icon: TrendingUp,
-      title: "Time Served",
-      subtitle: "Progress Tracker",
-      description: "Track your transformation. See how far you've come.",
+      title: isCoaching ? "Progress Report" : "Time Served",
+      subtitle: isCoaching ? "Your Journey" : "Progress Tracker",
+      description: isCoaching
+        ? "Track your transformation. Celebrate every milestone."
+        : "Track your transformation. See how far you've come.",
       href: "/dashboard/progress",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     skills: {
       icon: Briefcase,
-      title: "Work Release",
-      subtitle: "Skill-Building",
-      description: "Learn money-making skills. Build your hustle for the outside.",
+      title: isCoaching ? "Career Building" : "Work Release",
+      subtitle: isCoaching ? "Financial Freedom" : "Skill-Building",
+      description: isCoaching
+        ? "Advanced business skills. Build real income streams."
+        : "Learn money-making skills. Build your hustle for the outside.",
       href: "/dashboard/skills",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     community: {
       icon: Users,
-      title: "The Yard",
-      subtitle: "Brotherhood",
-      description: "Connect with fellow inmates. Iron sharpens iron.",
+      title: isCoaching ? "The Network" : "The Yard",
+      subtitle: isCoaching ? "Your Brotherhood" : "Brotherhood",
+      description: isCoaching
+        ? "Connect with fellow free men. Build lasting relationships."
+        : "Connect with fellow inmates. Iron sharpens iron.",
       href: "/dashboard/community",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
     advancedSkills: {
       icon: GraduationCap,
-      title: "Trustee Program",
-      subtitle: "Advanced Hustle",
-      description: "Advanced business strategies for serious entrepreneurs.",
+      title: "Entrepreneur Track",
+      subtitle: "Advanced Business",
+      description: "Advanced business strategies for building real wealth.",
       href: "/dashboard/advanced-skills",
       color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
     },
     messages: {
       icon: MessageCircle,
-      title: "Visitation",
-      subtitle: "Direct Messages",
-      description: "Direct line to Dom. Get answers when you need them.",
+      title: "Direct Line",
+      subtitle: "Message Dom",
+      description: "Direct messaging with your coach. Get answers when you need them.",
       href: "/dashboard/messages",
       color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
     },
     coaching: {
       icon: Crown,
-      title: "Warden's Office",
-      subtitle: "1:1 Coaching",
-      description: "Your exclusive coaching portal. Direct access to the top.",
+      title: "Coaching Portal",
+      subtitle: "1:1 Access",
+      description: "Your exclusive coaching portal. Premium access to Dom.",
       href: "/dashboard/coaching",
       color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
     },
@@ -175,8 +199,10 @@ const Dashboard = () => {
     tiles.push(allTiles.skills);
   }
   
-  // 10. Community (always last of base tiles)
-  tiles.push(allTiles.community);
+  // 10. Community - NOT available for Solitary (membership) users
+  if (!isMembership) {
+    tiles.push(allTiles.community);
+  }
   
   // 11-13. Coaching-only tiles at the end
   if (isCoaching) {
