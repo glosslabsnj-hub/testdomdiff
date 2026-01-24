@@ -240,7 +240,7 @@ const Intake = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="age" className="text-sm font-medium">Age</Label>
                 <Input
@@ -257,7 +257,7 @@ const Intake = () => {
                 <Label htmlFor="height" className="text-sm font-medium">Height</Label>
                 <Input
                   id="height"
-                  placeholder="5'10&quot;"
+                  placeholder="5'10"
                   value={formData.height}
                   onChange={(e) => updateForm("height", e.target.value)}
                   className="h-12 bg-background border-border focus:border-primary"
@@ -324,7 +324,7 @@ const Intake = () => {
             {/* Experience */}
             <div className="space-y-4">
               <Label className="text-base font-semibold">Training Experience</Label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {experienceOptions.map((option) => {
                   const isSelected = formData.experience === option.value;
                   return (
@@ -477,7 +477,7 @@ const Intake = () => {
         <div className="section-container">
           <div className="max-w-2xl mx-auto">
             {/* Step Indicators */}
-            <div className="flex items-center justify-between mb-8 px-4">
+            <div className="flex items-center justify-center mb-8">
               {stepConfig.map((s, index) => {
                 const Icon = s.icon;
                 const stepNum = index + 1;
@@ -488,15 +488,15 @@ const Intake = () => {
                   <div key={index} className="flex items-center">
                     <div className="flex flex-col items-center">
                       <div className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center transition-all",
+                        "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all",
                         isCompleted ? "bg-primary text-primary-foreground" :
                         isActive ? "bg-primary/20 text-primary border-2 border-primary" :
                         "bg-muted text-muted-foreground"
                       )}>
-                        {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                        {isCompleted ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Icon className="w-4 h-4 sm:w-5 sm:h-5" />}
                       </div>
                       <span className={cn(
-                        "text-xs mt-2 font-medium",
+                        "text-xs mt-2 font-medium whitespace-nowrap",
                         isActive ? "text-primary" : "text-muted-foreground"
                       )}>
                         {s.title}
@@ -504,7 +504,7 @@ const Intake = () => {
                     </div>
                     {index < stepConfig.length - 1 && (
                       <div className={cn(
-                        "h-0.5 w-16 sm:w-24 mx-2",
+                        "h-0.5 flex-1 min-w-8 max-w-24 mx-2 sm:mx-4",
                         step > stepNum ? "bg-primary" : "bg-border"
                       )} />
                     )}
