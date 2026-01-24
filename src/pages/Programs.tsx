@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Users, Flame, Target } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ProgramComparisonTable from "@/components/ProgramComparisonTable";
 import trainingImage from "@/assets/training-image.jpg";
 
 const Programs = () => {
@@ -146,8 +147,27 @@ const Programs = () => {
         </div>
       </section>
 
+      {/* Comparison Table */}
+      <section className="py-20 md:py-32 bg-charcoal">
+        <div className="section-container">
+          <div className="text-center mb-12">
+            <h2 className="headline-section mb-4">
+              Compare <span className="text-primary">All Features</span>
+            </h2>
+            <div className="divider-gold mb-6" />
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              See exactly what's included in each program. Choose the level of support 
+              that matches your commitment.
+            </p>
+          </div>
+          <div className="bg-background rounded-lg border border-border overflow-hidden">
+            <ProgramComparisonTable />
+          </div>
+        </div>
+      </section>
+
       {/* Comparison Note */}
-      <section className="py-16 bg-charcoal">
+      <section className="py-16 bg-background">
         <div className="section-container text-center">
           <h3 className="headline-card mb-4">Not Sure Which Is Right For You?</h3>
           <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
