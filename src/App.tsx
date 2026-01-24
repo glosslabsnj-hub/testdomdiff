@@ -31,6 +31,7 @@ import Nutrition from "./pages/dashboard/Nutrition";
 import CheckIn from "./pages/dashboard/CheckIn";
 import Faith from "./pages/dashboard/Faith";
 import Progress from "./pages/dashboard/Progress";
+import PhotoGallery from "./pages/dashboard/PhotoGallery";
 import Community from "./pages/dashboard/Community";
 import CoachingPortal from "./pages/dashboard/CoachingPortal";
 import BookPOCheckin from "./pages/dashboard/BookPOCheckin";
@@ -178,6 +179,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Progress />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/photos"
+              element={
+                <ProtectedRoute>
+                  <PhotoGallery />
                 </ProtectedRoute>
               }
             />

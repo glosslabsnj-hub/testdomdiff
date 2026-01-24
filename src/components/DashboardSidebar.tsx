@@ -19,6 +19,7 @@ import {
   Home,
   ChevronLeft,
   ChevronRight,
+  Images,
 } from "lucide-react";
 import {
   Sidebar,
@@ -121,6 +122,12 @@ export function DashboardSidebar() {
       subtitle: "Progress",
       href: "/dashboard/progress",
       icon: TrendingUp,
+    },
+    {
+      title: "Photo Gallery",
+      subtitle: "Photos",
+      href: "/dashboard/photos",
+      icon: Images,
     },
   ];
 
