@@ -16,7 +16,7 @@ import ProductManager from "@/components/admin/ProductManager";
 import OrdersManager from "@/components/admin/OrdersManager";
 import WorkoutContentManager from "@/components/admin/WorkoutContentManager";
 import FaithLessonsManager from "@/components/admin/FaithLessonsManager";
-import ProgramWeeksManager from "@/components/admin/ProgramWeeksManager";
+import ProgramBuilder from "@/components/admin/ProgramBuilder";
 import DisciplineManager from "@/components/admin/DisciplineManager";
 import NutritionManager from "@/components/admin/NutritionManager";
 import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
@@ -193,15 +193,15 @@ export default function AdminDashboard() {
           <TabsContent value="content" className="space-y-6">
             <Tabs defaultValue="workouts" className="space-y-4 sm:space-y-6">
               <TabsList className="bg-background border border-border flex-wrap h-auto gap-1 p-1 w-full justify-start">
-                <TabsTrigger value="workouts" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Dumbbell className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Workouts</span><span className="sm:hidden">Gym</span></TabsTrigger>
-                <TabsTrigger value="program" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />12-Week</TabsTrigger>
+                <TabsTrigger value="program" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />12-Week Program</TabsTrigger>
+                <TabsTrigger value="workouts" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Dumbbell className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Templates</span><span className="sm:hidden">Gym</span></TabsTrigger>
                 <TabsTrigger value="faith" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Cross className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Faith</TabsTrigger>
                 <TabsTrigger value="nutrition" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Utensils className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Nutrition</span><span className="sm:hidden">Food</span></TabsTrigger>
                 <TabsTrigger value="discipline" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Discipline</span><span className="sm:hidden">Daily</span></TabsTrigger>
                 <TabsTrigger value="skills" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Skills</TabsTrigger>
               </TabsList>
+              <TabsContent value="program"><ProgramBuilder /></TabsContent>
               <TabsContent value="workouts"><WorkoutContentManager /></TabsContent>
-              <TabsContent value="program"><ProgramWeeksManager /></TabsContent>
               <TabsContent value="faith"><FaithLessonsManager /></TabsContent>
               <TabsContent value="nutrition"><NutritionManager /></TabsContent>
               <TabsContent value="discipline"><DisciplineManager /></TabsContent>
