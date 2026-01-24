@@ -54,14 +54,21 @@ export default {
           muted: "hsl(var(--gold-muted))",
         },
         copper: {
-          DEFAULT: "hsl(var(--copper))",
-          light: "hsl(var(--copper-light))",
-          dark: "hsl(var(--copper-dark))",
+          DEFAULT: "hsl(var(--copper, 25 85% 45%))",
+          light: "hsl(var(--copper-light, 28 80% 55%))",
+          dark: "hsl(var(--copper-dark, 22 75% 35%))",
+        },
+        crimson: {
+          DEFAULT: "hsl(var(--crimson))",
+          light: "hsl(var(--crimson-light))",
+          dark: "hsl(var(--crimson-dark))",
         },
         steel: {
           DEFAULT: "hsl(var(--steel))",
           light: "hsl(var(--steel-light))",
+          dark: "hsl(var(--steel-dark))",
         },
+        concrete: "hsl(var(--concrete))",
         charcoal: {
           DEFAULT: "hsl(var(--charcoal))",
           light: "hsl(var(--charcoal-light))",
