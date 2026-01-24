@@ -50,7 +50,9 @@ export default function MessageList({
         const isOwn = message.user_id === user?.id;
         const displayName = message.user_first_name 
           ? `${message.user_first_name} ${message.user_last_name || ""}`.trim()
-          : message.user_email?.split("@")[0] || "Brother";
+          : message.user_email?.split("@")[0] 
+            ? message.user_email.split("@")[0]
+            : `User-${message.user_id.slice(0, 6)}`;
         const initials = displayName.slice(0, 2).toUpperCase();
 
         return (

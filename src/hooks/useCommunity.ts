@@ -150,9 +150,25 @@ export function useCommunityMessages(channelId: string | null) {
           table: "community_messages",
           filter: `channel_id=eq.${channelId}`,
         },
-        (payload) => {
+        async (payload) => {
           const newMsg = payload.new as CommunityMessage;
-          setMessages((prev) => [...prev, newMsg]);
+          
+          // Fetch profile data for the new message sender
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("email, first_name, last_name, avatar_url")
+            .eq("user_id", newMsg.user_id)
+            .single();
+          
+          const enrichedMsg: CommunityMessage = {
+            ...newMsg,
+            user_email: profile?.email,
+            user_first_name: profile?.first_name,
+            user_last_name: profile?.last_name,
+            user_avatar_url: profile?.avatar_url,
+          };
+          
+          setMessages((prev) => [...prev, enrichedMsg]);
         }
       )
       .on(

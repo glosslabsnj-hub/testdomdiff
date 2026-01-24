@@ -20,7 +20,7 @@ import { useMemo } from "react";
 export function TodaysFocus() {
   const { subscription, profile } = useAuth();
   const { checkIns, getCurrentWeekNumber } = useCheckIns();
-  const { getTodayCompliance, streak } = useDailyDiscipline();
+  const { getTodayCompliance, streak, loading: disciplineLoading } = useDailyDiscipline();
   
   const planType = subscription?.plan_type;
   const isCoaching = planType === "coaching";
@@ -50,8 +50,10 @@ export function TodaysFocus() {
     return !hasThisWeekCheckIn && dayOfWeek >= 5;
   }, [checkIns, getCurrentWeekNumber, dayOfWeek]);
 
-  // Get discipline compliance
-  const compliance = getTodayCompliance();
+  // Get discipline compliance - wait for loading to complete
+  const compliance = disciplineLoading 
+    ? { completed: 0, total: 0, percent: 0 } 
+    : getTodayCompliance();
   const compliancePercent = compliance.percent;
 
   // Get greeting based on time
@@ -145,9 +147,11 @@ export function TodaysFocus() {
           <div className="mb-3">
             <div className="flex justify-between text-xs mb-1">
               <span className="text-muted-foreground">Today's Progress</span>
-              <span className="text-primary font-medium">{compliancePercent}%</span>
+              <span className="text-primary font-medium">
+                {disciplineLoading ? "..." : `${compliancePercent}%`}
+              </span>
             </div>
-            <Progress value={compliancePercent} className="h-2" />
+            <Progress value={disciplineLoading ? 0 : compliancePercent} className="h-2" />
           </div>
           
           <Button 
