@@ -59,14 +59,18 @@ export function useProgramDayWorkouts(weekId: string | null) {
 
   const createWorkout = async (workout: Omit<ProgramDayWorkout, "id" | "created_at" | "updated_at">) => {
     try {
-      const { error } = await supabase.from("program_day_workouts").insert(workout);
+      const { data, error } = await supabase
+        .from("program_day_workouts")
+        .insert(workout)
+        .select()
+        .single();
       if (error) throw error;
       await fetchWorkouts();
       toast({ title: "Success", description: "Workout day created" });
-      return true;
+      return data as ProgramDayWorkout;
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
-      return false;
+      return null;
     }
   };
 
@@ -145,6 +149,18 @@ export function useProgramDayExercises(dayWorkoutId: string | null) {
     }
   };
 
+  const bulkCreateExercises = async (exercises: Omit<ProgramDayExercise, "id" | "created_at" | "updated_at">[]) => {
+    try {
+      const { error } = await supabase.from("program_day_exercises").insert(exercises);
+      if (error) throw error;
+      toast({ title: "Success", description: `${exercises.length} exercises added` });
+      return true;
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+      return false;
+    }
+  };
+
   const updateExercise = async (id: string, updates: Partial<ProgramDayExercise>) => {
     try {
       const { error } = await supabase.from("program_day_exercises").update(updates).eq("id", id);
@@ -174,7 +190,7 @@ export function useProgramDayExercises(dayWorkoutId: string | null) {
     fetchExercises();
   }, [fetchExercises]);
 
-  return { exercises, loading, fetchExercises, createExercise, updateExercise, deleteExercise };
+  return { exercises, loading, fetchExercises, createExercise, bulkCreateExercises, updateExercise, deleteExercise };
 }
 
 // Bulk fetch all exercises for multiple day workouts
