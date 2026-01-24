@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import ScrollToTop from "@/components/ScrollToTop";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { WardenChat } from "@/components/warden";
 import CartDrawer from "@/components/shop/CartDrawer";
@@ -62,6 +63,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop behavior="smooth" />
         <AuthProvider>
           <CartProvider>
             <Routes>
