@@ -11,19 +11,21 @@ const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptP
   const upgradeDetails = {
     transformation: {
       name: "General Population",
-      price: "$749.99",
+      price: "$299.99",
       href: "/programs/transformation",
       benefits: [
         "Full progressive workout library",
         "Assigned 12-week program schedule",
         "Weekly video coaching from Dom",
-        "Nutrition templates & guidelines",
+        "Nutrition templates & meal swaps",
+        "Faith + mindset lessons",
         "Skill-building lessons",
+        "Community access (The Yard)",
       ],
     },
     coaching: {
       name: "Free World Coaching",
-      price: "$1,250/mo",
+      price: "$999.99/mo",
       href: "/programs/coaching",
       benefits: [
         "Everything in Gen Pop",

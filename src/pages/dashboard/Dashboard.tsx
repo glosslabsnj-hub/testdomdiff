@@ -166,7 +166,7 @@ const Dashboard = () => {
   // Define locked tiles for Solitary users - crimson-tinted
   const lockedTilesForMembership = [
     { ...allTiles.program, locked: true, featureName: "The Sentence (12-Week Program)" },
-    { ...allTiles.nutrition, locked: true, featureName: "Chow Hall (Nutrition)" },
+    { ...allTiles.faith, locked: true, featureName: "Chapel (Faith & Mindset)" },
     { ...allTiles.skills, locked: true, featureName: "Work Release (Skill-Building)" },
     { ...allTiles.community, locked: true, featureName: "The Yard (Community)" },
   ];
@@ -184,13 +184,15 @@ const Dashboard = () => {
   tiles.push(allTiles.workouts);
   tiles.push(allTiles.discipline);
   
-  if (isTransformation || isCoaching) {
-    tiles.push(allTiles.nutrition);
-  } else if (isMembership) {
-    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Nutrition"))!);
-  }
+  // Nutrition is available to all tiers (basic for Solitary, full for others)
+  tiles.push(allTiles.nutrition);
   
-  tiles.push(allTiles.faith);
+  // Faith is locked for Solitary
+  if (isTransformation || isCoaching) {
+    tiles.push(allTiles.faith);
+  } else if (isMembership) {
+    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Chapel"))!);
+  }
   tiles.push(allTiles.checkIn);
   tiles.push(allTiles.progress);
   

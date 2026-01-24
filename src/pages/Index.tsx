@@ -29,28 +29,28 @@ const Index = () => {
   }];
   const programs = [{
     title: "Solitary Confinement",
-    price: "$79.99",
+    price: "$19.99",
     period: "/month",
     description: "The foundation. Strip away distractions. Just the essentials needed to perform.",
-    features: ["Bodyweight workout templates", "Daily discipline routine templates", "Weekly checklist + trackers", "Mindset + Faith lessons", "Community access"],
+    features: ["4 bodyweight workout templates", "Daily discipline routine templates", "Basic nutrition template", "Weekly check-in submissions", "Progress tracking"],
     cta: "Enter Solitary",
     href: "/programs/membership",
     popular: false
   }, {
     title: "General Population",
-    price: "$749.99",
-    period: "12 weeks",
+    price: "$299.99",
+    period: "one-time",
     description: "You've earned your place. Connect with peers, get video instruction, and start building your hustle.",
-    features: ["Complete 12-week framework", "Weekly video coaching", "Nutrition templates + meal guides", "Skill-building lessons", "Everything in Solitary included"],
+    features: ["Complete 12-week framework", "Weekly video coaching", "Nutrition templates + meal guides", "Faith + mindset lessons", "Skill-building lessons", "Community access"],
     cta: "Join Gen Pop",
     href: "/programs/transformation",
     popular: true
   }, {
     title: "Free World 1:1 Coaching",
-    price: "$1,250",
+    price: "$999.99",
     period: "/month",
     description: "You've done the time. Now live free. Direct access to Dom.",
-    features: ["Weekly 1:1 video calls", "Direct messaging access", "Custom-built programming", "Priority support", "Unlimited check-ins"],
+    features: ["Weekly 1:1 video calls", "Direct messaging access", "Custom-built programming", "Advanced skill-building", "Everything in Gen Pop included"],
     cta: "Apply for Free World",
     href: "/programs/coaching",
     popular: false
@@ -72,11 +72,13 @@ const Index = () => {
     { item: "Bodyweight workout templates for any environment", tier: "All" },
     { item: "Daily discipline routines (Lights On / Lights Out)", tier: "All" },
     { item: "Weekly accountability check-ins", tier: "All" },
-    { item: "Faith + mindset lessons with scripture focus", tier: "All" },
+    { item: "Basic nutrition template (one fixed meal plan)", tier: "All" },
     { item: "Progress tracking and compliance metrics", tier: "All" },
+    { item: "Faith + mindset lessons with scripture focus", tier: "Gen Pop+" },
     { item: "Goal-based 12-week programming built for you", tier: "Gen Pop+" },
-    { item: "Personalized nutrition plans matched to your TDEE", tier: "Gen Pop+" },
+    { item: "Full nutrition plans matched to your TDEE", tier: "Gen Pop+" },
     { item: "Skill-building and hustle training", tier: "Gen Pop+" },
+    { item: "Community access (The Yard)", tier: "Gen Pop+" },
     { item: "Direct coaching access and custom elite programming", tier: "Free World" },
     { item: "Weekly 1:1 video calls with Dom", tier: "Free World" },
   ];

@@ -23,6 +23,7 @@ import { useFaithLessons } from "@/hooks/useFaithLessons";
 import { useAuth } from "@/contexts/AuthContext";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import { useToast } from "@/hooks/use-toast";
+import UpgradePrompt from "@/components/UpgradePrompt";
 
 const Faith = () => {
   const { lessons, loading } = useFaithLessons(true);
@@ -47,6 +48,11 @@ const Faith = () => {
   useEffect(() => {
     setCurrentWeek(calculatedWeek);
   }, [calculatedWeek]);
+  
+  // Block membership users from accessing Faith content (after all hooks)
+  if (subscription?.plan_type === "membership") {
+    return <UpgradePrompt feature="Chapel (Faith & Mindset)" upgradeTo="transformation" />;
+  }
 
   // Load saved data from localStorage
   useEffect(() => {

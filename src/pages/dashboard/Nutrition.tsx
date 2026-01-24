@@ -12,6 +12,7 @@ import { useMealPlanAssignment } from "@/hooks/useMealPlanAssignment";
 import { useMealFeedback } from "@/hooks/useMealFeedback";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import BasicNutritionPlan from "@/components/nutrition/BasicNutritionPlan";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { MealCard } from "@/components/nutrition/MealCard";
@@ -38,9 +39,9 @@ const Nutrition = () => {
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [mealToSwap, setMealToSwap] = useState<MealPlanMeal | null>(null);
 
-  // Only transformation and coaching users can access
+  // Membership users get basic nutrition plan
   if (subscription?.plan_type === "membership") {
-    return <UpgradePrompt feature="Nutrition Templates" upgradeTo="transformation" />;
+    return <BasicNutritionPlan userGoal={profile?.goal} />;
   }
 
   const toggleMealExpanded = (mealId: string) => {

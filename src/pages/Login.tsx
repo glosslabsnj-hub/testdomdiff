@@ -18,19 +18,19 @@ const planOptions: { value: PlanType; label: string; icon: React.ReactNode; desc
     value: "membership",
     label: "Solitary Confinement",
     icon: <User className="w-5 h-5" />,
-    description: "$79.99/mo - The Foundation",
+    description: "$19.99/mo - The Foundation",
   },
   {
     value: "transformation",
     label: "General Population",
     icon: <Sparkles className="w-5 h-5" />,
-    description: "$749.99 - 12 Weeks",
+    description: "$299.99 - One-Time",
   },
   {
     value: "coaching",
     label: "Free World Coaching",
     icon: <Crown className="w-5 h-5" />,
-    description: "$1,250/mo - Maximum Freedom",
+    description: "$999.99/mo - Maximum Freedom",
   },
 ];
 
