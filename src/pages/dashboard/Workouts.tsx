@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
 import { useAuth } from "@/contexts/AuthContext";
+import { WardenTip } from "@/components/warden";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
@@ -45,6 +46,15 @@ const Workouts = () => {
             </p>
           </div>
         </div>
+
+        {/* Warden Tip */}
+        <WardenTip 
+          tip={isMembershipOnly 
+            ? "Bodyweight builds real strength. No equipment, no excuses. Pick a template and get after it."
+            : "Full library unlocked. Remember: progressive overload is key. Track your lifts."
+          }
+          className="mb-8"
+        />
 
         <div className="bg-charcoal p-6 rounded-lg border border-primary/30 mb-8">
           <p className="text-sm text-primary uppercase tracking-wider mb-2">How to Use These Templates</p>
