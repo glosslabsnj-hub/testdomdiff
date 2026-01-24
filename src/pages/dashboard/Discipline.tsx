@@ -1,21 +1,124 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Sun, Moon, Droplet, BookOpen, Check, Loader2 } from "lucide-react";
+import { 
+  ArrowLeft, Sun, Moon, Droplet, BookOpen, Check, Loader2, 
+  Flame, Clock, History, ChevronRight, Save
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useDisciplineRoutines } from "@/hooks/useDisciplineRoutines";
+import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
+import { useMilestones } from "@/hooks/useMilestones";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+const JOURNAL_PROMPTS = [
+  "What were my 3 wins today?",
+  "What did I learn or struggle with?",
+  "What am I grateful for?",
+  "What will I do better tomorrow?",
+  "How did I honor God today?",
+];
 
 const Discipline = () => {
-  const { routines, loading } = useDisciplineRoutines();
-  const [waterCount, setWaterCount] = useState(0);
+  const { user } = useAuth();
+  const {
+    loading,
+    morningRoutines,
+    eveningRoutines,
+    streak,
+    waterCount,
+    setWaterCount,
+    toggleRoutineCompletion,
+    isRoutineCompleted,
+    getCompletionTime,
+    saveJournalEntry,
+    getJournalResponse,
+    getTodayCompliance,
+  } = useDailyDiscipline();
 
-  const morningRoutines = routines.filter((r) => r.routine_type === "morning" && r.is_active);
-  const eveningRoutines = routines.filter((r) => r.routine_type === "evening" && r.is_active);
+  const { checkStreakMilestones } = useMilestones();
+
+  const [journalDrafts, setJournalDrafts] = useState<Record<string, string>>({});
+  const [savingJournal, setSavingJournal] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [journalHistory, setJournalHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const today = format(new Date(), "EEEE, MMMM d, yyyy");
+  const compliance = getTodayCompliance();
+
+  // Initialize journal drafts from saved entries
+  useEffect(() => {
+    const initialDrafts: Record<string, string> = {};
+    JOURNAL_PROMPTS.forEach(prompt => {
+      initialDrafts[prompt] = getJournalResponse(prompt);
+    });
+    setJournalDrafts(initialDrafts);
+  }, [getJournalResponse]);
+
+  // Check streak milestones when streak changes
+  useEffect(() => {
+    if (streak > 0) {
+      checkStreakMilestones(streak);
+    }
+  }, [streak, checkStreakMilestones]);
+
+  const handleJournalChange = (prompt: string, value: string) => {
+    setJournalDrafts(prev => ({ ...prev, [prompt]: value }));
+  };
+
+  const handleSaveJournal = async (prompt: string) => {
+    setSavingJournal(prompt);
+    await saveJournalEntry(prompt, journalDrafts[prompt] || "");
+    setSavingJournal(null);
+  };
 
   const handleWaterClick = (index: number) => {
     if (index === waterCount) {
       setWaterCount(waterCount + 1);
     } else if (index === waterCount - 1) {
       setWaterCount(waterCount - 1);
+    }
+  };
+
+  const fetchJournalHistory = async () => {
+    if (!user) return;
+    setLoadingHistory(true);
+    try {
+      const { data, error } = await supabase
+        .from("discipline_journals")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("journal_date", { ascending: false })
+        .order("created_at", { ascending: true })
+        .limit(50);
+
+      if (error) throw error;
+
+      // Group by date
+      const grouped = (data || []).reduce((acc: any, entry: any) => {
+        const date = entry.journal_date;
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(entry);
+        return acc;
+      }, {});
+
+      setJournalHistory(Object.entries(grouped).map(([date, entries]) => ({
+        date,
+        entries,
+      })));
+    } catch (e) {
+      console.error("Error fetching journal history:", e);
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -39,13 +142,70 @@ const Discipline = () => {
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
 
-        <div className="mb-8">
-          <h1 className="headline-section mb-2">
-            Lights On / Lights <span className="text-primary">Out</span>
-          </h1>
-          <p className="text-muted-foreground">
-            Count time routines. Build the structure that creates transformation.
-          </p>
+        {/* Header with Stats */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+          <div>
+            <h1 className="headline-section mb-2">
+              Lights On / Lights <span className="text-primary">Out</span>
+            </h1>
+            <p className="text-muted-foreground">
+              {today} — Build the structure that creates transformation.
+            </p>
+          </div>
+
+          {/* Stats Row */}
+          <div className="flex flex-wrap gap-4">
+            {/* Streak Badge */}
+            <div className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-lg border",
+              streak > 0 
+                ? "bg-primary/10 border-primary/30" 
+                : "bg-charcoal border-border"
+            )}>
+              <Flame className={cn(
+                "w-6 h-6",
+                streak > 0 ? "text-primary" : "text-muted-foreground"
+              )} />
+              <div>
+                <p className="text-2xl font-display text-primary">{streak}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Day Streak</p>
+              </div>
+            </div>
+
+            {/* Today's Progress */}
+            <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-charcoal border border-border">
+              <div className="relative w-12 h-12">
+                <svg className="w-12 h-12 transform -rotate-90">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="transparent"
+                    className="text-border"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="transparent"
+                    strokeDasharray={`${(compliance.percent / 100) * 126} 126`}
+                    className="text-primary transition-all duration-500"
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">
+                  {compliance.percent}%
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-semibold">{compliance.completed}/{compliance.total}</p>
+                <p className="text-xs text-muted-foreground">Today's Tasks</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {!hasRoutines ? (
@@ -57,55 +217,123 @@ const Discipline = () => {
         ) : (
           <div className="grid md:grid-cols-2 gap-8">
             {/* Morning Routine */}
-            <div className="bg-card p-8 rounded-lg border border-border">
+            <div className="bg-card p-6 md:p-8 rounded-lg border border-border">
               <div className="flex items-center gap-3 mb-6">
-                <Sun className="w-8 h-8 text-primary" />
+                <div className="p-2 rounded-lg bg-amber-500/20">
+                  <Sun className="w-6 h-6 text-amber-400" />
+                </div>
                 <div>
-                  <p className="text-xs text-primary uppercase tracking-wider">Count Time: AM</p>
-                  <h2 className="headline-card">Reveille → Word → Work</h2>
+                  <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: AM</p>
+                  <h2 className="font-display text-xl">Reveille → Word → Work</h2>
                 </div>
               </div>
 
               {morningRoutines.length === 0 ? (
                 <p className="text-muted-foreground text-sm">No morning routine set</p>
               ) : (
-                <div className="space-y-4">
-                  {morningRoutines.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-4 p-3 rounded bg-charcoal border border-border"
-                    >
-                      <span className="text-sm font-mono text-primary w-20">{item.time_slot}</span>
-                      <span className="text-sm text-muted-foreground">{item.action_text}</span>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  {morningRoutines.map((item) => {
+                    const completed = isRoutineCompleted(item.id);
+                    const completionTime = getCompletionTime(item.id);
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => toggleRoutineCompletion(item.id)}
+                        className={cn(
+                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left",
+                          completed 
+                            ? "bg-primary/10 border-primary/30" 
+                            : "bg-charcoal border-border hover:border-primary/50"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
+                          completed 
+                            ? "bg-primary border-primary" 
+                            : "border-muted-foreground/50"
+                        )}>
+                          {completed && <Check className="w-4 h-4 text-primary-foreground" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn(
+                            "text-sm font-semibold",
+                            completed && "line-through text-muted-foreground"
+                          )}>
+                            {item.action_text}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{item.time_slot}</p>
+                        </div>
+                        {completed && completionTime && (
+                          <div className="flex items-center gap-1 text-xs text-primary">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(completionTime), "h:mm a")}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
 
             {/* Evening Routine */}
-            <div className="bg-card p-8 rounded-lg border border-border">
+            <div className="bg-card p-6 md:p-8 rounded-lg border border-border">
               <div className="flex items-center gap-3 mb-6">
-                <Moon className="w-8 h-8 text-primary" />
+                <div className="p-2 rounded-lg bg-blue-500/20">
+                  <Moon className="w-6 h-6 text-blue-400" />
+                </div>
                 <div>
-                  <p className="text-xs text-primary uppercase tracking-wider">Count Time: PM</p>
-                  <h2 className="headline-card">Lockdown → Reflect → Rest</h2>
+                  <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: PM</p>
+                  <h2 className="font-display text-xl">Lockdown → Reflect → Rest</h2>
                 </div>
               </div>
 
               {eveningRoutines.length === 0 ? (
                 <p className="text-muted-foreground text-sm">No evening routine set</p>
               ) : (
-                <div className="space-y-4">
-                  {eveningRoutines.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-4 p-3 rounded bg-charcoal border border-border"
-                    >
-                      <span className="text-sm font-mono text-primary w-20">{item.time_slot}</span>
-                      <span className="text-sm text-muted-foreground">{item.action_text}</span>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  {eveningRoutines.map((item) => {
+                    const completed = isRoutineCompleted(item.id);
+                    const completionTime = getCompletionTime(item.id);
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => toggleRoutineCompletion(item.id)}
+                        className={cn(
+                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left",
+                          completed 
+                            ? "bg-primary/10 border-primary/30" 
+                            : "bg-charcoal border-border hover:border-primary/50"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
+                          completed 
+                            ? "bg-primary border-primary" 
+                            : "border-muted-foreground/50"
+                        )}>
+                          {completed && <Check className="w-4 h-4 text-primary-foreground" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn(
+                            "text-sm font-semibold",
+                            completed && "line-through text-muted-foreground"
+                          )}>
+                            {item.action_text}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{item.time_slot}</p>
+                        </div>
+                        {completed && completionTime && (
+                          <div className="flex items-center gap-1 text-xs text-primary">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(completionTime), "h:mm a")}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -113,25 +341,28 @@ const Discipline = () => {
         )}
 
         {/* Water Tracking */}
-        <div className="mt-8 bg-card p-8 rounded-lg border border-border">
+        <div className="mt-8 bg-card p-6 md:p-8 rounded-lg border border-border">
           <div className="flex items-center gap-3 mb-6">
-            <Droplet className="w-8 h-8 text-primary" />
+            <div className="p-2 rounded-lg bg-cyan-500/20">
+              <Droplet className="w-6 h-6 text-cyan-400" />
+            </div>
             <div>
-              <p className="text-xs text-primary uppercase tracking-wider">Hydration</p>
-              <h2 className="headline-card">Hydration Rations</h2>
+              <p className="text-xs text-primary uppercase tracking-wider font-semibold">Hydration</p>
+              <h2 className="font-display text-xl">Hydration Rations</h2>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
             {Array.from({ length: 8 }, (_, i) => (
               <button
                 key={i}
                 onClick={() => handleWaterClick(i)}
-                className={`aspect-square rounded-lg border-2 flex items-center justify-center transition-all ${
+                className={cn(
+                  "aspect-square rounded-lg border-2 flex items-center justify-center transition-all",
                   i < waterCount
-                    ? "bg-primary border-primary"
-                    : "bg-charcoal border-dashed border-border hover:border-primary/50"
-                }`}
+                    ? "bg-primary border-primary scale-105"
+                    : "bg-charcoal border-dashed border-border hover:border-primary/50 hover:scale-105"
+                )}
               >
                 {i < waterCount ? (
                   <Check className="w-6 h-6 text-primary-foreground" />
@@ -141,46 +372,123 @@ const Discipline = () => {
               </button>
             ))}
           </div>
-          <p className="text-sm text-muted-foreground mt-4">
-            Target: 8 glasses (64oz) minimum — {waterCount}/8 completed today
-          </p>
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm text-muted-foreground">
+              Target: 8 glasses (64oz) minimum
+            </p>
+            <p className={cn(
+              "text-sm font-semibold",
+              waterCount >= 8 ? "text-primary" : "text-foreground"
+            )}>
+              {waterCount}/8 completed
+              {waterCount >= 8 && " ✓"}
+            </p>
+          </div>
         </div>
 
-        {/* Evening Reflection Template */}
-        <div className="mt-8 bg-card p-8 rounded-lg border border-border">
-          <div className="flex items-center gap-3 mb-6">
-            <BookOpen className="w-8 h-8 text-primary" />
-            <div>
-              <p className="text-xs text-primary uppercase tracking-wider">Journaling</p>
-              <h2 className="headline-card">Cell Notes</h2>
+        {/* Journal Section */}
+        <div className="mt-8 bg-card p-6 md:p-8 rounded-lg border border-border">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-purple-500/20">
+                <BookOpen className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-xs text-primary uppercase tracking-wider font-semibold">Journaling</p>
+                <h2 className="font-display text-xl">Cell Notes</h2>
+              </div>
             </div>
+
+            <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setHistoryOpen(true);
+                    fetchJournalHistory();
+                  }}
+                  className="gap-2"
+                >
+                  <History className="w-4 h-4" />
+                  View History
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Journal History</DialogTitle>
+                </DialogHeader>
+                {loadingHistory ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  </div>
+                ) : journalHistory.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">No journal entries yet.</p>
+                ) : (
+                  <div className="space-y-6">
+                    {journalHistory.map((day: any) => (
+                      <div key={day.date}>
+                        <h4 className="font-semibold text-primary mb-3">
+                          {format(new Date(day.date), "EEEE, MMMM d, yyyy")}
+                        </h4>
+                        <div className="space-y-3">
+                          {day.entries.map((entry: any) => (
+                            <div key={entry.id} className="bg-charcoal p-4 rounded-lg">
+                              <p className="text-sm font-medium text-muted-foreground mb-1">
+                                {entry.prompt}
+                              </p>
+                              <p className="text-sm">{entry.response}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="space-y-4">
-            {[
-              "What were my 3 wins today?",
-              "What did I learn or struggle with?",
-              "What am I grateful for?",
-              "What will I do better tomorrow?",
-              "How did I honor God today?",
-            ].map((prompt, index) => (
+            {JOURNAL_PROMPTS.map((prompt, index) => (
               <div
                 key={index}
-                className="p-4 rounded bg-charcoal border border-border"
+                className="p-4 rounded-lg bg-charcoal border border-border"
               >
                 <p className="text-sm font-semibold mb-2">{prompt}</p>
                 <textarea
-                  className="w-full h-16 bg-background border border-border rounded p-2 text-sm resize-none focus:outline-none focus:border-primary/50"
+                  className="w-full h-20 bg-background border border-border rounded-lg p-3 text-sm resize-none focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder="Write your reflection..."
+                  value={journalDrafts[prompt] || ""}
+                  onChange={(e) => handleJournalChange(prompt, e.target.value)}
                 />
+                <div className="flex justify-end mt-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleSaveJournal(prompt)}
+                    disabled={savingJournal === prompt || !journalDrafts[prompt]?.trim()}
+                    className="gap-2"
+                  >
+                    {savingJournal === prompt ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Save className="w-3 h-3" />
+                    )}
+                    Save
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-8 flex gap-4">
+        <div className="mt-8 flex flex-wrap gap-4">
           <Button variant="gold" asChild>
-            <Link to="/dashboard/check-in">Report to Roll Call</Link>
+            <Link to="/dashboard/check-in" className="gap-2">
+              Report to Roll Call
+              <ChevronRight className="w-4 h-4" />
+            </Link>
           </Button>
           <Button variant="goldOutline" asChild>
             <Link to="/dashboard">Back to Cell Block</Link>

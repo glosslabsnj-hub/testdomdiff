@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import AvatarUpload from "@/components/AvatarUpload";
+import MilestoneBadge from "@/components/MilestoneBadge";
+import { useMilestones, PAROLE_MILESTONES } from "@/hooks/useMilestones";
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -32,7 +34,8 @@ const passwordSchema = z.object({
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, subscription } = useAuth();
+  const { milestones, loading: milestonesLoading, hasMilestone, getFeaturedBadge } = useMilestones();
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -455,6 +458,83 @@ export default function Settings() {
             </CardContent>
           </Card>
 
+          {/* Achievements / Parole Board */}
+          <Card className="bg-charcoal border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Trophy className="h-5 w-5 text-primary" />
+                Parole Board Achievements
+              </CardTitle>
+              <CardDescription>
+                Your earned badges and milestones on the journey
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Featured Badge */}
+              {getFeaturedBadge() && (
+                <div className="flex items-center gap-4 p-4 bg-primary/10 rounded-lg border border-primary/30">
+                  <MilestoneBadge
+                    icon={getFeaturedBadge()?.badge_icon || "Trophy"}
+                    name={getFeaturedBadge()?.milestone_name || ""}
+                    description={getFeaturedBadge()?.description || ""}
+                    earned={true}
+                    earnedAt={getFeaturedBadge()?.earned_at}
+                    size="lg"
+                    featured={getFeaturedBadge()?.milestone_key === "week_12_complete"}
+                    showTooltip={false}
+                  />
+                  <div>
+                    <p className="font-display text-primary text-lg">
+                      {getFeaturedBadge()?.milestone_name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {getFeaturedBadge()?.description}
+                    </p>
+                    {getFeaturedBadge()?.milestone_key === "week_12_complete" && (
+                      <Button variant="goldOutline" size="sm" className="mt-2 gap-2">
+                        <Download className="w-4 h-4" />
+                        Download Certificate
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* All Badges Grid */}
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">All Achievements</h4>
+                <div className="flex flex-wrap gap-3">
+                  {PAROLE_MILESTONES.map((milestone) => {
+                    const earned = hasMilestone(milestone.key);
+                    const earnedData = milestones.find(m => m.milestone_key === milestone.key);
+                    
+                    return (
+                      <MilestoneBadge
+                        key={milestone.key}
+                        icon={milestone.icon}
+                        name={milestone.name}
+                        description={milestone.description}
+                        earned={earned}
+                        earnedAt={earnedData?.earned_at}
+                        size="md"
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Progress to Next */}
+              {milestones.length < PAROLE_MILESTONES.length && (
+                <div className="pt-4 border-t border-border">
+                  <p className="text-sm text-muted-foreground">
+                    <span className="text-primary font-semibold">{milestones.length}</span> of{" "}
+                    <span className="font-semibold">{PAROLE_MILESTONES.length}</span> achievements earned
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Account Info Card */}
           <Card className="bg-charcoal border-border">
             <CardHeader>
@@ -472,6 +552,17 @@ export default function Settings() {
                     : '-'}
                 </span>
               </div>
+              {subscription && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Current Plan</span>
+                  <span className="text-primary font-semibold capitalize">
+                    {subscription.plan_type === "membership" ? "Solitary" : 
+                     subscription.plan_type === "transformation" ? "Gen Pop" : 
+                     subscription.plan_type === "coaching" ? "Free World" : 
+                     subscription.plan_type}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">User ID</span>
                 <span className="text-foreground font-mono text-xs">
