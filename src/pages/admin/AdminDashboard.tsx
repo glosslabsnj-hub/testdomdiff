@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import FaithLessonsManager from "@/components/admin/FaithLessonsManager";
 import ProgramWeeksManager from "@/components/admin/ProgramWeeksManager";
 import DisciplineManager from "@/components/admin/DisciplineManager";
 import NutritionManager from "@/components/admin/NutritionManager";
+import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -197,12 +198,14 @@ export default function AdminDashboard() {
                 <TabsTrigger value="faith" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Cross className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Faith</TabsTrigger>
                 <TabsTrigger value="nutrition" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Utensils className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Nutrition</span><span className="sm:hidden">Food</span></TabsTrigger>
                 <TabsTrigger value="discipline" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="hidden sm:inline">Discipline</span><span className="sm:hidden">Daily</span></TabsTrigger>
+                <TabsTrigger value="skills" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3"><Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4" />Skills</TabsTrigger>
               </TabsList>
               <TabsContent value="workouts"><WorkoutContentManager /></TabsContent>
               <TabsContent value="program"><ProgramWeeksManager /></TabsContent>
               <TabsContent value="faith"><FaithLessonsManager /></TabsContent>
               <TabsContent value="nutrition"><NutritionManager /></TabsContent>
               <TabsContent value="discipline"><DisciplineManager /></TabsContent>
+              <TabsContent value="skills"><SkillLessonsManager /></TabsContent>
             </Tabs>
           </TabsContent>
         </Tabs>

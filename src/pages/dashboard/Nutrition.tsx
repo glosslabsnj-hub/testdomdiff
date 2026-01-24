@@ -2,9 +2,17 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Utensils, ShoppingCart, Grid, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNutritionGuidelines, NutritionGuideline } from "@/hooks/useNutritionContent";
+import { useAuth } from "@/contexts/AuthContext";
+import UpgradePrompt from "@/components/UpgradePrompt";
 
 const Nutrition = () => {
   const { guidelines, loading } = useNutritionGuidelines();
+  const { subscription } = useAuth();
+
+  // Only transformation and coaching users can access
+  if (subscription?.plan_type === "membership") {
+    return <UpgradePrompt feature="Nutrition Templates" upgradeTo="transformation" />;
+  }
 
   const mealStructure = guidelines.filter((g) => g.content_type === "meal_structure" && g.is_active);
   const groceryLists = guidelines.filter((g) => g.content_type === "grocery_list" && g.is_active);

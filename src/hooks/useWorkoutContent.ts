@@ -10,6 +10,8 @@ export interface WorkoutTemplate {
   description: string | null;
   display_order: number;
   is_active: boolean;
+  is_bodyweight: boolean;
+  video_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +46,9 @@ export interface ProgramWeek {
   conditioning_notes: string | null;
   recovery_notes: string | null;
   scripture_reference: string | null;
+  video_url: string | null;
+  video_title: string | null;
+  video_description: string | null;
   created_at: string;
   updated_at: string;
 }
