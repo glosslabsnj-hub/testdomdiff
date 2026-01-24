@@ -14,7 +14,8 @@ import {
   Briefcase,
   GraduationCap,
   MessageCircle,
-  Lock
+  Lock,
+  AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -32,10 +33,6 @@ const Dashboard = () => {
   const [lockedFeature, setLockedFeature] = useState("");
 
   // Define all tiles - themed based on subscription tier
-  // Coaching (Free World) = Probation terms
-  // Transformation (Gen Pop) = Prison terms
-  // Membership (Solitary) = Prison terms (restricted access)
-  
   const allTiles = {
     startHere: {
       icon: Play,
@@ -45,7 +42,7 @@ const Dashboard = () => {
         ? "Complete your orientation. Get set up for success on the outside."
         : "Complete your intake processing. Get oriented with the program.",
       href: "/dashboard/start-here",
-      color: "bg-primary/10 border-primary/30",
+      color: "dashboard-tile border-primary/30",
     },
     program: {
       icon: Calendar,
@@ -55,7 +52,7 @@ const Dashboard = () => {
         ? "Your personalized 12-week program. Stay on track with weekly milestones."
         : "Your 12-week sentence. Structured progression with weekly breakdown.",
       href: "/dashboard/program",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     workouts: {
       icon: Dumbbell,
@@ -67,7 +64,7 @@ const Dashboard = () => {
           ? "Bodyweight workouts. No equipment, no excuses."
           : "Full workout library. Build your sessions like we built ours inside."),
       href: "/dashboard/workouts",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     discipline: {
       icon: Clock,
@@ -77,7 +74,7 @@ const Dashboard = () => {
         ? "Morning and evening routines. Build habits that stick."
         : "Morning and evening routines. Structure breeds discipline.",
       href: "/dashboard/discipline",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     nutrition: {
       icon: Utensils,
@@ -87,7 +84,7 @@ const Dashboard = () => {
         ? "Your personalized meal templates. Fuel for the free world."
         : "Simple meal templates. Fuel the machine, feed the soul.",
       href: "/dashboard/nutrition",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     faith: {
       icon: BookOpen,
@@ -97,7 +94,7 @@ const Dashboard = () => {
         ? "Weekly lessons on faith, purpose, and staying grounded."
         : "Weekly lessons on faith, discipline, and mental fortitude.",
       href: "/dashboard/faith",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     checkIn: {
       icon: ClipboardCheck,
@@ -107,7 +104,7 @@ const Dashboard = () => {
         ? "Submit your weekly report. Stay accountable to your goals."
         : "Submit your weekly report. Accountability is freedom.",
       href: "/dashboard/check-in",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     progress: {
       icon: TrendingUp,
@@ -117,7 +114,7 @@ const Dashboard = () => {
         ? "Track your transformation. Celebrate every milestone."
         : "Track your transformation. See how far you've come.",
       href: "/dashboard/progress",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     skills: {
       icon: Briefcase,
@@ -127,7 +124,7 @@ const Dashboard = () => {
         ? "Advanced business skills. Build real income streams."
         : "Learn money-making skills. Build your hustle for the outside.",
       href: "/dashboard/skills",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     community: {
       icon: Users,
@@ -137,7 +134,7 @@ const Dashboard = () => {
         ? "Connect with fellow free men. Build lasting relationships."
         : "Connect with fellow inmates. Iron sharpens iron.",
       href: "/dashboard/community",
-      color: "bg-charcoal border-border hover:border-primary/50",
+      color: "dashboard-tile",
     },
     advancedSkills: {
       icon: GraduationCap,
@@ -145,7 +142,7 @@ const Dashboard = () => {
       subtitle: "Advanced Business",
       description: "Advanced business strategies for building real wealth.",
       href: "/dashboard/advanced-skills",
-      color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
+      color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
     },
     messages: {
       icon: MessageCircle,
@@ -153,7 +150,7 @@ const Dashboard = () => {
       subtitle: "Message Dom",
       description: "Direct messaging with your coach. Get answers when you need them.",
       href: "/dashboard/messages",
-      color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
+      color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
     },
     coaching: {
       icon: Crown,
@@ -161,72 +158,53 @@ const Dashboard = () => {
       subtitle: "1:1 Access",
       description: "Your exclusive coaching portal. Premium access to Dom.",
       href: "/dashboard/coaching",
-      color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
+      color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
     },
   };
 
-  // Define locked tiles for Solitary users (shown but trigger modal)
+  // Define locked tiles for Solitary users - crimson-tinted
   const lockedTilesForMembership = [
     { ...allTiles.program, locked: true, featureName: "The Sentence (12-Week Program)" },
     { ...allTiles.nutrition, locked: true, featureName: "Chow Hall (Nutrition)" },
     { ...allTiles.skills, locked: true, featureName: "Work Release (Skill-Building)" },
     { ...allTiles.community, locked: true, featureName: "The Yard (Community)" },
   ];
-
-  // Build tiles in exact order specified by user:
-  // Start Here → 12-Week (if applicable) → Workout Templates → Daily Discipline → 
-  // Nutrition Templates → Mindset + Faith → Weekly Check-In → Progress Tracker → 
-  // Skill Building → Community → (Coaching extras at end)
   
   let tiles: Array<typeof allTiles.startHere & { locked?: boolean; featureName?: string }> = [];
   
-  // 1. Start Here (always first)
   tiles.push(allTiles.startHere);
   
-  // 2. 12-Week Program (Transformation/Coaching only, locked for membership)
   if (isTransformation || isCoaching) {
     tiles.push(allTiles.program);
   } else if (isMembership) {
     tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("12-Week"))!);
   }
   
-  // 3. Workout Templates
   tiles.push(allTiles.workouts);
-  
-  // 4. Daily Discipline
   tiles.push(allTiles.discipline);
   
-  // 5. Nutrition Templates (Transformation/Coaching only, locked for membership)
   if (isTransformation || isCoaching) {
     tiles.push(allTiles.nutrition);
   } else if (isMembership) {
     tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Nutrition"))!);
   }
   
-  // 6. Mindset + Faith
   tiles.push(allTiles.faith);
-  
-  // 7. Weekly Check-In
   tiles.push(allTiles.checkIn);
-  
-  // 8. Progress Tracker
   tiles.push(allTiles.progress);
   
-  // 9. Skill-Building (Transformation/Coaching only, locked for membership)
   if (isTransformation || isCoaching) {
     tiles.push(allTiles.skills);
   } else if (isMembership) {
     tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Skill"))!);
   }
   
-  // 10. Community - Locked for Solitary (membership) users but shown
   if (!isMembership) {
     tiles.push(allTiles.community);
   } else {
     tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Community"))!);
   }
   
-  // 11-13. Coaching-only tiles at the end
   if (isCoaching) {
     tiles.push(allTiles.advancedSkills);
     tiles.push(allTiles.messages);
@@ -245,41 +223,45 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <DashboardHeader />
 
-      {/* Dashboard Content */}
       <main className="section-container py-12">
         <div className="mb-12">
           <h1 className="headline-section mb-2">
-            Your <span className="text-primary">Dashboard</span>
+            Your <span className="text-primary">Cell Block</span>
           </h1>
           <p className="text-muted-foreground">
             Access your templates, track your progress, and stay disciplined.
           </p>
         </div>
 
-        {/* Tiles Grid */}
+        {/* Tiles Grid with Steel Plate Effect */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {tiles.map((tile, index) => (
             <Link
               key={index}
               to={tile.locked ? "#" : tile.href}
               onClick={(e) => handleTileClick(tile, e)}
-              className={`block p-6 rounded-lg border transition-all hover:scale-105 ${tile.color} ${
-                tile.locked ? "relative opacity-75" : ""
+              className={`block transition-all duration-300 ${
+                tile.locked 
+                  ? "tile-locked opacity-80 hover:opacity-90" 
+                  : tile.color
               }`}
             >
               {tile.locked && (
-                <div className="absolute top-3 right-3">
-                  <Lock className="w-4 h-4 text-muted-foreground" />
+                <div className="absolute top-3 right-3 flex items-center gap-1">
+                  <Lock className="w-4 h-4 text-crimson" />
                 </div>
               )}
-              <tile.icon className="w-10 h-10 text-primary mb-4" />
-              <p className="text-xs text-primary uppercase tracking-wider mb-1">
+              <tile.icon className={`w-10 h-10 mb-4 ${tile.locked ? "text-crimson/60" : "text-primary"}`} />
+              <p className={`text-xs uppercase tracking-wider mb-1 ${tile.locked ? "text-crimson/70" : "text-primary"}`}>
                 {tile.subtitle}
               </p>
               <h3 className="headline-card mb-2">{tile.title}</h3>
               <p className="text-sm text-muted-foreground">{tile.description}</p>
               {tile.locked && (
-                <p className="text-xs text-primary mt-2 font-semibold">Upgrade to Unlock</p>
+                <div className="mt-3 flex items-center gap-2">
+                  <AlertTriangle className="w-3 h-3 text-crimson" />
+                  <p className="text-xs text-crimson font-semibold">Requires Upgrade</p>
+                </div>
               )}
             </Link>
           ))}
@@ -291,8 +273,8 @@ const Dashboard = () => {
           feature={lockedFeature}
         />
 
-        {/* Quick Actions */}
-        <div className="mt-12 p-8 bg-charcoal rounded-lg border border-border">
+        {/* Quick Actions - Steel plate style */}
+        <div className="mt-12 steel-plate p-8 border border-steel-light/20">
           <h3 className="headline-card mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-4">
             <Button variant="gold" asChild>
@@ -301,7 +283,7 @@ const Dashboard = () => {
             <Button variant="goldOutline" asChild>
               <Link to="/dashboard/workouts">Start Today's Workout</Link>
             </Button>
-            <Button variant="dark" asChild>
+            <Button variant="steel" asChild>
               <Link to="/book-call">Book a Coaching Call</Link>
             </Button>
           </div>
