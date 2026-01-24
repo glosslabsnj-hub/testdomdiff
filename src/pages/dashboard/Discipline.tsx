@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useMilestones } from "@/hooks/useMilestones";
+import { useRoutineTimeOverrides } from "@/hooks/useRoutineTimeOverrides";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +20,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TemplateSelector from "@/components/discipline/TemplateSelector";
+import RoutineTimeEditor from "@/components/discipline/RoutineTimeEditor";
 
 const JOURNAL_PROMPTS = [
   "What were my 3 wins today?",
@@ -56,6 +58,9 @@ const Discipline = () => {
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(
     (profile as any)?.discipline_template_id || null
   );
+
+  // Time overrides hook
+  const { getTime, saveTimeOverride } = useRoutineTimeOverrides(currentTemplateId);
 
   const today = format(new Date(), "EEEE, MMMM d, yyyy");
   const compliance = getTodayCompliance();
@@ -286,7 +291,10 @@ const Discipline = () => {
                           )}>
                             {item.action_text}
                           </p>
-                          <p className="text-xs text-muted-foreground">{item.time_slot}</p>
+                          <RoutineTimeEditor
+                              currentTime={getTime(item.display_order, item.time_slot)}
+                              onSave={(newTime) => saveTimeOverride(item.display_order, newTime)}
+                            />
                         </div>
                         {completed && completionTime && (
                           <div className="flex items-center gap-1 text-xs text-primary">
@@ -347,7 +355,10 @@ const Discipline = () => {
                           )}>
                             {item.action_text}
                           </p>
-                          <p className="text-xs text-muted-foreground">{item.time_slot}</p>
+                          <RoutineTimeEditor
+                              currentTime={getTime(item.display_order, item.time_slot)}
+                              onSave={(newTime) => saveTimeOverride(item.display_order, newTime)}
+                            />
                         </div>
                         {completed && completionTime && (
                           <div className="flex items-center gap-1 text-xs text-primary">
