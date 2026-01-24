@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 import PhotoComparison from "@/components/progress/PhotoComparison";
+import WorkoutHeatmap from "@/components/progress/WorkoutHeatmap";
 import { WardenTip } from "@/components/warden";
 import { cn } from "@/lib/utils";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
@@ -160,8 +161,8 @@ const Progress = () => {
           </TabsList>
 
           <TabsContent value="metrics" className="space-y-8">
-
-        {/* 12-Week Progress Grid */}
+            {/* Workout Heatmap */}
+            <WorkoutHeatmap />
         <div className="bg-card p-8 rounded-lg border border-border mb-8">
           <h2 className="headline-card mb-6">Sentence Progress Grid</h2>
           <div className="overflow-x-auto">
