@@ -19,6 +19,13 @@ interface Profile {
   phone: string | null;
   avatar_url: string | null;
   goal: string | null;
+  height: string | null;
+  weight: string | null;
+  age: number | null;
+  experience: string | null;
+  equipment: string | null;
+  injuries: string | null;
+  faith_commitment: boolean | null;
   intake_completed_at: string | null;
   created_at: string;
 }

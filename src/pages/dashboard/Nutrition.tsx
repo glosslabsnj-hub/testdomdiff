@@ -1,30 +1,73 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Utensils, ShoppingCart, Grid, Loader2 } from "lucide-react";
+import { 
+  ArrowLeft, Loader2, ChefHat, Flame, Beef, Wheat, Droplet, 
+  Clock, Users, ChevronDown, ChevronUp, ShoppingCart, Printer
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNutritionGuidelines, NutritionGuideline } from "@/hooks/useNutritionContent";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useMealPlanAssignment } from "@/hooks/useMealPlanAssignment";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import DashboardHeader from "@/components/DashboardHeader";
+import Footer from "@/components/Footer";
+import type { MealPlanMeal } from "@/hooks/useMealPlanAssignment";
+
+const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"] as const;
+const MEAL_TYPE_ICONS: Record<string, string> = {
+  breakfast: "🌅",
+  lunch: "☀️",
+  dinner: "🌙",
+  snack: "🍎"
+};
 
 const Nutrition = () => {
-  const { guidelines, loading } = useNutritionGuidelines();
-  const { subscription } = useAuth();
+  const { assignedPlan, userCalories, loading } = useMealPlanAssignment();
+  const { subscription, profile } = useAuth();
+  const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
+  const [selectedDay, setSelectedDay] = useState("1");
 
   // Only transformation and coaching users can access
   if (subscription?.plan_type === "membership") {
     return <UpgradePrompt feature="Nutrition Templates" upgradeTo="transformation" />;
   }
 
-  const mealStructure = guidelines.filter((g) => g.content_type === "meal_structure" && g.is_active);
-  const groceryLists = guidelines.filter((g) => g.content_type === "grocery_list" && g.is_active);
-  const rules = guidelines.filter((g) => g.content_type === "rule" && g.is_active);
+  const toggleMealExpanded = (mealId: string) => {
+    setExpandedMeals(prev => {
+      const next = new Set(prev);
+      if (next.has(mealId)) {
+        next.delete(mealId);
+      } else {
+        next.add(mealId);
+      }
+      return next;
+    });
+  };
 
-  const hasContent = mealStructure.length > 0 || groceryLists.length > 0 || rules.length > 0;
-
-  // Helper to safely get content array
-  const getContentArray = (content: any): string[] => {
-    if (Array.isArray(content)) return content;
-    if (content?.items && Array.isArray(content.items)) return content.items;
-    return [];
+  // Generate shopping list from all meals in the week
+  const generateShoppingList = () => {
+    if (!assignedPlan) return [];
+    
+    const ingredientMap = new Map<string, { amount: string; notes?: string }>();
+    
+    assignedPlan.days.forEach(day => {
+      day.meals.forEach(meal => {
+        meal.ingredients.forEach(ing => {
+          const key = ing.item.toLowerCase();
+          if (!ingredientMap.has(key)) {
+            ingredientMap.set(key, { amount: ing.amount, notes: ing.notes });
+          }
+        });
+      });
+    });
+    
+    return Array.from(ingredientMap.entries()).map(([item, details]) => ({
+      item: item.charAt(0).toUpperCase() + item.slice(1),
+      ...details
+    }));
   };
 
   if (loading) {
@@ -35,9 +78,26 @@ const Nutrition = () => {
     );
   }
 
+  const currentDay = assignedPlan?.days.find(d => d.day_number.toString() === selectedDay);
+  const sortedMeals = currentDay?.meals.sort((a, b) => 
+    MEAL_TYPE_ORDER.indexOf(a.meal_type) - MEAL_TYPE_ORDER.indexOf(b.meal_type)
+  ) || [];
+
+  // Calculate daily totals
+  const dailyTotals = sortedMeals.reduce(
+    (acc, meal) => ({
+      calories: acc.calories + meal.calories,
+      protein: acc.protein + meal.protein_g,
+      carbs: acc.carbs + meal.carbs_g,
+      fats: acc.fats + meal.fats_g
+    }),
+    { calories: 0, protein: 0, carbs: 0, fats: 0 }
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="section-container py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <DashboardHeader />
+      <main className="flex-1 section-container py-8 pt-24">
         <Link
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
@@ -47,144 +107,166 @@ const Nutrition = () => {
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">
-            Nutrition <span className="text-primary">Guidelines</span>
+            Your <span className="text-primary">Meal Plan</span>
           </h1>
           <p className="text-muted-foreground">
-            Simple, practical meal templates. No complicated macros unless you want them.
+            Personalized nutrition based on your goal and body composition.
           </p>
         </div>
 
-        {!hasContent ? (
-          <>
-            <div className="bg-charcoal p-6 rounded-lg border border-primary/30 mb-8">
-              <p className="text-sm text-primary uppercase tracking-wider mb-2">Coming Soon</p>
-              <p className="text-muted-foreground">
-                Your personalized nutrition guidelines are being prepared. Check back soon!
-              </p>
-            </div>
-
-            {/* Show default plate method */}
-            <div className="bg-card p-8 rounded-lg border border-border mb-8">
-              <div className="flex items-center gap-3 mb-6">
-                <Grid className="w-8 h-8 text-primary" />
-                <div>
-                  <p className="text-xs text-primary uppercase tracking-wider">Simple Method</p>
-                  <h2 className="headline-card">Plate Method</h2>
+        {/* User Stats Card */}
+        {userCalories && (
+          <Card className="bg-charcoal border-border mb-8">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ChefHat className="h-5 w-5 text-primary" />
+                Your Daily Targets
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 rounded-lg bg-background border border-border">
+                  <Flame className="h-6 w-6 mx-auto mb-2 text-orange-500" />
+                  <p className="text-2xl font-bold text-foreground">{userCalories.targetCalories}</p>
+                  <p className="text-xs text-muted-foreground">Daily Calories</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-background border border-border">
+                  <Beef className="h-6 w-6 mx-auto mb-2 text-red-500" />
+                  <p className="text-2xl font-bold text-foreground">{userCalories.protein}g</p>
+                  <p className="text-xs text-muted-foreground">Protein</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-background border border-border">
+                  <Wheat className="h-6 w-6 mx-auto mb-2 text-amber-500" />
+                  <p className="text-2xl font-bold text-foreground">{userCalories.carbs}g</p>
+                  <p className="text-xs text-muted-foreground">Carbs</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-background border border-border">
+                  <Droplet className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+                  <p className="text-2xl font-bold text-foreground">{userCalories.fats}g</p>
+                  <p className="text-xs text-muted-foreground">Fats</p>
                 </div>
               </div>
-
-              <div className="aspect-square max-w-xs mx-auto relative">
-                <div className="absolute inset-0 rounded-full border-4 border-primary/30" />
-                <div className="absolute top-0 left-0 right-0 h-1/2 rounded-t-full border-b-2 border-primary/30 flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <p className="font-semibold text-primary">50%</p>
-                    <p className="text-sm text-muted-foreground">Vegetables</p>
-                  </div>
-                </div>
-                <div className="absolute bottom-0 left-0 w-1/2 h-1/2 rounded-bl-full border-r-2 border-primary/30 flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <p className="font-semibold text-primary">25%</p>
-                    <p className="text-sm text-muted-foreground">Protein</p>
-                  </div>
-                </div>
-                <div className="absolute bottom-0 right-0 w-1/2 h-1/2 rounded-br-full flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <p className="font-semibold text-primary">25%</p>
-                    <p className="text-sm text-muted-foreground">Carbs</p>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground text-center mt-4">
-                Simple visual guide for every meal. No measuring required.
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                Based on your goal: {profile?.goal || "Recomposition"} | 
+                BMR: {userCalories.bmr} | TDEE: {userCalories.tdee}
               </p>
-            </div>
-          </>
+            </CardContent>
+          </Card>
+        )}
+
+        {!assignedPlan || assignedPlan.days.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="py-12 text-center">
+              <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">Meal Plan Coming Soon</h3>
+              <p className="text-muted-foreground mb-4">
+                Your personalized meal plan is being prepared based on your goals and body composition.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                In the meantime, focus on eating whole foods with a protein source at every meal.
+              </p>
+            </CardContent>
+          </Card>
         ) : (
           <>
-            {/* Meal Structure */}
-            {mealStructure.length > 0 && (
-              <div className="bg-card p-8 rounded-lg border border-border mb-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <Utensils className="w-8 h-8 text-primary" />
+            {/* Assigned Template Info */}
+            <Card className="bg-card border-primary/30 mb-6">
+              <CardContent className="py-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <p className="text-xs text-primary uppercase tracking-wider">Meal Plan</p>
-                    <h2 className="headline-card">Meal Structure</h2>
+                    <Badge className="bg-primary/20 text-primary border-primary/30 mb-2">
+                      {assignedPlan.template.name}
+                    </Badge>
+                    <p className="text-sm text-muted-foreground">
+                      {assignedPlan.template.calorie_range_min}-{assignedPlan.template.calorie_range_max} cal/day | 
+                      P: {assignedPlan.template.daily_protein_g}g C: {assignedPlan.template.daily_carbs_g}g F: {assignedPlan.template.daily_fats_g}g
+                    </p>
                   </div>
+                  <Button variant="outline" size="sm" onClick={() => window.print()}>
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print Plan
+                  </Button>
                 </div>
+              </CardContent>
+            </Card>
 
-                <div className="space-y-4">
-                  {mealStructure.map((meal) => (
-                    <div
-                      key={meal.id}
-                      className="p-4 rounded bg-charcoal border border-border"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold">{meal.title}</span>
-                      </div>
-                      {meal.content && typeof meal.content === "object" && (
-                        <div className="grid grid-cols-3 gap-2">
-                          {Object.entries(meal.content as Record<string, string>).map(([key, value]) => (
-                            <div key={key} className="p-2 rounded bg-background border border-border text-center">
-                              <p className="text-xs text-muted-foreground capitalize">{key}</p>
-                              <p className="text-sm">{value}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+            {/* Day Tabs */}
+            <Tabs value={selectedDay} onValueChange={setSelectedDay} className="mb-8">
+              <TabsList className="grid grid-cols-7 bg-charcoal border border-border">
+                {assignedPlan.days.map(day => (
+                  <TabsTrigger 
+                    key={day.id} 
+                    value={day.day_number.toString()}
+                    className="text-xs sm:text-sm"
+                  >
+                    {day.day_name.slice(0, 3)}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {assignedPlan.days.map(day => (
+                <TabsContent key={day.id} value={day.day_number.toString()} className="mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-foreground">{day.day_name}</h3>
+                    <div className="flex gap-2 text-sm text-muted-foreground">
+                      <span>{dailyTotals.calories} cal</span>
+                      <span>•</span>
+                      <span>{dailyTotals.protein}g P</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Grocery Lists */}
-            {groceryLists.length > 0 && (
-              <div className="bg-card p-8 rounded-lg border border-border mb-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <ShoppingCart className="w-8 h-8 text-primary" />
-                  <div>
-                    <p className="text-xs text-primary uppercase tracking-wider">Shopping</p>
-                    <h2 className="headline-card">Grocery List</h2>
                   </div>
-                </div>
 
-                <div className="grid md:grid-cols-4 gap-6">
-                  {groceryLists.map((list) => (
-                    <div key={list.id}>
-                      <h3 className="font-semibold text-primary mb-3">{list.title}</h3>
-                      <div className="space-y-2">
-                        {getContentArray(list.content).map((item: string, i: number) => (
-                          <div
-                            key={i}
-                            className="p-2 rounded bg-charcoal border border-border text-sm text-muted-foreground"
-                          >
-                            {item}
-                          </div>
-                        ))}
+                  {sortedMeals.length === 0 ? (
+                    <Card className="border-dashed">
+                      <CardContent className="py-8 text-center text-muted-foreground">
+                        No meals added for this day yet.
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="space-y-4">
+                      {sortedMeals.map(meal => (
+                        <MealCard 
+                          key={meal.id} 
+                          meal={meal} 
+                          isExpanded={expandedMeals.has(meal.id)}
+                          onToggle={() => toggleMealExpanded(meal.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+              ))}
+            </Tabs>
+
+            {/* Shopping List */}
+            <Card className="bg-charcoal border-border">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  Weekly Shopping List
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {generateShoppingList().length === 0 ? (
+                  <p className="text-muted-foreground text-center py-4">
+                    Shopping list will appear once meals are added.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {generateShoppingList().map((item, i) => (
+                      <div 
+                        key={i} 
+                        className="p-2 rounded bg-background border border-border text-sm"
+                      >
+                        <span className="font-medium">{item.item}</span>
+                        {item.amount && (
+                          <span className="text-muted-foreground ml-1">({item.amount})</span>
+                        )}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Rules */}
-            {rules.length > 0 && (
-              <div className="bg-card p-8 rounded-lg border border-border">
-                <h2 className="headline-card mb-6">Nutrition Rules</h2>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {rules.map((rule, index) => (
-                    <div
-                      key={rule.id}
-                      className="p-4 rounded bg-charcoal border border-border"
-                    >
-                      <span className="text-primary font-bold mr-2">{index + 1}.</span>
-                      <span className="text-muted-foreground">{rule.title}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </>
         )}
 
@@ -196,9 +278,140 @@ const Nutrition = () => {
             <Link to="/dashboard">Back to Dashboard</Link>
           </Button>
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 };
+
+// Meal Card Component
+function MealCard({ 
+  meal, 
+  isExpanded, 
+  onToggle 
+}: { 
+  meal: MealPlanMeal; 
+  isExpanded: boolean; 
+  onToggle: () => void;
+}) {
+  return (
+    <Card className="bg-card border-border overflow-hidden">
+      <Collapsible open={isExpanded} onOpenChange={onToggle}>
+        <CollapsibleTrigger asChild>
+          <div className="p-4 cursor-pointer hover:bg-muted/20 transition-colors">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">{MEAL_TYPE_ICONS[meal.meal_type]}</span>
+                  <Badge variant="outline" className="text-xs capitalize">
+                    {meal.meal_type}
+                  </Badge>
+                </div>
+                <h4 className="font-semibold text-foreground">{meal.meal_name}</h4>
+                <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Flame className="h-3 w-3 text-orange-500" />
+                    {meal.calories} cal
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Beef className="h-3 w-3 text-red-500" />
+                    {meal.protein_g}g
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Wheat className="h-3 w-3 text-amber-500" />
+                    {meal.carbs_g}g
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Droplet className="h-3 w-3 text-blue-500" />
+                    {meal.fats_g}g
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                {(meal.prep_time_min > 0 || meal.cook_time_min > 0) && (
+                  <span className="text-xs flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {meal.prep_time_min + meal.cook_time_min} min
+                  </span>
+                )}
+                {isExpanded ? (
+                  <ChevronUp className="h-5 w-5" />
+                ) : (
+                  <ChevronDown className="h-5 w-5" />
+                )}
+              </div>
+            </div>
+          </div>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
+            {/* Prep Info */}
+            <div className="flex flex-wrap gap-4 text-sm">
+              {meal.prep_time_min > 0 && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>Prep: {meal.prep_time_min} min</span>
+                </div>
+              )}
+              {meal.cook_time_min > 0 && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>Cook: {meal.cook_time_min} min</span>
+                </div>
+              )}
+              {meal.servings > 1 && (
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span>Servings: {meal.servings}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Ingredients */}
+            {meal.ingredients.length > 0 && (
+              <div>
+                <h5 className="font-medium text-foreground mb-2">Ingredients</h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {meal.ingredients.map((ing, i) => (
+                    <div 
+                      key={i} 
+                      className="flex items-center gap-2 p-2 rounded bg-charcoal border border-border text-sm"
+                    >
+                      <span className="font-medium text-primary">{ing.amount}</span>
+                      <span>{ing.item}</span>
+                      {ing.notes && (
+                        <span className="text-muted-foreground">({ing.notes})</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Instructions */}
+            {meal.instructions && (
+              <div>
+                <h5 className="font-medium text-foreground mb-2">Instructions</h5>
+                <div className="text-sm text-muted-foreground whitespace-pre-line">
+                  {meal.instructions}
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
+            {meal.notes && (
+              <div className="p-3 rounded bg-primary/10 border border-primary/20">
+                <p className="text-sm text-foreground">
+                  <span className="font-medium">💡 Tip:</span> {meal.notes}
+                </p>
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+}
 
 export default Nutrition;
