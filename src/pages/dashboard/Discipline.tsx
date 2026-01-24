@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TemplateSelector from "@/components/discipline/TemplateSelector";
 import RoutineTimeEditor from "@/components/discipline/RoutineTimeEditor";
+import { MorningBriefing } from "@/components/warden";
 
 const JOURNAL_PROMPTS = [
   "What were my 3 wins today?",
@@ -166,6 +167,11 @@ const Discipline = () => {
         >
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
+
+        {/* Morning Briefing - Daily Devotional */}
+        <div className="mb-8">
+          <MorningBriefing />
+        </div>
 
         {/* Header with Stats */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">

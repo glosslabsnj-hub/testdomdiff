@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useSalesChat } from '@/hooks/useSalesChat';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 export function ChatWidget() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -21,7 +23,7 @@ export function ChatWidget() {
 
   // Send initial greeting when chat is first opened
   useEffect(() => {
-    if (isOpen && messages.length === 0 && !hasInteracted) {
+    if (isOpen && messages.length === 0 && !hasInteracted && !user) {
       setHasInteracted(true);
       // Small delay for better UX
       const timer = setTimeout(() => {
@@ -29,12 +31,15 @@ export function ChatWidget() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, messages.length, hasInteracted, sendMessage]);
+  }, [isOpen, messages.length, hasInteracted, sendMessage, user]);
 
   const handleClear = () => {
     clearMessages();
     setHasInteracted(false);
   };
+
+  // Don't render for logged-in users (they use WardenChat instead)
+  if (user) return null;
 
   return (
     <>

@@ -323,6 +323,48 @@ export type Database = {
           },
         ]
       }
+      daily_devotionals: {
+        Row: {
+          challenge: string
+          created_at: string | null
+          devotional_date: string
+          generated_at: string | null
+          id: string
+          message: string
+          prayer_focus: string
+          scripture_reference: string
+          scripture_text: string
+          theme: string | null
+          user_id: string
+        }
+        Insert: {
+          challenge: string
+          created_at?: string | null
+          devotional_date?: string
+          generated_at?: string | null
+          id?: string
+          message: string
+          prayer_focus: string
+          scripture_reference: string
+          scripture_text: string
+          theme?: string | null
+          user_id: string
+        }
+        Update: {
+          challenge?: string
+          created_at?: string | null
+          devotional_date?: string
+          generated_at?: string | null
+          id?: string
+          message?: string
+          prayer_focus?: string
+          scripture_reference?: string
+          scripture_text?: string
+          theme?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       direct_messages: {
         Row: {
           content: string
@@ -1384,6 +1426,39 @@ export type Database = {
         }
         Relationships: []
       }
+      scripture_library: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          reference: string
+          text: string
+          theme: string
+          week_max: number | null
+          week_min: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reference: string
+          text: string
+          theme: string
+          week_max?: number | null
+          week_min?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          reference?: string
+          text?: string
+          theme?: string
+          week_max?: number | null
+          week_min?: number | null
+        }
+        Relationships: []
+      }
       skill_lessons: {
         Row: {
           action_steps: string | null
@@ -1637,6 +1712,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      warden_conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      warden_messages: {
+        Row: {
+          created_at: string | null
+          focus_area: string | null
+          generated_at: string | null
+          id: string
+          message: string
+          message_type: string
+          scripture_reference: string | null
+          scripture_text: string | null
+          updated_at: string | null
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          focus_area?: string | null
+          generated_at?: string | null
+          id?: string
+          message: string
+          message_type?: string
+          scripture_reference?: string | null
+          scripture_text?: string | null
+          updated_at?: string | null
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string | null
+          focus_area?: string | null
+          generated_at?: string | null
+          id?: string
+          message?: string
+          message_type?: string
+          scripture_reference?: string | null
+          scripture_text?: string | null
+          updated_at?: string | null
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: []
       }
       workout_completions: {
         Row: {
