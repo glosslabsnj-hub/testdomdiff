@@ -1,8 +1,12 @@
-import { Shield, RefreshCw, BookOpen } from "lucide-react";
+import { Shield, RefreshCw, BookOpen, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWarden } from "@/hooks/useWarden";
 import { cn } from "@/lib/utils";
+
+const openWardenChat = () => {
+  window.dispatchEvent(new CustomEvent('open-warden-chat'));
+};
 
 export function WardenBrief() {
   const { weeklyBrief, briefLoading, briefError, refreshBrief } = useWarden();
@@ -111,7 +115,7 @@ export function WardenBrief() {
 
       {/* Scripture if present */}
       {weeklyBrief.scripture_reference && weeklyBrief.scripture_text && (
-        <div className="bg-charcoal border border-border rounded-lg p-4 flex gap-3">
+        <div className="bg-charcoal border border-border rounded-lg p-4 flex gap-3 mb-4">
           <BookOpen className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-muted-foreground italic mb-1">
@@ -123,6 +127,16 @@ export function WardenBrief() {
           </div>
         </div>
       )}
+
+      {/* Ask the Warden button */}
+      <Button
+        onClick={openWardenChat}
+        variant="outline"
+        className="w-full border-gold/30 text-gold hover:bg-gold/10 hover:text-gold"
+      >
+        <MessageCircle className="h-4 w-4 mr-2" />
+        Ask the Warden
+      </Button>
     </div>
   );
 }
