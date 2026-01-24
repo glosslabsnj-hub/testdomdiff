@@ -33,6 +33,13 @@ export function WardenChat({ className }: WardenChatProps) {
     }
   }, [isOpen]);
 
+  // Listen for external open requests
+  useEffect(() => {
+    const handleOpenWarden = () => setIsOpen(true);
+    window.addEventListener('open-warden-chat', handleOpenWarden);
+    return () => window.removeEventListener('open-warden-chat', handleOpenWarden);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim() && !chatLoading) {
@@ -104,17 +111,17 @@ export function WardenChat({ className }: WardenChatProps) {
       <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full",
+          "fixed bottom-6 right-6 z-50 h-12 rounded-full",
           "bg-gold text-charcoal-dark shadow-lg",
           "hover:bg-gold-light transition-all duration-300 hover:scale-105",
-          "flex items-center justify-center",
+          "flex items-center gap-2 px-4",
           isOpen && "scale-0 opacity-0",
           className
         )}
         aria-label="Ask The Warden"
       >
-        <Shield className="h-6 w-6" />
-        <span className="absolute inset-0 rounded-full bg-gold animate-ping opacity-25" />
+        <Shield className="h-5 w-5" />
+        <span className="font-semibold text-sm whitespace-nowrap">Ask the Warden</span>
       </button>
 
       {/* Chat panel */}
