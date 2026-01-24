@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, Circle, Loader2, Trophy, Play, X, Lock, ChevronRight } from "lucide-react";
+import { ArrowLeft, Check, Circle, Loader2, Trophy, Play, X, ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserChecklist } from "@/hooks/useUserChecklist";
 import { useToast } from "@/hooks/use-toast";
@@ -10,22 +10,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-// Tier-specific checklist configurations
+// Tier-specific checklist configurations with improved descriptions
 const SOLITARY_CHECKLIST = [
   {
     category: "Cell Assignment",
+    timeEstimate: "5 min",
     items: [
-      { id: "solitary-1", label: "Review your discipline templates", href: "/dashboard/discipline" },
-      { id: "solitary-2", label: "Set your wake-up time", href: "/dashboard/discipline" },
-      { id: "solitary-3", label: "Check out the bodyweight workout library", href: "/dashboard/workouts" },
+      { id: "solitary-1", label: "Review your discipline templates in Settings", href: "/dashboard/discipline", description: "See the morning and evening routines available to you" },
+      { id: "solitary-2", label: "Set your wake-up and bedtime in Discipline", href: "/dashboard/discipline", description: "Customize when your routines start" },
+      { id: "solitary-3", label: "Browse the bodyweight workout library", href: "/dashboard/workouts", description: "See all 4 workout templates you can use" },
     ],
   },
   {
     category: "Daily Protocol",
+    timeEstimate: "15 min",
     items: [
-      { id: "solitary-4", label: "Complete your first discipline routine", href: "/dashboard/discipline" },
-      { id: "solitary-5", label: "Read your first faith lesson", href: "/dashboard/faith" },
-      { id: "solitary-6", label: "Submit your first weekly check-in", href: "/dashboard/check-in" },
+      { id: "solitary-4", label: "Complete your morning routine checklist", href: "/dashboard/discipline", description: "Mark each item complete as you do it" },
+      { id: "solitary-5", label: "Finish your first bodyweight workout", href: "/dashboard/workouts", description: "Pick any workout and complete it" },
+      { id: "solitary-6", label: "Submit your first weekly check-in at Roll Call", href: "/dashboard/check-in", description: "Report your weight, wins, and struggles" },
     ],
   },
 ];
@@ -33,26 +35,29 @@ const SOLITARY_CHECKLIST = [
 const GEN_POP_CHECKLIST = [
   {
     category: "Inmate Registration",
+    timeEstimate: "10 min",
     items: [
-      { id: "genpop-1", label: "Review your 12-week program overview", href: "/dashboard/program" },
-      { id: "genpop-2", label: "Set your training days", href: "/dashboard/program" },
-      { id: "genpop-3", label: "Explore your nutrition templates", href: "/dashboard/nutrition" },
+      { id: "genpop-1", label: "Review your 12-week program in The Sentence", href: "/dashboard/program", description: "See all 12 weeks and the 3 phases of your journey" },
+      { id: "genpop-2", label: "Check Week 1 workouts in your program", href: "/dashboard/program", description: "Preview what's coming this week" },
+      { id: "genpop-3", label: "Browse your nutrition templates in Chow Hall", href: "/dashboard/nutrition", description: "See the meal plan matched to your goals" },
     ],
   },
   {
     category: "Yard Prep",
+    timeEstimate: "20 min",
     items: [
-      { id: "genpop-4", label: "Complete Week 1, Day 1 workout", href: "/dashboard/program" },
-      { id: "genpop-5", label: "Log your first meal", href: "/dashboard/nutrition" },
-      { id: "genpop-6", label: "Set up your discipline routine", href: "/dashboard/discipline" },
+      { id: "genpop-4", label: "Complete Week 1, Day 1 workout", href: "/dashboard/program", description: "Start your 12-week sentence strong" },
+      { id: "genpop-5", label: "Review today's meals in Chow Hall", href: "/dashboard/nutrition", description: "Check your breakfast, lunch, dinner, and snacks" },
+      { id: "genpop-6", label: "Set up your morning routine in Discipline", href: "/dashboard/discipline", description: "Pick a template and customize the times" },
     ],
   },
   {
     category: "Block Integration",
+    timeEstimate: "15 min",
     items: [
-      { id: "genpop-7", label: "Introduce yourself in the community", href: "/dashboard/community" },
-      { id: "genpop-8", label: "Take your starting photos", href: "/dashboard/progress" },
-      { id: "genpop-9", label: "Read Week 1 faith lesson", href: "/dashboard/faith" },
+      { id: "genpop-7", label: "Introduce yourself in The Yard community", href: "/dashboard/community", description: "Share your goals with your brothers" },
+      { id: "genpop-8", label: "Upload your starting photos in Progress", href: "/dashboard/progress", description: "Front, side, and back photos for comparison later" },
+      { id: "genpop-9", label: "Read Week 1 faith lesson in Chapel", href: "/dashboard/faith", description: "Start building your spiritual foundation" },
     ],
   },
 ];
@@ -60,26 +65,29 @@ const GEN_POP_CHECKLIST = [
 const FREE_WORLD_CHECKLIST = [
   {
     category: "Orientation",
+    timeEstimate: "10 min",
     items: [
-      { id: "freeworld-1", label: "Review your personalized training plan", href: "/dashboard/program" },
-      { id: "freeworld-2", label: "Schedule your first coaching call", href: "/dashboard/coaching" },
-      { id: "freeworld-3", label: "Connect with Dom via direct message", href: "/dashboard/messages" },
+      { id: "freeworld-1", label: "Review your personalized training plan", href: "/dashboard/program", description: "See the custom program built for you" },
+      { id: "freeworld-2", label: "Schedule your first coaching call with Dom", href: "/dashboard/coaching", description: "Book a 1:1 video call to kick things off" },
+      { id: "freeworld-3", label: "Send Dom a message via Direct Line", href: "/dashboard/messages", description: "Introduce yourself and share your goals" },
     ],
   },
   {
     category: "Foundation Setup",
+    timeEstimate: "25 min",
     items: [
-      { id: "freeworld-4", label: "Complete your Week 1 workouts", href: "/dashboard/program" },
-      { id: "freeworld-5", label: "Review your custom nutrition plan", href: "/dashboard/nutrition" },
-      { id: "freeworld-6", label: "Set your discipline routine", href: "/dashboard/discipline" },
+      { id: "freeworld-4", label: "Complete your first workout from the program", href: "/dashboard/program", description: "Start building momentum on day 1" },
+      { id: "freeworld-5", label: "Review your custom nutrition plan", href: "/dashboard/nutrition", description: "See the meals tailored to your TDEE" },
+      { id: "freeworld-6", label: "Set your discipline routines", href: "/dashboard/discipline", description: "Morning and evening structure for success" },
     ],
   },
   {
     category: "Elite Integration",
+    timeEstimate: "20 min",
     items: [
-      { id: "freeworld-7", label: "Explore the advanced skills section", href: "/dashboard/advanced-skills" },
-      { id: "freeworld-8", label: "Take progress photos", href: "/dashboard/progress" },
-      { id: "freeworld-9", label: "Submit your first weekly report", href: "/dashboard/check-in" },
+      { id: "freeworld-7", label: "Explore the Entrepreneur Track", href: "/dashboard/advanced-skills", description: "Advanced business and income strategies" },
+      { id: "freeworld-8", label: "Upload your starting progress photos", href: "/dashboard/progress", description: "Document where you're starting from" },
+      { id: "freeworld-9", label: "Submit your first Weekly Report", href: "/dashboard/check-in", description: "Share your wins, struggles, and reflections" },
     ],
   },
 ];
@@ -265,8 +273,8 @@ const StartHere = () => {
                     <Play className={cn("w-8 h-8", tierConfig.accentClass)} />
                   </div>
                   {videoWatched && (
-                    <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white" />
+                    <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="w-3 h-3 text-primary-foreground" />
                     </div>
                   )}
                 </button>
@@ -314,9 +322,15 @@ const StartHere = () => {
           <div className="space-y-8">
             {tierConfig.checklist.map((section, sectionIndex) => (
               <div key={sectionIndex}>
-                <h2 className={cn("text-lg font-semibold mb-4", tierConfig.accentClass)}>
-                  {section.category}
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className={cn("text-lg font-semibold", tierConfig.accentClass)}>
+                    {section.category}
+                  </h2>
+                  <div className="flex items-center gap-1 text-muted-foreground text-sm">
+                    <Clock className="w-4 h-4" />
+                    <span>{section.timeEstimate}</span>
+                  </div>
+                </div>
                 <div className="space-y-3">
                   {section.items.map((item) => {
                     const completed = isItemCompleted(item.id);
@@ -326,7 +340,7 @@ const StartHere = () => {
                       <div
                         key={item.id}
                         className={cn(
-                          "flex items-center gap-4 p-4 rounded-lg border transition-all",
+                          "flex items-start gap-4 p-4 rounded-lg border transition-all",
                           completed 
                             ? "bg-muted/50 border-border" 
                             : "bg-card border-border hover:border-primary/50"
@@ -335,7 +349,7 @@ const StartHere = () => {
                         <button
                           onClick={() => handleToggle(item.id)}
                           disabled={isToggling}
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 mt-0.5"
                         >
                           {isToggling ? (
                             <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -347,13 +361,18 @@ const StartHere = () => {
                             <Circle className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
                           )}
                         </button>
-                        <span className={cn("flex-1", completed && "line-through text-muted-foreground")}>
-                          {item.label}
-                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn("font-medium", completed && "line-through text-muted-foreground")}>
+                            {item.label}
+                          </p>
+                          {item.description && (
+                            <p className="text-sm text-muted-foreground mt-0.5">{item.description}</p>
+                          )}
+                        </div>
                         {!completed && item.href && (
                           <Link 
                             to={item.href}
-                            className="text-muted-foreground hover:text-primary transition-colors"
+                            className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
                           >
                             <ChevronRight className="w-5 h-5" />
                           </Link>

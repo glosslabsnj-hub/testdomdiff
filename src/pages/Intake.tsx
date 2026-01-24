@@ -29,7 +29,6 @@ const Intake = () => {
     weight: profile?.weight || "",
     goal: profile?.goal || "",
     experience: profile?.experience || "",
-    equipment: profile?.equipment || "",
     injuries: profile?.injuries || "",
     faithCommitment: profile?.faith_commitment || false,
   });
@@ -47,7 +46,6 @@ const Intake = () => {
         weight: profile.weight || prev.weight,
         goal: profile.goal || prev.goal,
         experience: profile.experience || prev.experience,
-        equipment: profile.equipment || prev.equipment,
         injuries: profile.injuries || prev.injuries,
         faithCommitment: profile.faith_commitment || prev.faithCommitment,
       }));
@@ -104,7 +102,6 @@ const Intake = () => {
         weight: formData.weight,
         goal: formData.goal,
         experience: formData.experience,
-        equipment: formData.equipment,
         injuries: formData.injuries,
         faith_commitment: formData.faithCommitment,
         intake_completed_at: new Date().toISOString(),
@@ -146,22 +143,22 @@ const Intake = () => {
 
   const stepConfig = [
     { 
-      title: "Booking", 
-      subtitle: "Basic Information",
+      title: "Profile", 
+      subtitle: "Your Profile",
       icon: User,
-      description: "Let's get you in the system"
+      description: "We need these basics to personalize your experience"
     },
     { 
-      title: "Assessment", 
-      subtitle: "Training Profile",
+      title: "Mission", 
+      subtitle: "Your Mission",
       icon: Target,
-      description: "Tell us about your goals and experience"
+      description: "This helps us match you with the right program"
     },
     { 
-      title: "Oath", 
-      subtitle: "Faith Commitment",
+      title: "Foundation", 
+      subtitle: "The Foundation",
       icon: Cross,
-      description: "Commit to the foundation"
+      description: "Your commitment seals the deal"
     },
   ];
 
@@ -177,12 +174,6 @@ const Intake = () => {
     { value: "Advanced (3+ years)", label: "Advanced", description: "Seasoned lifter" },
   ];
 
-  const equipmentOptions = [
-    { value: "Bodyweight Only", label: "Bodyweight", description: "No equipment needed" },
-    { value: "Dumbbells Available", label: "Dumbbells", description: "Home setup" },
-    { value: "Resistance Bands", label: "Bands", description: "Portable resistance" },
-    { value: "Full Gym Access", label: "Full Gym", description: "Complete equipment" },
-  ];
 
   const renderStep = () => {
     switch (step) {
@@ -347,31 +338,6 @@ const Intake = () => {
               </div>
             </div>
 
-            {/* Equipment */}
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">Available Equipment</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {equipmentOptions.map((option) => {
-                  const isSelected = formData.equipment === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => updateForm("equipment", option.value)}
-                      className={cn(
-                        "p-4 rounded-lg border-2 transition-all text-left",
-                        isSelected 
-                          ? "border-primary bg-primary/10" 
-                          : "border-border bg-background hover:border-primary/50"
-                      )}
-                    >
-                      <p className="font-medium">{option.label}</p>
-                      <p className="text-xs text-muted-foreground">{option.description}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* Injuries */}
             <div className="space-y-2">
@@ -445,7 +411,7 @@ const Intake = () => {
       case 1:
         return formData.firstName && formData.lastName && formData.phone && formData.age && formData.height && formData.weight;
       case 2:
-        return formData.goal && formData.experience && formData.equipment;
+        return formData.goal && formData.experience;
       case 3:
         return formData.faithCommitment;
       default:
