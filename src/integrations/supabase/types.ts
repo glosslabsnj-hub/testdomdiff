@@ -206,6 +206,81 @@ export type Database = {
         }
         Relationships: []
       }
+      discipline_templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean
+          name: string
+          routines: Json
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          routines?: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          routines?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_notification_logs: {
+        Row: {
+          created_at: string
+          email_to: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          notification_type: string
+          sent_at: string | null
+          status: string
+          subject: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_to: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_type: string
+          sent_at?: string | null
+          status?: string
+          subject: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_to?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_type?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       faith_lessons: {
         Row: {
           action_steps: string | null
@@ -1016,6 +1091,45 @@ export type Database = {
           week_number?: number
           weight?: number | null
           workouts?: number | null
+        }
+        Relationships: []
+      }
+      progress_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          photo_type: string
+          privacy_level: string
+          storage_path: string
+          taken_at: string | null
+          updated_at: string
+          user_id: string
+          week_number: number | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          photo_type: string
+          privacy_level?: string
+          storage_path: string
+          taken_at?: string | null
+          updated_at?: string
+          user_id: string
+          week_number?: number | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          photo_type?: string
+          privacy_level?: string
+          storage_path?: string
+          taken_at?: string | null
+          updated_at?: string
+          user_id?: string
+          week_number?: number | null
         }
         Relationships: []
       }
