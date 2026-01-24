@@ -15,14 +15,19 @@ import {
   Trophy,
   Clock,
   CheckCircle2,
-  Moon
+  Moon,
+  Check,
+  Play,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useProgramWeeks, type ProgramWeek } from "@/hooks/useWorkoutContent";
 import { useProgramTracks } from "@/hooks/useProgramTracks";
+import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
@@ -46,6 +51,7 @@ interface ProgramDayExercise {
   reps_or_time: string | null;
   rest: string | null;
   notes: string | null;
+  demo_url: string | null;
   display_order: number;
 }
 
@@ -67,6 +73,15 @@ const Program = () => {
   const [exercisesByDay, setExercisesByDay] = useState<Record<string, ProgramDayExercise[]>>({});
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
   const [currentWeek] = useState(1); // TODO: Calculate from subscription start date
+  const [demoExercise, setDemoExercise] = useState<ProgramDayExercise | null>(null);
+  
+  // Completion tracking
+  const { 
+    isExerciseCompleted, 
+    toggleExerciseCompletion, 
+    getWorkoutProgress,
+    loading: completionsLoading 
+  } = useWorkoutCompletions(currentWeek);
 
   // Fetch all day workouts and exercises
   useEffect(() => {
@@ -132,7 +147,7 @@ const Program = () => {
   const completedWeeks = Math.min(currentWeek - 1, 12);
   const progressPercent = (completedWeeks / 12) * 100;
 
-  const loading = weeksLoading || loadingWorkouts || tracksLoading;
+  const loading = weeksLoading || loadingWorkouts || tracksLoading || completionsLoading;
 
   if (loading) {
     return (
@@ -149,35 +164,88 @@ const Program = () => {
       .sort((a, b) => DAYS_ORDER.indexOf(a.day_of_week) - DAYS_ORDER.indexOf(b.day_of_week));
   };
 
-  const ExerciseRow = ({ exercise, isMain = false }: { exercise: ProgramDayExercise; isMain?: boolean }) => (
-    <div className={`flex items-start gap-3 p-3 rounded ${isMain ? 'bg-charcoal' : 'bg-charcoal/50'}`}>
-      <div className="flex-1">
-        <p className={`font-medium ${isMain ? 'text-foreground' : 'text-muted-foreground'}`}>
-          {exercise.exercise_name}
-        </p>
-        {exercise.notes && (
-          <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
-        )}
-      </div>
-      <div className="flex items-center gap-3 text-sm flex-wrap justify-end">
-        {exercise.sets && (
-          <Badge variant="secondary" className="text-xs">
-            {exercise.sets} sets
-          </Badge>
-        )}
-        {exercise.reps_or_time && (
-          <Badge variant="outline" className="text-xs">
-            {exercise.reps_or_time}
-          </Badge>
-        )}
-        {exercise.rest && (
-          <span className="text-xs text-muted-foreground">Rest: {exercise.rest}</span>
-        )}
-      </div>
-    </div>
-  );
+  const ExerciseRow = ({ 
+    exercise, 
+    isMain = false, 
+    dayOfWeek, 
+    weekNumber 
+  }: { 
+    exercise: ProgramDayExercise; 
+    isMain?: boolean; 
+    dayOfWeek: string;
+    weekNumber: number;
+  }) => {
+    const completed = isExerciseCompleted(exercise.id);
+    const [toggling, setToggling] = useState(false);
 
-  const WorkoutCard = ({ workout }: { workout: ProgramDayWorkout }) => {
+    const handleToggle = async () => {
+      setToggling(true);
+      await toggleExerciseCompletion(exercise.id, dayOfWeek, weekNumber);
+      setToggling(false);
+    };
+
+    return (
+      <div className={`flex items-start gap-3 p-3 rounded transition-all ${
+        completed 
+          ? 'bg-green-500/10 border border-green-500/30' 
+          : isMain ? 'bg-charcoal' : 'bg-charcoal/50'
+      }`}>
+        {/* Completion Checkbox */}
+        <button
+          onClick={handleToggle}
+          disabled={toggling}
+          className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+            completed 
+              ? 'bg-green-500 border-green-500 text-white' 
+              : 'border-muted-foreground/50 hover:border-primary'
+          }`}
+        >
+          {toggling ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : completed ? (
+            <Check className="w-3 h-3" />
+          ) : null}
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className={`font-medium ${completed ? 'text-green-400 line-through' : isMain ? 'text-foreground' : 'text-muted-foreground'}`}>
+              {exercise.exercise_name}
+            </p>
+            {exercise.demo_url && (
+              <button 
+                onClick={() => setDemoExercise(exercise)}
+                className="p-1 rounded hover:bg-primary/20 text-primary"
+                title="Watch demo"
+              >
+                <Play className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {exercise.notes && (
+            <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2 text-sm flex-wrap justify-end flex-shrink-0">
+          {exercise.sets && (
+            <Badge variant="secondary" className="text-xs">
+              {exercise.sets} sets
+            </Badge>
+          )}
+          {exercise.reps_or_time && (
+            <Badge variant="outline" className="text-xs">
+              {exercise.reps_or_time}
+            </Badge>
+          )}
+          {exercise.rest && (
+            <span className="text-xs text-muted-foreground hidden sm:inline">Rest: {exercise.rest}</span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const WorkoutCard = ({ workout, weekNumber }: { workout: ProgramDayWorkout; weekNumber: number }) => {
     const exercises = exercisesByDay[workout.id] || [];
     const [isOpen, setIsOpen] = useState(false);
 
@@ -187,6 +255,11 @@ const Program = () => {
     const warmupExercises = exercises.filter(e => e.section_type === "warmup");
     const finisherExercises = exercises.filter(e => e.section_type === "finisher");
     const cooldownExercises = exercises.filter(e => e.section_type === "cooldown");
+    
+    // Calculate workout completion progress
+    const exerciseIds = exercises.map(e => e.id);
+    const progress = getWorkoutProgress(workout.id, exerciseIds);
+    const isWorkoutComplete = progress === 100;
 
     if (workout.is_rest_day) {
       return (
@@ -208,10 +281,20 @@ const Program = () => {
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="w-full">
-          <div className="flex items-center justify-between p-4 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group">
+          <div className={`flex items-center justify-between p-4 rounded-lg border transition-all group ${
+            isWorkoutComplete 
+              ? 'bg-green-500/10 border-green-500/30' 
+              : 'bg-charcoal border-border hover:border-primary/50'
+          }`}>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Dumbbell className="w-6 h-6 text-primary" />
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                isWorkoutComplete ? 'bg-green-500/20' : 'bg-primary/10'
+              }`}>
+                {isWorkoutComplete ? (
+                  <CheckCircle2 className="w-6 h-6 text-green-500" />
+                ) : (
+                  <Dumbbell className="w-6 h-6 text-primary" />
+                )}
               </div>
               <div className="text-left">
                 <p className="text-xs text-primary uppercase tracking-wider font-medium">{dayLabel}</p>
@@ -222,6 +305,12 @@ const Program = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {progress > 0 && progress < 100 && (
+                <div className="hidden sm:flex items-center gap-2">
+                  <Progress value={progress} className="w-16 h-2" />
+                  <span className="text-xs text-muted-foreground">{progress}%</span>
+                </div>
+              )}
               <Badge variant="outline" className="text-xs">
                 {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
               </Badge>
@@ -237,12 +326,12 @@ const Program = () => {
           <div className="mt-2 p-4 rounded-lg bg-background border border-border space-y-4">
             {warmupExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-yellow-400 mb-2 flex items-center gap-2">
+                <h5 className="text-xs uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-2">
                   <Clock className="w-3 h-3" /> Warm-Up
                 </h5>
                 <div className="space-y-2">
                   {warmupExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} />
+                    <ExerciseRow key={ex.id} exercise={ex} dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
                   ))}
                 </div>
               </div>
@@ -255,7 +344,7 @@ const Program = () => {
                 </h5>
                 <div className="space-y-2">
                   {mainExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} isMain />
+                    <ExerciseRow key={ex.id} exercise={ex} isMain dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
                   ))}
                 </div>
               </div>
@@ -263,12 +352,12 @@ const Program = () => {
 
             {finisherExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-red-400 mb-2 flex items-center gap-2">
+                <h5 className="text-xs uppercase tracking-wider text-destructive mb-2 flex items-center gap-2">
                   <Flame className="w-3 h-3" /> Finisher
                 </h5>
                 <div className="space-y-2">
                   {finisherExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} />
+                    <ExerciseRow key={ex.id} exercise={ex} dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
                   ))}
                 </div>
               </div>
@@ -276,12 +365,12 @@ const Program = () => {
 
             {cooldownExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-blue-400 mb-2 flex items-center gap-2">
+                <h5 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
                   <Heart className="w-3 h-3" /> Cool-Down
                 </h5>
                 <div className="space-y-2">
                   {cooldownExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} />
+                    <ExerciseRow key={ex.id} exercise={ex} dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
                   ))}
                 </div>
               </div>
@@ -415,7 +504,7 @@ const Program = () => {
               {weekWorkouts.length > 0 ? (
                 <div className="space-y-3">
                   {weekWorkouts.map((workout) => (
-                    <WorkoutCard key={workout.id} workout={workout} />
+                    <WorkoutCard key={workout.id} workout={workout} weekNumber={week.week_number} />
                   ))}
                 </div>
               ) : (
@@ -569,6 +658,54 @@ const Program = () => {
           </Button>
         </div>
       </div>
+
+      {/* Exercise Demo Modal */}
+      <Dialog open={!!demoExercise} onOpenChange={(open) => !open && setDemoExercise(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Play className="w-5 h-5 text-primary" />
+              {demoExercise?.exercise_name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {demoExercise?.demo_url ? (
+              <div className="aspect-video rounded-lg overflow-hidden bg-charcoal">
+                <video
+                  src={demoExercise.demo_url}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="aspect-video rounded-lg bg-charcoal flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <PlayCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>Demo video coming soon</p>
+                </div>
+              </div>
+            )}
+            {demoExercise?.notes && (
+              <div className="p-4 rounded-lg bg-muted/20 border border-border">
+                <h4 className="font-medium mb-2 text-sm">Instructions</h4>
+                <p className="text-sm text-muted-foreground">{demoExercise.notes}</p>
+              </div>
+            )}
+            <div className="flex gap-2 flex-wrap">
+              {demoExercise?.sets && (
+                <Badge variant="secondary">{demoExercise.sets} sets</Badge>
+              )}
+              {demoExercise?.reps_or_time && (
+                <Badge variant="outline">{demoExercise.reps_or_time}</Badge>
+              )}
+              {demoExercise?.rest && (
+                <Badge variant="outline">Rest: {demoExercise.rest}</Badge>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

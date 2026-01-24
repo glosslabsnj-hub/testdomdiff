@@ -24,6 +24,7 @@ export interface ProgramDayExercise {
   rest: string | null;
   notes: string | null;
   scaling_options: string | null;
+  demo_url: string | null;
   display_order: number;
   created_at: string;
   updated_at: string;
