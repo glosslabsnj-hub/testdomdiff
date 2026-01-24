@@ -154,6 +154,21 @@
   }
 }
 
+/* Vignette overlay - cell block atmosphere */
+.vignette-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: radial-gradient(
+    ellipse 120% 100% at 50% 50%,
+    transparent 40%,
+    hsl(210 10% 3% / 0.3) 70%,
+    hsl(210 10% 2% / 0.6) 90%,
+    hsl(210 10% 1% / 0.8) 100%
+  );
+}
+
 @layer components {
   /* Hero headline style */
   .headline-hero {
