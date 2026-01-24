@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
-import TodaysFocus from "@/components/TodaysFocus";
 import { WardenBrief } from "@/components/warden";
 
 const Dashboard = () => {
@@ -228,9 +227,6 @@ const Dashboard = () => {
         <div className="mb-8">
           <WardenBrief />
         </div>
-
-        {/* Today's Focus Widget */}
-        <TodaysFocus />
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">
