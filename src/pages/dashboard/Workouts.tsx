@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Dumbbell, Loader2 } from "lucide-react";
+import { ArrowLeft, Dumbbell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
 import { useAuth } from "@/contexts/AuthContext";
 import { WardenTip } from "@/components/warden";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+import EmptyState from "@/components/EmptyState";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
@@ -51,14 +53,15 @@ const Workouts = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+          <DashboardSkeleton variant="grid" count={4} />
         ) : visibleTemplates.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No workout templates available yet.</p>
-            <p className="text-sm text-muted-foreground mt-2">Check back soon!</p>
-          </div>
+          <EmptyState
+            type="workouts"
+            title="No workout templates available"
+            description="Your training library is being prepared. Check back soon for bodyweight workouts you can do anywhere."
+            actionLabel="View 12-Week Program"
+            actionLink="/dashboard/program"
+          />
         ) : (
           <>
             <div className="grid md:grid-cols-2 gap-6 mb-8">

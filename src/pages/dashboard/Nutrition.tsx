@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
-  ArrowLeft, Loader2, ChefHat, Flame, Beef, Wheat, Droplet, 
+  ArrowLeft, ChefHat, Flame, Beef, Wheat, Droplet, 
   ShoppingCart, Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { MealCard } from "@/components/nutrition/MealCard";
 import { MealSwapDialog } from "@/components/nutrition/MealSwapDialog";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+import EmptyState from "@/components/EmptyState";
 import type { MealPlanMeal } from "@/hooks/useMealPlanAssignment";
 
 const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"] as const;
@@ -120,8 +122,15 @@ const Nutrition = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex flex-col">
+        <DashboardHeader />
+        <main className="flex-1 section-container py-8 pt-24">
+          <DashboardSkeleton variant="cards" count={4} />
+          <div className="mt-8">
+            <DashboardSkeleton variant="list" count={4} />
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -206,18 +215,13 @@ const Nutrition = () => {
         )}
 
         {!assignedPlan || assignedPlan.days.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="py-12 text-center">
-              <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">Meal Plan Coming Soon</h3>
-              <p className="text-muted-foreground mb-4">
-                Your personalized meal plan is being prepared based on your goals and body composition.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                In the meantime, focus on eating whole foods with a protein source at every meal.
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            type="nutrition"
+            title="Your Meal Plan is Coming Soon"
+            description="Your personalized nutrition plan is being prepared based on your goals, body composition, and preferences. Focus on whole foods with protein at every meal."
+            actionLabel="View Sample Meals"
+            actionLink="/dashboard"
+          />
         ) : (
           <>
             {/* Assigned Template Info */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Send, Check, History, Loader2, Camera } from "lucide-react";
+import { ArrowLeft, Send, Check, History, Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+import EmptyState from "@/components/EmptyState";
 
 const CheckIn = () => {
   const { checkIns, loading, submitCheckIn, getCurrentWeekNumber } = useCheckIns();
@@ -94,8 +96,13 @@ const CheckIn = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <div className="section-container py-12">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          </Link>
+          <DashboardSkeleton variant="detail" />
+        </div>
       </div>
     );
   }

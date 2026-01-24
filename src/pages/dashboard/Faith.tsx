@@ -5,7 +5,6 @@ import {
   BookOpen, 
   ChevronLeft, 
   ChevronRight, 
-  Loader2,
   CheckCircle,
   Circle,
   PenLine,
@@ -24,6 +23,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import { useToast } from "@/hooks/use-toast";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+import EmptyState from "@/components/EmptyState";
 
 const Faith = () => {
   const { lessons, loading } = useFaithLessons(true);
@@ -141,8 +142,13 @@ const Faith = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <div className="section-container py-12">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          </Link>
+          <DashboardSkeleton variant="detail" />
+        </div>
       </div>
     );
   }
@@ -239,11 +245,13 @@ const Faith = () => {
         </div>
 
         {!hasContent ? (
-          <div className="bg-charcoal p-8 rounded-lg border border-border text-center">
-            <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="headline-card mb-2">Week {currentWeek} Lesson Coming Soon</h3>
-            <p className="text-muted-foreground">This lesson is being prepared. Check back soon!</p>
-          </div>
+          <EmptyState
+            type="faith"
+            title={`Week ${currentWeek} Lesson Coming Soon`}
+            description="This week's chapel session is being prepared. In the meantime, meditate on last week's scripture and keep your prayer list active."
+            actionLabel="View Prayer List"
+            onAction={() => {/* Stay on page, user can scroll */}}
+          />
         ) : (
           <Tabs defaultValue="lesson" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 bg-charcoal">
