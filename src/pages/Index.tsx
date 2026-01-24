@@ -113,9 +113,12 @@ const Index = () => {
             </div>
 
             <h1 className="headline-hero mb-6 animate-fade-in">
-              Built Different.<br />
-              <span className="text-primary drop-shadow-[0_0_30px_hsl(43_74%_49%_/_0.5)]">Led by God.</span>
+              From Locked Up<br />
+              <span className="text-primary drop-shadow-[0_0_30px_hsl(43_74%_49%_/_0.5)]">to Locked In.</span>
             </h1>
+            <p className="text-base md:text-lg text-primary/80 italic mb-4 animate-fade-in delay-100 max-w-2xl mx-auto">
+              "I can do all things through Christ who strengthens me." — Philippians 4:13
+            </p>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl animate-slide-up opacity-0 delay-200 mx-[35px]">
               Men-only. Faith-first. Prison-proof discipline meets divine purpose. 
               Transform your body. Renew your mind. Redeem your life.
@@ -187,16 +190,16 @@ const Index = () => {
               </h2>
               <div className="space-y-6 text-muted-foreground">
                 <div className="border-l-4 border-primary pl-4 bg-charcoal/50 py-3 pr-3 rounded-r-lg">
-                  <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">Before</p>
-                  <p>Lost. Undisciplined. Running from purpose. Making every excuse in the book.</p>
+                  <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">The Wrong Path</p>
+                  <p>High school brought the wrong crowd. Bad choices followed. Shortly after, Dom found himself behind bars — two years as a convicted felon.</p>
                 </div>
                 <div className="border-l-4 border-primary pl-4 bg-charcoal/50 py-3 pr-3 rounded-r-lg">
-                  <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">Turning Point</p>
-                  <p>Rock bottom became the foundation. God broke me down to build me back up — different.</p>
+                  <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">The Transformation</p>
+                  <p>What was meant to break him built him. Faith, discipline, and relentless personal growth — forged in a cell, perfected through purpose.</p>
                 </div>
                 <div className="border-l-4 border-primary pl-4 bg-charcoal/50 py-3 pr-3 rounded-r-lg">
-                  <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">Now</p>
-                  <p>Helping men forge unshakeable discipline through faith-first training. No gym required. No excuses accepted.</p>
+                  <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">The Mission</p>
+                  <p>Now helping men break their own chains. Same prison-proof discipline. Same faith-first approach. Different results for every man who commits.</p>
                 </div>
               </div>
               <Button variant="goldOutline" size="lg" className="mt-8" asChild>
