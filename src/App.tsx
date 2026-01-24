@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { WardenChat } from "@/components/warden";
 import CartDrawer from "@/components/shop/CartDrawer";
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -250,7 +251,9 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CartDrawer />
+            {/* ChatWidget for public visitors, WardenChat for logged-in users */}
             <ChatWidget />
+            <WardenChat />
           </CartProvider>
         </AuthProvider>
       </BrowserRouter>

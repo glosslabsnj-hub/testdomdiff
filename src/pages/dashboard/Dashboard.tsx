@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
 import TodaysFocus from "@/components/TodaysFocus";
+import { WardenBrief } from "@/components/warden";
 
 const Dashboard = () => {
   const { subscription } = useAuth();
@@ -223,6 +224,11 @@ const Dashboard = () => {
   return (
     <DashboardLayout showBreadcrumb={false}>
       <div className="section-container py-8">
+        {/* The Warden's Weekly Brief */}
+        <div className="mb-8">
+          <WardenBrief />
+        </div>
+
         {/* Today's Focus Widget */}
         <TodaysFocus />
 
