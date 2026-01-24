@@ -74,6 +74,8 @@ const Program = () => {
   const [exercisesByDay, setExercisesByDay] = useState<Record<string, ProgramDayExercise[]>>({});
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
   const [demoExercise, setDemoExercise] = useState<ProgramDayExercise | null>(null);
+  // Track expanded workout cards separately to prevent collapse on exercise toggle
+  const [expandedWorkouts, setExpandedWorkouts] = useState<Set<string>>(new Set());
   
   // Calculate current week from subscription start date
   const currentWeek = useMemo(() => {
@@ -259,7 +261,19 @@ const Program = () => {
 
   const WorkoutCard = ({ workout, weekNumber }: { workout: ProgramDayWorkout; weekNumber: number }) => {
     const exercises = exercisesByDay[workout.id] || [];
-    const [isOpen, setIsOpen] = useState(false);
+    // Use parent state instead of local state to prevent reset on re-render
+    const isOpen = expandedWorkouts.has(workout.id);
+    const setIsOpen = (open: boolean) => {
+      setExpandedWorkouts(prev => {
+        const next = new Set(prev);
+        if (open) {
+          next.add(workout.id);
+        } else {
+          next.delete(workout.id);
+        }
+        return next;
+      });
+    };
 
     const dayLabel = workout.day_of_week.charAt(0).toUpperCase() + workout.day_of_week.slice(1);
 

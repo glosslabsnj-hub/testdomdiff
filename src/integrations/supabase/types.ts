@@ -1001,6 +1001,7 @@ export type Database = {
           intake_completed_at: string | null
           last_name: string | null
           onboarding_video_watched: boolean | null
+          orientation_dismissed: boolean | null
           phone: string | null
           updated_at: string
           user_id: string
@@ -1023,6 +1024,7 @@ export type Database = {
           intake_completed_at?: string | null
           last_name?: string | null
           onboarding_video_watched?: boolean | null
+          orientation_dismissed?: boolean | null
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -1045,6 +1047,7 @@ export type Database = {
           intake_completed_at?: string | null
           last_name?: string | null
           onboarding_video_watched?: boolean | null
+          orientation_dismissed?: boolean | null
           phone?: string | null
           updated_at?: string
           user_id?: string
@@ -1569,6 +1572,42 @@ export type Database = {
           created_at?: string
           id?: string
           item_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_custom_routines: {
+        Row: {
+          action_text: string
+          created_at: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          routine_type: string
+          time_slot: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_text: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          routine_type: string
+          time_slot: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_text?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          routine_type?: string
+          time_slot?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

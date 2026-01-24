@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Play, 
   Dumbbell, 
@@ -96,7 +97,7 @@ const coachingSteps: OrientationStep[] = [
 ];
 
 export default function OrientationModal() {
-  const { subscription, profile } = useAuth();
+  const { subscription, profile, user, refreshProfile } = useAuth();
   const [open, setOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -106,23 +107,42 @@ export default function OrientationModal() {
   // Check if user should see orientation
   useEffect(() => {
     if (!profile?.intake_completed_at) return;
+    
+    // Check if already dismissed in database
+    if ((profile as any)?.orientation_dismissed) return;
 
     const intakeDate = new Date(profile.intake_completed_at);
     const daysSinceIntake = (Date.now() - intakeDate.getTime()) / (1000 * 60 * 60 * 24);
 
     // Only show to users within first 30 days who haven't dismissed it
     if (daysSinceIntake <= 30) {
+      // Check localStorage as fallback (for older users before DB migration)
       const dismissed = localStorage.getItem("orientationModalDismissed");
-      if (!dismissed) {
-        // Small delay to let dashboard load first
-        const timer = setTimeout(() => setOpen(true), 1500);
-        return () => clearTimeout(timer);
-      }
+      if (dismissed) return;
+      
+      // Small delay to let dashboard load first
+      const timer = setTimeout(() => setOpen(true), 1500);
+      return () => clearTimeout(timer);
     }
   }, [profile]);
 
-  const handleDismiss = () => {
+  const handleDismiss = async () => {
     setOpen(false);
+    
+    // Save to database for persistence across devices
+    if (user) {
+      try {
+        await supabase
+          .from("profiles")
+          .update({ orientation_dismissed: true })
+          .eq("user_id", user.id);
+        refreshProfile();
+      } catch (e) {
+        console.error("Error saving orientation dismissal:", e);
+      }
+    }
+    
+    // Keep localStorage as fallback
     localStorage.setItem("orientationModalDismissed", "true");
   };
 
