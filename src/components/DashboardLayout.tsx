@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +14,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -61,6 +64,7 @@ const coachingLabels: Record<string, string> = {
 export function DashboardLayout({ children, showBreadcrumb = true }: DashboardLayoutProps) {
   const location = useLocation();
   const { subscription } = useAuth();
+  const isMobile = useIsMobile();
   const isCoaching = subscription?.plan_type === "coaching";
   
   // Parse current path into breadcrumb segments
@@ -127,11 +131,12 @@ export function DashboardLayout({ children, showBreadcrumb = true }: DashboardLa
           </header>
           
           {/* Main content */}
-          <main className="flex-1">
+          <main className={cn("flex-1", isMobile && "pb-20")}>
             {children}
           </main>
           
           <Footer />
+          <MobileBottomNav />
         </div>
       </div>
     </SidebarProvider>

@@ -21,7 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import TemplateSelector from "@/components/discipline/TemplateSelector";
 import RoutineTimeEditor from "@/components/discipline/RoutineTimeEditor";
-import { MorningBriefing } from "@/components/warden";
+import { MorningBriefing, WardenTip } from "@/components/warden";
 
 const JOURNAL_PROMPTS = [
   "What were my 3 wins today?",
@@ -169,9 +169,18 @@ const Discipline = () => {
         </Link>
 
         {/* Morning Briefing - Daily Devotional */}
-        <div className="mb-8">
+        <div className="mb-4">
           <MorningBriefing />
         </div>
+
+        {/* Warden Tip */}
+        <WardenTip 
+          tip={streak > 0 
+            ? `${streak} day streak. ${streak >= 7 ? "You're proving discipline is a daily choice." : "Build on this momentum."} ${compliance.percent >= 80 ? "Today's looking solid." : "Lock in those remaining tasks."}`
+            : "Start your streak today. One routine at a time."
+          }
+          className="mb-8"
+        />
 
         {/* Header with Stats */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">

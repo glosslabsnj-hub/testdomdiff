@@ -1,8 +1,15 @@
-import { Shield, RefreshCw, BookOpen, MessageCircle } from "lucide-react";
+import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWarden } from "@/hooks/useWarden";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const openWardenChat = () => {
   window.dispatchEvent(new CustomEvent('open-warden-chat'));
@@ -10,10 +17,12 @@ const openWardenChat = () => {
 
 export function WardenBrief() {
   const { weeklyBrief, briefLoading, briefError, refreshBrief } = useWarden();
+  const isMobile = useIsMobile();
+  const [scriptureOpen, setScriptureOpen] = useState(!isMobile);
 
   if (briefLoading && !weeklyBrief) {
     return (
-      <div className="bg-charcoal-dark border border-gold/20 rounded-xl p-6">
+      <div className="bg-charcoal-dark border border-gold/20 rounded-xl p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center">
             <Shield className="h-5 w-5 text-gold" />
@@ -31,7 +40,7 @@ export function WardenBrief() {
 
   if (briefError && !weeklyBrief) {
     return (
-      <div className="bg-charcoal-dark border border-destructive/30 rounded-xl p-6">
+      <div className="bg-charcoal-dark border border-destructive/30 rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-destructive/20 flex items-center justify-center">
@@ -67,18 +76,18 @@ export function WardenBrief() {
   };
 
   return (
-    <div className="bg-charcoal-dark border border-gold/20 rounded-xl p-6 relative overflow-hidden">
+    <div className="bg-charcoal-dark border border-gold/20 rounded-xl p-4 sm:p-6 relative overflow-hidden">
       {/* Subtle gold gradient accent */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold/50 via-gold to-gold/50" />
       
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
             <Shield className="h-5 w-5 text-gold" />
           </div>
-          <div>
-            <h3 className="font-semibold text-foreground">The Warden</h3>
-            <p className="text-sm text-muted-foreground">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-foreground text-sm sm:text-base">The Warden</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Week {weeklyBrief.week_number} Orders
             </p>
           </div>
@@ -88,7 +97,7 @@ export function WardenBrief() {
           size="icon"
           onClick={refreshBrief}
           disabled={briefLoading}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground flex-shrink-0"
         >
           <RefreshCw className={cn("h-4 w-4", briefLoading && "animate-spin")} />
         </Button>
@@ -109,23 +118,42 @@ export function WardenBrief() {
       )}
 
       {/* Main message */}
-      <p className="text-foreground leading-relaxed mb-4">
+      <p className="text-foreground text-sm sm:text-base leading-relaxed mb-4">
         {weeklyBrief.message}
       </p>
 
-      {/* Scripture if present */}
+      {/* Scripture if present - collapsible on mobile */}
       {weeklyBrief.scripture_reference && weeklyBrief.scripture_text && (
-        <div className="bg-charcoal border border-border rounded-lg p-4 flex gap-3 mb-4">
-          <BookOpen className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm text-muted-foreground italic mb-1">
-              "{weeklyBrief.scripture_text}"
-            </p>
-            <p className="text-xs text-gold font-medium">
-              — {weeklyBrief.scripture_reference}
-            </p>
+        isMobile ? (
+          <Collapsible open={scriptureOpen} onOpenChange={setScriptureOpen} className="mb-4">
+            <CollapsibleTrigger className="w-full bg-charcoal border border-border rounded-lg p-3 flex items-center justify-between hover:bg-charcoal-light transition-colors">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-gold" />
+                <span className="text-sm text-gold font-medium">{weeklyBrief.scripture_reference}</span>
+              </div>
+              <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", scriptureOpen && "rotate-180")} />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <div className="bg-charcoal border border-border rounded-lg p-3">
+                <p className="text-sm text-muted-foreground italic">
+                  "{weeklyBrief.scripture_text}"
+                </p>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <div className="bg-charcoal border border-border rounded-lg p-4 flex gap-3 mb-4">
+            <BookOpen className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-muted-foreground italic mb-1">
+                "{weeklyBrief.scripture_text}"
+              </p>
+              <p className="text-xs text-gold font-medium">
+                — {weeklyBrief.scripture_reference}
+              </p>
+            </div>
           </div>
-        </div>
+        )
       )}
 
       {/* Ask the Warden button */}

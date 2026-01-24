@@ -238,7 +238,7 @@ const Dashboard = () => {
         </div>
 
         {/* Tiles Grid with Steel Plate Effect */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {tiles.map((tile, index) => (
             <Link
               key={index}

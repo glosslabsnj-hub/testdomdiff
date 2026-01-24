@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 import PhotoComparison from "@/components/progress/PhotoComparison";
+import { WardenTip } from "@/components/warden";
 
 const Progress = () => {
   const { entries, loading: entriesLoading, updateEntry } = useProgressEntries();
@@ -117,7 +118,13 @@ const Progress = () => {
         </Link>
 
         <h1 className="headline-section mb-2">Time <span className="text-primary">Served</span></h1>
-        <p className="text-muted-foreground mb-8">Track your sentence progress over 12 weeks.</p>
+        <p className="text-muted-foreground mb-4">Track your sentence progress over 12 weeks.</p>
+
+        {/* Warden Tip */}
+        <WardenTip 
+          tip={`Week ${Math.max(...entries.map(e => e.week_number), 1)} in the books. ${weeklyCompliance >= 80 ? "Solid compliance this week. Keep that fire burning." : "Push harder on those daily habits. Consistency is freedom."}`}
+          className="mb-8"
+        />
 
         <Tabs defaultValue="metrics" className="space-y-6">
           <TabsList className="bg-card border border-border">
