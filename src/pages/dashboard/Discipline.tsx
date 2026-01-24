@@ -43,6 +43,7 @@ const Discipline = () => {
     saveJournalEntry,
     getJournalResponse,
     getTodayCompliance,
+    refetch,
   } = useDailyDiscipline();
 
   const { checkStreakMilestones } = useMilestones();
@@ -59,6 +60,14 @@ const Discipline = () => {
   const today = format(new Date(), "EEEE, MMMM d, yyyy");
   const compliance = getTodayCompliance();
 
+  // Sync currentTemplateId with profile when profile updates
+  useEffect(() => {
+    const profileTemplateId = (profile as any)?.discipline_template_id || null;
+    if (profileTemplateId !== currentTemplateId) {
+      setCurrentTemplateId(profileTemplateId);
+    }
+  }, [profile]);
+
   // Initialize journal drafts from saved entries
   useEffect(() => {
     const initialDrafts: Record<string, string> = {};
@@ -74,6 +83,13 @@ const Discipline = () => {
       checkStreakMilestones(streak);
     }
   }, [streak, checkStreakMilestones]);
+
+  // Handler for when template changes - refetch routines
+  const handleTemplateChange = async (templateId: string) => {
+    setCurrentTemplateId(templateId);
+    // Refetch routines after profile is updated
+    await refetch();
+  };
 
   const handleJournalChange = (prompt: string, value: string) => {
     setJournalDrafts(prev => ({ ...prev, [prompt]: value }));
@@ -161,7 +177,7 @@ const Discipline = () => {
           <div className="flex flex-wrap items-center gap-4">
             <TemplateSelector 
               currentTemplateId={currentTemplateId}
-              onTemplateChange={(id) => setCurrentTemplateId(id)}
+              onTemplateChange={handleTemplateChange}
             />
             {/* Streak Badge */}
             <div className={cn(
