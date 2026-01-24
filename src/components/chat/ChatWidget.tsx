@@ -7,8 +7,8 @@ import { useSalesChat } from '@/hooks/useSalesChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
-export function ChatWidget() {
-  const { user } = useAuth();
+// Inner component that uses all the hooks
+function ChatWidgetInner() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -23,7 +23,7 @@ export function ChatWidget() {
 
   // Send initial greeting when chat is first opened
   useEffect(() => {
-    if (isOpen && messages.length === 0 && !hasInteracted && !user) {
+    if (isOpen && messages.length === 0 && !hasInteracted) {
       setHasInteracted(true);
       // Small delay for better UX
       const timer = setTimeout(() => {
@@ -31,15 +31,12 @@ export function ChatWidget() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, messages.length, hasInteracted, sendMessage, user]);
+  }, [isOpen, messages.length, hasInteracted, sendMessage]);
 
   const handleClear = () => {
     clearMessages();
     setHasInteracted(false);
   };
-
-  // Don't render for logged-in users (they use WardenChat instead)
-  if (user) return null;
 
   return (
     <>
@@ -170,4 +167,14 @@ export function ChatWidget() {
       </div>
     </>
   );
+}
+
+// Wrapper component that handles auth check BEFORE rendering any hooks
+export function ChatWidget() {
+  const { user } = useAuth();
+  
+  // Don't render for logged-in users (they use WardenChat instead)
+  if (user) return null;
+  
+  return <ChatWidgetInner />;
 }
