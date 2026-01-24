@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
+import OrientationModal from "@/components/OrientationModal";
 import { WardenBrief } from "@/components/warden";
 import {
   Tooltip,
@@ -444,6 +445,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <OrientationModal />
     </DashboardLayout>
   );
 };

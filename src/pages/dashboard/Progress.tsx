@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Camera, Calendar } from "lucide-react";
+import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Camera, Calendar, Images, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -327,6 +327,23 @@ const Progress = () => {
           </TabsContent>
 
           <TabsContent value="photos" className="space-y-8">
+            {/* Gallery Link */}
+            <div className="flex items-center justify-between p-4 bg-primary/10 border border-primary/30 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Images className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-semibold text-sm">View Full Photo Gallery</p>
+                  <p className="text-xs text-muted-foreground">Timeline view, comparison tools, and more</p>
+                </div>
+              </div>
+              <Link to="/dashboard/photos">
+                <Button variant="gold" size="sm">
+                  Open Gallery
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+
             {/* Starting Photos Section */}
             <div className="bg-card p-6 rounded-lg border border-border">
               <h2 className="headline-card mb-2">Starting Photos (Day 1)</h2>
