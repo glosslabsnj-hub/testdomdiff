@@ -7,14 +7,14 @@ import coachingImage from "@/assets/coaching-image.jpg";
 
 const Coaching = () => {
   const included = [
+    "Weekly 1:1 video coaching calls with Dom",
+    "Direct messaging access to Dom",
+    "Advanced skill-building lessons (coaching exclusive)",
     "Personalized program built for your goals",
-    "Weekly 1:1 coaching calls with Dom",
-    "Direct messaging access",
-    "Unlimited check-ins",
-    "Priority support",
     "Custom nutrition guidance",
-    "All membership benefits included",
-    "Personal accountability partner",
+    "Priority support and feedback",
+    "Unlimited check-ins",
+    "Everything in 12-Week Transformation included",
   ];
 
   const features = [

@@ -8,8 +8,8 @@ const Membership = () => {
   const features = [
     {
       icon: BookOpen,
-      title: "Template Workout Builder",
-      description: "Access to all workout templates with prison-style frameworks. Build your own sessions.",
+      title: "Bodyweight Workout Templates",
+      description: "Access to bodyweight-only workout templates. No equipment required. Prison-style frameworks.",
     },
     {
       icon: Calendar,
@@ -28,20 +28,27 @@ const Membership = () => {
     },
     {
       icon: Users,
-      title: "Monthly Group Call",
-      description: "Live coaching and Q&A session with Dom each month.",
+      title: "Mindset + Faith Lessons",
+      description: "Weekly lessons on faith, discipline, and mindset to renew your mind.",
     },
   ];
 
   const included = [
-    "Template workout builder access",
+    "Bodyweight workout templates (no equipment)",
     "Daily discipline routine templates",
-    "Nutrition templates & meal structure guides",
+    "Mindset + Faith weekly lessons",
     "Weekly habit tracker templates",
     "Progress tracking templates",
     "Community access",
-    "Monthly group coaching call",
-    "Weekly check-in template",
+    "Weekly check-in submissions",
+  ];
+
+  const notIncluded = [
+    "Full workout library (Transformation+)",
+    "12-Week assigned program (Transformation+)",
+    "Nutrition templates (Transformation+)",
+    "Skill-building lessons (Transformation+)",
+    "Weekly video coaching (Transformation+)",
   ];
 
   return (
@@ -99,16 +106,16 @@ const Membership = () => {
       {/* What's Included */}
       <section className="py-20 md:py-32 bg-charcoal">
         <div className="section-container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div>
               <h2 className="headline-section mb-6">
-                Everything <span className="text-primary">Included</span>
+                What's <span className="text-primary">Included</span>
               </h2>
               <p className="text-muted-foreground mb-8">
                 Templates you fill with your own work. Frameworks that create consistency. 
                 Structure that builds discipline.
               </p>
-              <ul className="space-y-4">
+              <ul className="space-y-4 mb-8">
                 {included.map((item, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
@@ -116,6 +123,18 @@ const Membership = () => {
                   </li>
                 ))}
               </ul>
+              
+              <div className="p-4 rounded-lg bg-background/50 border border-border">
+                <p className="text-sm text-muted-foreground mb-3">Not included in Membership:</p>
+                <ul className="space-y-2">
+                  {notIncluded.map((item, index) => (
+                    <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <span className="text-muted-foreground/50">—</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
             <div className="bg-background p-8 rounded-lg border border-border">
               <h3 className="headline-card mb-4">Discipline Membership</h3>
@@ -140,6 +159,9 @@ const Membership = () => {
               <Button variant="gold" size="xl" className="w-full" asChild>
                 <Link to="/checkout?plan=membership">Join Now</Link>
               </Button>
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                Upgrade to Transformation anytime
+              </p>
             </div>
           </div>
         </div>
