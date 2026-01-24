@@ -9,94 +9,98 @@
 
 @layer base {
   :root {
-    /* Core palette - Industrial Blacks */
-    --background: 220 15% 4%;
-    --foreground: 45 10% 92%;
-
-    --card: 220 12% 7%;
-    --card-foreground: 45 10% 92%;
-
-    --popover: 220 12% 7%;
-    --popover-foreground: 45 10% 92%;
-
-    /* Primary - Burnt Orange/Rust Gold (aggressive, industrial) */
-    --primary: 28 90% 48%;
-    --primary-foreground: 220 15% 4%;
-
-    --secondary: 220 10% 12%;
-    --secondary-foreground: 45 10% 92%;
-
-    --muted: 220 8% 16%;
-    --muted-foreground: 220 8% 50%;
-
-    /* Accent - Crimson/Blood (intensity) */
-    --accent: 0 72% 45%;
-    --accent-foreground: 45 10% 92%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 45 10% 92%;
+    /* ========================================
+       CELL BLOCK AESTHETIC - Cold Concrete & Pure Gold
+       ======================================== */
     
-    /* Warning state - amber/orange tint */
-    --warning: 38 92% 50%;
-    --warning-foreground: 220 15% 4%;
+    /* Core palette - Cold Concrete */
+    --background: 210 8% 5%;
+    --foreground: 210 5% 90%;
 
-    --border: 220 10% 16%;
-    --input: 220 10% 12%;
-    --ring: 28 90% 48%;
+    --card: 210 6% 8%;
+    --card-foreground: 210 5% 90%;
+
+    --popover: 210 6% 8%;
+    --popover-foreground: 210 5% 90%;
+
+    /* Primary - Pure Gold (premium, aspirational) */
+    --primary: 45 85% 55%;
+    --primary-foreground: 210 8% 5%;
+
+    --secondary: 210 5% 12%;
+    --secondary-foreground: 210 5% 90%;
+
+    --muted: 210 4% 18%;
+    --muted-foreground: 210 4% 55%;
+
+    /* Accent - Muted Gold */
+    --accent: 45 70% 45%;
+    --accent-foreground: 210 8% 5%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 210 5% 95%;
+    
+    /* Warning state */
+    --warning: 45 90% 50%;
+    --warning-foreground: 210 8% 5%;
+
+    --border: 210 4% 16%;
+    --input: 210 5% 12%;
+    --ring: 45 85% 55%;
 
     --radius: 0.5rem;
 
-    /* Extended Rust/Bronze Palette */
-    --gold: 28 90% 48%;
-    --gold-light: 32 85% 58%;
-    --gold-dark: 24 85% 35%;
-    --gold-muted: 28 50% 40%;
+    /* Extended Gold Palette */
+    --gold: 45 85% 55%;
+    --gold-light: 48 80% 65%;
+    --gold-dark: 42 85% 42%;
+    --gold-muted: 45 50% 40%;
     
-    /* Crimson/Blood accent */
-    --crimson: 0 72% 45%;
-    --crimson-light: 5 65% 55%;
-    --crimson-dark: 355 75% 32%;
+    /* Crimson for destructive only */
+    --crimson: 0 65% 50%;
+    --crimson-light: 5 60% 60%;
+    --crimson-dark: 355 70% 38%;
     
-    /* Gunmetal/Steel */
-    --steel: 220 15% 22%;
-    --steel-light: 220 12% 32%;
-    --steel-dark: 220 18% 14%;
+    /* Cold Steel/Gunmetal */
+    --steel: 210 6% 25%;
+    --steel-light: 210 5% 35%;
+    --steel-dark: 210 8% 15%;
     
-    /* Industrial Charcoals */
-    --charcoal: 220 12% 7%;
-    --charcoal-light: 220 10% 11%;
-    --charcoal-dark: 220 15% 4%;
+    /* Concrete Grays - The Cell Block Feel */
+    --concrete: 210 3% 40%;
+    --concrete-light: 210 3% 50%;
+    --concrete-dark: 210 4% 28%;
     
-    /* Concrete gray */
-    --concrete: 220 5% 35%;
+    /* Charcoals */
+    --charcoal: 210 6% 8%;
+    --charcoal-light: 210 5% 12%;
+    --charcoal-dark: 210 8% 5%;
     
     /* Success/Progress */
-    --success: 142 60% 40%;
-    --success-foreground: 142 60% 95%;
+    --success: 160 50% 40%;
+    --success-foreground: 160 50% 95%;
     
-    /* Locked/Restricted state */
-    --locked: 0 0% 45%;
-    --locked-foreground: 0 0% 60%;
+    /* Locked/Restricted state - cold gray */
+    --locked: 210 3% 40%;
+    --locked-foreground: 210 3% 55%;
     
-    /* Gradients - Industrial & Dramatic */
-    --gradient-gold: linear-gradient(135deg, hsl(32 88% 52%), hsl(24 85% 38%));
-    --gradient-gold-radial: radial-gradient(ellipse at top, hsl(28 90% 48% / 0.12), transparent 50%);
-    --gradient-crimson: linear-gradient(135deg, hsl(5 70% 50%), hsl(355 75% 35%));
-    --gradient-dark: linear-gradient(180deg, hsl(220 12% 7%), hsl(220 15% 4%));
-    --gradient-hero: linear-gradient(180deg, hsl(220 15% 4%) 0%, hsl(220 12% 8%) 50%, hsl(220 15% 4%) 100%);
-    --gradient-steel: linear-gradient(135deg, hsl(220 15% 22%), hsl(220 18% 14%));
-    --gradient-steel-plate: linear-gradient(180deg, hsl(220 12% 14%) 0%, hsl(220 15% 8%) 100%);
-    --gradient-ambient: radial-gradient(ellipse 100% 60% at 50% -20%, hsl(28 90% 48% / 0.1), transparent);
-    --gradient-ambient-crimson: radial-gradient(ellipse 80% 50% at 80% 20%, hsl(0 72% 45% / 0.06), transparent);
+    /* Gradients - Cold & Clean */
+    --gradient-gold: linear-gradient(135deg, hsl(48 85% 58%), hsl(42 85% 45%));
+    --gradient-gold-radial: radial-gradient(ellipse at top, hsl(45 85% 55% / 0.08), transparent 50%);
+    --gradient-dark: linear-gradient(180deg, hsl(210 6% 8%), hsl(210 8% 5%));
+    --gradient-hero: linear-gradient(180deg, hsl(210 8% 5%) 0%, hsl(210 6% 8%) 50%, hsl(210 8% 5%) 100%);
+    --gradient-steel: linear-gradient(135deg, hsl(210 6% 25%), hsl(210 8% 15%));
+    --gradient-steel-plate: linear-gradient(180deg, hsl(210 5% 14%) 0%, hsl(210 7% 9%) 100%);
+    --gradient-ambient: radial-gradient(ellipse 100% 60% at 50% -20%, hsl(45 85% 55% / 0.06), transparent);
+    --gradient-concrete: linear-gradient(180deg, hsl(210 4% 12%) 0%, hsl(210 6% 7%) 100%);
     
-    /* Enhanced Shadows - Dramatic */
-    --shadow-gold: 0 4px 30px -5px hsl(28 90% 48% / 0.4);
-    --shadow-gold-lg: 0 10px 50px -10px hsl(28 90% 48% / 0.5);
-    --shadow-crimson: 0 4px 25px -5px hsl(0 72% 45% / 0.35);
-    --shadow-crimson-lg: 0 8px 40px -8px hsl(0 72% 45% / 0.5);
+    /* Enhanced Shadows */
+    --shadow-gold: 0 4px 30px -5px hsl(45 85% 55% / 0.25);
+    --shadow-gold-lg: 0 10px 50px -10px hsl(45 85% 55% / 0.35);
     --shadow-strong: 0 25px 60px -12px hsl(0 0% 0% / 0.7);
-    --shadow-inner-glow: inset 0 1px 0 hsl(32 85% 60% / 0.15);
-    --shadow-steel-inset: inset 0 2px 4px hsl(220 20% 5% / 0.5);
+    --shadow-inner-glow: inset 0 1px 0 hsl(45 85% 65% / 0.1);
+    --shadow-steel-inset: inset 0 2px 4px hsl(210 15% 3% / 0.6);
+    --shadow-cell: 0 8px 32px -8px hsl(210 10% 0% / 0.5);
     
     /* Typography */
     --font-display: 'Bebas Neue', sans-serif;
@@ -104,8 +108,8 @@
   }
 
   .dark {
-    --background: 220 15% 4%;
-    --foreground: 45 10% 92%;
+    --background: 210 8% 5%;
+    --foreground: 210 5% 90%;
   }
 }
 
@@ -134,7 +138,7 @@
   .headline-hero {
     font-family: var(--font-display);
     @apply text-5xl md:text-7xl lg:text-8xl tracking-wider leading-none;
-    text-shadow: 0 4px 40px hsl(0 0% 0% / 0.7);
+    text-shadow: 0 4px 40px hsl(0 0% 0% / 0.8);
   }
 
   /* Section headlines */
@@ -159,14 +163,21 @@
     color: hsl(var(--crimson));
   }
 
-  /* Heavy gritty texture overlay */
+  /* Concrete texture overlay - subtle grain */
   .texture-overlay {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.03;
     @apply pointer-events-none absolute inset-0;
   }
   
-  /* Ambient glow for hero sections */
+  /* Concrete wall texture - heavier */
+  .concrete-texture {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    @apply pointer-events-none absolute inset-0;
+  }
+  
+  /* Ambient glow for hero sections - gold only */
   .hero-glow {
     @apply relative;
   }
@@ -174,12 +185,10 @@
   .hero-glow::before {
     content: '';
     @apply absolute inset-0 pointer-events-none;
-    background: 
-      radial-gradient(ellipse 120% 60% at 50% -30%, hsl(28 90% 48% / 0.12), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 85% 10%, hsl(0 72% 45% / 0.06), transparent 50%);
+    background: radial-gradient(ellipse 100% 50% at 50% -20%, hsl(45 85% 55% / 0.06), transparent 60%);
   }
   
-  /* Card glow effect */
+  /* Card glow effect - subtle gold */
   .card-glow {
     @apply relative overflow-hidden;
   }
@@ -187,58 +196,51 @@
   .card-glow::before {
     content: '';
     @apply absolute -top-1/2 -left-1/2 w-full h-full pointer-events-none;
-    background: radial-gradient(ellipse at center, hsl(28 90% 48% / 0.08), transparent 70%);
+    background: radial-gradient(ellipse at center, hsl(45 85% 55% / 0.04), transparent 70%);
     transform: rotate(-15deg);
   }
 
-  /* ========== STEEL PLATE EFFECT ========== */
-  .steel-plate {
+  /* ========== CELL BLOCK CARD - Concrete & Steel ========== */
+  .cell-block {
     @apply relative overflow-hidden rounded-lg;
-    background: linear-gradient(180deg, hsl(220 12% 12%) 0%, hsl(220 15% 7%) 100%);
+    background: linear-gradient(180deg, hsl(210 5% 11%) 0%, hsl(210 7% 7%) 100%);
+    border: 1px solid hsl(210 4% 18%);
     box-shadow: 
-      inset 0 1px 0 hsl(220 10% 25% / 0.5),
-      inset 0 -1px 0 hsl(220 20% 5% / 0.8),
+      inset 0 1px 0 hsl(210 5% 22% / 0.3),
+      inset 0 -1px 0 hsl(210 10% 4% / 0.7),
       0 4px 20px -5px hsl(0 0% 0% / 0.5);
   }
   
-  .steel-plate::before {
+  .cell-block::before {
     content: '';
     @apply absolute inset-0 pointer-events-none;
-    background: 
-      linear-gradient(90deg, transparent 0%, hsl(220 10% 20% / 0.1) 50%, transparent 100%);
-  }
-  
-  .steel-plate-border {
-    @apply border border-steel-light/30;
-    box-shadow: 
-      inset 0 1px 0 hsl(220 10% 30% / 0.3),
-      0 1px 3px hsl(0 0% 0% / 0.3);
+    background: linear-gradient(180deg, hsl(210 4% 16% / 0.2) 0%, transparent 30%);
   }
 
-  /* Dashboard tile steel effect */
+  /* Dashboard tile - cold cell aesthetic */
   .dashboard-tile {
     @apply relative overflow-hidden rounded-lg p-6 transition-all duration-300;
-    background: linear-gradient(180deg, hsl(220 12% 10%) 0%, hsl(220 14% 6%) 100%);
-    border: 1px solid hsl(220 10% 18%);
+    background: linear-gradient(180deg, hsl(210 5% 11%) 0%, hsl(210 7% 7%) 100%);
+    border: 1px solid hsl(210 4% 18%);
     box-shadow: 
-      inset 0 1px 0 hsl(220 10% 22% / 0.4),
-      inset 0 -1px 0 hsl(220 18% 4% / 0.6),
-      0 4px 15px -5px hsl(0 0% 0% / 0.4);
+      inset 0 1px 0 hsl(210 5% 22% / 0.25),
+      inset 0 -1px 0 hsl(210 10% 4% / 0.5),
+      0 4px 16px -6px hsl(0 0% 0% / 0.4);
   }
   
   .dashboard-tile:hover {
-    border-color: hsl(28 90% 48% / 0.4);
+    border-color: hsl(45 85% 55% / 0.35);
     box-shadow: 
-      inset 0 1px 0 hsl(220 10% 22% / 0.4),
-      inset 0 -1px 0 hsl(220 18% 4% / 0.6),
-      0 8px 30px -8px hsl(28 90% 48% / 0.25);
+      inset 0 1px 0 hsl(210 5% 22% / 0.25),
+      inset 0 -1px 0 hsl(210 10% 4% / 0.5),
+      0 8px 28px -8px hsl(45 85% 55% / 0.15);
     transform: translateY(-2px);
   }
   
   .dashboard-tile::before {
     content: '';
     @apply absolute top-0 left-0 right-0 h-px;
-    background: linear-gradient(90deg, transparent, hsl(28 90% 48% / 0.3), transparent);
+    background: linear-gradient(90deg, transparent, hsl(45 85% 55% / 0.25), transparent);
     opacity: 0;
     transition: opacity 0.3s;
   }
@@ -247,78 +249,84 @@
     opacity: 1;
   }
 
-  /* ========== LOCKED TILE EFFECT ========== */
+  /* ========== LOCKED TILE - Cold Gray ========== */
   .tile-locked {
     @apply relative overflow-hidden rounded-lg p-6;
-    background: linear-gradient(180deg, hsl(220 8% 8%) 0%, hsl(220 10% 5%) 100%);
-    border: 1px solid hsl(0 72% 45% / 0.25);
-    box-shadow: inset 0 0 30px hsl(0 72% 45% / 0.05);
+    background: linear-gradient(180deg, hsl(210 4% 9%) 0%, hsl(210 5% 6%) 100%);
+    border: 1px solid hsl(210 4% 20%);
+    box-shadow: inset 0 0 30px hsl(210 8% 3% / 0.4);
   }
   
   .tile-locked::after {
     content: '';
     @apply absolute inset-0 pointer-events-none;
     background: repeating-linear-gradient(
-      45deg,
+      90deg,
       transparent,
-      transparent 10px,
-      hsl(0 72% 45% / 0.02) 10px,
-      hsl(0 72% 45% / 0.02) 20px
+      transparent 40px,
+      hsl(210 5% 15% / 0.08) 40px,
+      hsl(210 5% 15% / 0.08) 41px
     );
   }
+  
+  /* Steel plate - deprecated, use cell-block */
+  .steel-plate {
+    @apply cell-block;
+  }
 
-  /* Enhanced gold gradient button - more aggressive */
+  /* Gold button - clean and premium */
   .btn-gold {
-    background: linear-gradient(135deg, hsl(32 88% 52%), hsl(24 85% 40%));
+    background: linear-gradient(135deg, hsl(48 85% 58%), hsl(42 85% 48%));
     box-shadow: 
-      0 4px 25px -5px hsl(28 90% 48% / 0.5), 
-      inset 0 1px 0 hsl(38 90% 65% / 0.3),
-      inset 0 -2px 0 hsl(20 80% 30% / 0.4);
+      0 4px 20px -5px hsl(45 85% 55% / 0.35), 
+      inset 0 1px 0 hsl(50 80% 70% / 0.25),
+      inset 0 -1px 0 hsl(40 85% 35% / 0.3);
     @apply text-black font-bold uppercase tracking-widest transition-all duration-300;
   }
 
   .btn-gold:hover {
-    @apply scale-105;
-    background: linear-gradient(135deg, hsl(34 90% 55%), hsl(26 88% 45%));
+    @apply scale-[1.02];
+    background: linear-gradient(135deg, hsl(50 85% 62%), hsl(44 85% 52%));
     box-shadow: 
-      0 8px 45px -5px hsl(28 90% 48% / 0.65), 
-      inset 0 1px 0 hsl(40 90% 70% / 0.35),
-      inset 0 -2px 0 hsl(20 80% 30% / 0.4);
+      0 6px 30px -5px hsl(45 85% 55% / 0.45), 
+      inset 0 1px 0 hsl(50 80% 75% / 0.3),
+      inset 0 -1px 0 hsl(40 85% 35% / 0.3);
   }
 
-  /* Outline button - with glow */
+  /* Outline button - subtle glow */
   .btn-outline-gold {
     @apply border-2 border-primary text-primary font-bold uppercase tracking-widest transition-all duration-300;
-    box-shadow: 0 0 25px -8px hsl(28 90% 48% / 0.4);
+    box-shadow: 0 0 20px -8px hsl(45 85% 55% / 0.25);
   }
 
   .btn-outline-gold:hover {
     @apply bg-primary text-black;
-    box-shadow: 0 0 40px -5px hsl(28 90% 48% / 0.6);
+    box-shadow: 0 0 30px -5px hsl(45 85% 55% / 0.4);
   }
   
-  /* Crimson button variant - for destructive/warnings */
-  .btn-crimson {
-    background: linear-gradient(135deg, hsl(5 70% 50%), hsl(355 75% 38%));
-    box-shadow: 0 4px 25px -5px hsl(0 72% 45% / 0.45);
+  /* Destructive button - for dangerous actions only */
+  .btn-destructive {
+    background: linear-gradient(135deg, hsl(0 60% 52%), hsl(355 65% 42%));
+    box-shadow: 0 4px 20px -5px hsl(0 65% 50% / 0.3);
     @apply text-white font-bold uppercase tracking-widest transition-all duration-300;
   }
   
-  .btn-crimson:hover {
-    @apply scale-105;
-    box-shadow: 0 8px 40px -5px hsl(0 72% 45% / 0.6);
+  .btn-destructive:hover {
+    @apply scale-[1.02];
+    box-shadow: 0 6px 30px -5px hsl(0 65% 50% / 0.45);
   }
   
-  /* Crimson outline variant */
-  .btn-outline-crimson {
-    @apply border-2 font-bold uppercase tracking-widest transition-all duration-300;
-    border-color: hsl(var(--crimson));
-    color: hsl(var(--crimson));
+  /* Steel button - secondary actions */
+  .btn-steel {
+    background: linear-gradient(135deg, hsl(210 6% 22%), hsl(210 8% 15%));
+    border: 1px solid hsl(210 5% 28%);
+    box-shadow: inset 0 1px 0 hsl(210 5% 30% / 0.3);
+    @apply text-foreground font-semibold uppercase tracking-wider transition-all duration-300;
   }
   
-  .btn-outline-crimson:hover {
-    background: hsl(var(--crimson));
-    @apply text-white;
+  .btn-steel:hover {
+    background: linear-gradient(135deg, hsl(210 6% 26%), hsl(210 8% 18%));
+    border-color: hsl(210 5% 35%);
   }
 
   /* Card styles - industrial */
@@ -382,22 +390,16 @@
     @apply scale-x-100;
   }
 
-  /* Glow effects */
+  /* Glow effects - subtle gold */
   .glow-gold {
-    box-shadow: 0 0 60px -15px hsl(28 90% 48% / 0.45);
+    box-shadow: 0 0 50px -15px hsl(45 85% 55% / 0.3);
   }
   
-  .glow-crimson {
-    box-shadow: 0 0 50px -15px hsl(0 72% 45% / 0.4);
-  }
-  
-  .glow-dual {
-    box-shadow: 
-      0 0 60px -15px hsl(28 90% 48% / 0.35),
-      0 0 40px -10px hsl(0 72% 45% / 0.2);
+  .glow-subtle {
+    box-shadow: 0 0 40px -15px hsl(45 85% 55% / 0.15);
   }
 
-  /* Image overlay styles */
+  /* Image overlay styles - cold tones */
   .image-overlay-dark {
     @apply relative overflow-hidden;
   }
@@ -406,74 +408,66 @@
     content: '';
     @apply absolute inset-0;
     background: 
-      linear-gradient(180deg, hsl(220 15% 4% / 0.3) 0%, hsl(220 15% 4% / 0.7) 60%, hsl(220 15% 4%) 100%),
-      linear-gradient(90deg, hsl(220 15% 4% / 0.5) 0%, transparent 30%, transparent 70%, hsl(220 15% 4% / 0.5) 100%);
+      linear-gradient(180deg, hsl(210 8% 5% / 0.3) 0%, hsl(210 8% 5% / 0.7) 60%, hsl(210 8% 5%) 100%),
+      linear-gradient(90deg, hsl(210 8% 5% / 0.5) 0%, transparent 30%, transparent 70%, hsl(210 8% 5% / 0.5) 100%);
   }
 
-  /* Heavy vignette - prison feel */
+  /* Vignette - cold cell feel */
   .vignette {
-    box-shadow: inset 0 0 150px hsl(220 20% 0% / 0.7);
+    box-shadow: inset 0 0 150px hsl(210 15% 0% / 0.6);
   }
   
   /* Lighter vignette for cards */
   .vignette-soft {
-    box-shadow: inset 0 0 60px hsl(220 20% 0% / 0.4);
+    box-shadow: inset 0 0 60px hsl(210 15% 0% / 0.35);
   }
   
-  /* Ambient section background */
+  /* Ambient section background - cold concrete */
   .section-ambient {
     @apply relative;
-    background: linear-gradient(180deg, hsl(220 15% 4%) 0%, hsl(220 12% 6%) 50%, hsl(220 15% 4%) 100%);
+    background: linear-gradient(180deg, hsl(210 8% 5%) 0%, hsl(210 6% 7%) 50%, hsl(210 8% 5%) 100%);
   }
   
   .section-ambient::before {
     content: '';
     @apply absolute inset-0 pointer-events-none;
-    background: 
-      radial-gradient(ellipse 100% 50% at 50% 0%, hsl(28 90% 48% / 0.06), transparent 50%),
-      radial-gradient(ellipse 60% 40% at 0% 50%, hsl(0 72% 45% / 0.04), transparent);
+    background: radial-gradient(ellipse 100% 50% at 50% 0%, hsl(45 85% 55% / 0.03), transparent 50%);
   }
   
-  /* Industrial border accent */
-  .border-industrial {
+  /* Cell bar accent - top border */
+  .border-cell {
     @apply border border-border relative;
   }
   
-  .border-industrial::before {
+  .border-cell::before {
     content: '';
     @apply absolute -top-px left-4 right-4 h-px;
-    background: linear-gradient(90deg, transparent, hsl(28 90% 48% / 0.5), transparent);
+    background: linear-gradient(90deg, transparent, hsl(45 85% 55% / 0.3), transparent);
   }
   
-  /* Steel plate effect */
-  .steel-plate {
-    background: linear-gradient(145deg, hsl(220 15% 20%), hsl(220 18% 12%));
-    box-shadow: 
-      inset 0 1px 0 hsl(220 12% 30% / 0.5),
-      inset 0 -2px 0 hsl(220 20% 8% / 0.8),
-      0 4px 20px -5px hsl(0 0% 0% / 0.5);
+  /* Navigation bar - cold steel */
+  .nav-cell {
+    background: linear-gradient(180deg, hsl(210 6% 10%) 0%, hsl(210 8% 6%) 100%);
+    border-bottom: 1px solid hsl(210 4% 16%);
+    box-shadow: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
   }
 }
 
 @layer utilities {
-  /* Background utilities - industrial */
-  .bg-charcoal { background-color: hsl(220 12% 7%); }
-  .bg-charcoal-light { background-color: hsl(220 10% 11%); }
-  .bg-charcoal-dark { background-color: hsl(220 15% 4%); }
-  
-  /* Crimson utilities */
-  .text-crimson { color: hsl(0 72% 45%); }
-  .bg-crimson { background-color: hsl(0 72% 45%); }
-  .border-crimson { border-color: hsl(0 72% 45%); }
+  /* Background utilities - cold concrete */
+  .bg-charcoal { background-color: hsl(210 6% 8%); }
+  .bg-charcoal-light { background-color: hsl(210 5% 12%); }
+  .bg-charcoal-dark { background-color: hsl(210 8% 5%); }
   
   /* Steel utilities */
-  .text-steel { color: hsl(220 15% 45%); }
-  .bg-steel { background-color: hsl(220 15% 22%); }
-  .bg-steel-dark { background-color: hsl(220 18% 14%); }
+  .text-steel { color: hsl(210 5% 50%); }
+  .bg-steel { background-color: hsl(210 6% 25%); }
+  .bg-steel-dark { background-color: hsl(210 8% 15%); }
   
   /* Concrete utility */
-  .text-concrete { color: hsl(220 5% 45%); }
-  .bg-concrete { background-color: hsl(220 5% 35%); }
+  .text-concrete { color: hsl(210 3% 50%); }
+  .bg-concrete { background-color: hsl(210 3% 40%); }
+  .bg-concrete-dark { background-color: hsl(210 4% 28%); }
   
   /* Animation utilities */
   .animate-fade-in {
