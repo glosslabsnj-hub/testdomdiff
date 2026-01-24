@@ -13,18 +13,18 @@ const Index = () => {
   const targetAudience = ["You're done making excuses and ready to be held accountable", "You want your faith to be the foundation — not an afterthought", "You need structure that works anywhere, anytime, with minimal equipment", "You're tired of inconsistency and ready for daily discipline", "You want to be part of a brotherhood, not just another gym bro"];
   const howItWorks = [{
     step: "01",
-    title: "Enroll",
-    description: "Choose your program and complete checkout. No games, no hidden fees.",
+    title: "Booking",
+    description: "Choose your cell block and complete processing. No games, no hidden fees.",
     icon: Target
   }, {
     step: "02",
-    title: "Complete Intake",
-    description: "Fill out your profile so we can build your personalized framework.",
+    title: "Intake Processing",
+    description: "Complete your intake form so we can assign your personalized program.",
     icon: BookOpen
   }, {
     step: "03",
-    title: "Train + Check-In",
-    description: "Execute daily. Check in weekly. Build the discipline that lasts.",
+    title: "Serve Your Time",
+    description: "Execute daily. Report weekly. Build the discipline that lasts a lifetime.",
     icon: Flame
   }];
   const programs = [{
@@ -228,7 +228,7 @@ const Index = () => {
         <div className="section-container">
           <div className="text-center mb-16">
             <h2 className="headline-section mb-4">
-              How It <span className="text-primary">Works</span>
+              The <span className="text-primary">Processing</span>
             </h2>
             <div className="divider-gold" />
           </div>
@@ -254,11 +254,11 @@ const Index = () => {
         <div className="section-container relative z-10">
           <div className="text-center mb-16">
             <h2 className="headline-section mb-4">
-              Choose Your <span className="text-primary">Path</span>
+              Pick Your <span className="text-primary">Block</span>
             </h2>
             <div className="divider-gold mb-6" />
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Three ways to transform. Same God-led discipline. Different levels of accountability.
+              Three cell blocks. Same God-led discipline. Different levels of access.
             </p>
           </div>
           <div className="grid lg:grid-cols-3 gap-8">

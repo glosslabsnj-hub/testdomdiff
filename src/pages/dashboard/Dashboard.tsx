@@ -346,8 +346,8 @@ const Dashboard = () => {
                     {isCoaching ? "Orientation" : "Intake Processing"}
                   </Link> to get {isCoaching ? "set up" : "oriented"}, 
                   then head to <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"} className="text-primary hover:underline font-medium">
-                    {isCoaching ? "Your Program" : (isMembership ? "Yard Time" : "The Sentence")}
-                  </Link> to {isMembership ? "start your first workout" : "begin your 12-week journey"}.
+                    {isCoaching ? "your custom workout plan" : (isMembership ? "Yard Time" : "The Sentence")}
+                  </Link> to {isCoaching ? "see your personalized programming" : (isMembership ? "start your first workout" : "begin your 12-week journey")}.
                 </p>
               </div>
             </div>
