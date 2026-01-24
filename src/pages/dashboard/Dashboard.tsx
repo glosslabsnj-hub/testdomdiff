@@ -27,6 +27,7 @@ import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
 import OrientationModal from "@/components/OrientationModal";
 import { WardenBrief } from "@/components/warden";
+import { TransformationWidget } from "@/components/TransformationWidget";
 import {
   Tooltip,
   TooltipContent,
@@ -357,6 +358,9 @@ const Dashboard = () => {
         <div className="mb-8">
           <WardenBrief />
         </div>
+
+        {/* Transformation Progress Widget */}
+        <TransformationWidget />
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">

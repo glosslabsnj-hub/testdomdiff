@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: "check_in_reminder" | "streak_alert" | "weekly_update" | "milestone" | "welcome";
+  type: "check_in_reminder" | "streak_alert" | "weekly_update" | "milestone" | "welcome" | "photo_reminder";
   userId?: string;
   metadata?: Record<string, unknown>;
 }
@@ -128,6 +128,36 @@ serve(async (req: Request): Promise<Response> => {
           }
           break;
         }
+
+        case "photo_reminder": {
+          // Get users with active subscriptions who haven't uploaded a photo in 7 days
+          const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+          const { data: activeUsers } = await supabase
+            .from("subscriptions")
+            .select("user_id, profiles!inner(user_id, email, first_name)")
+            .eq("status", "active");
+
+          if (activeUsers) {
+            // Get users with recent photo uploads
+            const { data: recentPhotos } = await supabase
+              .from("progress_photos")
+              .select("user_id")
+              .gte("created_at", sevenDaysAgo);
+
+            const usersWithRecentPhotos = new Set((recentPhotos || []).map((p) => p.user_id));
+
+            // Filter to users who need a reminder (no photo in 7 days)
+            usersToNotify = activeUsers
+              .filter((u) => !usersWithRecentPhotos.has(u.user_id))
+              .map((u) => ({
+                id: u.user_id,
+                email: (u.profiles as any).email,
+                first_name: (u.profiles as any).first_name,
+              }));
+          }
+          break;
+        }
       }
     }
 
@@ -234,6 +264,26 @@ serve(async (req: Request): Promise<Response> => {
                   Start Your Transformation →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Let's get after it. - Dom</p>
+              </div>
+            `,
+          };
+
+        case "photo_reminder":
+          return {
+            subject: "📸 Time for Your Weekly Progress Photo | Redeemed Strength",
+            html: `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #1a1a1a; color: #fff; padding: 40px;">
+                <h1 style="color: #d4af37; margin-bottom: 20px;">Hey ${name},</h1>
+                <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
+                  It's been a week since your last progress photo. Your transformation is happening — make sure you're documenting it.
+                </p>
+                <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
+                  Every photo is proof of the work you're putting in. Don't skip this.
+                </p>
+                <a href="https://testdomdiff.lovable.app/dashboard/photos" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                  Upload Progress Photo →
+                </a>
+                <p style="color: #666; font-size: 12px; margin-top: 40px;">Stay consistent. - Dom</p>
               </div>
             `,
           };
