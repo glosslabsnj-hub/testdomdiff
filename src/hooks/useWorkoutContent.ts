@@ -49,6 +49,7 @@ export interface ProgramWeek {
   video_url: string | null;
   video_title: string | null;
   video_description: string | null;
+  track_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -211,17 +212,25 @@ export function useWorkoutExercises(templateId: string | null) {
   return { exercises, loading, fetchExercises, createExercise, updateExercise, deleteExercise };
 }
 
-export function useProgramWeeks() {
+export function useProgramWeeks(trackId?: string | null) {
   const [weeks, setWeeks] = useState<ProgramWeek[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchWeeks = async () => {
+  const fetchWeeks = async (filterTrackId?: string | null) => {
+    setLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("program_weeks")
         .select("*")
         .order("week_number");
+      
+      // If a specific track ID is provided, filter by it
+      if (filterTrackId) {
+        query = query.eq("track_id", filterTrackId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setWeeks((data || []) as ProgramWeek[]);
@@ -236,7 +245,7 @@ export function useProgramWeeks() {
     try {
       const { error } = await supabase.from("program_weeks").update(updates).eq("id", id);
       if (error) throw error;
-      await fetchWeeks();
+      await fetchWeeks(trackId);
       toast({ title: "Success", description: "Week updated" });
       return true;
     } catch (e: any) {
@@ -246,8 +255,8 @@ export function useProgramWeeks() {
   };
 
   useEffect(() => {
-    fetchWeeks();
-  }, []);
+    fetchWeeks(trackId);
+  }, [trackId]);
 
   return { weeks, loading, fetchWeeks, updateWeek };
 }

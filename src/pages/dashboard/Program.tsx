@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useProgramWeeks, type ProgramWeek } from "@/hooks/useWorkoutContent";
+import { useProgramTracks } from "@/hooks/useProgramTracks";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
@@ -51,8 +52,16 @@ interface ProgramDayExercise {
 const DAYS_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 const Program = () => {
-  const { weeks, loading: weeksLoading } = useProgramWeeks();
-  const { subscription } = useAuth();
+  const { tracks, loading: tracksLoading, getTrackByGoal } = useProgramTracks();
+  const { subscription, profile } = useAuth();
+  
+  // Get user's track based on their goal
+  const userTrack = useMemo(() => {
+    if (tracksLoading || tracks.length === 0) return null;
+    return getTrackByGoal(profile?.goal || null);
+  }, [tracks, tracksLoading, profile?.goal, getTrackByGoal]);
+
+  const { weeks, loading: weeksLoading } = useProgramWeeks(userTrack?.id);
   const [expandedWeek, setExpandedWeek] = useState<number | null>(1);
   const [dayWorkouts, setDayWorkouts] = useState<ProgramDayWorkout[]>([]);
   const [exercisesByDay, setExercisesByDay] = useState<Record<string, ProgramDayExercise[]>>({});
@@ -123,7 +132,7 @@ const Program = () => {
   const completedWeeks = Math.min(currentWeek - 1, 12);
   const progressPercent = (completedWeeks / 12) * 100;
 
-  const loading = weeksLoading || loadingWorkouts;
+  const loading = weeksLoading || loadingWorkouts || tracksLoading;
 
   if (loading) {
     return (
@@ -467,15 +476,22 @@ const Program = () => {
         {/* Hero Section */}
         <div className="relative p-8 rounded-xl bg-gradient-to-br from-charcoal via-charcoal to-primary/10 border border-border mb-8 overflow-hidden">
           <div className="relative z-10">
-            <Badge className="bg-primary/20 text-primary border-primary/30 mb-4">
-              Your Transformation Journey
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <Badge className="bg-primary/20 text-primary border-primary/30">
+                Your Transformation Journey
+              </Badge>
+              {userTrack && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Target className="w-3 h-3" />
+                  {userTrack.name} Track
+                </Badge>
+              )}
+            </div>
             <h1 className="font-display text-4xl md:text-5xl mb-3">
               12-Week <span className="text-primary">Program</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mb-6">
-              Complete body and mind transformation through three strategic phases. 
-              Each week builds on the last to maximize your results.
+              {userTrack?.description || "Complete body and mind transformation through three strategic phases. Each week builds on the last to maximize your results."}
             </p>
 
             {/* Progress Bar */}

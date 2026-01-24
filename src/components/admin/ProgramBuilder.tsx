@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { 
   Calendar, ArrowLeft, Plus, Edit, Trash2, Loader2, 
-  ChevronDown, ChevronRight, Dumbbell, Moon, Copy, Save
+  ChevronDown, ChevronRight, Dumbbell, Moon, Copy, Save, Target, Layers
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useProgramWeeks, useWorkoutTemplates, useWorkoutExercises, type ProgramWeek, type WorkoutTemplate } from "@/hooks/useWorkoutContent";
+import { useProgramTracks, type ProgramTrack } from "@/hooks/useProgramTracks";
 import { 
   useProgramDayWorkouts, 
   useProgramDayExercises,
@@ -39,8 +40,25 @@ const SECTION_TYPES = [
   { value: "cooldown", label: "Cool-down", color: "text-blue-400" },
 ] as const;
 
+const GOAL_OPTIONS = [
+  "Lose fat",
+  "Build muscle", 
+  "Both - lose fat and build muscle",
+];
+
 export default function ProgramBuilder() {
-  const { weeks, loading: weeksLoading, updateWeek } = useProgramWeeks();
+  // Track management
+  const { tracks, loading: tracksLoading, createTrack, updateTrack, deleteTrack, duplicateTrack, fetchTracks } = useProgramTracks();
+  const [selectedTrack, setSelectedTrack] = useState<ProgramTrack | null>(null);
+  const [trackDialogOpen, setTrackDialogOpen] = useState(false);
+  const [editingTrack, setEditingTrack] = useState<ProgramTrack | null>(null);
+  const [trackForm, setTrackForm] = useState({ name: "", description: "", goal_match: "" });
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
+  const [duplicateSource, setDuplicateSource] = useState<ProgramTrack | null>(null);
+  const [duplicateForm, setDuplicateForm] = useState({ name: "", goal_match: "" });
+  const [duplicating, setDuplicating] = useState(false);
+
+  const { weeks, loading: weeksLoading, updateWeek, fetchWeeks } = useProgramWeeks(selectedTrack?.id);
   const { templates } = useWorkoutTemplates();
   const [selectedWeek, setSelectedWeek] = useState<ProgramWeek | null>(null);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
@@ -102,6 +120,58 @@ export default function ProgramBuilder() {
       else next.add(dayId);
       return next;
     });
+  };
+
+  // Track management functions
+  const openTrackDialog = (track?: ProgramTrack) => {
+    if (track) {
+      setEditingTrack(track);
+      setTrackForm({ name: track.name, description: track.description || "", goal_match: track.goal_match });
+    } else {
+      setEditingTrack(null);
+      setTrackForm({ name: "", description: "", goal_match: "" });
+    }
+    setTrackDialogOpen(true);
+  };
+
+  const saveTrack = async () => {
+    if (!trackForm.name || !trackForm.goal_match) return;
+    
+    if (editingTrack) {
+      await updateTrack(editingTrack.id, trackForm);
+    } else {
+      const slug = trackForm.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      await createTrack({
+        ...trackForm,
+        slug,
+        display_order: tracks.length + 1,
+        is_active: true,
+      });
+    }
+    setTrackDialogOpen(false);
+  };
+
+  const handleDeleteTrack = async (track: ProgramTrack) => {
+    if (!confirm(`Delete "${track.name}" track? All weeks will be unlinked but not deleted.`)) return;
+    await deleteTrack(track.id);
+    if (selectedTrack?.id === track.id) {
+      setSelectedTrack(null);
+    }
+  };
+
+  const openDuplicateDialog = (track: ProgramTrack) => {
+    setDuplicateSource(track);
+    setDuplicateForm({ name: `${track.name} Copy`, goal_match: "" });
+    setDuplicateDialogOpen(true);
+  };
+
+  const handleDuplicateTrack = async () => {
+    if (!duplicateSource || !duplicateForm.name || !duplicateForm.goal_match) return;
+    setDuplicating(true);
+    await duplicateTrack(duplicateSource.id, duplicateForm.name, duplicateForm.goal_match);
+    await fetchTracks();
+    setDuplicating(false);
+    setDuplicateDialogOpen(false);
   };
 
   // Open week settings
@@ -741,7 +811,12 @@ export default function ProgramBuilder() {
     );
   }
 
-  // Week selection - Cleaner Grid
+  // Loading state for tracks
+  if (tracksLoading) {
+    return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
+
+  // Track selection and week selection view
   const phases = [
     { name: "Foundation", key: "foundation", color: "text-blue-400", weeks: weeks.filter(w => w.phase === "foundation") },
     { name: "Build", key: "build", color: "text-amber-400", weeks: weeks.filter(w => w.phase === "build") },
@@ -750,35 +825,247 @@ export default function ProgramBuilder() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold">12-Week Program Builder</h2>
-        <p className="text-muted-foreground mt-1">Select a week to add or edit workouts</p>
+      {/* Track Selection Header */}
+      <div className="flex flex-col gap-4">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Layers className="h-6 w-6 text-primary" />
+            12-Week Program Builder
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            Manage goal-based program tracks. Each track contains a customized 12-week plan.
+          </p>
+        </div>
+        
+        {/* Track Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {tracks.map((track) => (
+            <Card 
+              key={track.id}
+              className={`bg-charcoal border-border cursor-pointer transition-all hover:shadow-lg ${
+                selectedTrack?.id === track.id ? 'border-primary ring-2 ring-primary/20' : 'hover:border-primary/50'
+              }`}
+              onClick={() => setSelectedTrack(track)}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg">{track.name}</CardTitle>
+                  </div>
+                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDuplicateDialog(track)}>
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openTrackDialog(track)}>
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteTrack(track)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <Badge variant="secondary" className="mb-2 text-xs">
+                  Goal: {track.goal_match}
+                </Badge>
+                {track.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{track.description}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+          
+          {/* Add New Track Card */}
+          <Card 
+            className="bg-charcoal/50 border-dashed border-border cursor-pointer hover:border-primary/50 hover:bg-charcoal transition-all"
+            onClick={() => openTrackDialog()}
+          >
+            <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[140px]">
+              <Plus className="h-8 w-8 text-muted-foreground mb-2" />
+              <span className="text-muted-foreground font-medium">Add New Track</span>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {phases.map((phase) => (
-        <div key={phase.key}>
-          <h3 className={`text-lg font-bold mb-4 ${phase.color}`}>{phase.name} Phase</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {phase.weeks.map((week) => (
-              <Card
-                key={week.id}
-                className="bg-charcoal border-border cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all group"
-                onClick={() => setSelectedWeek(week)}
-              >
-                <CardContent className="p-5 text-center">
-                  <div className="w-14 h-14 mx-auto rounded-full bg-primary text-primary-foreground flex items-center justify-center font-display text-2xl mb-3 group-hover:scale-110 transition-transform">
-                    {week.week_number}
-                  </div>
-                  <h4 className="font-semibold truncate">{week.title || `Week ${week.week_number}`}</h4>
-                  {week.focus_description && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{week.focus_description}</p>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+      {/* Week Selection - Only shown when a track is selected */}
+      {selectedTrack && (
+        <div className="space-y-6 pt-4 border-t border-border">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                {selectedTrack.name} - Weeks
+              </h3>
+              <p className="text-sm text-muted-foreground">Select a week to add or edit workouts</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedTrack(null)}>
+              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Tracks
+            </Button>
           </div>
+
+          {weeksLoading ? (
+            <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : weeks.length === 0 ? (
+            <Card className="bg-charcoal border-border">
+              <CardContent className="py-12 text-center">
+                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No weeks found for this track.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Use "Duplicate Track" from an existing track to create weeks, or contact support.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            phases.map((phase) => phase.weeks.length > 0 && (
+              <div key={phase.key}>
+                <h4 className={`text-lg font-bold mb-4 ${phase.color}`}>{phase.name} Phase</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {phase.weeks.map((week) => (
+                    <Card
+                      key={week.id}
+                      className="bg-charcoal border-border cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all group"
+                      onClick={() => setSelectedWeek(week)}
+                    >
+                      <CardContent className="p-5 text-center">
+                        <div className="w-14 h-14 mx-auto rounded-full bg-primary text-primary-foreground flex items-center justify-center font-display text-2xl mb-3 group-hover:scale-110 transition-transform">
+                          {week.week_number}
+                        </div>
+                        <h4 className="font-semibold truncate">{week.title || `Week ${week.week_number}`}</h4>
+                        {week.focus_description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{week.focus_description}</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      ))}
+      )}
+
+      {/* Instructions if no track selected */}
+      {!selectedTrack && tracks.length > 0 && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="p-6">
+            <h3 className="font-semibold mb-2">How to use Program Tracks</h3>
+            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+              <li>Each track represents a different 12-week program based on client goals</li>
+              <li>Click on a track to view and edit its weekly workouts</li>
+              <li>Use <strong>Duplicate</strong> to copy an entire track (all weeks, workouts, exercises) for a new goal</li>
+              <li>Members will automatically see the track matching their intake goal</li>
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Track Dialog */}
+      <Dialog open={trackDialogOpen} onOpenChange={setTrackDialogOpen}>
+        <DialogContent className="bg-card border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingTrack ? "Edit" : "Create"} Program Track</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label>Track Name *</Label>
+              <Input 
+                value={trackForm.name} 
+                onChange={(e) => setTrackForm({ ...trackForm, name: e.target.value })}
+                className="bg-charcoal border-border mt-1"
+                placeholder="e.g., Fat Loss, Muscle Building"
+              />
+            </div>
+            <div>
+              <Label>Goal Match *</Label>
+              <Select value={trackForm.goal_match} onValueChange={(v) => setTrackForm({ ...trackForm, goal_match: v })}>
+                <SelectTrigger className="bg-charcoal border-border mt-1">
+                  <SelectValue placeholder="Select which intake goal this matches..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {GOAL_OPTIONS.map((goal) => (
+                    <SelectItem key={goal} value={goal}>{goal}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Members who select this goal during intake will see this track
+              </p>
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea 
+                value={trackForm.description} 
+                onChange={(e) => setTrackForm({ ...trackForm, description: e.target.value })}
+                className="bg-charcoal border-border mt-1"
+                placeholder="Brief description of this program track..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTrackDialogOpen(false)}>Cancel</Button>
+            <Button variant="gold" onClick={saveTrack} disabled={!trackForm.name || !trackForm.goal_match}>
+              <Save className="h-4 w-4 mr-2" /> Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Duplicate Track Dialog */}
+      <Dialog open={duplicateDialogOpen} onOpenChange={setDuplicateDialogOpen}>
+        <DialogContent className="bg-card border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Copy className="h-5 w-5 text-primary" />
+              Duplicate Track
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              This will create a complete copy of <strong>"{duplicateSource?.name}"</strong> including all 12 weeks, 
+              daily workouts, and exercises. You can then customize it for a different goal.
+            </p>
+            <div>
+              <Label>New Track Name *</Label>
+              <Input 
+                value={duplicateForm.name} 
+                onChange={(e) => setDuplicateForm({ ...duplicateForm, name: e.target.value })}
+                className="bg-charcoal border-border mt-1"
+                placeholder="e.g., Muscle Building"
+              />
+            </div>
+            <div>
+              <Label>Goal Match *</Label>
+              <Select value={duplicateForm.goal_match} onValueChange={(v) => setDuplicateForm({ ...duplicateForm, goal_match: v })}>
+                <SelectTrigger className="bg-charcoal border-border mt-1">
+                  <SelectValue placeholder="Select which intake goal this matches..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {GOAL_OPTIONS.map((goal) => (
+                    <SelectItem key={goal} value={goal}>{goal}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDuplicateDialogOpen(false)} disabled={duplicating}>Cancel</Button>
+            <Button 
+              variant="gold" 
+              onClick={handleDuplicateTrack} 
+              disabled={!duplicateForm.name || !duplicateForm.goal_match || duplicating}
+            >
+              {duplicating ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Duplicating...</>
+              ) : (
+                <><Copy className="h-4 w-4 mr-2" /> Duplicate Track</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

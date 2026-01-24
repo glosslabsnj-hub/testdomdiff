@@ -594,6 +594,42 @@ export type Database = {
           },
         ]
       }
+      program_tracks: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          goal_match: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          goal_match: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          goal_match?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       program_weeks: {
         Row: {
           conditioning_notes: string | null
@@ -604,6 +640,7 @@ export type Database = {
           recovery_notes: string | null
           scripture_reference: string | null
           title: string | null
+          track_id: string | null
           updated_at: string | null
           video_description: string | null
           video_title: string | null
@@ -625,6 +662,7 @@ export type Database = {
           recovery_notes?: string | null
           scripture_reference?: string | null
           title?: string | null
+          track_id?: string | null
           updated_at?: string | null
           video_description?: string | null
           video_title?: string | null
@@ -646,6 +684,7 @@ export type Database = {
           recovery_notes?: string | null
           scripture_reference?: string | null
           title?: string | null
+          track_id?: string | null
           updated_at?: string | null
           video_description?: string | null
           video_title?: string | null
@@ -659,6 +698,13 @@ export type Database = {
           workout_wednesday?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "program_weeks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "program_tracks"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "program_weeks_workout_friday_fkey"
             columns: ["workout_friday"]
