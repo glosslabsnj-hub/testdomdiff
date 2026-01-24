@@ -132,26 +132,34 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Create client with user's token
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
-    
-    // Get user from token
+    // Create client with user's auth header for getClaims
+    const supabaseAuth = createClient(SUPABASE_URL!, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Validate the token using getClaims
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+
+    if (claimsError || !claimsData?.claims) {
+      console.error("Claims error:", claimsError);
       return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const userId = claimsData.claims.sub as string;
+
+    // Use service role client for database operations
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
     const { forceRefresh } = await req.json().catch(() => ({}));
 
@@ -159,14 +167,14 @@ Deno.serve(async (req) => {
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .single();
 
     // Get subscription
     const { data: subscription } = await supabase
       .from("subscriptions")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("status", "active")
       .single();
 
@@ -184,7 +192,7 @@ Deno.serve(async (req) => {
       const { data: existingMessage } = await supabase
         .from("warden_messages")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("week_number", currentWeek)
         .eq("message_type", "weekly_brief")
         .single();
@@ -200,7 +208,7 @@ Deno.serve(async (req) => {
     const { data: recentCheckIn } = await supabase
       .from("check_ins")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .order("week_number", { ascending: false })
       .limit(1)
       .single();
@@ -212,7 +220,7 @@ Deno.serve(async (req) => {
     const { data: habitLogs } = await supabase
       .from("habit_logs")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .gte("log_date", sevenDaysAgo.toISOString().split("T")[0]);
 
     // Calculate compliance (rough estimate - 10 possible habits per day)
@@ -246,7 +254,7 @@ Deno.serve(async (req) => {
     const { data: workoutCompletions } = await supabase
       .from("habit_logs")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .like("habit_name", "workout_%")
       .gte("log_date", sevenDaysAgo.toISOString().split("T")[0]);
 
@@ -254,7 +262,7 @@ Deno.serve(async (req) => {
     const { data: progressEntries } = await supabase
       .from("progress_entries")
       .select("weight, week_number")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .order("week_number", { ascending: false })
       .limit(2);
 
@@ -290,7 +298,7 @@ Deno.serve(async (req) => {
     const { data: savedMessage, error: saveError } = await supabase
       .from("warden_messages")
       .upsert({
-        user_id: user.id,
+        user_id: userId,
         week_number: currentWeek,
         message_type: "weekly_brief",
         message: brief.message,
@@ -309,7 +317,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(JSON.stringify(savedMessage || {
-      user_id: user.id,
+      user_id: userId,
       week_number: currentWeek,
       message_type: "weekly_brief",
       message: brief.message,
