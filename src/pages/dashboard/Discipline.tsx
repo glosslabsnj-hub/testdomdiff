@@ -219,14 +219,14 @@ const Discipline = () => {
             />
             {/* Streak Badge */}
             <div className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-lg border",
+              "flex items-center gap-3 px-4 py-3 rounded-lg border transition-all",
               streak > 0 
                 ? "bg-primary/10 border-primary/30" 
                 : "bg-charcoal border-border"
             )}>
               <Flame className={cn(
                 "w-6 h-6",
-                streak > 0 ? "text-primary" : "text-muted-foreground"
+                streak > 0 ? "text-primary animate-flame" : "text-muted-foreground"
               )} />
               <div>
                 <p className="text-2xl font-display text-primary">{streak}</p>
@@ -303,23 +303,23 @@ const Discipline = () => {
                         key={item.id}
                         onClick={() => toggleRoutineCompletion(item.id)}
                         className={cn(
-                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left",
+                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left group",
                           completed 
-                            ? "bg-primary/10 border-primary/30" 
-                            : "bg-charcoal border-border hover:border-primary/50"
+                            ? "bg-primary/10 border-primary/30 animate-success-pulse" 
+                            : "bg-charcoal border-border hover:border-primary/50 hover-lift"
                         )}
                       >
                         <div className={cn(
                           "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
                           completed 
-                            ? "bg-primary border-primary" 
-                            : "border-muted-foreground/50"
+                            ? "bg-primary border-primary animate-check-pop" 
+                            : "border-muted-foreground/50 group-hover:border-primary/70"
                         )}>
                           {completed && <Check className="w-4 h-4 text-primary-foreground" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={cn(
-                            "text-sm font-semibold",
+                            "text-sm font-semibold transition-all",
                             completed && "line-through text-muted-foreground"
                           )}>
                             {item.action_text}
@@ -389,23 +389,23 @@ const Discipline = () => {
                         key={item.id}
                         onClick={() => toggleRoutineCompletion(item.id)}
                         className={cn(
-                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left",
+                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left group",
                           completed 
-                            ? "bg-primary/10 border-primary/30" 
-                            : "bg-charcoal border-border hover:border-primary/50"
+                            ? "bg-primary/10 border-primary/30 animate-success-pulse" 
+                            : "bg-charcoal border-border hover:border-primary/50 hover-lift"
                         )}
                       >
                         <div className={cn(
                           "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
                           completed 
-                            ? "bg-primary border-primary" 
-                            : "border-muted-foreground/50"
+                            ? "bg-primary border-primary animate-check-pop" 
+                            : "border-muted-foreground/50 group-hover:border-primary/70"
                         )}>
                           {completed && <Check className="w-4 h-4 text-primary-foreground" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={cn(
-                            "text-sm font-semibold",
+                            "text-sm font-semibold transition-all",
                             completed && "line-through text-muted-foreground"
                           )}>
                             {item.action_text}
