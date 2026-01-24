@@ -7,25 +7,43 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-// Import product images
-import hoodieImage from "@/assets/products/hoodie.jpg";
-import teeImage from "@/assets/products/tee.jpg";
-import joggersImage from "@/assets/products/joggers.jpg";
-import beanieImage from "@/assets/products/beanie.jpg";
+// Import product images - Yard Gear
+import redeemedTee from "@/assets/products/redeemed-tee.jpg";
+import lockdownHoodie from "@/assets/products/lockdown-hoodie.jpg";
+import yardJoggers from "@/assets/products/yard-joggers.jpg";
+import resistanceBands from "@/assets/products/resistance-bands.jpg";
+import speedRope from "@/assets/products/speed-rope.jpg";
+import gripTrainer from "@/assets/products/grip-trainer.jpg";
+import workoutTimer from "@/assets/products/workout-timer.jpg";
+
+// Import product images - Cell Block Essentials
+import faithBeanie from "@/assets/products/faith-beanie.jpg";
+import redeemedBottle from "@/assets/products/redeemed-bottle.jpg";
+
+// Import product images - Chapel Store
+import warriorBible from "@/assets/products/warrior-bible.jpg";
+import warriorRosary from "@/assets/products/warrior-rosary.jpg";
+import scriptureCards from "@/assets/products/scripture-cards.jpg";
+import prayerJournal from "@/assets/products/prayer-journal.jpg";
+import devotional90 from "@/assets/products/devotional-90.jpg";
+
+// Import product images - Release Day Fits
+import releasePolo from "@/assets/products/release-polo.jpg";
+import releaseChinos from "@/assets/products/release-chinos.jpg";
 
 // Commissary categories
 const CATEGORIES = [
   { id: "all", name: "All Gear", description: "Everything in the commissary" },
-  { id: "yard-gear", name: "Yard Gear", description: "Workout apparel for training" },
+  { id: "yard-gear", name: "Yard Gear", description: "Workout apparel and training equipment" },
   { id: "cell-block", name: "Cell Block Essentials", description: "Everyday wear for the grind" },
   { id: "chapel-store", name: "Chapel Store", description: "Faith tools for your spiritual walk" },
-  { id: "release-day", name: "Release Day Fits", description: "Dress to impress" },
+  { id: "release-day", name: "Release Day Fits", description: "Dress for success" },
 ];
 
 // Map product categories to commissary categories
 const getCategoryFromProduct = (productCategory: string, productName: string): string => {
   const nameLower = productName.toLowerCase();
-  const catLower = productCategory.toLowerCase();
+  const catLower = productCategory?.toLowerCase() || "";
   
   // Chapel Store - faith items
   if (catLower === "chapel-store" || nameLower.includes("bible") || nameLower.includes("rosary") || 
@@ -36,8 +54,14 @@ const getCategoryFromProduct = (productCategory: string, productName: string): s
   // Yard Gear - workout stuff
   if (catLower === "yard-gear" || nameLower.includes("hoodie") || nameLower.includes("jogger") || 
       nameLower.includes("tank") || nameLower.includes("shorts") || nameLower.includes("resistance") ||
-      nameLower.includes("jump rope") || nameLower.includes("grip") || nameLower.includes("timer")) {
+      nameLower.includes("rope") || nameLower.includes("grip") || nameLower.includes("timer")) {
     return "yard-gear";
+  }
+  
+  // Release Day Fits
+  if (catLower === "release-day" || nameLower.includes("polo") || nameLower.includes("chino") ||
+      nameLower.includes("dress") || nameLower.includes("button")) {
+    return "release-day";
   }
   
   // Cell Block Essentials - everyday wear and essentials
@@ -47,23 +71,51 @@ const getCategoryFromProduct = (productCategory: string, productName: string): s
     return "cell-block";
   }
   
-  // Release Day Fits
-  if (catLower === "release-day") {
-    return "release-day";
-  }
-  
   return "cell-block"; // Default
 };
 
-// Fallback images by product name pattern
+// Image map for products
+const productImageMap: Record<string, string> = {
+  // Yard Gear
+  "disciple tee": redeemedTee,
+  "iron mind heavyweight hoodie": lockdownHoodie,
+  "prison discipline joggers": yardJoggers,
+  "resistance band set": resistanceBands,
+  "speed jump rope": speedRope,
+  "grip strengthener set": gripTrainer,
+  "workout timer": workoutTimer,
+  // Cell Block Essentials
+  "remnant beanie": faithBeanie,
+  "dom different water bottle": redeemedBottle,
+  // Chapel Store
+  "prison bible (esv)": warriorBible,
+  "warrior's rosary": warriorRosary,
+  "scripture memory cards": scriptureCards,
+  "prayer journal": prayerJournal,
+  "90-day faith devotional": devotional90,
+  // Release Day Fits
+  "release day polo": releasePolo,
+  "release day chinos": releaseChinos,
+};
+
+// Get product image with fallback
 const getProductImage = (productName: string, dbImageUrl: string | null): string => {
+  // First check if we have a mapped image
+  const mappedImage = productImageMap[productName.toLowerCase()];
+  if (mappedImage) return mappedImage;
+  
+  // Then check DB URL
   if (dbImageUrl) return dbImageUrl;
   
+  // Fallback based on name patterns
   const nameLower = productName.toLowerCase();
-  if (nameLower.includes("hoodie") || nameLower.includes("sweatshirt")) return hoodieImage;
-  if (nameLower.includes("tee") || nameLower.includes("t-shirt")) return teeImage;
-  if (nameLower.includes("jogger") || nameLower.includes("sweatpants")) return joggersImage;
-  if (nameLower.includes("beanie") || nameLower.includes("hat")) return beanieImage;
+  if (nameLower.includes("hoodie") || nameLower.includes("sweatshirt")) return lockdownHoodie;
+  if (nameLower.includes("tee") || nameLower.includes("t-shirt")) return redeemedTee;
+  if (nameLower.includes("jogger") || nameLower.includes("sweatpants")) return yardJoggers;
+  if (nameLower.includes("beanie") || nameLower.includes("hat")) return faithBeanie;
+  if (nameLower.includes("bible")) return warriorBible;
+  if (nameLower.includes("rosary")) return warriorRosary;
+  if (nameLower.includes("journal") || nameLower.includes("prayer")) return prayerJournal;
   
   return "";
 };
@@ -195,9 +247,9 @@ const Shop = () => {
                           className={cn(
                             "text-xs",
                             productCategory === "yard-gear" && "bg-primary/20 text-primary",
-                            productCategory === "cell-block" && "bg-blue-500/20 text-blue-400",
-                            productCategory === "chapel-store" && "bg-purple-500/20 text-purple-400",
-                            productCategory === "release-day" && "bg-emerald-500/20 text-emerald-400"
+                            productCategory === "cell-block" && "bg-secondary/50 text-secondary-foreground",
+                            productCategory === "chapel-store" && "bg-accent/50 text-accent-foreground",
+                            productCategory === "release-day" && "bg-muted text-muted-foreground"
                           )}
                         >
                           {CATEGORIES.find(c => c.id === productCategory)?.name}
