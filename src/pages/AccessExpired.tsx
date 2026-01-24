@@ -27,37 +27,37 @@ const AccessExpired = () => {
   const getExpiredMessage = () => {
     if (!subscription) {
       return {
-        title: "No Active Subscription",
-        message: "You don't have an active subscription. Choose a program to get started.",
+        title: "No Active Assignment",
+        message: "You haven't been assigned to a block yet. Choose your program to get started.",
       };
     }
 
     switch (subscription.plan_type) {
       case "transformation":
         return {
-          title: "Your Time in Gen Pop Has Ended",
-          message: "Congratulations on completing your 12 weeks! Continue your journey with Solitary Confinement.",
+          title: "Your Sentence is Complete",
+          message: "Congratulations on completing your 12 weeks! You've done your time. Continue your journey with Solitary Confinement.",
           renewText: "Enter Solitary",
           renewLink: "/programs/membership",
         };
       case "membership":
         return {
-          title: "Solitary Access Cancelled",
-          message: "Your Solitary Confinement access has been cancelled. Renew to regain access to your dashboard.",
+          title: "Solitary Access Revoked",
+          message: "Your Solitary Confinement access has been revoked. Re-enter to regain access to your cell block.",
           renewText: "Re-Enter Solitary",
           renewLink: "/checkout?plan=membership",
         };
       case "coaching":
         return {
-          title: "Free World Access Ended",
-          message: "Your Free World Coaching has been cancelled. Renew to continue working directly with Dom.",
-          renewText: "Renew Free World",
+          title: "Probation Terminated",
+          message: "Your Free World access has ended. Renew to continue working directly with your P.O.",
+          renewText: "Renew Probation",
           renewLink: "/checkout?plan=coaching",
         };
       default:
         return {
           title: "Access Expired",
-          message: "Your subscription has expired. Choose a plan to regain access.",
+          message: "Your time has been served. Choose a block to re-enter the system.",
         };
     }
   };

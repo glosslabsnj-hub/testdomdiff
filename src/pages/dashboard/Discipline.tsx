@@ -41,10 +41,10 @@ const Discipline = () => {
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">
-            Daily Discipline <span className="text-primary">Routines</span>
+            Lights On / Lights <span className="text-primary">Out</span>
           </h1>
           <p className="text-muted-foreground">
-            Morning and evening routines. Build the structure that creates transformation.
+            Count time routines. Build the structure that creates transformation.
           </p>
         </div>
 
@@ -61,8 +61,8 @@ const Discipline = () => {
               <div className="flex items-center gap-3 mb-6">
                 <Sun className="w-8 h-8 text-primary" />
                 <div>
-                  <p className="text-xs text-primary uppercase tracking-wider">Morning</p>
-                  <h2 className="headline-card">Wake → Word → Work</h2>
+                  <p className="text-xs text-primary uppercase tracking-wider">Count Time: AM</p>
+                  <h2 className="headline-card">Reveille → Word → Work</h2>
                 </div>
               </div>
 
@@ -88,8 +88,8 @@ const Discipline = () => {
               <div className="flex items-center gap-3 mb-6">
                 <Moon className="w-8 h-8 text-primary" />
                 <div>
-                  <p className="text-xs text-primary uppercase tracking-wider">Evening</p>
-                  <h2 className="headline-card">Wind Down → Reflect → Rest</h2>
+                  <p className="text-xs text-primary uppercase tracking-wider">Count Time: PM</p>
+                  <h2 className="headline-card">Lockdown → Reflect → Rest</h2>
                 </div>
               </div>
 
@@ -118,7 +118,7 @@ const Discipline = () => {
             <Droplet className="w-8 h-8 text-primary" />
             <div>
               <p className="text-xs text-primary uppercase tracking-wider">Hydration</p>
-              <h2 className="headline-card">Water Target Tracker</h2>
+              <h2 className="headline-card">Hydration Rations</h2>
             </div>
           </div>
 
@@ -152,7 +152,7 @@ const Discipline = () => {
             <BookOpen className="w-8 h-8 text-primary" />
             <div>
               <p className="text-xs text-primary uppercase tracking-wider">Journaling</p>
-              <h2 className="headline-card">Night Reflection</h2>
+              <h2 className="headline-card">Cell Notes</h2>
             </div>
           </div>
 
@@ -180,10 +180,10 @@ const Discipline = () => {
 
         <div className="mt-8 flex gap-4">
           <Button variant="gold" asChild>
-            <Link to="/dashboard/check-in">Go to Weekly Check-In</Link>
+            <Link to="/dashboard/check-in">Report to Roll Call</Link>
           </Button>
           <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Dashboard</Link>
+            <Link to="/dashboard">Back to Cell Block</Link>
           </Button>
         </div>
       </div>

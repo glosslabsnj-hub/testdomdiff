@@ -8,15 +8,15 @@ import { Progress } from "@/components/ui/progress";
 
 const CHECKLIST_ITEMS = [
   {
-    category: "Profile Setup",
+    category: "Inmate Registration",
     items: [
-      { id: "profile-1", label: "Complete your intake form" },
+      { id: "profile-1", label: "Complete your processing form" },
       { id: "profile-2", label: "Set your training days" },
       { id: "profile-3", label: "Choose your equipment level" },
     ],
   },
   {
-    category: "Training Preparation",
+    category: "Yard Prep",
     items: [
       { id: "training-1", label: "Review workout templates" },
       { id: "training-2", label: "Create your first week's schedule" },
@@ -24,15 +24,15 @@ const CHECKLIST_ITEMS = [
     ],
   },
   {
-    category: "Discipline Foundations",
+    category: "Block Rules",
     items: [
       { id: "discipline-1", label: "Review daily discipline routine templates" },
-      { id: "discipline-2", label: "Set your wake time" },
+      { id: "discipline-2", label: "Set your reveille time" },
       { id: "discipline-3", label: "Commit to your morning routine" },
     ],
   },
   {
-    category: "Progress Tracking",
+    category: "Record Keeping",
     items: [
       { id: "progress-1", label: "Take starting photos" },
       { id: "progress-2", label: "Record starting measurements" },
@@ -88,15 +88,15 @@ const StartHere = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
         <div className="max-w-3xl">
           <h1 className="headline-section mb-2">
-            Start <span className="text-primary">Here</span>
+            Intake <span className="text-primary">Processing</span>
           </h1>
           <p className="text-muted-foreground mb-8">
-            Complete your Week 0 setup. Check off each item as you complete it.
+            Complete your Week 0 setup. Check off each item as you get processed into the system.
           </p>
 
           {/* Progress Bar */}
@@ -154,10 +154,10 @@ const StartHere = () => {
 
           <div className="mt-12 flex gap-4">
             <Button variant="gold" asChild>
-              <Link to="/dashboard/workouts">Go to Workout Templates</Link>
+              <Link to="/dashboard/workouts">Report to Yard Time</Link>
             </Button>
             <Button variant="goldOutline" asChild>
-              <Link to="/dashboard">Back to Dashboard</Link>
+              <Link to="/dashboard">Back to Cell Block</Link>
             </Button>
           </div>
         </div>

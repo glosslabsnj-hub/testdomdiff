@@ -35,13 +35,13 @@ const Shop = () => {
         <div className="section-container text-center">
           <Badge variant="outline" className="border-gold text-gold mb-4">
             <ShoppingBag className="w-3 h-3 mr-1" />
-            Official Gear
+            The Commissary
           </Badge>
           <h1 className="headline-hero mb-4">
-            DOM <span className="text-gold">DIFFERENT</span> MERCH
+            DOM <span className="text-gold">DIFFERENT</span> GEAR
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Wear your identity. Represent the mission. Every piece is a reminder of who you're becoming.
+            Wear your identity. Represent the mission. Official yard gear for those doing the work.
           </p>
         </div>
       </section>
@@ -56,9 +56,9 @@ const Shop = () => {
           ) : products.length === 0 ? (
             <div className="text-center py-20">
               <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-2xl font-display text-foreground mb-2">Coming Soon</h2>
+              <h2 className="text-2xl font-display text-foreground mb-2">Incoming Shipment</h2>
               <p className="text-muted-foreground">
-                New merchandise drops are on the way. Check back soon.
+                New gear drops are on the way. Check back soon.
               </p>
             </div>
           ) : (

@@ -48,15 +48,15 @@ const Community = () => {
             to="/dashboard"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-4 h-4" /> Back to Cell Block
           </Link>
           <h1 className="headline-section mb-2">
             <span className="text-primary">{isCoaching ? "The Network" : "The Yard"}</span> — Brotherhood
           </h1>
           <p className="text-muted-foreground">
             {isCoaching 
-              ? "Connect with fellow free men. Build lasting relationships."
-              : "Connect with fellow inmates. Iron sharpens iron."}
+              ? "Connect with fellow free men. Build lasting relationships on the outside."
+              : "Connect with fellow inmates. Iron sharpens iron in the yard."}
           </p>
         </div>
 

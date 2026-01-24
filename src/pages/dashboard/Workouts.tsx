@@ -30,18 +30,18 @@ const Workouts = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
         </Link>
 
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="headline-section mb-2">
-              <span className="text-primary">Yard Time</span> — Workout Templates
+              <span className="text-primary">Yard Time</span> — Training Templates
             </h1>
             <p className="text-muted-foreground">
               {isMembershipOnly 
-                ? "Bodyweight workouts. No equipment, no excuses."
-                : "Full workout library. Build your sessions like we built ours inside."}
+                ? "Bodyweight workouts. No equipment, no excuses. Prison-style training."
+                : "Full workout library. Build your sessions like we built ours on the inside."}
             </p>
           </div>
         </div>
