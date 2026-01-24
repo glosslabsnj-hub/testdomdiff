@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { WardenTip } from "@/components/warden";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
+import AddToCalendarButton from "@/components/AddToCalendarButton";
+import { addMinutes } from "@/lib/calendarUtils";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
@@ -66,23 +68,45 @@ const Workouts = () => {
           <>
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               {visibleTemplates.map((template) => (
-                <Link
+                <div
                   key={template.id}
-                  to={`/dashboard/workouts/${template.template_slug}`}
                   className="p-6 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <Dumbbell className="w-8 h-8 text-primary" />
-                    {template.is_bodyweight && (
-                      <Badge variant="outline" className="text-xs">Bodyweight</Badge>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {template.is_bodyweight && (
+                        <Badge variant="outline" className="text-xs">Bodyweight</Badge>
+                      )}
+                      <AddToCalendarButton
+                        title={`Workout: ${template.name}`}
+                        description={`${template.focus}\n\n${template.description || "Complete this workout with intensity and purpose."}`}
+                        startTime={(() => {
+                          const today = new Date();
+                          today.setHours(6, 0, 0, 0); // Default to 6:00 AM
+                          return today;
+                        })()}
+                        endTime={addMinutes((() => {
+                          const today = new Date();
+                          today.setHours(6, 0, 0, 0);
+                          return today;
+                        })(), 60)}
+                        size="sm"
+                        variant="ghost"
+                      />
+                    </div>
                   </div>
-                  <h3 className="headline-card mb-1 group-hover:text-primary transition-colors">
-                    {template.name}
-                  </h3>
-                  <p className="text-sm text-primary mb-2">{template.focus}</p>
-                  <p className="text-sm text-muted-foreground">{template.description}</p>
-                </Link>
+                  <Link
+                    to={`/dashboard/workouts/${template.template_slug}`}
+                    className="block"
+                  >
+                    <h3 className="headline-card mb-1 group-hover:text-primary transition-colors">
+                      {template.name}
+                    </h3>
+                    <p className="text-sm text-primary mb-2">{template.focus}</p>
+                    <p className="text-sm text-muted-foreground">{template.description}</p>
+                  </Link>
+                </div>
               ))}
             </div>
           </>

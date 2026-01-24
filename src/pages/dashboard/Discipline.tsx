@@ -26,6 +26,8 @@ import AddCustomRoutineDialog from "@/components/discipline/AddCustomRoutineDial
 import CustomRoutineItem from "@/components/discipline/CustomRoutineItem";
 import DraggableRoutineList from "@/components/discipline/DraggableRoutineList";
 import { MorningBriefing, WardenTip } from "@/components/warden";
+import AddToCalendarButton from "@/components/AddToCalendarButton";
+import { createTodayAtTime, addMinutes } from "@/lib/calendarUtils";
 
 const JOURNAL_PROMPTS = [
   "What were my 3 wins today?",
@@ -280,14 +282,26 @@ const Discipline = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Morning Routine */}
             <div className="bg-card p-6 md:p-8 rounded-lg border border-border">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 rounded-lg bg-amber-500/20">
-                  <Sun className="w-6 h-6 text-amber-400" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/20">
+                    <Sun className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: AM</p>
+                    <h2 className="font-display text-xl">Reveille → Word → Work</h2>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: AM</p>
-                  <h2 className="font-display text-xl">Reveille → Word → Work</h2>
-                </div>
+                {morningRoutines.length > 0 && (
+                  <AddToCalendarButton
+                    title="Morning Discipline Routine"
+                    description={morningRoutines.map(r => `• ${r.action_text}`).join("\n")}
+                    startTime={createTodayAtTime(morningRoutines[0]?.time_slot || "5:30 AM")}
+                    endTime={addMinutes(createTodayAtTime(morningRoutines[0]?.time_slot || "5:30 AM"), 60)}
+                    size="sm"
+                    variant="ghost"
+                  />
+                )}
               </div>
 
               {morningRoutines.length === 0 ? (
@@ -366,14 +380,26 @@ const Discipline = () => {
 
             {/* Evening Routine */}
             <div className="bg-card p-6 md:p-8 rounded-lg border border-border">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 rounded-lg bg-blue-500/20">
-                  <Moon className="w-6 h-6 text-blue-400" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-secondary/20">
+                    <Moon className="w-6 h-6 text-secondary-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: PM</p>
+                    <h2 className="font-display text-xl">Lockdown → Reflect → Rest</h2>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: PM</p>
-                  <h2 className="font-display text-xl">Lockdown → Reflect → Rest</h2>
-                </div>
+                {eveningRoutines.length > 0 && (
+                  <AddToCalendarButton
+                    title="Evening Discipline Routine"
+                    description={eveningRoutines.map(r => `• ${r.action_text}`).join("\n")}
+                    startTime={createTodayAtTime(eveningRoutines[0]?.time_slot || "8:00 PM")}
+                    endTime={addMinutes(createTodayAtTime(eveningRoutines[0]?.time_slot || "8:00 PM"), 45)}
+                    size="sm"
+                    variant="ghost"
+                  />
+                )}
               </div>
 
               {eveningRoutines.length === 0 ? (

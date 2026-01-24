@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { Eye, EyeOff, Loader2, Crown, Sparkles, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Crown, Sparkles, User, CheckCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TRANSFORMATION_DURATION_DAYS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type PlanType = "membership" | "transformation" | "coaching";
 
@@ -45,11 +46,16 @@ const Login = () => {
   const urlMode = searchParams.get("mode");
   const urlPlan = searchParams.get("plan") as PlanType | null;
 
+  // Determine if user is coming from checkout (plan already selected)
+  const isFromCheckout = urlPlan && urlMode === "signup";
+
   const [isSignUp, setIsSignUp] = useState(urlMode === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<PlanType>(
     urlPlan && ["membership", "transformation", "coaching"].includes(urlPlan) 
       ? urlPlan 
@@ -67,6 +73,9 @@ const Login = () => {
   }, [urlMode, urlPlan]);
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/dashboard";
+
+  // Get the selected plan info for display
+  const selectedPlanInfo = planOptions.find(p => p.value === selectedPlan) || planOptions[1];
 
   const createDevSubscription = async (userId: string, planType: PlanType) => {
     const now = new Date();
@@ -90,11 +99,25 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordError("");
     setIsLoading(true);
 
     const safeEmail = email.trim().toLowerCase();
 
     if (isSignUp) {
+      // Validate password confirmation
+      if (password !== confirmPassword) {
+        setPasswordError("Passwords do not match");
+        setIsLoading(false);
+        return;
+      }
+
+      if (password.length < 8) {
+        setPasswordError("Password must be at least 8 characters");
+        setIsLoading(false);
+        return;
+      }
+
       // Sign up flow
       const { error, data } = await signUp(safeEmail, password);
 
@@ -187,8 +210,24 @@ const Login = () => {
             </div>
 
             <div className="bg-card p-8 rounded-lg border border-border">
-              {/* Dev Mode Banner */}
-              {isSignUp && (
+              {/* Show purchased plan confirmation when coming from checkout */}
+              {isSignUp && isFromCheckout && (
+                <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-primary text-primary-foreground">
+                      <CheckCircle className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground mb-1">Your Selected Block</p>
+                      <p className="font-semibold text-foreground">{selectedPlanInfo.label}</p>
+                      <p className="text-xs text-primary">{selectedPlanInfo.description}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Dev Mode Banner - only show if NOT from checkout */}
+              {isSignUp && !isFromCheckout && (
                 <div className="mb-6 p-3 rounded-lg bg-primary/10 border border-primary/30">
                   <p className="text-xs text-primary text-center font-medium">
                     🛠️ Processing Center — Select your block assignment
@@ -227,11 +266,17 @@ const Login = () => {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="bg-charcoal border-border pr-10"
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setPasswordError("");
+                      }}
+                      className={cn(
+                        "bg-charcoal border-border pr-10",
+                        passwordError && "border-destructive"
+                      )}
                       placeholder="••••••••"
                       required
-                      minLength={6}
+                      minLength={8}
                     />
                     <button
                       type="button"
@@ -243,8 +288,43 @@ const Login = () => {
                   </div>
                 </div>
 
-                {/* Plan Selection (only for sign up) */}
+                {/* Confirm Password (only for sign up) */}
                 {isSignUp && (
+                  <div>
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <div className="relative mt-2">
+                      <Input
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          setPasswordError("");
+                        }}
+                        className={cn(
+                          "bg-charcoal border-border pr-10",
+                          passwordError && "border-destructive"
+                        )}
+                        placeholder="••••••••"
+                        required
+                        minLength={8}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {passwordError && (
+                      <p className="text-sm text-destructive mt-2">{passwordError}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Plan Selection (only for sign up and NOT from checkout) */}
+                {isSignUp && !isFromCheckout && (
                   <div>
                     <Label className="mb-3 block">Select Your Block</Label>
                     <div className="space-y-2">
@@ -297,7 +377,11 @@ const Login = () => {
               <div className="mt-6 text-center">
                 <button
                   type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setPasswordError("");
+                    setConfirmPassword("");
+                  }}
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   {isSignUp ? (
