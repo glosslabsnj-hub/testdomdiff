@@ -25,9 +25,9 @@ const Dashboard = () => {
   const isTransformation = planType === "transformation";
   const isMembership = planType === "membership";
 
-  // Base tiles available to ALL users
-  const baseTiles = [
-    {
+  // Define all tiles
+  const allTiles = {
+    startHere: {
       icon: Play,
       title: "Start Here",
       subtitle: "Onboarding Checklist",
@@ -35,7 +35,15 @@ const Dashboard = () => {
       href: "/dashboard/start-here",
       color: "bg-primary/10 border-primary/30",
     },
-    {
+    program: {
+      icon: Calendar,
+      title: "12-Week Program",
+      subtitle: "Assigned Schedule",
+      description: "Your complete 12-week structure with weekly breakdown and videos.",
+      href: "/dashboard/program",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+    workouts: {
       icon: Dumbbell,
       title: "Workout Templates",
       subtitle: isMembership ? "Bodyweight Workouts" : "Prison-Style Frameworks",
@@ -45,7 +53,7 @@ const Dashboard = () => {
       href: "/dashboard/workouts",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
-    {
+    discipline: {
       icon: Clock,
       title: "Daily Discipline",
       subtitle: "Routine Templates",
@@ -53,51 +61,7 @@ const Dashboard = () => {
       href: "/dashboard/discipline",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
-    {
-      icon: ClipboardCheck,
-      title: "Weekly Check-In",
-      subtitle: "Accountability Form",
-      description: "Submit your weekly check-in and track progress.",
-      href: "/dashboard/check-in",
-      color: "bg-charcoal border-border hover:border-primary/50",
-    },
-    {
-      icon: BookOpen,
-      title: "Mindset + Faith",
-      subtitle: "Lesson Templates",
-      description: "Weekly lessons on faith, discipline, and mindset.",
-      href: "/dashboard/faith",
-      color: "bg-charcoal border-border hover:border-primary/50",
-    },
-    {
-      icon: TrendingUp,
-      title: "Progress Trackers",
-      subtitle: "Templates",
-      description: "Track habits, measurements, and weekly progress.",
-      href: "/dashboard/progress",
-      color: "bg-charcoal border-border hover:border-primary/50",
-    },
-    {
-      icon: Users,
-      title: "Community",
-      subtitle: "Brotherhood Access",
-      description: "Connect with fellow warriors. Accountability and support.",
-      href: "/dashboard/community",
-      color: "bg-charcoal border-border hover:border-primary/50",
-    },
-  ];
-
-  // Transformation-only tiles (also available to coaching)
-  const transformationTiles = [
-    {
-      icon: Calendar,
-      title: "12-Week Program",
-      subtitle: "Assigned Schedule",
-      description: "Your complete 12-week structure with weekly breakdown and videos.",
-      href: "/dashboard/program",
-      color: "bg-charcoal border-border hover:border-primary/50",
-    },
-    {
+    nutrition: {
       icon: Utensils,
       title: "Nutrition Templates",
       subtitle: "Meal Structure",
@@ -105,7 +69,31 @@ const Dashboard = () => {
       href: "/dashboard/nutrition",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
-    {
+    faith: {
+      icon: BookOpen,
+      title: "Mindset + Faith",
+      subtitle: "Lesson Templates",
+      description: "Weekly lessons on faith, discipline, and mindset.",
+      href: "/dashboard/faith",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+    checkIn: {
+      icon: ClipboardCheck,
+      title: "Weekly Check-In",
+      subtitle: "Accountability Form",
+      description: "Submit your weekly check-in and track progress.",
+      href: "/dashboard/check-in",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+    progress: {
+      icon: TrendingUp,
+      title: "Progress Tracker",
+      subtitle: "Templates",
+      description: "Track habits, measurements, and weekly progress.",
+      href: "/dashboard/progress",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+    skills: {
       icon: Briefcase,
       title: "Skill-Building",
       subtitle: "Money-Making Skills",
@@ -113,11 +101,15 @@ const Dashboard = () => {
       href: "/dashboard/skills",
       color: "bg-charcoal border-border hover:border-primary/50",
     },
-  ];
-
-  // Coaching-only tiles
-  const coachingTiles = [
-    {
+    community: {
+      icon: Users,
+      title: "Community",
+      subtitle: "Brotherhood Access",
+      description: "Connect with fellow warriors. Accountability and support.",
+      href: "/dashboard/community",
+      color: "bg-charcoal border-border hover:border-primary/50",
+    },
+    advancedSkills: {
       icon: GraduationCap,
       title: "Advanced Hustle",
       subtitle: "Next-Level Skills",
@@ -125,7 +117,7 @@ const Dashboard = () => {
       href: "/dashboard/advanced-skills",
       color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
     },
-    {
+    messages: {
       icon: MessageCircle,
       title: "Message Dom",
       subtitle: "Direct Access",
@@ -133,7 +125,7 @@ const Dashboard = () => {
       href: "/dashboard/messages",
       color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
     },
-    {
+    coaching: {
       icon: Crown,
       title: "1:1 Coaching",
       subtitle: "Premium Access",
@@ -141,30 +133,56 @@ const Dashboard = () => {
       href: "/dashboard/coaching",
       color: "bg-gradient-to-br from-primary/20 to-amber-500/10 border-primary/50 hover:border-primary",
     },
-  ];
+  };
 
-  // Build tiles array based on subscription tier
+  // Build tiles in exact order specified by user:
+  // Start Here → 12-Week (if applicable) → Workout Templates → Daily Discipline → 
+  // Nutrition Templates → Mindset + Faith → Weekly Check-In → Progress Tracker → 
+  // Skill Building → Community → (Coaching extras at end)
+  
   let tiles = [];
   
-  // Start Here is always first
-  tiles.push(baseTiles[0]);
+  // 1. Start Here (always first)
+  tiles.push(allTiles.startHere);
   
-  // For Transformation/Coaching users, 12-Week Program comes second
+  // 2. 12-Week Program (Transformation/Coaching only)
   if (isTransformation || isCoaching) {
-    tiles.push(transformationTiles[0]); // 12-Week Program
+    tiles.push(allTiles.program);
   }
   
-  // Then the rest of the base tiles (skip Start Here since it's already added)
-  tiles = [...tiles, ...baseTiles.slice(1)];
+  // 3. Workout Templates
+  tiles.push(allTiles.workouts);
   
-  // Add remaining transformation tiles (Nutrition, Skill-Building)
+  // 4. Daily Discipline
+  tiles.push(allTiles.discipline);
+  
+  // 5. Nutrition Templates (Transformation/Coaching only)
   if (isTransformation || isCoaching) {
-    tiles = [...tiles, ...transformationTiles.slice(1)];
+    tiles.push(allTiles.nutrition);
   }
   
-  // Add coaching-only tiles
+  // 6. Mindset + Faith
+  tiles.push(allTiles.faith);
+  
+  // 7. Weekly Check-In
+  tiles.push(allTiles.checkIn);
+  
+  // 8. Progress Tracker
+  tiles.push(allTiles.progress);
+  
+  // 9. Skill-Building (Transformation/Coaching only)
+  if (isTransformation || isCoaching) {
+    tiles.push(allTiles.skills);
+  }
+  
+  // 10. Community (always last of base tiles)
+  tiles.push(allTiles.community);
+  
+  // 11-13. Coaching-only tiles at the end
   if (isCoaching) {
-    tiles = [...tiles, ...coachingTiles];
+    tiles.push(allTiles.advancedSkills);
+    tiles.push(allTiles.messages);
+    tiles.push(allTiles.coaching);
   }
 
   return (
