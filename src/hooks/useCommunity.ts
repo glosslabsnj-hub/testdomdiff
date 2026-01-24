@@ -199,7 +199,7 @@ export function useCommunityMessages(channelId: string | null) {
     };
   }, [channelId]);
 
-  const sendMessage = useCallback(async (content: string, replyToId?: string) => {
+  const sendMessage = useCallback(async (content: string, replyToId?: string, mentionedUserIds?: string[]) => {
     if (!user || !channelId || !content.trim()) return;
 
     try {
@@ -210,6 +210,7 @@ export function useCommunityMessages(channelId: string | null) {
           user_id: user.id,
           content: content.trim(),
           reply_to_id: replyToId || null,
+          mentioned_user_ids: mentionedUserIds || [],
         });
 
       if (error) throw error;

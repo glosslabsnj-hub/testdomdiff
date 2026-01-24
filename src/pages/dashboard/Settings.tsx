@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import AvatarUpload from "@/components/AvatarUpload";
 import MilestoneBadge from "@/components/MilestoneBadge";
 import { useMilestones, PAROLE_MILESTONES } from "@/hooks/useMilestones";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -37,6 +38,7 @@ export default function Settings() {
   const { toast } = useToast();
   const { profile, refreshProfile, subscription } = useAuth();
   const { milestones, loading: milestonesLoading, hasMilestone, getFeaturedBadge } = useMilestones();
+  const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, permission: pushPermission, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePushNotifications();
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -709,6 +711,67 @@ export default function Settings() {
                     <span className="text-primary font-semibold">{milestones.length}</span> of{" "}
                     <span className="font-semibold">{PAROLE_MILESTONES.length}</span> achievements earned
                   </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Push Notifications Card */}
+          <Card className="bg-charcoal border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground text-base flex items-center gap-2">
+                <Bell className="h-5 w-5 text-primary" />
+                Push Notifications
+              </CardTitle>
+              <CardDescription>
+                Get notified about check-in reminders, milestones, and more
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!pushSupported ? (
+                <div className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                  <p>Push notifications are not supported in your browser.</p>
+                  <p className="mt-1 text-xs">Try using Chrome, Firefox, or Safari on a supported device.</p>
+                </div>
+              ) : pushPermission === "denied" ? (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+                  <p>Notifications are blocked in your browser settings.</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    To enable, click the lock icon in your browser's address bar and allow notifications.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">
+                      {pushSubscribed ? "Notifications enabled" : "Enable notifications"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {pushSubscribed 
+                        ? "You'll receive alerts for important updates" 
+                        : "Get reminded about check-ins, workouts, and more"}
+                    </p>
+                  </div>
+                  <Button
+                    variant={pushSubscribed ? "outline" : "gold"}
+                    size="sm"
+                    onClick={pushSubscribed ? unsubscribePush : subscribePush}
+                    disabled={pushLoading}
+                  >
+                    {pushLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : pushSubscribed ? (
+                      <>
+                        <BellOff className="h-4 w-4 mr-2" />
+                        Disable
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="h-4 w-4 mr-2" />
+                        Enable
+                      </>
+                    )}
+                  </Button>
                 </div>
               )}
             </CardContent>
