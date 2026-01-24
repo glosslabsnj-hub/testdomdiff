@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar, Briefcase, ChefHat, BarChart3, Crown, Video } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, BookOpen, ShoppingBag, Utensils, Dumbbell, Cross, Clock, Calendar, Briefcase, ChefHat, BarChart3, Crown, Video, ClipboardCheck, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,8 @@ import MealPlanManager from "@/components/admin/MealPlanManager";
 import MealAnalyticsPanel from "@/components/admin/MealAnalyticsPanel";
 import CoachingClientsManager from "@/components/admin/CoachingClientsManager";
 import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
+import CheckInReviewManager from "@/components/admin/CheckInReviewManager";
+import ClientHealthAlertsPanel from "@/components/admin/ClientHealthAlertsPanel";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -89,6 +91,7 @@ export default function AdminDashboard() {
           <TabsList className="bg-charcoal border border-border flex-wrap h-auto gap-1 p-1.5 w-full justify-start">
             <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 sm:px-3"><TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden xs:inline">Overview</span><span className="xs:hidden">Stats</span></TabsTrigger>
             <TabsTrigger value="clients" className="text-xs sm:text-sm px-2 sm:px-3"><Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Clients</TabsTrigger>
+            <TabsTrigger value="checkins" className="text-xs sm:text-sm px-2 sm:px-3"><ClipboardCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden sm:inline">Check-Ins</span><span className="sm:hidden">Review</span></TabsTrigger>
             <TabsTrigger value="coaching" className="text-xs sm:text-sm px-2 sm:px-3"><Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-purple-400" /><span className="hidden sm:inline">Free World</span><span className="sm:hidden">VIP</span></TabsTrigger>
             <TabsTrigger value="leads" className="text-xs sm:text-sm px-2 sm:px-3"><MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />Leads</TabsTrigger>
             <TabsTrigger value="products" className="text-xs sm:text-sm px-2 sm:px-3"><Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /><span className="hidden sm:inline">Products</span><span className="sm:hidden">Shop</span></TabsTrigger>
@@ -138,6 +141,9 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Client Health Alerts */}
+            <ClientHealthAlertsPanel />
 
             {/* Additional Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -223,6 +229,10 @@ export default function AdminDashboard() {
                 </Table>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="checkins">
+            <CheckInReviewManager />
           </TabsContent>
 
           <TabsContent value="coaching">
