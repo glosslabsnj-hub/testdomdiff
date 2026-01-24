@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { 
   Calendar, ArrowLeft, Plus, Edit, Trash2, Loader2, 
   ChevronDown, ChevronRight, Dumbbell, Moon, Copy, Save, Target, Layers
@@ -50,6 +50,16 @@ export default function ProgramBuilder() {
   // Track management
   const { tracks, loading: tracksLoading, createTrack, updateTrack, deleteTrack, duplicateTrack, fetchTracks } = useProgramTracks();
   const [selectedTrack, setSelectedTrack] = useState<ProgramTrack | null>(null);
+  const weeksSectionRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to weeks when a track is selected
+  useEffect(() => {
+    if (selectedTrack && weeksSectionRef.current) {
+      setTimeout(() => {
+        weeksSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedTrack]);
   const [trackDialogOpen, setTrackDialogOpen] = useState(false);
   const [editingTrack, setEditingTrack] = useState<ProgramTrack | null>(null);
   const [trackForm, setTrackForm] = useState({ name: "", description: "", goal_match: "" });
@@ -841,43 +851,56 @@ export default function ProgramBuilder() {
         
         {/* Track Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {tracks.map((track) => (
-            <Card 
-              key={track.id}
-              className={`bg-charcoal border-border cursor-pointer transition-all hover:shadow-lg ${
-                selectedTrack?.id === track.id ? 'border-primary ring-2 ring-primary/20' : 'hover:border-primary/50'
-              }`}
-              onClick={() => setSelectedTrack(track)}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg">{track.name}</CardTitle>
+          {tracks.map((track) => {
+            const isSelected = selectedTrack?.id === track.id;
+            return (
+              <Card 
+                key={track.id}
+                className={`bg-charcoal border-border cursor-pointer transition-all hover:shadow-lg relative ${
+                  isSelected ? 'border-primary ring-2 ring-primary/20 bg-primary/5' : 'hover:border-primary/50'
+                }`}
+                onClick={() => setSelectedTrack(track)}
+              >
+                {isSelected && (
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-primary text-primary-foreground text-xs">Selected</Badge>
                   </div>
-                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDuplicateDialog(track)}>
-                      <Copy className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openTrackDialog(track)}>
-                      <Edit className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteTrack(track)}>
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Badge variant="secondary" className="mb-2 text-xs">
-                  Goal: {track.goal_match}
-                </Badge>
-                {track.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">{track.description}</p>
                 )}
-              </CardContent>
-            </Card>
-          ))}
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <Target className={`h-5 w-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <CardTitle className="text-lg">{track.name}</CardTitle>
+                    </div>
+                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openDuplicateDialog(track)}>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openTrackDialog(track)}>
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteTrack(track)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Badge variant="secondary" className="mb-2 text-xs">
+                    Goal: {track.goal_match}
+                  </Badge>
+                  {track.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">{track.description}</p>
+                  )}
+                  {isSelected && (
+                    <p className="text-xs text-primary mt-2 flex items-center gap-1">
+                      <ChevronDown className="h-3 w-3" /> Scroll down to see weeks
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
           
           {/* Add New Track Card */}
           <Card 
@@ -894,7 +917,7 @@ export default function ProgramBuilder() {
 
       {/* Week Selection - Only shown when a track is selected */}
       {selectedTrack && (
-        <div className="space-y-6 pt-4 border-t border-border">
+        <div ref={weeksSectionRef} className="space-y-6 pt-4 border-t border-border">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xl font-bold flex items-center gap-2">
