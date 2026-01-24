@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, ShoppingBag, Crown, ClipboardCheck, AlertTriangle, BookOpen, Calendar, Dumbbell, Cross, Utensils, ChefHat, Clock, Briefcase, Video, BarChart3, Square, CheckSquare } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, ShoppingBag, Crown, ClipboardCheck, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,8 @@ import ClientHealthAlertsPanel from "@/components/admin/ClientHealthAlertsPanel"
 import AdminQuickActions from "@/components/admin/AdminQuickActions";
 import ContentNavigation from "@/components/admin/ContentNavigation";
 import ClientBulkActions from "@/components/admin/ClientBulkActions";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
+import EmptyState from "@/components/EmptyState";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -225,14 +227,19 @@ export default function AdminDashboard() {
             />
 
             {clientsLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
+              <DashboardSkeleton variant="table" count={6} />
             ) : clientAnalytics?.clients.length === 0 ? (
-              <div className="text-center py-12 bg-charcoal rounded-lg border border-border">
-                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No clients found</p>
-              </div>
+              <EmptyState
+                type="generic"
+                title="No clients found"
+                description="No clients match your current filters. Try adjusting your search or filter criteria."
+                actionLabel="Clear Filters"
+                onAction={() => {
+                  setSearchQuery("");
+                  setPlanFilter("all");
+                  setStatusFilter("all");
+                }}
+              />
             ) : (
               <div className="bg-charcoal rounded-lg border border-border overflow-x-auto">
                 <Table>

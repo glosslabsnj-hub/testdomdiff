@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Camera, Calendar, Images, ExternalLink } from "lucide-react";
+import { ArrowLeft, Check, TrendingUp, TrendingDown, Camera, Calendar, Images, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,7 @@ import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 import PhotoComparison from "@/components/progress/PhotoComparison";
 import { WardenTip } from "@/components/warden";
 import { cn } from "@/lib/utils";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
 
 const Progress = () => {
   const { entries, loading: entriesLoading, updateEntry } = useProgressEntries();
@@ -113,8 +114,16 @@ const Progress = () => {
 
   if (entriesLoading || habitsLoading || photosLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <div className="section-container py-12">
+          <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+          </Link>
+          <div className="space-y-6">
+            <DashboardSkeleton variant="cards" count={4} />
+            <DashboardSkeleton variant="table" count={6} />
+          </div>
+        </div>
       </div>
     );
   }
