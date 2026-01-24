@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Flame, Calendar, Users, Target, BookOpen, Trophy } from "lucide-react";
+import { Check, X, Flame, Calendar, Users, Target, BookOpen, Trophy, ArrowRight, Dumbbell, UtensilsCrossed, Briefcase, Brain } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import transformationImage from "@/assets/transformation-image.jpg";
@@ -27,18 +27,55 @@ const Transformation = () => {
     },
   ];
 
-  const included = [
-    "Full progressive workout library (not just bodyweight)",
-    "Complete 12-week assigned schedule",
-    "Weekly video coaching from Dom",
-    "Phase-based progression templates",
-    "Faith + mindset curriculum",
-    "Nutrition templates and meal planning guides",
-    "Skill-building lessons (money-making skills)",
-    "Progress tracking templates",
-    "Community access and brotherhood",
-    "Daily discipline routine templates",
-    "Weekly check-in accountability system",
+  const includedCategories = [
+    {
+      title: "Workouts",
+      icon: Dumbbell,
+      items: [
+        "Full progressive workout library (not just bodyweight)",
+        "Complete 12-week assigned schedule",
+        "Weekly video coaching from Dom",
+        "Phase-based progression (Foundation → Build → Peak)",
+      ],
+    },
+    {
+      title: "Nutrition",
+      icon: UtensilsCrossed,
+      items: [
+        "Complete nutrition templates",
+        "Meal planning guides",
+        "Grocery lists and prep guides",
+        "Macro guidance for your goals",
+      ],
+    },
+    {
+      title: "Skill-Building",
+      icon: Briefcase,
+      items: [
+        "Money-making skill lessons",
+        "Side hustle frameworks",
+        "Business fundamentals",
+        "Financial discipline training",
+      ],
+    },
+    {
+      title: "Faith & Mindset",
+      icon: Brain,
+      items: [
+        "Weekly faith lessons",
+        "Scripture-based mindset training",
+        "Daily discipline routines",
+        "Character development curriculum",
+      ],
+    },
+  ];
+
+  const notIncluded = [
+    { item: "Weekly 1:1 video calls with Dom", upgrade: "Coaching" },
+    { item: "Direct messaging access to Dom", upgrade: "Coaching" },
+    { item: "Advanced skill-building lessons", upgrade: "Coaching" },
+    { item: "Custom-built programming", upgrade: "Coaching" },
+    { item: "Priority support", upgrade: "Coaching" },
   ];
 
   const features = [
@@ -170,64 +207,102 @@ const Transformation = () => {
         </div>
       </section>
 
-      {/* Full Breakdown */}
+      {/* Detailed Category Breakdown */}
       <section className="py-20 md:py-32 bg-background">
         <div className="section-container">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="headline-section mb-6">
-                Complete <span className="text-primary">Breakdown</span>
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                Everything you need for a complete transformation. No hidden extras. 
-                No upsells. Just results.
-              </p>
-              <ul className="space-y-4">
-                {included.map((item, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+          <div className="text-center mb-12">
+            <h2 className="headline-section mb-4">
+              Complete <span className="text-primary">Breakdown</span>
+            </h2>
+            <div className="divider-gold mb-6" />
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Everything you need for a complete transformation. No hidden extras. No upsells. Just results.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
+            {includedCategories.map((category, index) => (
+              <div key={index} className="bg-charcoal p-6 rounded-lg border border-border">
+                <div className="flex items-center gap-3 mb-4">
+                  <category.icon className="w-8 h-8 text-primary" />
+                  <h3 className="headline-card">{category.title}</h3>
+                </div>
+                <ul className="space-y-3">
+                  {category.items.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* What's NOT included */}
+          <div className="bg-charcoal/50 p-6 rounded-lg border border-border">
+            <h3 className="headline-card mb-4 flex items-center gap-2">
+              <X className="w-5 h-5 text-muted-foreground" />
+              Available in Coaching Only
+            </h3>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {notIncluded.map((item, index) => (
+                <div key={index} className="flex items-start gap-2 p-3 rounded bg-background">
+                  <X className="w-4 h-4 text-muted-foreground/50 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-muted-foreground">{item.item}</span>
+                </div>
+              ))}
             </div>
-            <div className="bg-charcoal p-8 rounded-lg border border-primary shadow-[0_0_40px_-10px_hsl(43_74%_49%_/_0.3)]">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full mb-4">
-                <span className="text-xs text-primary uppercase tracking-wider">Most Popular</span>
-              </div>
-              <h3 className="headline-card mb-4">12-Week Transformation</h3>
-              <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-display text-primary">$749.99</span>
-                <span className="text-muted-foreground">one-time</span>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-primary" />
-                  Full 12-week program access
-                </li>
-                <li className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-primary" />
-                  Weekly coaching calls included
-                </li>
-                <li className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-primary" />
-                  Start immediately after intake
-                </li>
-                <li className="flex items-center gap-2 text-sm">
-                  <Check className="w-4 h-4 text-primary" />
-                  Lifetime access to materials
-                </li>
-              </ul>
-              <Button variant="gold" size="xl" className="w-full" asChild>
-                <Link to="/checkout?plan=transformation">Start Now</Link>
+            <div className="mt-6 flex justify-center">
+              <Button variant="goldOutline" size="sm" asChild>
+                <Link to="/programs/coaching" className="inline-flex items-center gap-2">
+                  Explore 1:1 Coaching <ArrowRight className="w-4 h-4" />
+                </Link>
               </Button>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Pricing Card */}
+      <section className="py-20 md:py-32 bg-charcoal">
+        <div className="section-container">
+          <div className="max-w-lg mx-auto bg-background p-8 rounded-lg border border-primary shadow-[0_0_40px_-10px_hsl(43_74%_49%_/_0.3)]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full mb-4">
+              <span className="text-xs text-primary uppercase tracking-wider">Most Popular</span>
+            </div>
+            <h3 className="headline-card mb-4">12-Week Transformation</h3>
+            <div className="flex items-baseline gap-2 mb-6">
+              <span className="text-4xl font-display text-primary">$749.99</span>
+              <span className="text-muted-foreground">one-time</span>
+            </div>
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-primary" />
+                Full 12-week program access
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-primary" />
+                Weekly coaching videos included
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-primary" />
+                Start immediately after intake
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-primary" />
+                98-day access (12 weeks + 14-day grace)
+              </li>
+            </ul>
+            <Button variant="gold" size="xl" className="w-full" asChild>
+              <Link to="/checkout?plan=transformation">Start Now</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="py-20 bg-charcoal">
+      <section className="py-20 bg-background">
         <div className="section-container text-center">
           <h2 className="headline-section mb-4">
             12 Weeks to a <span className="text-primary">New Life</span>
