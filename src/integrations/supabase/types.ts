@@ -248,6 +248,160 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_plan_days: {
+        Row: {
+          created_at: string | null
+          day_name: string
+          day_number: number
+          id: string
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_name: string
+          day_number: number
+          id?: string
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_name?: string
+          day_number?: number
+          id?: string
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plan_days_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_plan_meals: {
+        Row: {
+          calories: number
+          carbs_g: number
+          cook_time_min: number | null
+          created_at: string | null
+          day_id: string
+          display_order: number | null
+          fats_g: number
+          id: string
+          image_url: string | null
+          ingredients: Json | null
+          instructions: string | null
+          meal_name: string
+          meal_type: string
+          notes: string | null
+          prep_time_min: number | null
+          protein_g: number
+          servings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          calories: number
+          carbs_g: number
+          cook_time_min?: number | null
+          created_at?: string | null
+          day_id: string
+          display_order?: number | null
+          fats_g: number
+          id?: string
+          image_url?: string | null
+          ingredients?: Json | null
+          instructions?: string | null
+          meal_name: string
+          meal_type: string
+          notes?: string | null
+          prep_time_min?: number | null
+          protein_g: number
+          servings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number
+          cook_time_min?: number | null
+          created_at?: string | null
+          day_id?: string
+          display_order?: number | null
+          fats_g?: number
+          id?: string
+          image_url?: string | null
+          ingredients?: Json | null
+          instructions?: string | null
+          meal_name?: string
+          meal_type?: string
+          notes?: string | null
+          prep_time_min?: number | null
+          protein_g?: number
+          servings?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plan_meals_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_plan_templates: {
+        Row: {
+          calorie_range_max: number
+          calorie_range_min: number
+          created_at: string | null
+          daily_carbs_g: number
+          daily_fats_g: number
+          daily_protein_g: number
+          description: string | null
+          display_order: number | null
+          goal_type: string
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          calorie_range_max: number
+          calorie_range_min: number
+          created_at?: string | null
+          daily_carbs_g: number
+          daily_fats_g: number
+          daily_protein_g: number
+          description?: string | null
+          display_order?: number | null
+          goal_type: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          calorie_range_max?: number
+          calorie_range_min?: number
+          created_at?: string | null
+          daily_carbs_g?: number
+          daily_fats_g?: number
+          daily_protein_g?: number
+          description?: string | null
+          display_order?: number | null
+          goal_type?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       nutrition_guidelines: {
         Row: {
           content: Json | null
