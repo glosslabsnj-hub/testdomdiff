@@ -28,33 +28,34 @@ const Transformation = () => {
   ];
 
   const included = [
-    "Complete 12-week framework with weekly structure",
-    "Weekly group coaching calls with Dom",
-    "Weekly check-in accountability system",
+    "Full progressive workout library (not just bodyweight)",
+    "Complete 12-week assigned schedule",
+    "Weekly video coaching from Dom",
     "Phase-based progression templates",
     "Faith + mindset curriculum",
     "Nutrition templates and meal planning guides",
+    "Skill-building lessons (money-making skills)",
     "Progress tracking templates",
     "Community access and brotherhood",
-    "All workout templates",
     "Daily discipline routine templates",
+    "Weekly check-in accountability system",
   ];
 
   const features = [
     {
       icon: Calendar,
-      title: "12-Week Structure",
-      description: "Proven framework with weekly breakdowns. You know exactly what to do every single day.",
+      title: "12-Week Assigned Schedule",
+      description: "Your workouts are assigned each week. No guessing. Just follow the program.",
     },
     {
       icon: Users,
-      title: "Weekly Group Calls",
-      description: "Live coaching with Dom. Ask questions. Get feedback. Stay accountable.",
+      title: "Weekly Video Coaching",
+      description: "New coaching video from Dom each week with guidance, motivation, and teaching.",
     },
     {
       icon: Target,
-      title: "Check-In System",
-      description: "Weekly accountability check-ins to track progress and stay on course.",
+      title: "Full Workout Library",
+      description: "Access the complete progressive workout library, not just bodyweight templates.",
     },
     {
       icon: Flame,
@@ -63,13 +64,13 @@ const Transformation = () => {
     },
     {
       icon: BookOpen,
-      title: "Faith Curriculum",
-      description: "Weekly scripture, mindset lessons, and spiritual disciplines alongside physical training.",
+      title: "Skill-Building Lessons",
+      description: "Learn money-making skills alongside your physical transformation. Build your hustle.",
     },
     {
       icon: Trophy,
-      title: "Transformation Focus",
-      description: "This isn't maintenance. This is complete transformation — designed to change your life.",
+      title: "Nutrition Templates",
+      description: "Meal structure guides and grocery lists to fuel your transformation properly.",
     },
   ];
 
