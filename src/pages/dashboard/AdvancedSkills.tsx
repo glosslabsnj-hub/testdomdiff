@@ -39,11 +39,11 @@ const AdvancedSkills = () => {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Badge className="bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border-primary/30">
-              Coaching Exclusive
+              Trustee Program Exclusive
             </Badge>
           </div>
           <h1 className="headline-section mb-2">
-            Advanced <span className="text-primary">Hustle</span>
+            <span className="text-primary">Trustee Program</span> — Advanced Hustle
           </h1>
           <p className="text-muted-foreground">
             Next-level business strategies and income-building skills for serious entrepreneurs.

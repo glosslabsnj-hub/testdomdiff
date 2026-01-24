@@ -36,12 +36,12 @@ const Workouts = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="headline-section mb-2">
-              Workout <span className="text-primary">Templates</span>
+              <span className="text-primary">Yard Time</span> — Workout Templates
             </h1>
             <p className="text-muted-foreground">
               {isMembershipOnly 
-                ? "Bodyweight workouts. No equipment needed."
-                : "Prison-style frameworks. You fill in the work."}
+                ? "Bodyweight workouts. No equipment, no excuses."
+                : "Full workout library. Build your sessions like we built ours inside."}
             </p>
           </div>
         </div>

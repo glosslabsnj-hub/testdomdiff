@@ -1,19 +1,40 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Briefcase, PlayCircle, CheckCircle, Loader2 } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Briefcase, 
+  CheckCircle, 
+  Loader2,
+  FileText,
+  GraduationCap,
+  Target,
+  DollarSign,
+  Users,
+  Lightbulb,
+  ChevronRight,
+  Download,
+  Eye
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSkillLessons } from "@/hooks/useSkillLessons";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import ResumeBuilder from "@/components/skills/ResumeBuilder";
+import InterviewPrep from "@/components/skills/InterviewPrep";
+import JobSearchTools from "@/components/skills/JobSearchTools";
+import HustleIdeas from "@/components/skills/HustleIdeas";
 
 const SkillBuilding = () => {
   const { subscription } = useAuth();
   const { lessons, loading } = useSkillLessons();
+  const [activeTab, setActiveTab] = useState("lessons");
 
   // Only transformation and coaching users can access
   const planType = subscription?.plan_type;
   if (planType === "membership") {
-    return <UpgradePrompt feature="Skill-Building" upgradeTo="transformation" />;
+    return <UpgradePrompt feature="Work Release Program" upgradeTo="transformation" />;
   }
 
   // Filter out advanced lessons for non-coaching users
@@ -29,6 +50,37 @@ const SkillBuilding = () => {
     );
   }
 
+  const toolCards = [
+    {
+      id: "resume",
+      icon: FileText,
+      title: "Resume Builder",
+      description: "Create a professional resume that gets you hired",
+      tab: "resume"
+    },
+    {
+      id: "interview",
+      icon: Users,
+      title: "Interview Prep",
+      description: "Practice common questions and ace your interviews",
+      tab: "interview"
+    },
+    {
+      id: "jobs",
+      icon: Target,
+      title: "Job Search Tools",
+      description: "Find opportunities and track your applications",
+      tab: "jobs"
+    },
+    {
+      id: "hustle",
+      icon: DollarSign,
+      title: "Side Hustle Ideas",
+      description: "Start making money while you build your career",
+      tab: "hustle"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
@@ -40,11 +92,14 @@ const SkillBuilding = () => {
         </Link>
 
         <div className="mb-8">
+          <Badge className="mb-2 bg-primary/20 text-primary border-primary/30">
+            Work Release Program
+          </Badge>
           <h1 className="headline-section mb-2">
             Skill <span className="text-primary">Building</span>
           </h1>
           <p className="text-muted-foreground">
-            Learn money-making skills to build your hustle. New lessons released weekly.
+            Learn money-making skills, build your resume, and prepare for life on the outside.
           </p>
         </div>
 
@@ -54,79 +109,132 @@ const SkillBuilding = () => {
             <p className="text-sm text-primary uppercase tracking-wider">Your Path to Financial Freedom</p>
           </div>
           <p className="text-muted-foreground">
-            Each week you'll learn a new skill that can generate income. From side hustles to business fundamentals—
-            build the knowledge to support yourself and your family.
+            This isn't just about getting a job—it's about building a life. Each week you'll learn a new skill 
+            that can generate income. From side hustles to business fundamentals—build the knowledge to 
+            support yourself and your family.
           </p>
         </div>
 
-        {visibleLessons.length === 0 ? (
-          <div className="text-center py-12">
-            <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No skill lessons available yet.</p>
-            <p className="text-sm text-muted-foreground mt-2">Check back soon!</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {visibleLessons.map((lesson) => (
-              <div
-                key={lesson.id}
-                className="p-6 rounded-lg bg-card border border-border hover:border-primary/50 transition-all"
-              >
-                <div className="flex flex-col md:flex-row md:items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-display text-xl flex-shrink-0">
-                    {lesson.week_number}
-                  </div>
+        {/* Quick Access Tools */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {toolCards.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setActiveTab(tool.tab)}
+              className={`p-4 rounded-lg border text-left transition-all hover:scale-105 ${
+                activeTab === tool.tab
+                  ? "bg-primary/10 border-primary/50"
+                  : "bg-charcoal border-border hover:border-primary/30"
+              }`}
+            >
+              <tool.icon className={`w-8 h-8 mb-2 ${activeTab === tool.tab ? "text-primary" : "text-muted-foreground"}`} />
+              <h3 className="font-semibold mb-1">{tool.title}</h3>
+              <p className="text-xs text-muted-foreground">{tool.description}</p>
+            </button>
+          ))}
+        </div>
 
-                  <div className="flex-grow">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                        Week {lesson.week_number}
-                      </p>
-                      {lesson.is_advanced && (
-                        <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
-                          Advanced
-                        </Badge>
-                      )}
-                    </div>
-                    <h3 className="headline-card mb-2">{lesson.title}</h3>
-                    {lesson.description && (
-                      <p className="text-sm text-muted-foreground mb-4">{lesson.description}</p>
-                    )}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 bg-charcoal">
+            <TabsTrigger value="lessons">Lessons</TabsTrigger>
+            <TabsTrigger value="resume">Resume</TabsTrigger>
+            <TabsTrigger value="interview">Interview</TabsTrigger>
+            <TabsTrigger value="jobs">Job Search</TabsTrigger>
+            <TabsTrigger value="hustle">Hustle</TabsTrigger>
+          </TabsList>
 
-                    {lesson.video_url && (
-                      <div className="mb-4 rounded-lg overflow-hidden bg-charcoal border border-border">
-                        <div className="aspect-video">
-                          <iframe
-                            src={lesson.video_url}
-                            className="w-full h-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {lesson.content && (
-                      <div className="p-4 rounded bg-charcoal border border-border mb-4">
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lesson.content}</p>
-                      </div>
-                    )}
-
-                    {lesson.action_steps && (
-                      <div className="p-4 rounded bg-charcoal border border-primary/20 mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle className="w-4 h-4 text-primary" />
-                          <p className="text-sm text-primary font-medium">Action Steps</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lesson.action_steps}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+          {/* Lessons Tab */}
+          <TabsContent value="lessons" className="space-y-4">
+            {visibleLessons.length === 0 ? (
+              <div className="text-center py-12">
+                <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No skill lessons available yet.</p>
+                <p className="text-sm text-muted-foreground mt-2">Check back soon!</p>
               </div>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="space-y-4">
+                {visibleLessons.map((lesson) => (
+                  <div
+                    key={lesson.id}
+                    className="p-6 rounded-lg bg-card border border-border hover:border-primary/50 transition-all"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-display text-xl flex-shrink-0">
+                        {lesson.week_number}
+                      </div>
+
+                      <div className="flex-grow">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                            Week {lesson.week_number}
+                          </p>
+                          {lesson.is_advanced && (
+                            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
+                              Advanced
+                            </Badge>
+                          )}
+                        </div>
+                        <h3 className="headline-card mb-2">{lesson.title}</h3>
+                        {lesson.description && (
+                          <p className="text-sm text-muted-foreground mb-4">{lesson.description}</p>
+                        )}
+
+                        {lesson.video_url && (
+                          <div className="mb-4 rounded-lg overflow-hidden bg-charcoal border border-border">
+                            <div className="aspect-video">
+                              <iframe
+                                src={lesson.video_url}
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {lesson.content && (
+                          <div className="p-4 rounded bg-charcoal border border-border mb-4">
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lesson.content}</p>
+                          </div>
+                        )}
+
+                        {lesson.action_steps && (
+                          <div className="p-4 rounded bg-charcoal border border-primary/20 mb-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <CheckCircle className="w-4 h-4 text-primary" />
+                              <p className="text-sm text-primary font-medium">Action Steps</p>
+                            </div>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lesson.action_steps}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Resume Builder Tab */}
+          <TabsContent value="resume">
+            <ResumeBuilder />
+          </TabsContent>
+
+          {/* Interview Prep Tab */}
+          <TabsContent value="interview">
+            <InterviewPrep />
+          </TabsContent>
+
+          {/* Job Search Tab */}
+          <TabsContent value="jobs">
+            <JobSearchTools />
+          </TabsContent>
+
+          {/* Side Hustle Tab */}
+          <TabsContent value="hustle">
+            <HustleIdeas />
+          </TabsContent>
+        </Tabs>
 
         <div className="mt-8 flex gap-4">
           <Button variant="goldOutline" asChild>
