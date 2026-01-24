@@ -168,6 +168,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_pinned: boolean | null
+          mentioned_user_ids: string[] | null
           reply_to_id: string | null
           updated_at: string | null
           user_id: string
@@ -178,6 +179,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_pinned?: boolean | null
+          mentioned_user_ids?: string[] | null
           reply_to_id?: string | null
           updated_at?: string | null
           user_id: string
@@ -188,6 +190,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_pinned?: boolean | null
+          mentioned_user_ids?: string[] | null
           reply_to_id?: string | null
           updated_at?: string | null
           user_id?: string
@@ -1432,6 +1435,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           week_number?: number | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

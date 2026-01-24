@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, ShoppingBag, Crown, ClipboardCheck, AlertTriangle, BookOpen, Calendar, Dumbbell, Cross, Utensils, ChefHat, Clock, Briefcase, Video, BarChart3 } from "lucide-react";
+import { ArrowLeft, Users, MessageSquare, TrendingUp, Package, Loader2, Search, ShoppingBag, Crown, ClipboardCheck, AlertTriangle, BookOpen, Calendar, Dumbbell, Cross, Utensils, ChefHat, Clock, Briefcase, Video, BarChart3, Square, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ClientDetailPanel from "@/components/admin/ClientDetailPanel";
@@ -28,6 +29,7 @@ import CheckInReviewManager from "@/components/admin/CheckInReviewManager";
 import ClientHealthAlertsPanel from "@/components/admin/ClientHealthAlertsPanel";
 import AdminQuickActions from "@/components/admin/AdminQuickActions";
 import ContentNavigation from "@/components/admin/ContentNavigation";
+import ClientBulkActions from "@/components/admin/ClientBulkActions";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -45,12 +47,13 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   
-  const { analytics: clientAnalytics, loading: clientsLoading, error: clientsError } = useClientAnalytics({
+  const { analytics: clientAnalytics, loading: clientsLoading, error: clientsError, refetch: refetchClients } = useClientAnalytics({
     planType: planFilter, status: statusFilter, search: searchQuery,
   });
 
   const [selectedClient, setSelectedClient] = useState<ClientWithSubscription | null>(null);
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
+  const [selectedClientIds, setSelectedClientIds] = useState<Set<string>>(new Set());
 
   // Count pending check-ins
   const pendingCheckIns = checkIns.filter(c => !c.coach_reviewed_at).length;
@@ -208,6 +211,19 @@ export default function AdminDashboard() {
                 </Select>
               </div>
             </div>
+
+            {/* Bulk Actions */}
+            <ClientBulkActions
+              clients={clientAnalytics?.clients || []}
+              selectedIds={selectedClientIds}
+              onSelectAll={() => setSelectedClientIds(new Set(clientAnalytics?.clients.map(c => c.id) || []))}
+              onDeselectAll={() => setSelectedClientIds(new Set())}
+              onRefresh={() => {
+                refetchClients();
+                setSelectedClientIds(new Set());
+              }}
+            />
+
             {clientsLoading ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -222,6 +238,18 @@ export default function AdminDashboard() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border">
+                      <TableHead className="w-10 text-xs sm:text-sm">
+                        <Checkbox
+                          checked={selectedClientIds.size === clientAnalytics?.clients.length && clientAnalytics.clients.length > 0}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedClientIds(new Set(clientAnalytics?.clients.map(c => c.id) || []));
+                            } else {
+                              setSelectedClientIds(new Set());
+                            }
+                          }}
+                        />
+                      </TableHead>
                       <TableHead className="text-xs sm:text-sm">Name</TableHead>
                       <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Email</TableHead>
                       <TableHead className="text-xs sm:text-sm">Plan</TableHead>
@@ -233,19 +261,51 @@ export default function AdminDashboard() {
                     {clientAnalytics?.clients.map((client) => (
                       <TableRow 
                         key={client.id} 
-                        className="border-border cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors" 
-                        onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}
+                        className={`border-border cursor-pointer hover:bg-muted/50 active:bg-muted/70 transition-colors ${
+                          selectedClientIds.has(client.id) ? "bg-primary/10" : ""
+                        }`}
                       >
-                        <TableCell className="font-medium text-xs sm:text-sm">
+                        <TableCell className="w-10" onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={selectedClientIds.has(client.id)}
+                            onCheckedChange={(checked) => {
+                              const newSet = new Set(selectedClientIds);
+                              if (checked) {
+                                newSet.add(client.id);
+                              } else {
+                                newSet.delete(client.id);
+                              }
+                              setSelectedClientIds(newSet);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell 
+                          className="font-medium text-xs sm:text-sm"
+                          onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}
+                        >
                           <div>
                             <span className="block">{client.first_name || client.last_name ? `${client.first_name || ""} ${client.last_name || ""}`.trim() : "—"}</span>
                             <span className="text-muted-foreground text-xs sm:hidden">{client.email}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-muted-foreground text-xs sm:text-sm hidden sm:table-cell">{client.email}</TableCell>
-                        <TableCell>{client.activeSubscription ? getPlanBadge(client.activeSubscription.plan_type) : <span className="text-muted-foreground text-xs">—</span>}</TableCell>
-                        <TableCell>{client.activeSubscription ? getStatusBadge(client.activeSubscription.status) : getStatusBadge("none")}</TableCell>
-                        <TableCell className="text-muted-foreground text-xs sm:text-sm hidden md:table-cell">{format(new Date(client.created_at), "MMM d, yyyy")}</TableCell>
+                        <TableCell 
+                          className="text-muted-foreground text-xs sm:text-sm hidden sm:table-cell"
+                          onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}
+                        >
+                          {client.email}
+                        </TableCell>
+                        <TableCell onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}>
+                          {client.activeSubscription ? getPlanBadge(client.activeSubscription.plan_type) : <span className="text-muted-foreground text-xs">—</span>}
+                        </TableCell>
+                        <TableCell onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}>
+                          {client.activeSubscription ? getStatusBadge(client.activeSubscription.status) : getStatusBadge("none")}
+                        </TableCell>
+                        <TableCell 
+                          className="text-muted-foreground text-xs sm:text-sm hidden md:table-cell"
+                          onClick={() => { setSelectedClient(client); setDetailPanelOpen(true); }}
+                        >
+                          {format(new Date(client.created_at), "MMM d, yyyy")}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

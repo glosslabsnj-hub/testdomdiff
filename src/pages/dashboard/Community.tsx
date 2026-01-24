@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import ChannelSidebar from "@/components/community/ChannelSidebar";
 import MessageList from "@/components/community/MessageList";
-import MessageInput from "@/components/community/MessageInput";
+import MentionInput from "@/components/community/MentionInput";
 import WinsFeed from "@/components/community/WinsFeed";
 import { useCommunityChannels, useCommunityMessages } from "@/hooks/useCommunity";
 import { cn } from "@/lib/utils";
@@ -154,9 +154,9 @@ const Community = () => {
                   loading={messagesLoading}
                   onDeleteMessage={deleteMessage}
                 />
-                <MessageInput
-                  onSend={sendMessage}
-                  placeholder={`Message #${selectedChannel?.name || "channel"}...`}
+                <MentionInput
+                  onSend={(content, mentionedUserIds) => sendMessage(content, undefined, mentionedUserIds)}
+                  placeholder={`Message #${selectedChannel?.name || "channel"}... Use @ to mention`}
                 />
               </>
             )}

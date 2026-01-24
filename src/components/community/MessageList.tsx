@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { format } from "date-fns";
 import { Loader2, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -57,6 +57,41 @@ function getInitials(message: CommunityMessage): string {
   return displayName.slice(0, 2).toUpperCase();
 }
 
+// Parse and highlight @mentions in message content
+function parseMessageContent(content: string): React.ReactNode {
+  // Match @username patterns (alphanumeric, underscores)
+  const mentionRegex = /@([\w_]+)/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = mentionRegex.exec(content)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    
+    // Add the highlighted mention
+    parts.push(
+      <span
+        key={`mention-${match.index}`}
+        className="text-primary font-medium bg-primary/10 px-1 rounded"
+      >
+        @{match[1]}
+      </span>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : content;
+}
+
 export default function MessageList({ messages, loading, onDeleteMessage }: MessageListProps) {
   const { user } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -89,6 +124,7 @@ export default function MessageList({ messages, loading, onDeleteMessage }: Mess
           const isOwn = message.user_id === user?.id;
           const displayName = getDisplayName(message);
           const initials = getInitials(message);
+          const parsedContent = parseMessageContent(message.content);
 
           return (
             <div key={message.id} className="flex gap-3 group">
@@ -111,7 +147,7 @@ export default function MessageList({ messages, loading, onDeleteMessage }: Mess
                   </span>
                 </div>
                 <p className="text-sm text-foreground/90 mt-0.5 break-words">
-                  {message.content}
+                  {parsedContent}
                 </p>
               </div>
 
