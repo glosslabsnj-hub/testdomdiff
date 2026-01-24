@@ -12,16 +12,18 @@ const ProtectedRoute = ({ children, requireIntake = true }: ProtectedRouteProps)
   const { user, loading, hasAccess, profile, subscription } = useAuth();
   const location = useLocation();
 
-  // Debug logging to help diagnose loading issues
-  console.log("ProtectedRoute Debug:", { 
-    path: location.pathname,
-    user: !!user, 
-    loading, 
-    hasAccess, 
-    profile: !!profile, 
-    subscription: subscription?.status,
-    intakeCompleted: !!profile?.intake_completed_at 
-  });
+  // Debug logging - only in development
+  if (import.meta.env.DEV) {
+    console.log("ProtectedRoute Debug:", { 
+      path: location.pathname,
+      user: !!user, 
+      loading, 
+      hasAccess, 
+      profile: !!profile, 
+      subscription: subscription?.status,
+      intakeCompleted: !!profile?.intake_completed_at 
+    });
+  }
 
   if (loading) {
     return (

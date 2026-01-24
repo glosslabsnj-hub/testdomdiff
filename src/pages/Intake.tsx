@@ -216,7 +216,7 @@ const Intake = () => {
                 onValueChange={(value) => updateForm("goal", value)}
                 className="mt-3 space-y-2"
               >
-                {["Fat Loss", "Build Muscle", "Both - Recomposition"].map((option) => (
+                {["Lose fat", "Build muscle", "Both - lose fat and build muscle"].map((option) => (
                   <div key={option} className="flex items-center space-x-3 p-3 rounded-lg bg-charcoal border border-border hover:border-primary/50">
                     <RadioGroupItem value={option} id={option} />
                     <Label htmlFor={option} className="cursor-pointer flex-1">{option}</Label>

@@ -22,6 +22,7 @@ import {
   type ProgramDayWorkout,
   type ProgramDayExercise 
 } from "@/hooks/useProgramDayWorkouts";
+import { GOAL_OPTIONS } from "@/lib/constants";
 
 const DAYS_OF_WEEK = [
   { value: "monday", label: "Monday", short: "Mon" },
@@ -39,12 +40,6 @@ const SECTION_TYPES = [
   { value: "finisher", label: "Finisher", color: "text-red-400" },
   { value: "cooldown", label: "Cool-down", color: "text-blue-400" },
 ] as const;
-
-const GOAL_OPTIONS = [
-  "Lose fat",
-  "Build muscle", 
-  "Both - lose fat and build muscle",
-];
 
 export default function ProgramBuilder() {
   // Track management

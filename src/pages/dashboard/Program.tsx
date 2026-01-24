@@ -31,6 +31,7 @@ import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import { calculateCurrentWeek } from "@/lib/weekCalculator";
 
 interface ProgramDayWorkout {
   id: string;
@@ -68,12 +69,23 @@ const Program = () => {
   }, [tracks, tracksLoading, profile?.goal, getTrackByGoal]);
 
   const { weeks, loading: weeksLoading } = useProgramWeeks(userTrack?.id);
-  const [expandedWeek, setExpandedWeek] = useState<number | null>(1);
+  const [expandedWeek, setExpandedWeek] = useState<number | null>(null);
   const [dayWorkouts, setDayWorkouts] = useState<ProgramDayWorkout[]>([]);
   const [exercisesByDay, setExercisesByDay] = useState<Record<string, ProgramDayExercise[]>>({});
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
-  const [currentWeek] = useState(1); // TODO: Calculate from subscription start date
   const [demoExercise, setDemoExercise] = useState<ProgramDayExercise | null>(null);
+  
+  // Calculate current week from subscription start date
+  const currentWeek = useMemo(() => {
+    return calculateCurrentWeek(subscription?.started_at);
+  }, [subscription?.started_at]);
+  
+  // Auto-expand current week on first load
+  useEffect(() => {
+    if (!expandedWeek && currentWeek) {
+      setExpandedWeek(currentWeek);
+    }
+  }, [currentWeek, expandedWeek]);
   
   // Completion tracking
   const { 
