@@ -46,7 +46,7 @@ const CoachingPortal = () => {
               Private video calls with Dom every week. Strategy, accountability, and personalized guidance for life on the outside.
             </p>
             <Button variant="gold" asChild>
-              <Link to="/book-call">Schedule Report</Link>
+              <Link to="/dashboard/book-po-checkin">Schedule Report</Link>
             </Button>
           </div>
 
@@ -103,7 +103,7 @@ const CoachingPortal = () => {
           <h3 className="headline-card mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-4">
             <Button variant="gold" asChild>
-              <Link to="/book-call">Schedule P.O. Check-In</Link>
+              <Link to="/dashboard/book-po-checkin">Schedule P.O. Check-In</Link>
             </Button>
             <Button variant="goldOutline" asChild>
               <Link to="/dashboard/check-in">Submit Weekly Report</Link>

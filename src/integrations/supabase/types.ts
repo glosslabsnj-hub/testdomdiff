@@ -739,6 +739,7 @@ export type Database = {
           age: number | null
           avatar_url: string | null
           created_at: string
+          discipline_template_id: string | null
           email: string
           equipment: string | null
           experience: string | null
@@ -759,6 +760,7 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          discipline_template_id?: string | null
           email: string
           equipment?: string | null
           experience?: string | null
@@ -779,6 +781,7 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          discipline_template_id?: string | null
           email?: string
           equipment?: string | null
           experience?: string | null
@@ -795,7 +798,15 @@ export type Database = {
           user_id?: string
           weight?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_discipline_template_id_fkey"
+            columns: ["discipline_template_id"]
+            isOneToOne: false
+            referencedRelation: "discipline_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       program_day_exercises: {
         Row: {

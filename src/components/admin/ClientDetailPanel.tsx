@@ -4,15 +4,17 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import SubscriptionManager from "./SubscriptionManager";
 import type { ClientWithSubscription } from "@/hooks/useClientAnalytics";
 
 interface ClientDetailPanelProps {
   client: ClientWithSubscription | null;
   open: boolean;
   onClose: () => void;
+  onUpdate?: () => void;
 }
 
-const ClientDetailPanel = ({ client, open, onClose }: ClientDetailPanelProps) => {
+const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPanelProps) => {
   if (!client) return null;
 
   const getInitials = () => {
@@ -126,6 +128,16 @@ const ClientDetailPanel = ({ client, open, onClose }: ClientDetailPanelProps) =>
             ) : (
               <p className="text-sm text-muted-foreground">No active subscription</p>
             )}
+
+            <Separator className="my-4" />
+
+            {/* Subscription Management */}
+            <SubscriptionManager 
+              client={client} 
+              onUpdate={() => {
+                onUpdate?.();
+              }}
+            />
           </div>
 
           <Separator />
