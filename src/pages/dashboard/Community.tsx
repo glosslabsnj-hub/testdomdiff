@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, Hash, Menu, X } from "lucide-react";
+import { ArrowLeft, Loader2, Hash, Menu, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -9,6 +9,7 @@ import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import ChannelSidebar from "@/components/community/ChannelSidebar";
 import MessageList from "@/components/community/MessageList";
 import MessageInput from "@/components/community/MessageInput";
+import WinsFeed from "@/components/community/WinsFeed";
 import { useCommunityChannels, useCommunityMessages } from "@/hooks/useCommunity";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +59,7 @@ const Community = () => {
   }
 
   const selectedChannel = channels.find(c => c.id === selectedChannelId);
+  const isWinsChannel = selectedChannel?.name.toLowerCase().includes("wins");
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -93,7 +95,11 @@ const Community = () => {
           </Sheet>
 
           <div className="flex items-center gap-2">
-            <Hash className="w-5 h-5 text-primary" />
+            {isWinsChannel ? (
+              <Trophy className="w-5 h-5 text-primary" />
+            ) : (
+              <Hash className="w-5 h-5 text-primary" />
+            )}
             <div>
               <h1 className="font-display text-lg">
                 {selectedChannel?.name.replace(/-/g, " ") || "Community"}
@@ -139,6 +145,8 @@ const Community = () => {
                   <p>Select a channel to start chatting</p>
                 </div>
               </div>
+            ) : isWinsChannel ? (
+              <WinsFeed channelId={selectedChannelId} />
             ) : (
               <>
                 <MessageList

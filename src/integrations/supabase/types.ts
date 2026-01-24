@@ -209,6 +209,120 @@ export type Database = {
           },
         ]
       }
+      community_wins: {
+        Row: {
+          caption: string
+          channel_id: string | null
+          comments_count: number | null
+          created_at: string | null
+          id: string
+          is_featured: boolean | null
+          likes_count: number | null
+          media_type: string
+          media_url: string
+          thumbnail_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          caption: string
+          channel_id?: string | null
+          comments_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          media_type: string
+          media_url: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string
+          channel_id?: string | null
+          comments_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          media_type?: string
+          media_url?: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_wins_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "community_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_wins_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          user_id: string
+          win_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+          win_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          win_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_wins_comments_win_id_fkey"
+            columns: ["win_id"]
+            isOneToOne: false
+            referencedRelation: "community_wins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_wins_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string
+          win_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id: string
+          win_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          win_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_wins_likes_win_id_fkey"
+            columns: ["win_id"]
+            isOneToOne: false
+            referencedRelation: "community_wins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       direct_messages: {
         Row: {
           content: string
