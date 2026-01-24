@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { ArrowLeft, Loader2, Check, TrendingUp, TrendingDown, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProgressEntries } from "@/hooks/useProgressEntries";
 import { useHabitLogs, DEFAULT_HABITS } from "@/hooks/useHabitLogs";
+import { useProgressPhotos } from "@/hooks/useProgressPhotos";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
+import PhotoComparison from "@/components/progress/PhotoComparison";
 
 const Progress = () => {
   const { entries, loading: entriesLoading, updateEntry } = useProgressEntries();
   const { loading: habitsLoading, toggleHabit, isHabitCompleted, getWeekDays, getWeeklyCompliancePercent } = useHabitLogs();
+  const { photos, loading: photosLoading, uploadPhoto, deletePhoto, getPhotosByType } = useProgressPhotos();
   const { toast } = useToast();
   const [editingWeek, setEditingWeek] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Record<string, string>>({});
@@ -20,6 +25,10 @@ const Progress = () => {
   const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
   const weekDays = getWeekDays();
   const weeklyCompliance = getWeeklyCompliancePercent();
+  
+  const beforePhotos = getPhotosByType("before");
+  const duringPhotos = getPhotosByType("during");
+  const afterPhotos = getPhotosByType("after");
 
   const getEntryValue = (weekNumber: number, field: string): string => {
     if (editingWeek === weekNumber && editValues[field] !== undefined) {
@@ -92,7 +101,7 @@ const Progress = () => {
     return "same";
   };
 
-  if (entriesLoading || habitsLoading) {
+  if (entriesLoading || habitsLoading || photosLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -109,6 +118,17 @@ const Progress = () => {
 
         <h1 className="headline-section mb-2">Time <span className="text-primary">Served</span></h1>
         <p className="text-muted-foreground mb-8">Track your sentence progress over 12 weeks.</p>
+
+        <Tabs defaultValue="metrics" className="space-y-6">
+          <TabsList className="bg-card border border-border">
+            <TabsTrigger value="metrics">Metrics</TabsTrigger>
+            <TabsTrigger value="photos" className="gap-2">
+              <Camera className="h-4 w-4" />
+              Progress Photos
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="metrics" className="space-y-8">
 
         {/* 12-Week Progress Grid */}
         <div className="bg-card p-8 rounded-lg border border-border mb-8">
@@ -281,7 +301,43 @@ const Progress = () => {
               })}
             </div>
           ))}
-        </div>
+          </div>
+          </TabsContent>
+
+          <TabsContent value="photos" className="space-y-8">
+            {/* Photo Upload Section */}
+            <div className="bg-card p-6 rounded-lg border border-border">
+              <h2 className="headline-card mb-2">Transformation Photos</h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Document your physical transformation. Upload before, during, and after photos to see your progress.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <PhotoUploadCard
+                  photoType="before"
+                  existingPhotoUrl={beforePhotos[0]?.url}
+                  onUpload={(file, options) => uploadPhoto(file, "before", options)}
+                  onDelete={beforePhotos[0] ? () => deletePhoto(beforePhotos[0].id, beforePhotos[0].storage_path) : undefined}
+                />
+                <PhotoUploadCard
+                  photoType="during"
+                  existingPhotoUrl={duringPhotos[0]?.url}
+                  onUpload={(file, options) => uploadPhoto(file, "during", options)}
+                  onDelete={duringPhotos[0] ? () => deletePhoto(duringPhotos[0].id, duringPhotos[0].storage_path) : undefined}
+                />
+                <PhotoUploadCard
+                  photoType="after"
+                  existingPhotoUrl={afterPhotos[0]?.url}
+                  onUpload={(file, options) => uploadPhoto(file, "after", options)}
+                  onDelete={afterPhotos[0] ? () => deletePhoto(afterPhotos[0].id, afterPhotos[0].storage_path) : undefined}
+                />
+              </div>
+            </div>
+
+            {/* Photo Comparison */}
+            <PhotoComparison photos={photos} />
+          </TabsContent>
+        </Tabs>
 
         <div className="mt-8">
           <Button variant="goldOutline" asChild>

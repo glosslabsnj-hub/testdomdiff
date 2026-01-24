@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Sun, Moon, Plus, Edit, Trash2, Loader2, Eye, GripVertical, Copy, BarChart3, ToggleLeft, ToggleRight } from "lucide-react";
+import { Sun, Moon, Plus, Edit, Trash2, Loader2, Eye, GripVertical, Copy, BarChart3, ToggleLeft, ToggleRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,9 +7,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useDisciplineRoutines, DisciplineRoutine } from "@/hooks/useDisciplineRoutines";
+import { useDisciplineTemplates, RoutineItem } from "@/hooks/useDisciplineTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import DisciplineTemplatesPanel from "./DisciplineTemplatesPanel";
 
 interface ComplianceStats {
   totalUsers: number;
@@ -258,6 +261,31 @@ export default function DisciplineManager() {
           Duplicate Morning → Evening
         </Button>
       </div>
+
+      {/* Templates Panel */}
+      <Card className="bg-charcoal border-border">
+        <CardContent className="pt-6">
+          <DisciplineTemplatesPanel
+            onApplyTemplate={async (templateRoutines: RoutineItem[]) => {
+              // Delete all existing routines
+              for (const routine of routines) {
+                await deleteRoutine(routine.id);
+              }
+              // Create new routines from template
+              for (const item of templateRoutines) {
+                await createRoutine({
+                  routine_type: item.routine_type,
+                  time_slot: item.time_slot,
+                  action_text: item.action_text,
+                  display_order: item.display_order,
+                  is_active: true,
+                });
+              }
+            }}
+          />
+        </CardContent>
+      </Card>
+
 
       {/* Preview Mode */}
       {previewMode ? (
