@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Edit, Loader2, ChevronRight, Video } from "lucide-react";
+import { Calendar, Edit, Loader2, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { useProgramWeeks, ProgramWeek, useWorkoutTemplates } from "@/hooks/useWorkoutContent";
+import VideoUploader from "./VideoUploader";
 
 export default function ProgramWeeksManager() {
   const { weeks, loading, updateWeek } = useProgramWeeks();
@@ -188,16 +189,11 @@ export default function ProgramWeeksManager() {
                 <Video className="w-4 h-4 text-primary" />
                 Week Video
               </h4>
-              <div>
-                <Label htmlFor="video_url">Video URL (YouTube/Vimeo embed)</Label>
-                <Input 
-                  id="video_url"
-                  value={form.video_url} 
-                  onChange={(e) => setForm({ ...form, video_url: e.target.value })} 
-                  className="bg-charcoal border-border mt-1" 
-                  placeholder="https://www.youtube.com/embed/..." 
-                />
-              </div>
+              <VideoUploader
+                currentVideoUrl={form.video_url || null}
+                onUpload={(url) => setForm({ ...form, video_url: url || "" })}
+                folder={`week-${editingWeek?.week_number}`}
+              />
               <div>
                 <Label htmlFor="video_title">Video Title</Label>
                 <Input 

@@ -139,12 +139,14 @@ const Program = () => {
                           </span>
                         </div>
                         <div className="aspect-video rounded overflow-hidden bg-background">
-                          <iframe
+                          <video
                             src={week.video_url}
-                            className="w-full h-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
+                            controls
+                            className="w-full h-full object-contain"
+                            poster=""
+                          >
+                            Your browser does not support the video tag.
+                          </video>
                         </div>
                         {week.video_description && (
                           <p className="text-sm text-muted-foreground mt-2">{week.video_description}</p>
