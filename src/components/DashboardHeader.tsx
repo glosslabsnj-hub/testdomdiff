@@ -29,21 +29,21 @@ const DashboardHeader = () => {
         return (
           <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground border-0 gap-1">
             <Crown className="w-3 h-3" />
-            1:1 Coaching
+            Free World
           </Badge>
         );
       case "transformation":
         return (
           <Badge className="bg-primary/20 text-primary border-primary/30 gap-1">
             <Sparkles className="w-3 h-3" />
-            12-Week Program
+            Gen Pop
           </Badge>
         );
       case "membership":
         return (
           <Badge variant="secondary" className="gap-1">
             <User className="w-3 h-3" />
-            Membership
+            Solitary
           </Badge>
         );
       default:
@@ -72,11 +72,11 @@ const DashboardHeader = () => {
     if (!subscription) return "No active plan";
     switch (subscription.plan_type) {
       case "coaching":
-        return "1:1 Redemption Coaching";
+        return "Free World 1:1 Coaching";
       case "transformation":
-        return "12-Week Transformation";
+        return "General Population";
       case "membership":
-        return "Discipline Membership";
+        return "Solitary Confinement";
       default:
         return "Active Plan";
     }

@@ -16,21 +16,21 @@ type PlanType = "membership" | "transformation" | "coaching";
 const planOptions: { value: PlanType; label: string; icon: React.ReactNode; description: string }[] = [
   {
     value: "membership",
-    label: "Monthly Membership",
+    label: "Solitary Confinement",
     icon: <User className="w-5 h-5" />,
-    description: "$79.99/mo - Ongoing access",
+    description: "$79.99/mo - The Foundation",
   },
   {
     value: "transformation",
-    label: "12-Week Transformation",
+    label: "General Population",
     icon: <Sparkles className="w-5 h-5" />,
-    description: "$749.99 - 98 days access",
+    description: "$749.99 - 12 Weeks",
   },
   {
     value: "coaching",
-    label: "1:1 Coaching",
+    label: "Free World Coaching",
     icon: <Crown className="w-5 h-5" />,
-    description: "$1,250/mo - Premium access",
+    description: "$1,250/mo - Maximum Freedom",
   },
 ];
 

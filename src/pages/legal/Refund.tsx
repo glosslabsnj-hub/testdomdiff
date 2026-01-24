@@ -8,11 +8,11 @@ const Refund = () => (
       <h1 className="headline-section mb-8">Refund <span className="text-primary">Policy</span></h1>
       <div className="prose prose-invert max-w-3xl space-y-6 text-muted-foreground">
         <p>Last updated: {new Date().toLocaleDateString()}</p>
-        <h2 className="headline-card text-foreground mt-8">Membership ($79.99/mo)</h2>
+        <h2 className="headline-card text-foreground mt-8">Solitary Confinement ($79.99/mo)</h2>
         <p>Cancel anytime. No refunds for partial months. Access continues until billing period ends.</p>
-        <h2 className="headline-card text-foreground mt-8">12-Week Transformation ($749.99)</h2>
+        <h2 className="headline-card text-foreground mt-8">General Population ($749.99)</h2>
         <p>No refunds once program access is granted. This is a commitment.</p>
-        <h2 className="headline-card text-foreground mt-8">1:1 Coaching ($1,250/mo)</h2>
+        <h2 className="headline-card text-foreground mt-8">Free World Coaching ($1,250/mo)</h2>
         <p>Cancel with 7 days notice before next billing. No partial refunds.</p>
       </div>
     </section>

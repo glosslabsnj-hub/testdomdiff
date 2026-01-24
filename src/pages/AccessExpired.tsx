@@ -35,23 +35,23 @@ const AccessExpired = () => {
     switch (subscription.plan_type) {
       case "transformation":
         return {
-          title: "Your 12-Week Program Has Ended",
-          message: "Congratulations on completing your transformation! Continue your journey with the Discipline Membership.",
-          renewText: "Continue with Membership",
+          title: "Your Time in Gen Pop Has Ended",
+          message: "Congratulations on completing your 12 weeks! Continue your journey with Solitary Confinement.",
+          renewText: "Enter Solitary",
           renewLink: "/programs/membership",
         };
       case "membership":
         return {
-          title: "Membership Cancelled",
-          message: "Your Discipline Membership has been cancelled. Renew to regain access to your dashboard.",
-          renewText: "Renew Membership",
+          title: "Solitary Access Cancelled",
+          message: "Your Solitary Confinement access has been cancelled. Renew to regain access to your dashboard.",
+          renewText: "Re-Enter Solitary",
           renewLink: "/checkout?plan=membership",
         };
       case "coaching":
         return {
-          title: "Coaching Subscription Ended",
-          message: "Your 1:1 Coaching subscription has been cancelled. Renew to continue working directly with Dom.",
-          renewText: "Renew Coaching",
+          title: "Free World Access Ended",
+          message: "Your Free World Coaching has been cancelled. Renew to continue working directly with Dom.",
+          renewText: "Renew Free World",
           renewLink: "/checkout?plan=coaching",
         };
       default:
