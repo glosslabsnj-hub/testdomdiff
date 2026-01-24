@@ -18,7 +18,8 @@ import {
   AlertTriangle,
   Info,
   X,
-  Sparkles
+  Sparkles,
+  Camera
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,6 +45,7 @@ const prisonTooltips: Record<string, string> = {
   "Time Served": "Track your transformation progress",
   "Work Release": "Build income-generating skills for life outside",
   "The Yard": "Connect with your brothers in the community",
+  "Mugshots": "View and compare your progress photos",
 };
 
 // Tooltip explanations for coaching/Free World tier
@@ -58,6 +60,7 @@ const coachingTooltips: Record<string, string> = {
   "Progress Report": "Track your transformation journey",
   "Career Building": "Build income-generating skills",
   "The Network": "Connect with your brotherhood",
+  "Photo Gallery": "View and compare your progress photos",
 };
 
 // Benefit messages for locked tiles
@@ -217,6 +220,17 @@ const Dashboard = () => {
       color: "dashboard-tile",
       isNew: false,
     },
+    photoGallery: {
+      icon: Camera,
+      title: isCoaching ? "Photo Gallery" : "Mugshots",
+      subtitle: isCoaching ? "Your Journey" : "Progress Photos",
+      description: isCoaching
+        ? "View your transformation timeline. Compare and track your progress."
+        : "View your transformation. See how far you've come since booking.",
+      href: "/dashboard/photos",
+      color: "dashboard-tile",
+      isNew: false,
+    },
     advancedSkills: {
       icon: GraduationCap,
       title: "Entrepreneur Track",
@@ -289,6 +303,9 @@ const Dashboard = () => {
     tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Community"))!);
   }
   
+  // Photo Gallery for all users
+  tiles.push(allTiles.photoGallery);
+  
   if (isCoaching) {
     tiles.push(allTiles.advancedSkills);
     tiles.push(allTiles.messages);
@@ -327,9 +344,9 @@ const Dashboard = () => {
                   Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">
                     {isCoaching ? "Orientation" : "Intake Processing"}
                   </Link> to get {isCoaching ? "set up" : "oriented"}, 
-                  then hit <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">
-                    {isCoaching ? "Training Sessions" : "Yard Time"}
-                  </Link> for your first workout.
+                  then head to <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"} className="text-primary hover:underline font-medium">
+                    {isCoaching ? "Your Program" : (isMembership ? "Yard Time" : "The Sentence")}
+                  </Link> to {isMembership ? "start your first workout" : "begin your 12-week journey"}.
                 </p>
               </div>
             </div>
