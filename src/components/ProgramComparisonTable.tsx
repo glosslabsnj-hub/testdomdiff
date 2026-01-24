@@ -13,14 +13,14 @@ const features: FeatureRow[] = [
   // Workouts
   { feature: "Bodyweight Workout Templates", membership: true, transformation: true, coaching: true, category: "Workouts" },
   { feature: "Full Progressive Workout Library", membership: false, transformation: true, coaching: true },
-  { feature: "12-Week Assigned Schedule", membership: false, transformation: true, coaching: true },
+  { feature: "Goal-Based 12-Week Schedule", membership: false, transformation: true, coaching: true },
   { feature: "Weekly Video Coaching", membership: false, transformation: true, coaching: true },
-  { feature: "Custom-Built Programming", membership: false, transformation: false, coaching: true },
+  { feature: "Elite Tailored Programming (Hyper-Specific)", membership: false, transformation: false, coaching: true },
   
   // Nutrition
   { feature: "Basic Nutrition Guidelines", membership: true, transformation: true, coaching: true, category: "Nutrition" },
-  { feature: "Complete Nutrition Templates", membership: false, transformation: true, coaching: true },
-  { feature: "Meal Planning Guides", membership: false, transformation: true, coaching: true },
+  { feature: "12-Week Goal-Based Nutrition Plan", membership: false, transformation: true, coaching: true },
+  { feature: "TDEE-Matched Meal Planning", membership: false, transformation: true, coaching: true },
   { feature: "Custom Nutrition Coaching", membership: false, transformation: false, coaching: true },
   
   // Skill-Building
@@ -36,9 +36,11 @@ const features: FeatureRow[] = [
   { feature: "Community Access", membership: true, transformation: true, coaching: true, category: "Support & Access" },
   { feature: "Weekly Check-In System", membership: true, transformation: true, coaching: true },
   { feature: "Progress Tracking", membership: true, transformation: true, coaching: true },
+  { feature: "Goal-Based Program Assignment", membership: false, transformation: true, coaching: true },
   { feature: "Direct Messaging to Dom", membership: false, transformation: false, coaching: true },
   { feature: "Weekly 1:1 Video Calls", membership: false, transformation: false, coaching: true },
   { feature: "Priority Support", membership: false, transformation: false, coaching: true },
+  { feature: "Unlimited Personal Adjustments", membership: false, transformation: false, coaching: true },
 ];
 
 const ValueCell = ({ value }: { value: boolean | "partial" | string }) => {
@@ -80,6 +82,7 @@ export default function ProgramComparisonTable() {
             </th>
             <th className="text-center py-4 px-4 min-w-[120px]">
               <div className="flex flex-col items-center gap-1">
+                <span className="text-xs text-purple-400 uppercase tracking-wider font-bold">Elite</span>
                 <span className="text-sm text-muted-foreground uppercase tracking-wider">Free World</span>
                 <span className="text-primary font-display text-lg">$1,250</span>
                 <span className="text-xs text-muted-foreground">/month</span>

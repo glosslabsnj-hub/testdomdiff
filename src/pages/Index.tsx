@@ -68,7 +68,18 @@ const Index = () => {
     transformation: "Complete lifestyle change",
     quote: "I came for the body. I stayed for the brotherhood. This is different."
   }];
-  const whatIncluded = ["Template-based workout frameworks (you fill in the work)", "Daily discipline routine templates", "Weekly check-in accountability system", "Group coaching calls (program dependent)", "Nutrition templates and meal structure guides", "Faith + mindset lesson frameworks", "Progress tracking templates", "Direct access to coaching (1:1 only)"];
+  const whatIncluded = [
+    { item: "Bodyweight workout templates for any environment", tier: "All" },
+    { item: "Daily discipline routines (Lights On / Lights Out)", tier: "All" },
+    { item: "Weekly accountability check-ins", tier: "All" },
+    { item: "Faith + mindset lessons with scripture focus", tier: "All" },
+    { item: "Progress tracking and compliance metrics", tier: "All" },
+    { item: "Goal-based 12-week programming built for you", tier: "Gen Pop+" },
+    { item: "Personalized nutrition plans matched to your TDEE", tier: "Gen Pop+" },
+    { item: "Skill-building and hustle training", tier: "Gen Pop+" },
+    { item: "Direct coaching access and custom elite programming", tier: "Free World" },
+    { item: "Weekly 1:1 video calls with Dom", tier: "Free World" },
+  ];
   const faqs = [{
     question: "Do I need gym equipment?",
     answer: "No. All programs are designed for bodyweight training with minimal space. Dumbbells and bands are optional additions."
@@ -329,13 +340,26 @@ const Index = () => {
                 Every program is built on proven templates — frameworks you fill with your own
                 discipline. No fluff. No filler. Just the structure you need.
               </p>
-              <ul className="space-y-4">
-                {whatIncluded.map((item, index) => <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-charcoal/50 border border-transparent hover:border-primary/30 transition-colors">
-                    <div className="p-1 rounded-full bg-primary/20 mt-0.5">
+              <ul className="space-y-3">
+                {whatIncluded.map((entry, index) => (
+                  <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-charcoal/50 border border-transparent hover:border-primary/30 transition-colors">
+                    <div className="p-1 rounded-full bg-primary/20 mt-0.5 flex-shrink-0">
                       <Check className="w-4 h-4 text-primary" />
                     </div>
-                    <span>{item}</span>
-                  </li>)}
+                    <div className="flex-1">
+                      <span>{entry.item}</span>
+                      <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
+                        entry.tier === "All" 
+                          ? "bg-primary/20 text-primary" 
+                          : entry.tier === "Gen Pop+" 
+                            ? "bg-blue-500/20 text-blue-400" 
+                            : "bg-purple-500/20 text-purple-400"
+                      }`}>
+                        {entry.tier}
+                      </span>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </div>
             <div className="relative group">

@@ -143,6 +143,36 @@ export type Database = {
         }
         Relationships: []
       }
+      discipline_journals: {
+        Row: {
+          created_at: string | null
+          id: string
+          journal_date: string
+          prompt: string
+          response: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          journal_date?: string
+          prompt: string
+          response: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          journal_date?: string
+          prompt?: string
+          response?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       discipline_routines: {
         Row: {
           action_text: string
@@ -1147,6 +1177,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_milestones: {
+        Row: {
+          badge_icon: string | null
+          created_at: string | null
+          description: string | null
+          earned_at: string | null
+          id: string
+          milestone_key: string
+          milestone_name: string
+          milestone_type: string
+          user_id: string
+        }
+        Insert: {
+          badge_icon?: string | null
+          created_at?: string | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          milestone_key: string
+          milestone_name: string
+          milestone_type: string
+          user_id: string
+        }
+        Update: {
+          badge_icon?: string | null
+          created_at?: string | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          milestone_key?: string
+          milestone_name?: string
+          milestone_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
