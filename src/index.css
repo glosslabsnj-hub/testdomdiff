@@ -3,85 +3,89 @@
 @tailwind utilities;
 
 /* REDEEMED STRENGTH - Faith + Discipline Design System */
-/* Gritty prison discipline meets God-led transformation */
-/* Enhanced color palette with depth and warmth */
+/* GRITTY INDUSTRIAL - Prison Iron & Blood Edition */
 
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    /* Core palette - Deep/Rich Blacks with warmth */
-    --background: 20 15% 4%;
-    --foreground: 40 20% 96%;
+    /* Core palette - Industrial Blacks */
+    --background: 220 15% 4%;
+    --foreground: 45 10% 92%;
 
-    --card: 20 12% 7%;
-    --card-foreground: 40 20% 96%;
+    --card: 220 12% 7%;
+    --card-foreground: 45 10% 92%;
 
-    --popover: 20 12% 7%;
-    --popover-foreground: 40 20% 96%;
+    --popover: 220 12% 7%;
+    --popover-foreground: 45 10% 92%;
 
-    /* Primary - Warm Amber Gold (richer, warmer) */
-    --primary: 38 92% 50%;
-    --primary-foreground: 20 15% 4%;
+    /* Primary - Burnt Orange/Rust Gold (aggressive, industrial) */
+    --primary: 28 90% 48%;
+    --primary-foreground: 220 15% 4%;
 
-    --secondary: 20 10% 12%;
-    --secondary-foreground: 40 20% 96%;
+    --secondary: 220 10% 12%;
+    --secondary-foreground: 45 10% 92%;
 
-    --muted: 20 8% 16%;
-    --muted-foreground: 30 10% 55%;
+    --muted: 220 8% 16%;
+    --muted-foreground: 220 8% 50%;
 
-    /* Accent - Copper/Bronze for variety */
-    --accent: 25 85% 45%;
-    --accent-foreground: 40 20% 96%;
+    /* Accent - Crimson/Blood (intensity) */
+    --accent: 0 72% 45%;
+    --accent-foreground: 45 10% 92%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 40 20% 96%;
+    --destructive-foreground: 45 10% 92%;
 
-    --border: 25 12% 18%;
-    --input: 20 10% 14%;
-    --ring: 38 92% 50%;
+    --border: 220 10% 16%;
+    --input: 220 10% 12%;
+    --ring: 28 90% 48%;
 
     --radius: 0.5rem;
 
-    /* Extended Gold Palette */
-    --gold: 38 92% 50%;
-    --gold-light: 40 90% 62%;
-    --gold-dark: 35 85% 38%;
-    --gold-muted: 38 50% 45%;
+    /* Extended Rust/Bronze Palette */
+    --gold: 28 90% 48%;
+    --gold-light: 32 85% 58%;
+    --gold-dark: 24 85% 35%;
+    --gold-muted: 28 50% 40%;
     
-    /* Copper/Bronze Secondary */
-    --copper: 25 85% 45%;
-    --copper-light: 28 80% 55%;
-    --copper-dark: 22 75% 35%;
+    /* Crimson/Blood accent */
+    --crimson: 0 72% 45%;
+    --crimson-light: 5 65% 55%;
+    --crimson-dark: 355 75% 32%;
     
-    /* Warm Charcoals */
-    --charcoal: 20 12% 7%;
-    --charcoal-light: 20 10% 11%;
-    --charcoal-dark: 20 15% 4%;
+    /* Gunmetal/Steel */
+    --steel: 220 15% 22%;
+    --steel-light: 220 12% 32%;
+    --steel-dark: 220 18% 14%;
     
-    /* Steel accent for contrast */
-    --steel: 210 15% 25%;
-    --steel-light: 210 12% 35%;
+    /* Industrial Charcoals */
+    --charcoal: 220 12% 7%;
+    --charcoal-light: 220 10% 11%;
+    --charcoal-dark: 220 15% 4%;
+    
+    /* Concrete gray */
+    --concrete: 220 5% 35%;
     
     /* Success/Progress */
-    --success: 142 70% 45%;
-    --success-foreground: 142 70% 95%;
+    --success: 142 60% 40%;
+    --success-foreground: 142 60% 95%;
     
-    /* Gradients - More dynamic */
-    --gradient-gold: linear-gradient(135deg, hsl(40 90% 55%), hsl(35 85% 42%));
-    --gradient-gold-radial: radial-gradient(ellipse at top, hsl(38 92% 50% / 0.15), transparent 60%);
-    --gradient-copper: linear-gradient(135deg, hsl(28 80% 50%), hsl(22 75% 38%));
-    --gradient-dark: linear-gradient(180deg, hsl(20 12% 7%), hsl(20 15% 4%));
-    --gradient-hero: linear-gradient(180deg, hsl(20 15% 4%) 0%, hsl(20 12% 8%) 50%, hsl(20 15% 4%) 100%);
-    --gradient-warm: linear-gradient(135deg, hsl(20 12% 7%) 0%, hsl(25 15% 10%) 100%);
-    --gradient-ambient: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(38 92% 50% / 0.08), transparent);
+    /* Gradients - Industrial & Dramatic */
+    --gradient-gold: linear-gradient(135deg, hsl(32 88% 52%), hsl(24 85% 38%));
+    --gradient-gold-radial: radial-gradient(ellipse at top, hsl(28 90% 48% / 0.12), transparent 50%);
+    --gradient-crimson: linear-gradient(135deg, hsl(5 70% 50%), hsl(355 75% 35%));
+    --gradient-dark: linear-gradient(180deg, hsl(220 12% 7%), hsl(220 15% 4%));
+    --gradient-hero: linear-gradient(180deg, hsl(220 15% 4%) 0%, hsl(220 12% 8%) 50%, hsl(220 15% 4%) 100%);
+    --gradient-steel: linear-gradient(135deg, hsl(220 15% 22%), hsl(220 18% 14%));
+    --gradient-ambient: radial-gradient(ellipse 100% 60% at 50% -20%, hsl(28 90% 48% / 0.1), transparent);
+    --gradient-ambient-crimson: radial-gradient(ellipse 80% 50% at 80% 20%, hsl(0 72% 45% / 0.06), transparent);
     
-    /* Enhanced Shadows */
-    --shadow-gold: 0 4px 30px -5px hsl(38 92% 50% / 0.35);
-    --shadow-gold-lg: 0 8px 45px -8px hsl(38 92% 50% / 0.45);
-    --shadow-copper: 0 4px 25px -5px hsl(25 85% 45% / 0.3);
-    --shadow-strong: 0 25px 50px -12px hsl(0 0% 0% / 0.6);
-    --shadow-inner-glow: inset 0 1px 0 hsl(40 90% 70% / 0.15);
+    /* Enhanced Shadows - Dramatic */
+    --shadow-gold: 0 4px 30px -5px hsl(28 90% 48% / 0.4);
+    --shadow-gold-lg: 0 10px 50px -10px hsl(28 90% 48% / 0.5);
+    --shadow-crimson: 0 4px 25px -5px hsl(0 72% 45% / 0.35);
+    --shadow-strong: 0 25px 60px -12px hsl(0 0% 0% / 0.7);
+    --shadow-inner-glow: inset 0 1px 0 hsl(32 85% 60% / 0.15);
     
     /* Typography */
     --font-display: 'Bebas Neue', sans-serif;
@@ -89,8 +93,8 @@
   }
 
   .dark {
-    --background: 20 15% 4%;
-    --foreground: 40 20% 96%;
+    --background: 220 15% 4%;
+    --foreground: 45 10% 92%;
   }
 }
 
@@ -119,7 +123,7 @@
   .headline-hero {
     font-family: var(--font-display);
     @apply text-5xl md:text-7xl lg:text-8xl tracking-wider leading-none;
-    text-shadow: 0 4px 30px hsl(0 0% 0% / 0.5);
+    text-shadow: 0 4px 40px hsl(0 0% 0% / 0.7);
   }
 
   /* Section headlines */
@@ -139,64 +143,113 @@
     @apply text-primary;
   }
 
-  /* Gritty texture overlay - warmer */
+  /* Heavy gritty texture overlay */
   .texture-overlay {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.05;
     @apply pointer-events-none absolute inset-0;
   }
+  
+  /* Ambient glow for hero sections */
+  .hero-glow {
+    @apply relative;
+  }
+  
+  .hero-glow::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: 
+      radial-gradient(ellipse 120% 60% at 50% -30%, hsl(28 90% 48% / 0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 10%, hsl(0 72% 45% / 0.06), transparent 50%);
+  }
+  
+  /* Card glow effect */
+  .card-glow {
+    @apply relative overflow-hidden;
+  }
+  
+  .card-glow::before {
+    content: '';
+    @apply absolute -top-1/2 -left-1/2 w-full h-full pointer-events-none;
+    background: radial-gradient(ellipse at center, hsl(28 90% 48% / 0.08), transparent 70%);
+    transform: rotate(-15deg);
+  }
 
-  /* Enhanced gold gradient button */
+  /* Enhanced gold gradient button - more aggressive */
   .btn-gold {
-    background: linear-gradient(135deg, hsl(40 90% 55%), hsl(35 85% 45%));
+    background: linear-gradient(135deg, hsl(32 88% 52%), hsl(24 85% 40%));
     box-shadow: 
-      0 4px 20px -5px hsl(38 92% 50% / 0.45), 
-      inset 0 1px 0 hsl(45 90% 75% / 0.25),
-      inset 0 -1px 0 hsl(30 80% 35% / 0.3);
+      0 4px 25px -5px hsl(28 90% 48% / 0.5), 
+      inset 0 1px 0 hsl(38 90% 65% / 0.3),
+      inset 0 -2px 0 hsl(20 80% 30% / 0.4);
     @apply text-black font-bold uppercase tracking-widest transition-all duration-300;
   }
 
   .btn-gold:hover {
     @apply scale-105;
-    background: linear-gradient(135deg, hsl(42 92% 58%), hsl(36 88% 48%));
+    background: linear-gradient(135deg, hsl(34 90% 55%), hsl(26 88% 45%));
     box-shadow: 
-      0 8px 40px -5px hsl(38 92% 50% / 0.6), 
-      inset 0 1px 0 hsl(45 90% 80% / 0.3),
-      inset 0 -1px 0 hsl(30 80% 35% / 0.3);
+      0 8px 45px -5px hsl(28 90% 48% / 0.65), 
+      inset 0 1px 0 hsl(40 90% 70% / 0.35),
+      inset 0 -2px 0 hsl(20 80% 30% / 0.4);
   }
 
-  /* Outline button */
+  /* Outline button - with glow */
   .btn-outline-gold {
     @apply border-2 border-primary text-primary font-bold uppercase tracking-widest transition-all duration-300;
-    box-shadow: 0 0 20px -8px hsl(38 92% 50% / 0.3);
+    box-shadow: 0 0 25px -8px hsl(28 90% 48% / 0.4);
   }
 
   .btn-outline-gold:hover {
     @apply bg-primary text-black;
-    box-shadow: 0 0 30px -5px hsl(38 92% 50% / 0.5);
+    box-shadow: 0 0 40px -5px hsl(28 90% 48% / 0.6);
+  }
+  
+  /* Crimson button variant */
+  .btn-crimson {
+    background: linear-gradient(135deg, hsl(5 70% 50%), hsl(355 75% 38%));
+    box-shadow: 0 4px 25px -5px hsl(0 72% 45% / 0.45);
+    @apply text-white font-bold uppercase tracking-widest transition-all duration-300;
+  }
+  
+  .btn-crimson:hover {
+    @apply scale-105;
+    box-shadow: 0 8px 40px -5px hsl(0 72% 45% / 0.6);
   }
 
-  /* Card styles - warmer */
+  /* Card styles - industrial */
   .card-dark {
-    @apply bg-card border border-border rounded-lg;
-    background: linear-gradient(145deg, hsl(20 12% 8%), hsl(20 12% 6%));
+    @apply bg-card border border-border rounded-lg relative overflow-hidden;
+    background: linear-gradient(165deg, hsl(220 12% 9%), hsl(220 14% 5%));
+  }
+  
+  .card-dark::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: linear-gradient(180deg, hsl(28 90% 48% / 0.02) 0%, transparent 30%);
   }
 
   .card-elevated {
-    @apply bg-charcoal-light border border-border rounded-lg;
+    @apply bg-charcoal-light border border-border rounded-lg relative overflow-hidden;
     box-shadow: var(--shadow-strong);
-    background: linear-gradient(145deg, hsl(20 10% 11%), hsl(20 12% 8%));
+    background: linear-gradient(165deg, hsl(220 10% 12%), hsl(220 12% 7%));
+  }
+  
+  .card-elevated::before {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-px;
+    background: linear-gradient(90deg, transparent, hsl(28 90% 48% / 0.4), transparent);
   }
 
-  /* Card with subtle gold accent */
+  /* Card with aggressive accent */
   .card-accent {
     @apply bg-card border border-border rounded-lg relative overflow-hidden;
   }
   
   .card-accent::before {
     content: '';
-    @apply absolute top-0 left-0 right-0 h-px;
-    background: linear-gradient(90deg, transparent, hsl(38 92% 50% / 0.5), transparent);
+    @apply absolute top-0 left-0 right-0 h-0.5;
+    background: linear-gradient(90deg, hsl(0 72% 45% / 0.6), hsl(28 90% 48%), hsl(0 72% 45% / 0.6));
   }
 
   /* Section container */
@@ -204,11 +257,11 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Gold divider - enhanced with glow */
+  /* Gold divider - industrial */
   .divider-gold {
-    @apply h-1 w-20 mx-auto rounded-full;
-    background: linear-gradient(90deg, hsl(35 85% 40%), hsl(40 92% 55%), hsl(35 85% 40%));
-    box-shadow: 0 0 25px hsl(38 92% 50% / 0.5);
+    @apply h-1 w-24 mx-auto;
+    background: linear-gradient(90deg, hsl(0 72% 45% / 0.5), hsl(28 90% 50%), hsl(0 72% 45% / 0.5));
+    box-shadow: 0 0 30px hsl(28 90% 48% / 0.5);
   }
 
   /* Animated underline */
@@ -225,14 +278,19 @@
     @apply scale-x-100;
   }
 
-  /* Glow effect for featured elements */
+  /* Glow effects */
   .glow-gold {
-    box-shadow: 0 0 50px -10px hsl(38 92% 50% / 0.4);
+    box-shadow: 0 0 60px -15px hsl(28 90% 48% / 0.45);
   }
   
-  /* Copper glow for variety */
-  .glow-copper {
-    box-shadow: 0 0 40px -10px hsl(25 85% 45% / 0.35);
+  .glow-crimson {
+    box-shadow: 0 0 50px -15px hsl(0 72% 45% / 0.4);
+  }
+  
+  .glow-dual {
+    box-shadow: 
+      0 0 60px -15px hsl(28 90% 48% / 0.35),
+      0 0 40px -10px hsl(0 72% 45% / 0.2);
   }
 
   /* Image overlay styles */
@@ -242,45 +300,76 @@
 
   .image-overlay-dark::after {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent;
+    @apply absolute inset-0;
+    background: 
+      linear-gradient(180deg, hsl(220 15% 4% / 0.3) 0%, hsl(220 15% 4% / 0.7) 60%, hsl(220 15% 4%) 100%),
+      linear-gradient(90deg, hsl(220 15% 4% / 0.5) 0%, transparent 30%, transparent 70%, hsl(220 15% 4% / 0.5) 100%);
   }
 
-  /* Subtle vignette effect - warmer */
+  /* Heavy vignette - prison feel */
   .vignette {
-    box-shadow: inset 0 0 120px hsl(20 20% 0% / 0.6);
+    box-shadow: inset 0 0 150px hsl(220 20% 0% / 0.7);
   }
   
-  /* Ambient glow background */
-  .ambient-glow {
-    position: relative;
+  /* Lighter vignette for cards */
+  .vignette-soft {
+    box-shadow: inset 0 0 60px hsl(220 20% 0% / 0.4);
   }
   
-  .ambient-glow::before {
+  /* Ambient section background */
+  .section-ambient {
+    @apply relative;
+    background: linear-gradient(180deg, hsl(220 15% 4%) 0%, hsl(220 12% 6%) 50%, hsl(220 15% 4%) 100%);
+  }
+  
+  .section-ambient::before {
     content: '';
     @apply absolute inset-0 pointer-events-none;
-    background: radial-gradient(ellipse 80% 50% at 50% -10%, hsl(38 92% 50% / 0.06), transparent 50%);
+    background: 
+      radial-gradient(ellipse 100% 50% at 50% 0%, hsl(28 90% 48% / 0.06), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 0% 50%, hsl(0 72% 45% / 0.04), transparent);
   }
   
-  /* Warm gradient background section */
-  .section-warm {
-    background: linear-gradient(180deg, hsl(20 15% 4%) 0%, hsl(22 12% 6%) 50%, hsl(20 15% 4%) 100%);
+  /* Industrial border accent */
+  .border-industrial {
+    @apply border border-border relative;
+  }
+  
+  .border-industrial::before {
+    content: '';
+    @apply absolute -top-px left-4 right-4 h-px;
+    background: linear-gradient(90deg, transparent, hsl(28 90% 48% / 0.5), transparent);
+  }
+  
+  /* Steel plate effect */
+  .steel-plate {
+    background: linear-gradient(145deg, hsl(220 15% 20%), hsl(220 18% 12%));
+    box-shadow: 
+      inset 0 1px 0 hsl(220 12% 30% / 0.5),
+      inset 0 -2px 0 hsl(220 20% 8% / 0.8),
+      0 4px 20px -5px hsl(0 0% 0% / 0.5);
   }
 }
 
 @layer utilities {
-  /* Background utilities - warmer tones */
-  .bg-charcoal { background-color: hsl(20 12% 7%); }
-  .bg-charcoal-light { background-color: hsl(20 10% 11%); }
-  .bg-charcoal-dark { background-color: hsl(20 15% 4%); }
+  /* Background utilities - industrial */
+  .bg-charcoal { background-color: hsl(220 12% 7%); }
+  .bg-charcoal-light { background-color: hsl(220 10% 11%); }
+  .bg-charcoal-dark { background-color: hsl(220 15% 4%); }
   
-  /* Copper utilities */
-  .text-copper { color: hsl(25 85% 45%); }
-  .bg-copper { background-color: hsl(25 85% 45%); }
-  .border-copper { border-color: hsl(25 85% 45%); }
+  /* Crimson utilities */
+  .text-crimson { color: hsl(0 72% 45%); }
+  .bg-crimson { background-color: hsl(0 72% 45%); }
+  .border-crimson { border-color: hsl(0 72% 45%); }
   
   /* Steel utilities */
-  .text-steel { color: hsl(210 15% 40%); }
-  .bg-steel { background-color: hsl(210 15% 25%); }
+  .text-steel { color: hsl(220 15% 45%); }
+  .bg-steel { background-color: hsl(220 15% 22%); }
+  .bg-steel-dark { background-color: hsl(220 18% 14%); }
+  
+  /* Concrete utility */
+  .text-concrete { color: hsl(220 5% 45%); }
+  .bg-concrete { background-color: hsl(220 5% 35%); }
   
   /* Animation utilities */
   .animate-fade-in {
@@ -297,6 +386,10 @@
   
   .animate-glow-pulse {
     animation: glowPulse 3s ease-in-out infinite;
+  }
+  
+  .animate-glow-crimson {
+    animation: glowCrimson 4s ease-in-out infinite;
   }
 
   @keyframes fadeIn {
@@ -328,10 +421,19 @@
   
   @keyframes glowPulse {
     0%, 100% { 
-      box-shadow: 0 0 30px -10px hsl(38 92% 50% / 0.3);
+      box-shadow: 0 0 30px -10px hsl(28 90% 48% / 0.35);
     }
     50% { 
-      box-shadow: 0 0 50px -10px hsl(38 92% 50% / 0.5);
+      box-shadow: 0 0 60px -10px hsl(28 90% 48% / 0.55);
+    }
+  }
+  
+  @keyframes glowCrimson {
+    0%, 100% { 
+      box-shadow: 0 0 25px -10px hsl(0 72% 45% / 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 50px -10px hsl(0 72% 45% / 0.5);
     }
   }
 

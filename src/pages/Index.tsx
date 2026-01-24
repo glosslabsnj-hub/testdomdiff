@@ -100,12 +100,12 @@ const Index = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden hero-glow">
         {/* Background Image with enhanced overlay */}
         <div className="absolute inset-0 z-0">
           <img src={heroImage} alt="Discipline training" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-transparent to-background/90" />
         </div>
 
         {/* Texture Overlay */}
@@ -118,14 +118,14 @@ const Index = () => {
         <div className="relative z-10 section-container text-center py-20">
           <div className="max-w-4xl mx-auto">
             {/* Pre-headline badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-8 animate-fade-in backdrop-blur-sm">
               <Cross className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-primary uppercase tracking-wider">Men Only • Faith First</span>
             </div>
 
             <h1 className="headline-hero mb-6 animate-fade-in">
               From Locked Up<br />
-              <span className="text-primary drop-shadow-[0_0_30px_hsl(43_74%_49%_/_0.5)]">to Locked In.</span>
+              <span className="text-primary drop-shadow-[0_0_40px_hsl(28_90%_48%_/_0.6)]">to Locked In.</span>
             </h1>
             <p className="text-base md:text-lg text-primary/80 italic mb-4 animate-fade-in delay-100 max-w-2xl mx-auto">
               "I can do all things through Christ who strengthens me." — Philippians 4:13
@@ -135,7 +135,7 @@ const Index = () => {
               Transform your body. Renew your mind. Redeem your life.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up opacity-0 delay-300">
-            <Button variant="hero" size="hero" asChild className="glow-gold">
+            <Button variant="hero" size="hero" asChild className="glow-gold animate-glow-pulse">
                 <Link to="/programs/transformation">
                   <span className="hidden sm:inline">Join General Population</span>
                   <span className="sm:hidden">Join Gen Pop</span>
@@ -160,8 +160,8 @@ const Index = () => {
       </section>
 
       {/* This Is For Men Who Section */}
-      <section className="py-20 md:py-32 bg-charcoal">
-        <div className="section-container">
+      <section className="py-20 md:py-32 bg-charcoal section-ambient">
+        <div className="section-container relative z-10">
           <div className="text-center mb-12">
             <h2 className="headline-section mb-4">
               This Is For Men Who<span className="text-primary">...</span>
@@ -169,7 +169,7 @@ const Index = () => {
             <div className="divider-gold" />
           </div>
           <div className="max-w-3xl mx-auto space-y-4">
-            {targetAudience.map((item, index) => <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-background/50 border border-border hover:border-primary/50 transition-colors">
+            {targetAudience.map((item, index) => <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-background/50 border border-border hover:border-primary/50 transition-colors card-glow">
                 <Cross className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <p className="text-lg">{item}</p>
               </div>)}
@@ -246,8 +246,8 @@ const Index = () => {
       </section>
 
       {/* Programs Section */}
-      <section className="py-20 md:py-32 bg-background relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+      <section className="py-20 md:py-32 bg-background relative section-ambient">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/8 via-crimson/3 to-transparent" />
         
         <div className="section-container relative z-10">
           <div className="text-center mb-16">
@@ -260,13 +260,13 @@ const Index = () => {
             </p>
           </div>
           <div className="grid lg:grid-cols-3 gap-8">
-            {programs.map((program, index) => <div key={index} className={`relative p-8 rounded-lg border transition-all hover:scale-[1.02] ${program.popular ? "bg-charcoal border-primary shadow-[0_0_60px_-15px_hsl(43_74%_49%_/_0.4)]" : "bg-charcoal border-border hover:border-primary/50"}`}>
-                {program.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-primary to-amber-500 text-primary-foreground text-xs font-bold uppercase tracking-wider rounded-full shadow-lg">
+            {programs.map((program, index) => <div key={index} className={`relative p-8 rounded-lg border transition-all hover:scale-[1.02] ${program.popular ? "bg-charcoal border-primary glow-dual" : "bg-charcoal border-border hover:border-primary/50"}`}>
+                {program.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-primary via-gold-light to-primary text-primary-foreground text-xs font-bold uppercase tracking-wider rounded-full shadow-lg">
                     Most Popular
                   </div>}
                 <h3 className="headline-card mb-2">{program.title}</h3>
                 <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-4xl font-display text-primary drop-shadow-[0_0_10px_hsl(43_74%_49%_/_0.3)]">{program.price}</span>
+                  <span className="text-4xl font-display text-primary drop-shadow-[0_0_15px_hsl(28_90%_48%_/_0.4)]">{program.price}</span>
                   <span className="text-muted-foreground">{program.period}</span>
                 </div>
                 <p className="text-muted-foreground mb-6">{program.description}</p>
