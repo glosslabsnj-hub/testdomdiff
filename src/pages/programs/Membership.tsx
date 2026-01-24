@@ -62,13 +62,13 @@ const Membership = () => {
         <div className="texture-overlay" />
         <div className="section-container relative z-10">
           <div className="max-w-3xl">
-            <p className="text-primary uppercase tracking-widest mb-4">Discipline Membership</p>
+            <p className="text-primary uppercase tracking-widest mb-4">Solitary Confinement</p>
             <h1 className="headline-hero mb-6">
-              Monthly <span className="text-primary">Structure</span>
+              The <span className="text-primary">Foundation</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Ongoing structure, templates, and weekly rhythm for men committed to consistent 
-              discipline. Build the habits that last.
+              Strip away the distractions. In Solitary, you get nothing but the essentials — 
+              the raw guidelines needed to perform. No noise. Just discipline.
             </p>
             <div className="flex items-baseline gap-2 mb-8">
               <span className="text-5xl font-display text-primary">$79.99</span>
@@ -153,11 +153,11 @@ const Membership = () => {
               </ul>
               <div className="mt-6 pt-6 border-t border-border">
                 <p className="text-sm text-muted-foreground mb-4">
-                  Ready for the full transformation experience?
+                  Ready to join the General Population?
                 </p>
                 <Button variant="goldOutline" size="sm" asChild>
                   <Link to="/programs/transformation" className="inline-flex items-center gap-2">
-                    View Transformation <ArrowRight className="w-4 h-4" />
+                    View Gen Pop <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
               </div>
@@ -170,7 +170,7 @@ const Membership = () => {
       <section className="py-20 md:py-32 bg-background">
         <div className="section-container">
           <div className="max-w-lg mx-auto bg-charcoal p-8 rounded-lg border border-border">
-            <h3 className="headline-card mb-4">Discipline Membership</h3>
+            <h3 className="headline-card mb-4">Solitary Confinement</h3>
             <div className="flex items-baseline gap-2 mb-6">
               <span className="text-4xl font-display text-primary">$79.99</span>
               <span className="text-muted-foreground">/month</span>
@@ -190,10 +190,10 @@ const Membership = () => {
               </li>
             </ul>
             <Button variant="gold" size="xl" className="w-full" asChild>
-              <Link to="/checkout?plan=membership">Join Now</Link>
+              <Link to="/checkout?plan=membership">Enter Solitary</Link>
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-4">
-              Upgrade to Transformation anytime
+              Upgrade to General Population anytime
             </p>
           </div>
         </div>
@@ -203,13 +203,13 @@ const Membership = () => {
       <section className="py-20 bg-charcoal">
         <div className="section-container text-center">
           <h2 className="headline-section mb-4">
-            Ready to Build <span className="text-primary">Discipline</span>?
+            Ready for <span className="text-primary">Solitary</span>?
           </h2>
           <p className="text-muted-foreground mb-8">
-            Join the brotherhood. Start your journey today.
+            Strip away the noise. Start with the essentials.
           </p>
           <Button variant="hero" size="hero" asChild>
-            <Link to="/checkout?plan=membership">Join Membership — $79.99/mo</Link>
+            <Link to="/checkout?plan=membership">Enter Solitary — $79.99/mo</Link>
           </Button>
         </div>
       </section>

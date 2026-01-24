@@ -123,21 +123,21 @@ const Transformation = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-6">
                 <Flame className="w-4 h-4 text-primary" />
-                <span className="text-sm text-primary uppercase tracking-wider">Flagship Program</span>
+                <span className="text-sm text-primary uppercase tracking-wider">You've Earned Your Place</span>
               </div>
               <h1 className="headline-hero mb-6">
-                New Life <span className="text-primary">12-Week</span> Transformation
+                <span className="text-primary">General Population</span><br />12 Weeks
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                The complete transformation experience. 12 weeks to rebuild your body and 
-                renew your mind through faith-first discipline.
+                You've earned your place. In Gen Pop, you connect with peers, access video 
+                instruction, get nutrition plans, and start building your hustle.
               </p>
               <div className="flex items-baseline gap-2 mb-8">
                 <span className="text-5xl font-display text-primary">$749.99</span>
                 <span className="text-muted-foreground text-xl">one-time</span>
               </div>
               <Button variant="hero" size="hero" asChild>
-                <Link to="/checkout?plan=transformation">Start Transformation</Link>
+                <Link to="/checkout?plan=transformation">Join Gen Pop</Link>
               </Button>
             </div>
             <div className="relative hidden lg:block">
@@ -256,7 +256,7 @@ const Transformation = () => {
             <div className="mt-6 flex justify-center">
               <Button variant="goldOutline" size="sm" asChild>
                 <Link to="/programs/coaching" className="inline-flex items-center gap-2">
-                  Explore 1:1 Coaching <ArrowRight className="w-4 h-4" />
+                  Explore Free World Coaching <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
             </div>
@@ -271,7 +271,7 @@ const Transformation = () => {
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full mb-4">
               <span className="text-xs text-primary uppercase tracking-wider">Most Popular</span>
             </div>
-            <h3 className="headline-card mb-4">12-Week Transformation</h3>
+            <h3 className="headline-card mb-4">General Population</h3>
             <div className="flex items-baseline gap-2 mb-6">
               <span className="text-4xl font-display text-primary">$749.99</span>
               <span className="text-muted-foreground">one-time</span>
@@ -295,7 +295,7 @@ const Transformation = () => {
               </li>
             </ul>
             <Button variant="gold" size="xl" className="w-full" asChild>
-              <Link to="/checkout?plan=transformation">Start Now</Link>
+              <Link to="/checkout?plan=transformation">Join Gen Pop</Link>
             </Button>
           </div>
         </div>
@@ -305,13 +305,13 @@ const Transformation = () => {
       <section className="py-20 bg-background">
         <div className="section-container text-center">
           <h2 className="headline-section mb-4">
-            12 Weeks to a <span className="text-primary">New Life</span>
+            12 Weeks in <span className="text-primary">Gen Pop</span>
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            This is where transformation happens. Are you ready to become who God made you to be?
+            You've earned your place. Time to build with the brotherhood.
           </p>
           <Button variant="hero" size="hero" asChild>
-            <Link to="/checkout?plan=transformation">Start Transformation — $749.99</Link>
+            <Link to="/checkout?plan=transformation">Join Gen Pop — $749.99</Link>
           </Button>
         </div>
       </section>

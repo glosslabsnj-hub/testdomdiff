@@ -13,7 +13,7 @@ const Terms = () => (
           <h2 className="headline-card text-foreground mt-8">1. Program Access</h2>
           <p>Access is granted upon completed payment and intake form submission. Sharing credentials is prohibited.</p>
           <h2 className="headline-card text-foreground mt-8">2. Payment Terms</h2>
-          <p>Membership: $79.99/month recurring. Transformation: $749.99 one-time. Coaching: $1,250/month recurring.</p>
+          <p>Solitary Confinement: $79.99/month recurring. General Population: $749.99 one-time. Free World Coaching: $1,250/month recurring.</p>
           <h2 className="headline-card text-foreground mt-8">3. User Conduct</h2>
           <p>Users must engage respectfully with the community and coaching staff.</p>
           <h2 className="headline-card text-foreground mt-8">4. Intellectual Property</h2>

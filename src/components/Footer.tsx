@@ -31,7 +31,7 @@ const Footer = () => {
                   to="/programs/membership"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Discipline Membership
+                  Solitary Confinement
                 </Link>
               </li>
               <li>
@@ -39,7 +39,7 @@ const Footer = () => {
                   to="/programs/transformation"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  12-Week Transformation
+                  General Population
                 </Link>
               </li>
               <li>
@@ -47,7 +47,7 @@ const Footer = () => {
                   to="/programs/coaching"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  1:1 Redemption Coaching
+                  Free World Coaching
                 </Link>
               </li>
             </ul>

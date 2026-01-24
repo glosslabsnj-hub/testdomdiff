@@ -65,7 +65,7 @@ export default function ProgramComparisonTable() {
             <th className="text-left py-4 px-4 font-medium text-muted-foreground">Feature</th>
             <th className="text-center py-4 px-4 min-w-[120px]">
               <div className="flex flex-col items-center gap-1">
-                <span className="text-sm text-muted-foreground uppercase tracking-wider">Membership</span>
+                <span className="text-sm text-muted-foreground uppercase tracking-wider">Solitary</span>
                 <span className="text-primary font-display text-lg">$79.99</span>
                 <span className="text-xs text-muted-foreground">/month</span>
               </div>
@@ -73,14 +73,14 @@ export default function ProgramComparisonTable() {
             <th className="text-center py-4 px-4 min-w-[120px] bg-primary/5 border-x border-primary/20">
               <div className="flex flex-col items-center gap-1">
                 <span className="text-xs text-primary uppercase tracking-wider font-bold">Most Popular</span>
-                <span className="text-sm text-muted-foreground uppercase tracking-wider">Transformation</span>
+                <span className="text-sm text-muted-foreground uppercase tracking-wider">Gen Pop</span>
                 <span className="text-primary font-display text-lg">$749.99</span>
-                <span className="text-xs text-muted-foreground">one-time</span>
+                <span className="text-xs text-muted-foreground">12 weeks</span>
               </div>
             </th>
             <th className="text-center py-4 px-4 min-w-[120px]">
               <div className="flex flex-col items-center gap-1">
-                <span className="text-sm text-muted-foreground uppercase tracking-wider">Coaching</span>
+                <span className="text-sm text-muted-foreground uppercase tracking-wider">Free World</span>
                 <span className="text-primary font-display text-lg">$1,250</span>
                 <span className="text-xs text-muted-foreground">/month</span>
               </div>

@@ -137,18 +137,18 @@ const Coaching = () => {
                 <span className="text-sm text-primary uppercase tracking-wider">Limited Spots</span>
               </div>
               <h1 className="headline-hero mb-6">
-                1:1 <span className="text-primary">Redemption</span> Coaching
+                <span className="text-primary">Free World</span> 1:1 Coaching
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Maximum accountability. Direct access. Personalized everything. 
-                This is for men who are ready to go all in.
+                You've done the time. Now live free. Direct access to Dom, custom programming, 
+                and maximum accountability for men ready to thrive on the outside.
               </p>
               <div className="flex items-baseline gap-2 mb-8">
                 <span className="text-5xl font-display text-primary">$1,250</span>
                 <span className="text-muted-foreground text-xl">/month</span>
               </div>
               <Button variant="hero" size="hero" asChild>
-                <Link to="/checkout?plan=coaching">Apply for Coaching</Link>
+                <Link to="/checkout?plan=coaching">Apply for Free World</Link>
               </Button>
               <p className="text-sm text-muted-foreground mt-4">
                 * Limited to 10 active clients. Apply to check availability.
@@ -281,7 +281,7 @@ const Coaching = () => {
               <Crown className="w-4 h-4 text-primary" />
               <span className="text-xs text-primary uppercase tracking-wider">Premium</span>
             </div>
-            <h3 className="headline-card mb-4">1:1 Redemption Coaching</h3>
+            <h3 className="headline-card mb-4">Free World 1:1 Coaching</h3>
             <div className="flex items-baseline gap-2 mb-6">
               <span className="text-4xl font-display text-primary">$1,250</span>
               <span className="text-muted-foreground">/month</span>
@@ -301,7 +301,7 @@ const Coaching = () => {
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-primary" />
-                Everything in Transformation included
+                Everything in Gen Pop included
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-primary" />
@@ -309,7 +309,7 @@ const Coaching = () => {
               </li>
             </ul>
             <Button variant="gold" size="xl" className="w-full" asChild>
-              <Link to="/checkout?plan=coaching">Apply Now</Link>
+              <Link to="/checkout?plan=coaching">Apply for Free World</Link>
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-4">
               Limited spots available
@@ -322,14 +322,14 @@ const Coaching = () => {
       <section className="py-20 bg-background">
         <div className="section-container text-center">
           <h2 className="headline-section mb-4">
-            Ready for <span className="text-primary">Maximum</span> Accountability?
+            Ready for the <span className="text-primary">Free World</span>?
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            This is the highest level. Not for everyone. But if you're ready, I'm ready.
+            You've done the time. Now it's time to live free with maximum accountability.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="hero" size="hero" asChild>
-              <Link to="/checkout?plan=coaching">Apply for Coaching</Link>
+              <Link to="/checkout?plan=coaching">Apply for Free World</Link>
             </Button>
             <Button variant="heroOutline" size="hero" asChild>
               <Link to="/book-call">Book a Call First</Link>

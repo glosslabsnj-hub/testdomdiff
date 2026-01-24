@@ -28,30 +28,30 @@ const Index = () => {
     icon: Flame
   }];
   const programs = [{
-    title: "Discipline Membership",
+    title: "Solitary Confinement",
     price: "$79.99",
     period: "/month",
-    description: "Ongoing structure, templates, and weekly rhythm for consistent men.",
-    features: ["Template workout builder access", "Daily discipline routine templates", "Nutrition templates", "Weekly checklist + trackers", "Community access"],
-    cta: "Join Membership",
+    description: "The foundation. Strip away distractions. Just the essentials needed to perform.",
+    features: ["Bodyweight workout templates", "Daily discipline routine templates", "Weekly checklist + trackers", "Mindset + Faith lessons", "Community access"],
+    cta: "Enter Solitary",
     href: "/programs/membership",
     popular: false
   }, {
-    title: "New Life 12-Week Transformation",
+    title: "General Population",
     price: "$749.99",
-    period: "one-time",
-    description: "The flagship transformation. 12 weeks to become who God made you to be.",
-    features: ["Complete 12-week framework", "Weekly group coaching calls", "Weekly check-in system", "Phase-based progression", "Faith + mindset curriculum"],
-    cta: "Start Transformation",
+    period: "12 weeks",
+    description: "You've earned your place. Connect with peers, get video instruction, and start building your hustle.",
+    features: ["Complete 12-week framework", "Weekly video coaching", "Nutrition templates + meal guides", "Skill-building lessons", "Everything in Solitary included"],
+    cta: "Join Gen Pop",
     href: "/programs/transformation",
     popular: true
   }, {
-    title: "1:1 Redemption Coaching",
+    title: "Free World 1:1 Coaching",
     price: "$1,250",
     period: "/month",
-    description: "Limited spots. Maximum accountability. Direct access to Dom.",
-    features: ["Personalized feedback", "Direct messaging access", "Custom-built structure", "Priority support", "Unlimited check-ins"],
-    cta: "Apply for Coaching",
+    description: "You've done the time. Now live free. Direct access to Dom.",
+    features: ["Weekly 1:1 video calls", "Direct messaging access", "Custom-built programming", "Priority support", "Unlimited check-ins"],
+    cta: "Apply for Free World",
     href: "/programs/coaching",
     popular: false
   }];
@@ -124,20 +124,20 @@ const Index = () => {
               Transform your body. Renew your mind. Redeem your life.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up opacity-0 delay-300">
-              <Button variant="hero" size="hero" asChild className="glow-gold">
+            <Button variant="hero" size="hero" asChild className="glow-gold">
                 <Link to="/programs/transformation">
-                  <span className="hidden sm:inline">Start 12-Week Transformation</span>
-                  <span className="sm:hidden">Start Transformation</span>
+                  <span className="hidden sm:inline">Join General Population</span>
+                  <span className="sm:hidden">Join Gen Pop</span>
                 </Link>
               </Button>
               <Button variant="heroOutline" size="hero" asChild>
                 <Link to="/programs/membership">
-                  Join Membership
+                  Enter Solitary
                 </Link>
               </Button>
             </div>
             <Link to="/programs/coaching" className="inline-flex items-center gap-2 mt-6 text-muted-foreground hover:text-primary transition-colors animate-slide-up opacity-0 delay-400">
-              Interested in 1:1 Coaching? <ArrowRight className="w-4 h-4" />
+              Ready for the Free World? <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 

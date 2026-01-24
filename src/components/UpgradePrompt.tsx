@@ -10,7 +10,7 @@ interface UpgradePromptProps {
 const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptProps) => {
   const upgradeDetails = {
     transformation: {
-      name: "12-Week Transformation",
+      name: "General Population",
       price: "$749.99",
       href: "/programs/transformation",
       benefits: [
@@ -22,11 +22,11 @@ const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptP
       ],
     },
     coaching: {
-      name: "1:1 Coaching",
+      name: "Free World Coaching",
       price: "$1,250/mo",
       href: "/programs/coaching",
       benefits: [
-        "Everything in Transformation",
+        "Everything in Gen Pop",
         "Direct messaging with Dom",
         "Weekly 1:1 video calls",
         "Advanced skill-building",

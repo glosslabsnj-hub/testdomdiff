@@ -26,22 +26,22 @@ const Checkout = () => {
 
   const plans = {
     membership: {
-      name: "Discipline Membership",
+      name: "Solitary Confinement",
       price: "$79.99",
       period: "/month",
-      description: "Monthly structure and accountability",
+      description: "The foundation — essentials only",
     },
     transformation: {
-      name: "12-Week Transformation",
+      name: "General Population",
       price: "$749.99",
-      period: "one-time",
-      description: "Complete 12-week transformation program",
+      period: "12 weeks",
+      description: "Earn your place — full program access",
     },
     coaching: {
-      name: "1:1 Redemption Coaching",
+      name: "Free World 1:1 Coaching",
       price: "$1,250",
       period: "/month",
-      description: "Maximum accountability with direct access",
+      description: "Live free with direct access to Dom",
     },
   };
 
