@@ -78,6 +78,14 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        locked: {
+          DEFAULT: "hsl(var(--locked))",
+          foreground: "hsl(var(--locked-foreground))",
+        },
       },
       fontFamily: {
         display: ["'Bebas Neue'", "sans-serif"],

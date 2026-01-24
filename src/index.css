@@ -35,6 +35,10 @@
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 45 10% 92%;
+    
+    /* Warning state - amber/orange tint */
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 15% 4%;
 
     --border: 220 10% 16%;
     --input: 220 10% 12%;
@@ -70,6 +74,10 @@
     --success: 142 60% 40%;
     --success-foreground: 142 60% 95%;
     
+    /* Locked/Restricted state */
+    --locked: 0 0% 45%;
+    --locked-foreground: 0 0% 60%;
+    
     /* Gradients - Industrial & Dramatic */
     --gradient-gold: linear-gradient(135deg, hsl(32 88% 52%), hsl(24 85% 38%));
     --gradient-gold-radial: radial-gradient(ellipse at top, hsl(28 90% 48% / 0.12), transparent 50%);
@@ -77,6 +85,7 @@
     --gradient-dark: linear-gradient(180deg, hsl(220 12% 7%), hsl(220 15% 4%));
     --gradient-hero: linear-gradient(180deg, hsl(220 15% 4%) 0%, hsl(220 12% 8%) 50%, hsl(220 15% 4%) 100%);
     --gradient-steel: linear-gradient(135deg, hsl(220 15% 22%), hsl(220 18% 14%));
+    --gradient-steel-plate: linear-gradient(180deg, hsl(220 12% 14%) 0%, hsl(220 15% 8%) 100%);
     --gradient-ambient: radial-gradient(ellipse 100% 60% at 50% -20%, hsl(28 90% 48% / 0.1), transparent);
     --gradient-ambient-crimson: radial-gradient(ellipse 80% 50% at 80% 20%, hsl(0 72% 45% / 0.06), transparent);
     
@@ -84,8 +93,10 @@
     --shadow-gold: 0 4px 30px -5px hsl(28 90% 48% / 0.4);
     --shadow-gold-lg: 0 10px 50px -10px hsl(28 90% 48% / 0.5);
     --shadow-crimson: 0 4px 25px -5px hsl(0 72% 45% / 0.35);
+    --shadow-crimson-lg: 0 8px 40px -8px hsl(0 72% 45% / 0.5);
     --shadow-strong: 0 25px 60px -12px hsl(0 0% 0% / 0.7);
     --shadow-inner-glow: inset 0 1px 0 hsl(32 85% 60% / 0.15);
+    --shadow-steel-inset: inset 0 2px 4px hsl(220 20% 5% / 0.5);
     
     /* Typography */
     --font-display: 'Bebas Neue', sans-serif;
@@ -142,6 +153,11 @@
   .text-gold {
     @apply text-primary;
   }
+  
+  /* Crimson text for warnings/destructive */
+  .text-crimson {
+    color: hsl(var(--crimson));
+  }
 
   /* Heavy gritty texture overlay */
   .texture-overlay {
@@ -175,6 +191,82 @@
     transform: rotate(-15deg);
   }
 
+  /* ========== STEEL PLATE EFFECT ========== */
+  .steel-plate {
+    @apply relative overflow-hidden rounded-lg;
+    background: linear-gradient(180deg, hsl(220 12% 12%) 0%, hsl(220 15% 7%) 100%);
+    box-shadow: 
+      inset 0 1px 0 hsl(220 10% 25% / 0.5),
+      inset 0 -1px 0 hsl(220 20% 5% / 0.8),
+      0 4px 20px -5px hsl(0 0% 0% / 0.5);
+  }
+  
+  .steel-plate::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: 
+      linear-gradient(90deg, transparent 0%, hsl(220 10% 20% / 0.1) 50%, transparent 100%);
+  }
+  
+  .steel-plate-border {
+    @apply border border-steel-light/30;
+    box-shadow: 
+      inset 0 1px 0 hsl(220 10% 30% / 0.3),
+      0 1px 3px hsl(0 0% 0% / 0.3);
+  }
+
+  /* Dashboard tile steel effect */
+  .dashboard-tile {
+    @apply relative overflow-hidden rounded-lg p-6 transition-all duration-300;
+    background: linear-gradient(180deg, hsl(220 12% 10%) 0%, hsl(220 14% 6%) 100%);
+    border: 1px solid hsl(220 10% 18%);
+    box-shadow: 
+      inset 0 1px 0 hsl(220 10% 22% / 0.4),
+      inset 0 -1px 0 hsl(220 18% 4% / 0.6),
+      0 4px 15px -5px hsl(0 0% 0% / 0.4);
+  }
+  
+  .dashboard-tile:hover {
+    border-color: hsl(28 90% 48% / 0.4);
+    box-shadow: 
+      inset 0 1px 0 hsl(220 10% 22% / 0.4),
+      inset 0 -1px 0 hsl(220 18% 4% / 0.6),
+      0 8px 30px -8px hsl(28 90% 48% / 0.25);
+    transform: translateY(-2px);
+  }
+  
+  .dashboard-tile::before {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-px;
+    background: linear-gradient(90deg, transparent, hsl(28 90% 48% / 0.3), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .dashboard-tile:hover::before {
+    opacity: 1;
+  }
+
+  /* ========== LOCKED TILE EFFECT ========== */
+  .tile-locked {
+    @apply relative overflow-hidden rounded-lg p-6;
+    background: linear-gradient(180deg, hsl(220 8% 8%) 0%, hsl(220 10% 5%) 100%);
+    border: 1px solid hsl(0 72% 45% / 0.25);
+    box-shadow: inset 0 0 30px hsl(0 72% 45% / 0.05);
+  }
+  
+  .tile-locked::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      hsl(0 72% 45% / 0.02) 10px,
+      hsl(0 72% 45% / 0.02) 20px
+    );
+  }
+
   /* Enhanced gold gradient button - more aggressive */
   .btn-gold {
     background: linear-gradient(135deg, hsl(32 88% 52%), hsl(24 85% 40%));
@@ -205,7 +297,7 @@
     box-shadow: 0 0 40px -5px hsl(28 90% 48% / 0.6);
   }
   
-  /* Crimson button variant */
+  /* Crimson button variant - for destructive/warnings */
   .btn-crimson {
     background: linear-gradient(135deg, hsl(5 70% 50%), hsl(355 75% 38%));
     box-shadow: 0 4px 25px -5px hsl(0 72% 45% / 0.45);
@@ -215,6 +307,18 @@
   .btn-crimson:hover {
     @apply scale-105;
     box-shadow: 0 8px 40px -5px hsl(0 72% 45% / 0.6);
+  }
+  
+  /* Crimson outline variant */
+  .btn-outline-crimson {
+    @apply border-2 font-bold uppercase tracking-widest transition-all duration-300;
+    border-color: hsl(var(--crimson));
+    color: hsl(var(--crimson));
+  }
+  
+  .btn-outline-crimson:hover {
+    background: hsl(var(--crimson));
+    @apply text-white;
   }
 
   /* Card styles - industrial */
