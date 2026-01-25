@@ -380,6 +380,36 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Parse request body for options
+    const { forceRefresh = false } = await req.json().catch(() => ({}));
+
+    // If forceRefresh, clear all existing exercises and day workouts
+    if (forceRefresh) {
+      console.log("Force refresh: Clearing existing exercises and day workouts...");
+      
+      // Delete all exercises first (due to foreign key)
+      const { error: delExError } = await supabase
+        .from("program_day_exercises")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all
+      
+      if (delExError) {
+        console.error("Error deleting exercises:", delExError);
+      }
+      
+      // Delete all day workouts
+      const { error: delDayError } = await supabase
+        .from("program_day_workouts")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all
+      
+      if (delDayError) {
+        console.error("Error deleting day workouts:", delDayError);
+      }
+      
+      console.log("Cleared existing data, regenerating with progressive volume...");
+    }
+
     // Get all weeks grouped by track
     const { data: weeks, error: weeksError } = await supabase
       .from("program_weeks")
