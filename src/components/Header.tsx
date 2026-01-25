@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Cross, Shield } from "lucide-react";
+import { Menu, X, Cross, Shield, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -17,7 +17,7 @@ const Header = () => {
     { href: "/", label: "Home" },
     { href: "/about", label: "About" },
     { href: "/programs", label: "Programs" },
-    { href: "/shop", label: "Commissary" },
+    { href: "/shop", label: "Commissary", icon: Package },
     { href: "/book-call", label: "Book a Call" },
   ];
 
@@ -41,12 +41,13 @@ const Header = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className={`text-sm font-semibold uppercase tracking-wider transition-colors ${
+                className={`flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider transition-colors ${
                   isActive(link.href)
                     ? "text-primary"
                     : "text-foreground/70 hover:text-primary"
                 }`}
               >
+                {link.icon && <link.icon className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
@@ -104,12 +105,13 @@ const Header = () => {
                 key={link.href}
                 to={link.href}
                 onClick={() => setIsOpen(false)}
-                className={`text-lg font-semibold uppercase tracking-wider py-2 ${
+                className={`flex items-center gap-2 text-lg font-semibold uppercase tracking-wider py-2 ${
                   isActive(link.href)
                     ? "text-primary"
                     : "text-foreground/70"
                 }`}
               >
+                {link.icon && <link.icon className="w-5 h-5" />}
                 {link.label}
               </Link>
             ))}

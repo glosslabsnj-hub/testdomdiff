@@ -2,7 +2,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useProducts } from "@/hooks/useProducts";
-import { ShoppingBag, Loader2, Filter } from "lucide-react";
+import { ShoppingBag, Loader2, Filter, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -152,11 +152,11 @@ const Shop = () => {
         
         <div className="section-container text-center relative z-10">
           <Badge variant="outline" className="border-primary text-primary mb-4">
-            <ShoppingBag className="w-3 h-3 mr-1" />
+            <Package className="w-3 h-3 mr-1" />
             The Commissary
           </Badge>
           <h1 className="headline-hero mb-4">
-            DOM <span className="text-primary">DIFFERENT</span> GEAR
+            LOCKED IN <span className="text-primary">ESSENTIALS</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             Wear your identity. Represent the mission. Official yard gear for those doing the work.
