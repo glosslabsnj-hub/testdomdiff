@@ -2035,12 +2035,62 @@ const HustleIdeas = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="flex flex-wrap h-auto gap-1 bg-charcoal p-1">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="phases" className="text-xs sm:text-sm">Launch Plan</TabsTrigger>
-            <TabsTrigger value="scripts" className="text-xs sm:text-sm">Scripts</TabsTrigger>
-            <TabsTrigger value="mistakes" className="text-xs sm:text-sm">Mistakes</TabsTrigger>
-            <TabsTrigger value="scaling" className="text-xs sm:text-sm">Scaling</TabsTrigger>
+          <TabsList className="flex flex-wrap h-auto gap-1.5 p-2 bg-charcoal/80 border border-border rounded-xl sticky top-0 z-10 backdrop-blur-sm">
+            <TabsTrigger 
+              value="overview" 
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10
+                data-[state=active]:border data-[state=active]:border-primary/40 data-[state=active]:text-primary 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(43_74%_49%_/_0.4)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Overview</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="phases" 
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/20 data-[state=active]:to-blue-500/5
+                data-[state=active]:border data-[state=active]:border-blue-500/40 data-[state=active]:text-blue-400 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(210_100%_50%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Launch Plan</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="scripts" 
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500/20 data-[state=active]:to-green-500/5
+                data-[state=active]:border data-[state=active]:border-green-500/40 data-[state=active]:text-green-400 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(142_71%_45%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Scripts</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="mistakes" 
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500/20 data-[state=active]:to-red-500/5
+                data-[state=active]:border data-[state=active]:border-red-500/40 data-[state=active]:text-red-400 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(0_84%_60%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Mistakes</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="scaling" 
+              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500/20 data-[state=active]:to-amber-500/5
+                data-[state=active]:border data-[state=active]:border-amber-500/40 data-[state=active]:text-amber-400 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(43_96%_56%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Scaling</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}

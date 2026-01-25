@@ -17,14 +17,12 @@ import {
   CheckCircle2,
   Moon,
   Check,
-  Play,
-  X
+  Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useProgramWeeks, type ProgramWeek } from "@/hooks/useWorkoutContent";
 import { useProgramTracks } from "@/hooks/useProgramTracks";
 import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
@@ -32,6 +30,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
+import ExerciseDetailDialog from "@/components/workout/ExerciseDetailDialog";
 
 interface ProgramDayWorkout {
   id: string;
@@ -54,6 +53,7 @@ interface ProgramDayExercise {
   notes: string | null;
   demo_url: string | null;
   display_order: number;
+  scaling_options?: string | null;
 }
 
 const DAYS_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -73,7 +73,7 @@ const Program = () => {
   const [dayWorkouts, setDayWorkouts] = useState<ProgramDayWorkout[]>([]);
   const [exercisesByDay, setExercisesByDay] = useState<Record<string, ProgramDayExercise[]>>({});
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
-  const [demoExercise, setDemoExercise] = useState<ProgramDayExercise | null>(null);
+  const [selectedExercise, setSelectedExercise] = useState<ProgramDayExercise | null>(null);
   // Track expanded workout cards separately to prevent collapse on exercise toggle
   const [expandedWorkouts, setExpandedWorkouts] = useState<Set<string>>(new Set());
   
@@ -199,14 +199,20 @@ const Program = () => {
     };
 
     return (
-      <div className={`flex items-start gap-3 p-3 rounded transition-all ${
-        completed 
-          ? 'bg-green-500/10 border border-green-500/30' 
-          : isMain ? 'bg-charcoal' : 'bg-charcoal/50'
-      }`}>
+      <div 
+        className={`flex items-start gap-3 p-3 rounded transition-all cursor-pointer group ${
+          completed 
+            ? 'bg-green-500/10 border border-green-500/30 hover:bg-green-500/15' 
+            : isMain ? 'bg-charcoal hover:bg-charcoal/80' : 'bg-charcoal/50 hover:bg-charcoal/70'
+        }`}
+        onClick={() => setSelectedExercise(exercise)}
+      >
         {/* Completion Checkbox */}
         <button
-          onClick={handleToggle}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggle();
+          }}
           disabled={toggling}
           className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
             completed 
@@ -226,18 +232,10 @@ const Program = () => {
             <p className={`font-medium ${completed ? 'text-green-400 line-through' : isMain ? 'text-foreground' : 'text-muted-foreground'}`}>
               {exercise.exercise_name}
             </p>
-            {exercise.demo_url && (
-              <button 
-                onClick={() => setDemoExercise(exercise)}
-                className="p-1 rounded hover:bg-primary/20 text-primary"
-                title="Watch demo"
-              >
-                <Play className="w-4 h-4" />
-              </button>
-            )}
+            <Info className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           {exercise.notes && (
-            <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{exercise.notes}</p>
           )}
         </div>
         <div className="flex items-center gap-2 text-sm flex-wrap justify-end flex-shrink-0">
@@ -685,53 +683,12 @@ const Program = () => {
         </div>
       </div>
 
-      {/* Exercise Demo Modal */}
-      <Dialog open={!!demoExercise} onOpenChange={(open) => !open && setDemoExercise(null)}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Play className="w-5 h-5 text-primary" />
-              {demoExercise?.exercise_name}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {demoExercise?.demo_url ? (
-              <div className="aspect-video rounded-lg overflow-hidden bg-charcoal">
-                <video
-                  src={demoExercise.demo_url}
-                  controls
-                  autoPlay
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            ) : (
-              <div className="aspect-video rounded-lg bg-charcoal flex items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <PlayCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Demo video coming soon</p>
-                </div>
-              </div>
-            )}
-            {demoExercise?.notes && (
-              <div className="p-4 rounded-lg bg-muted/20 border border-border">
-                <h4 className="font-medium mb-2 text-sm">Instructions</h4>
-                <p className="text-sm text-muted-foreground">{demoExercise.notes}</p>
-              </div>
-            )}
-            <div className="flex gap-2 flex-wrap">
-              {demoExercise?.sets && (
-                <Badge variant="secondary">{demoExercise.sets} sets</Badge>
-              )}
-              {demoExercise?.reps_or_time && (
-                <Badge variant="outline">{demoExercise.reps_or_time}</Badge>
-              )}
-              {demoExercise?.rest && (
-                <Badge variant="outline">Rest: {demoExercise.rest}</Badge>
-              )}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Exercise Detail Dialog */}
+      <ExerciseDetailDialog 
+        exercise={selectedExercise}
+        open={!!selectedExercise}
+        onOpenChange={(open) => !open && setSelectedExercise(null)}
+      />
     </div>
   );
 };

@@ -133,12 +133,62 @@ const SkillBuilding = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-charcoal">
-            <TabsTrigger value="lessons">Lessons</TabsTrigger>
-            <TabsTrigger value="resume">Resume</TabsTrigger>
-            <TabsTrigger value="interview">Interview</TabsTrigger>
-            <TabsTrigger value="jobs">Job Search</TabsTrigger>
-            <TabsTrigger value="hustle">Hustle</TabsTrigger>
+          <TabsList className="flex flex-wrap h-auto gap-1 p-1.5 bg-charcoal/80 border border-border rounded-xl">
+            <TabsTrigger 
+              value="lessons"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10
+                data-[state=active]:border data-[state=active]:border-primary/40 data-[state=active]:text-primary 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(43_74%_49%_/_0.4)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <GraduationCap className="w-4 h-4" />
+              <span className="hidden sm:inline">Lessons</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="resume"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/20 data-[state=active]:to-blue-500/5
+                data-[state=active]:border data-[state=active]:border-blue-500/40 data-[state=active]:text-blue-400 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(210_100%_50%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Resume</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="interview"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500/20 data-[state=active]:to-green-500/5
+                data-[state=active]:border data-[state=active]:border-green-500/40 data-[state=active]:text-green-400 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(142_71%_45%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">Interview</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="jobs"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500/20 data-[state=active]:to-orange-500/5
+                data-[state=active]:border data-[state=active]:border-orange-500/40 data-[state=active]:text-orange-400 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(25_95%_53%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Target className="w-4 h-4" />
+              <span className="hidden sm:inline">Job Search</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="hustle"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10
+                data-[state=active]:border data-[state=active]:border-primary/40 data-[state=active]:text-primary 
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(43_74%_49%_/_0.4)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <DollarSign className="w-4 h-4" />
+              <span className="hidden sm:inline">Hustle</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Lessons Tab */}
