@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useProducts } from "@/hooks/useProducts";
-import { ShoppingBag, Loader2, Filter, Package } from "lucide-react";
+import { useProducts, Product } from "@/hooks/useProducts";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
+import { ShoppingBag, Loader2, Filter, Package, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -123,6 +126,17 @@ const getProductImage = (productName: string, dbImageUrl: string | null): string
 const Shop = () => {
   const { products, loading } = useProducts(true);
   const [activeCategory, setActiveCategory] = useState("all");
+  const { addItem } = useCart();
+  const { toast } = useToast();
+
+  const handleQuickAdd = (product: Product) => {
+    const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : "One Size";
+    addItem(product, defaultSize, 1);
+    toast({
+      title: "Added to cart!",
+      description: `${product.name} added to your cart.`,
+    });
+  };
 
   // Filter products by category
   const filteredProducts = activeCategory === "all" 
@@ -273,10 +287,13 @@ const Shop = () => {
                           );
                         })()}
                         {/* Hover Overlay */}
-                        <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <span className="bg-primary text-primary-foreground px-4 py-2 font-semibold text-sm uppercase tracking-wider">
-                            Coming Soon
-                          </span>
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <Link 
+                            to={`/shop/${product.id}`}
+                            className="bg-primary text-primary-foreground px-4 py-2 font-semibold text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors"
+                          >
+                            View Details
+                          </Link>
                         </div>
                       </div>
 
@@ -290,7 +307,7 @@ const Shop = () => {
                             {product.description}
                           </p>
                         )}
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mb-3">
                           <span className="text-primary font-bold text-lg">
                             ${product.price.toFixed(2)}
                           </span>
@@ -312,6 +329,31 @@ const Shop = () => {
                             </div>
                           )}
                         </div>
+
+                        {/* Add to Cart / Select Size buttons */}
+                        {product.sizes && product.sizes.length > 1 ? (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full gap-2"
+                            asChild
+                          >
+                            <Link to={`/shop/${product.id}`}>
+                              <ShoppingCart className="w-4 h-4" />
+                              Select Size
+                            </Link>
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="gold" 
+                            size="sm" 
+                            className="w-full gap-2"
+                            onClick={() => handleQuickAdd(product)}
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                            Add to Cart
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
