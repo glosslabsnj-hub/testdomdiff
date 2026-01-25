@@ -22,7 +22,7 @@ const Programs = () => {
         "Weekly check-in submissions",
         "Progress tracking",
       ],
-      href: "/programs/membership",
+      href: "/checkout?plan=membership",
       cta: "Enter Solitary",
     },
     {
@@ -42,7 +42,7 @@ const Programs = () => {
         "Skill-building lessons",
         "Community access (The Yard)",
       ],
-      href: "/programs/transformation",
+      href: "/checkout?plan=transformation",
       cta: "Join Gen Pop",
       popular: true,
     },
@@ -62,7 +62,7 @@ const Programs = () => {
         "Advanced skill-building lessons",
         "Custom-built programming",
       ],
-      href: "/programs/coaching",
+      href: "/checkout?plan=coaching",
       cta: "Apply for Coaching",
     },
   ];
