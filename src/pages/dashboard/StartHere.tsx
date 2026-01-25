@@ -106,7 +106,7 @@ interface WelcomeVideo {
 }
 
 const StartHere = () => {
-  const { loading, toggleItem, isItemCompleted, getCompletionPercent } = useUserChecklist();
+  const { loading, toggleItem, isItemCompleted, getFilteredCompletionPercent } = useUserChecklist();
   const { toast } = useToast();
   const { subscription, profile } = useAuth();
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -163,8 +163,12 @@ const StartHere = () => {
   };
 
   const tierConfig = getTierConfig();
-  const totalItems = tierConfig.checklist.reduce((acc, cat) => acc + cat.items.length, 0);
-  const completionPercent = getCompletionPercent(totalItems);
+  // Extract all valid item IDs from the current tier's checklist
+  const validItemIds = tierConfig.checklist.flatMap(cat => 
+    cat.items.map(item => item.id)
+  );
+  // Use filtered calculation to only count completions belonging to this tier
+  const completionPercent = getFilteredCompletionPercent(validItemIds);
 
   // Fetch welcome video for this tier
   useEffect(() => {
@@ -316,7 +320,7 @@ const StartHere = () => {
                   <p className="text-sm text-muted-foreground">
                     {completionPercent === 100 
                       ? "All tasks complete!"
-                      : `${totalItems - Math.round(completionPercent / 100 * totalItems)} tasks remaining`}
+                      : `${validItemIds.length - Math.round(completionPercent / 100 * validItemIds.length)} tasks remaining`}
                   </p>
                 </div>
               </div>

@@ -361,11 +361,11 @@ export function useDailyDiscipline() {
     return entry?.response || "";
   }, [journalEntries]);
 
-  // Calculate compliance
+  // Calculate compliance (clamped to 0-100)
   const getTodayCompliance = useCallback(() => {
     const total = routines.length;
     const completed = completions.size;
-    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const percent = total > 0 ? Math.min(100, Math.max(0, Math.round((completed / total) * 100))) : 0;
     return { completed, total, percent };
   }, [routines, completions]);
 

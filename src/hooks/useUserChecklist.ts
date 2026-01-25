@@ -79,7 +79,21 @@ export const useUserChecklist = () => {
 
   const getCompletionPercent = (totalItems: number): number => {
     if (totalItems === 0) return 0;
-    return Math.round((completedItems.length / totalItems) * 100);
+    const percent = Math.round((completedItems.length / totalItems) * 100);
+    return Math.min(100, Math.max(0, percent)); // Clamp to 0-100
+  };
+
+  /**
+   * Get completion percent filtered by valid item IDs for the current tier
+   * This prevents counting orphaned completions from previous tiers
+   */
+  const getFilteredCompletionPercent = (validItemIds: string[]): number => {
+    if (validItemIds.length === 0) return 0;
+    const validCompleted = completedItems.filter(item => 
+      validItemIds.includes(item.item_id)
+    ).length;
+    const percent = Math.round((validCompleted / validItemIds.length) * 100);
+    return Math.min(100, Math.max(0, percent)); // Clamp to 0-100
   };
 
   return {
@@ -90,5 +104,6 @@ export const useUserChecklist = () => {
     toggleItem,
     isItemCompleted,
     getCompletionPercent,
+    getFilteredCompletionPercent,
   };
 };

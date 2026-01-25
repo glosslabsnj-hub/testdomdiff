@@ -22,10 +22,10 @@ export function RevenueAnalytics() {
     const coachingMRR = analytics.clientsByPlan.coaching * PLAN_PRICES.coaching;
     const totalMRR = membershipMRR + transformationMRR + coachingMRR;
     
-    // Calculate retention rate (active / (active + expired + cancelled))
+    // Calculate retention rate (active / (active + expired + cancelled)) - clamped to 0-100
     const totalHistorical = analytics.totalClients;
     const retentionRate = totalHistorical > 0 
-      ? Math.round((analytics.activeClients / totalHistorical) * 100) 
+      ? Math.min(100, Math.max(0, Math.round((analytics.activeClients / totalHistorical) * 100)))
       : 0;
     
     // Clients expiring soon (transformation clients with <14 days remaining)
