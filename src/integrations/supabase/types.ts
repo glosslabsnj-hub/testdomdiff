@@ -1079,7 +1079,10 @@ export type Database = {
           demo_url: string | null
           display_order: number | null
           exercise_name: string
+          form_tips: string | null
           id: string
+          instructions: string | null
+          muscles_targeted: string | null
           notes: string | null
           reps_or_time: string | null
           rest: string | null
@@ -1094,7 +1097,10 @@ export type Database = {
           demo_url?: string | null
           display_order?: number | null
           exercise_name: string
+          form_tips?: string | null
           id?: string
+          instructions?: string | null
+          muscles_targeted?: string | null
           notes?: string | null
           reps_or_time?: string | null
           rest?: string | null
@@ -1109,7 +1115,10 @@ export type Database = {
           demo_url?: string | null
           display_order?: number | null
           exercise_name?: string
+          form_tips?: string | null
           id?: string
+          instructions?: string | null
+          muscles_targeted?: string | null
           notes?: string | null
           reps_or_time?: string | null
           rest?: string | null

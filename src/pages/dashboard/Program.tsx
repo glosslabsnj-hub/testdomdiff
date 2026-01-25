@@ -54,6 +54,9 @@ interface ProgramDayExercise {
   demo_url: string | null;
   display_order: number;
   scaling_options?: string | null;
+  instructions?: string | null;
+  form_tips?: string | null;
+  muscles_targeted?: string | null;
 }
 
 const DAYS_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];

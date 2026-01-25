@@ -28,6 +28,9 @@ export interface ProgramDayExercise {
   display_order: number;
   created_at: string;
   updated_at: string;
+  instructions: string | null;
+  form_tips: string | null;
+  muscles_targeted: string | null;
 }
 
 export function useProgramDayWorkouts(weekId: string | null) {

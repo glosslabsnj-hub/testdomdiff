@@ -253,6 +253,9 @@ export default function ProgramBuilder() {
           scaling_options: ex.scaling_options,
           demo_url: null,
           display_order: idx,
+          instructions: null,
+          form_tips: null,
+          muscles_targeted: null,
         }));
         await bulkCreateExercises(exercisesToCreate);
         await fetchAllExercises();
@@ -343,6 +346,9 @@ export default function ProgramBuilder() {
         display_order: currentExercises.length,
         scaling_options: null,
         demo_url: null,
+        instructions: null,
+        form_tips: null,
+        muscles_targeted: null,
       });
     }
     await fetchAllExercises();
