@@ -357,10 +357,15 @@ const StartHere = () => {
                             : "bg-card border-border hover:border-primary/50"
                         )}
                       >
+                        {/* Checkbox - ONLY toggles completion */}
                         <button
-                          onClick={() => handleToggle(item.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggle(item.id);
+                          }}
                           disabled={isToggling}
                           className="flex-shrink-0 mt-0.5"
+                          aria-label={completed ? "Mark incomplete" : "Mark complete"}
                         >
                           {isToggling ? (
                             <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -372,14 +377,32 @@ const StartHere = () => {
                             <Circle className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
                           )}
                         </button>
-                        <div className="flex-1 min-w-0">
-                          <p className={cn("font-medium", completed && "line-through text-muted-foreground")}>
-                            {item.label}
-                          </p>
-                          {item.description && (
-                            <p className="text-sm text-muted-foreground mt-0.5">{item.description}</p>
-                          )}
-                        </div>
+                        
+                        {/* Content - navigates to step if not completed */}
+                        {!completed && item.href ? (
+                          <Link 
+                            to={item.href}
+                            className="flex-1 min-w-0 group/link"
+                          >
+                            <p className="font-medium group-hover/link:text-primary transition-colors">
+                              {item.label}
+                            </p>
+                            {item.description && (
+                              <p className="text-sm text-muted-foreground mt-0.5">{item.description}</p>
+                            )}
+                          </Link>
+                        ) : (
+                          <div className="flex-1 min-w-0">
+                            <p className={cn("font-medium", completed && "line-through text-muted-foreground")}>
+                              {item.label}
+                            </p>
+                            {item.description && (
+                              <p className="text-sm text-muted-foreground mt-0.5">{item.description}</p>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Arrow indicator - visible when not completed */}
                         {!completed && item.href && (
                           <Link 
                             to={item.href}

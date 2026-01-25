@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { 
-  ArrowLeft, Sun, Moon, Droplet, BookOpen, Check, Loader2, 
+  ArrowLeft, Sun, Moon, Droplet, BookOpen, Loader2, Check,
   Flame, Clock, History, ChevronRight, Save, Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import TemplateSelector from "@/components/discipline/TemplateSelector";
-import RoutineTimeEditor from "@/components/discipline/RoutineTimeEditor";
 import AddCustomRoutineDialog from "@/components/discipline/AddCustomRoutineDialog";
 import CustomRoutineItem from "@/components/discipline/CustomRoutineItem";
 import DraggableRoutineList from "@/components/discipline/DraggableRoutineList";
 import ExportScheduleDialog from "@/components/discipline/ExportScheduleDialog";
+import RoutineItem from "@/components/discipline/RoutineItem";
 import { MorningBriefing, WardenTip } from "@/components/warden";
 import { RoutineWithDuration } from "@/lib/calendarUtils";
 
@@ -375,50 +375,21 @@ const Discipline = () => {
                 <p className="text-muted-foreground text-sm">No morning routine set</p>
               ) : (
                 <div className="space-y-3">
-                  {morningRoutines.map((item) => {
-                    const completed = isRoutineCompleted(item.id);
-                    const completionTime = getCompletionTime(item.id);
-                    
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => toggleRoutineCompletion(item.id)}
-                        className={cn(
-                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left group",
-                          completed 
-                            ? "bg-primary/10 border-primary/30 animate-success-pulse" 
-                            : "bg-charcoal border-border hover:border-primary/50 hover-lift"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
-                          completed 
-                            ? "bg-primary border-primary animate-check-pop" 
-                            : "border-muted-foreground/50 group-hover:border-primary/70"
-                        )}>
-                          {completed && <Check className="w-4 h-4 text-primary-foreground" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={cn(
-                            "text-sm font-semibold transition-all",
-                            completed && "line-through text-muted-foreground"
-                          )}>
-                            {item.action_text}
-                          </p>
-                          <RoutineTimeEditor
-                              currentTime={getTime(item.display_order, item.time_slot)}
-                              onSave={(newTime) => saveTimeOverride(item.display_order, newTime)}
-                            />
-                        </div>
-                        {completed && completionTime && (
-                          <div className="flex items-center gap-1 text-xs text-primary">
-                            <Clock className="w-3 h-3" />
-                            {format(new Date(completionTime), "h:mm a")}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {morningRoutines.map((item) => (
+                    <RoutineItem
+                      key={item.id}
+                      id={item.id}
+                      actionText={item.action_text}
+                      timeSlot={item.time_slot}
+                      description={(item as any).description}
+                      displayOrder={item.display_order}
+                      completed={isRoutineCompleted(item.id)}
+                      completionTime={getCompletionTime(item.id)}
+                      onToggle={toggleRoutineCompletion}
+                      getTime={getTime}
+                      onSaveTime={saveTimeOverride}
+                    />
+                  ))}
                 </div>
               )}
               
@@ -476,50 +447,21 @@ const Discipline = () => {
                 <p className="text-muted-foreground text-sm">No evening routine set</p>
               ) : (
                 <div className="space-y-3">
-                  {eveningRoutines.map((item) => {
-                    const completed = isRoutineCompleted(item.id);
-                    const completionTime = getCompletionTime(item.id);
-                    
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => toggleRoutineCompletion(item.id)}
-                        className={cn(
-                          "w-full flex items-center gap-4 p-4 rounded-lg border transition-all text-left group",
-                          completed 
-                            ? "bg-primary/10 border-primary/30 animate-success-pulse" 
-                            : "bg-charcoal border-border hover:border-primary/50 hover-lift"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
-                          completed 
-                            ? "bg-primary border-primary animate-check-pop" 
-                            : "border-muted-foreground/50 group-hover:border-primary/70"
-                        )}>
-                          {completed && <Check className="w-4 h-4 text-primary-foreground" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={cn(
-                            "text-sm font-semibold transition-all",
-                            completed && "line-through text-muted-foreground"
-                          )}>
-                            {item.action_text}
-                          </p>
-                          <RoutineTimeEditor
-                              currentTime={getTime(item.display_order, item.time_slot)}
-                              onSave={(newTime) => saveTimeOverride(item.display_order, newTime)}
-                            />
-                        </div>
-                        {completed && completionTime && (
-                          <div className="flex items-center gap-1 text-xs text-primary">
-                            <Clock className="w-3 h-3" />
-                            {format(new Date(completionTime), "h:mm a")}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {eveningRoutines.map((item) => (
+                    <RoutineItem
+                      key={item.id}
+                      id={item.id}
+                      actionText={item.action_text}
+                      timeSlot={item.time_slot}
+                      description={(item as any).description}
+                      displayOrder={item.display_order}
+                      completed={isRoutineCompleted(item.id)}
+                      completionTime={getCompletionTime(item.id)}
+                      onToggle={toggleRoutineCompletion}
+                      getTime={getTime}
+                      onSaveTime={saveTimeOverride}
+                    />
+                  ))}
                 </div>
               )}
               
