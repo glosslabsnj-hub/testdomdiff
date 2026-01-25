@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSkillLessons } from "@/hooks/useSkillLessons";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTTS } from "@/hooks/useTTS";
+import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import ResumeBuilder from "@/components/skills/ResumeBuilder";
 import InterviewPrep from "@/components/skills/InterviewPrep";
@@ -28,6 +30,7 @@ const SkillBuilding = () => {
   const { subscription } = useAuth();
   const { lessons, loading } = useSkillLessons();
   const [activeTab, setActiveTab] = useState("lessons");
+  const tts = useTTS();
 
   // Only transformation and coaching users can access
   const planType = subscription?.plan_type;
@@ -240,6 +243,25 @@ const SkillBuilding = () => {
                               <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
                                 <Lightbulb className="w-3 h-3 mr-1" /> Advanced
                               </Badge>
+                            )}
+                            {lesson.content && (
+                              <AudioPlayButton
+                                variant="compact"
+                                label="Listen"
+                                isLoading={tts.isLoading}
+                                isPlaying={tts.isPlaying}
+                                isPaused={tts.isPaused}
+                                onClick={() => {
+                                  const parts = [
+                                    `Week ${lesson.week_number}: ${lesson.title}.`,
+                                    lesson.description || "",
+                                    lesson.content || "",
+                                    lesson.action_steps ? `Action steps: ${lesson.action_steps}` : "",
+                                  ].filter(Boolean);
+                                  tts.speak(parts.join(" "));
+                                }}
+                                onStop={tts.stop}
+                              />
                             )}
                           </div>
                           <h3 className="headline-card text-xl mb-2">{lesson.title}</h3>

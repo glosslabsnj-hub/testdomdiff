@@ -22,6 +22,8 @@ import { useFaithLessons } from "@/hooks/useFaithLessons";
 import { useAuth } from "@/contexts/AuthContext";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import { useToast } from "@/hooks/use-toast";
+import { useTTS } from "@/hooks/useTTS";
+import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
@@ -30,6 +32,7 @@ const Faith = () => {
   const { lessons, loading } = useFaithLessons(true);
   const { subscription, user } = useAuth();
   const { toast } = useToast();
+  const tts = useTTS();
   
   // Calculate current week from subscription start date
   const calculatedWeek = useMemo(() => {
@@ -49,11 +52,6 @@ const Faith = () => {
   useEffect(() => {
     setCurrentWeek(calculatedWeek);
   }, [calculatedWeek]);
-  
-  // Block membership users from accessing Faith content (after all hooks)
-  if (subscription?.plan_type === "membership") {
-    return <UpgradePrompt feature="Chapel (Faith & Mindset)" upgradeTo="transformation" />;
-  }
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -71,6 +69,11 @@ const Faith = () => {
       if (savedReflections) setReflectionAnswers(JSON.parse(savedReflections));
     }
   }, [user?.id, currentWeek]);
+  
+  // Block membership users from accessing Faith content (after all hooks)
+  if (subscription?.plan_type === "membership") {
+    return <UpgradePrompt feature="Chapel (Faith & Mindset)" upgradeTo="transformation" />;
+  }
 
   const currentLesson = lessons.find((l) => l.week_number === currentWeek);
   const hasContent = currentLesson && (
@@ -266,9 +269,29 @@ const Faith = () => {
               <div className="bg-card p-8 rounded-lg border border-border">
                 <div className="space-y-6">
                   {currentLesson.title && (
-                    <div>
-                      <p className="text-xs text-primary uppercase tracking-wider mb-1">Week {currentWeek}</p>
-                      <h2 className="headline-section">{currentLesson.title}</h2>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-xs text-primary uppercase tracking-wider mb-1">Week {currentWeek}</p>
+                        <h2 className="headline-section">{currentLesson.title}</h2>
+                      </div>
+                      <AudioPlayButton
+                        variant="default"
+                        label="Listen to Sermon"
+                        isLoading={tts.isLoading}
+                        isPlaying={tts.isPlaying}
+                        isPaused={tts.isPaused}
+                        onClick={() => {
+                          const parts = [
+                            currentLesson.title ? `Week ${currentWeek}: ${currentLesson.title}.` : "",
+                            currentLesson.big_idea ? `Big Idea: ${currentLesson.big_idea}.` : "",
+                            currentLesson.scripture ? `Scripture: ${currentLesson.scripture}.` : "",
+                            currentLesson.teaching_content || "",
+                            currentLesson.weekly_challenge ? `This week's challenge: ${currentLesson.weekly_challenge}` : "",
+                          ].filter(Boolean);
+                          tts.speak(parts.join(" "));
+                        }}
+                        onStop={tts.stop}
+                      />
                     </div>
                   )}
 
@@ -281,16 +304,27 @@ const Faith = () => {
 
                   {currentLesson.scripture && (
                     <div className="p-4 bg-charcoal rounded-lg relative">
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <p className="text-xs text-primary uppercase tracking-wider mb-1">Scripture to Memorize</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-xs text-primary uppercase tracking-wider">Scripture to Memorize</p>
+                            <AudioPlayButton
+                              variant="compact"
+                              label="Listen"
+                              isLoading={tts.isLoading}
+                              isPlaying={tts.isPlaying}
+                              isPaused={tts.isPaused}
+                              onClick={() => tts.speak(currentLesson.scripture || "")}
+                              onStop={tts.stop}
+                            />
+                          </div>
                           <p className="text-muted-foreground whitespace-pre-wrap">{currentLesson.scripture}</p>
                         </div>
                         <Button
                           variant={memorizedScriptures.includes(currentWeek) ? "gold" : "goldOutline"}
                           size="sm"
                           onClick={toggleMemorized}
-                          className="ml-4 shrink-0"
+                          className="shrink-0"
                         >
                           {memorizedScriptures.includes(currentWeek) ? (
                             <>

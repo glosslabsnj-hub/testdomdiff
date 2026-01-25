@@ -2,10 +2,27 @@ import { Sun, RefreshCw, BookOpen, Target, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDailyDevotional } from "@/hooks/useDailyDevotional";
+import { useTTS } from "@/hooks/useTTS";
+import { AudioPlayButton } from "@/components/AudioPlayButton";
 import { cn } from "@/lib/utils";
 
 export function MorningBriefing() {
   const { devotional, loading, error, refresh } = useDailyDevotional();
+  const tts = useTTS();
+
+  const handleListenToBriefing = () => {
+    if (!devotional) return;
+    
+    // Build the full briefing text
+    const parts = [
+      `Today's scripture: ${devotional.scripture_text}. From ${devotional.scripture_reference}.`,
+      devotional.message,
+      `Today's challenge: ${devotional.challenge}`,
+      `Prayer focus: ${devotional.prayer_focus}`,
+    ];
+    
+    tts.speak(parts.join(" "));
+  };
 
   if (loading && !devotional) {
     return (
@@ -97,12 +114,23 @@ export function MorningBriefing() {
           </Button>
         </div>
 
-        {/* Theme badge */}
-        {devotional.theme && (
-          <span className="text-xs font-medium text-gold bg-gold/10 px-2 py-1 rounded-full border border-gold/30 capitalize">
-            {devotional.theme}
-          </span>
-        )}
+        {/* Theme badge and Listen button */}
+        <div className="flex items-center gap-3">
+          {devotional.theme && (
+            <span className="text-xs font-medium text-gold bg-gold/10 px-2 py-1 rounded-full border border-gold/30 capitalize">
+              {devotional.theme}
+            </span>
+          )}
+          <AudioPlayButton
+            variant="compact"
+            label="Listen"
+            isLoading={tts.isLoading}
+            isPlaying={tts.isPlaying}
+            isPaused={tts.isPaused}
+            onClick={handleListenToBriefing}
+            onStop={tts.stop}
+          />
+        </div>
       </div>
 
       <div className="p-6 space-y-5">
