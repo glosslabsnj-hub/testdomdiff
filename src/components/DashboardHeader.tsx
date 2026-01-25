@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield, Settings, Command, Eye } from "lucide-react";
+import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield, Settings, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -178,21 +178,6 @@ const DashboardHeader = () => {
               </Tooltip>
             )}
 
-            {/* Command Palette Hint */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
-                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-muted/30 hover:bg-muted/50 rounded-md border border-border text-muted-foreground hover:text-foreground transition-colors text-xs"
-                >
-                  <Command className="w-3 h-3" />
-                  <span>K</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>Quick navigation (⌘K)</p>
-              </TooltipContent>
-            </Tooltip>
 
             {/* Days Remaining Badge - Only for 12-week users */}
             {subscription?.plan_type === "transformation" && daysRemaining !== null && (
