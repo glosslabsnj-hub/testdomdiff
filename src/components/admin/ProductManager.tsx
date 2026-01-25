@@ -141,6 +141,9 @@ const ProductManager = () => {
         category: formData.category,
         sizes: formData.sizes,
         is_active: formData.is_active,
+        in_stock: true,
+        stock_quantity: 50,
+        images: [],
         display_order: formData.display_order,
         image_url: imageUrl,
       };

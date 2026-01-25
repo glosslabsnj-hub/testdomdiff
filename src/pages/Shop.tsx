@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { useProducts, Product } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingBag, Loader2, Filter, Package, ShoppingCart } from "lucide-react";
+import { ShoppingBag, Loader2, Filter, Package, ShoppingCart, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -254,6 +254,16 @@ const Shop = () => {
                       key={product.id}
                       className="group card-dark overflow-hidden hover:border-primary/50 transition-all duration-300"
                     >
+                      {/* Out of Stock Badge */}
+                      {!product.in_stock && (
+                        <div className="absolute top-3 right-3 z-10">
+                          <Badge variant="destructive" className="text-xs">
+                            <AlertCircle className="w-3 h-3 mr-1" />
+                            Out of Stock
+                          </Badge>
+                        </div>
+                      )}
+
                       {/* Category Badge */}
                       <div className="absolute top-3 left-3 z-10">
                         <Badge 
@@ -331,7 +341,17 @@ const Shop = () => {
                         </div>
 
                         {/* Add to Cart / Select Size buttons */}
-                        {product.sizes && product.sizes.length > 1 ? (
+                        {!product.in_stock ? (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full gap-2 opacity-50 cursor-not-allowed"
+                            disabled
+                          >
+                            <AlertCircle className="w-4 h-4" />
+                            Out of Stock
+                          </Button>
+                        ) : product.sizes && product.sizes.length > 1 ? (
                           <Button 
                             variant="outline" 
                             size="sm" 

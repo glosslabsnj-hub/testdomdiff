@@ -1080,10 +1080,13 @@ export type Database = {
           display_order: number | null
           id: string
           image_url: string | null
+          images: string[] | null
+          in_stock: boolean | null
           is_active: boolean | null
           name: string
           price: number
           sizes: string[] | null
+          stock_quantity: number | null
           updated_at: string | null
         }
         Insert: {
@@ -1093,10 +1096,13 @@ export type Database = {
           display_order?: number | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          in_stock?: boolean | null
           is_active?: boolean | null
           name: string
           price: number
           sizes?: string[] | null
+          stock_quantity?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -1106,10 +1112,13 @@ export type Database = {
           display_order?: number | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          in_stock?: boolean | null
           is_active?: boolean | null
           name?: string
           price?: number
           sizes?: string[] | null
+          stock_quantity?: number | null
           updated_at?: string | null
         }
         Relationships: []
