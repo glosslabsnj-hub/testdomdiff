@@ -9,6 +9,7 @@ import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useMilestones } from "@/hooks/useMilestones";
 import { useRoutineTimeOverrides } from "@/hooks/useRoutineTimeOverrides";
 import { useCustomRoutines } from "@/hooks/useCustomRoutines";
+import { useRoutineSubSteps } from "@/hooks/useRoutineSubSteps";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -27,6 +28,7 @@ import CustomRoutineItem from "@/components/discipline/CustomRoutineItem";
 import DraggableRoutineList from "@/components/discipline/DraggableRoutineList";
 import ExportScheduleDialog from "@/components/discipline/ExportScheduleDialog";
 import RoutineItem from "@/components/discipline/RoutineItem";
+import QuickActionFAB from "@/components/discipline/QuickActionFAB";
 import { MorningBriefing, WardenTip } from "@/components/warden";
 import { RoutineWithDuration } from "@/lib/calendarUtils";
 
@@ -87,6 +89,16 @@ const Discipline = () => {
 
   // Time overrides hook
   const { getTime, saveTimeOverride } = useRoutineTimeOverrides(currentTemplateId);
+
+  // Sub-steps hook
+  const {
+    getSubSteps,
+    addUserSubStep,
+    editSubStep,
+    deleteSubStep,
+    toggleSubStepComplete,
+    isSubStepCompleted,
+  } = useRoutineSubSteps(currentTemplateId);
 
   const today = format(new Date(), "EEEE, MMMM d, yyyy");
   const compliance = getTodayCompliance();
@@ -388,6 +400,12 @@ const Discipline = () => {
                       onToggle={toggleRoutineCompletion}
                       getTime={getTime}
                       onSaveTime={saveTimeOverride}
+                      subSteps={getSubSteps(item.display_order)}
+                      onSubStepToggle={toggleSubStepComplete}
+                      onSubStepEdit={editSubStep}
+                      onSubStepDelete={deleteSubStep}
+                      onSubStepAdd={(text) => addUserSubStep(item.display_order, text)}
+                      isSubStepCompleted={isSubStepCompleted}
                     />
                   ))}
                 </div>
@@ -460,6 +478,12 @@ const Discipline = () => {
                       onToggle={toggleRoutineCompletion}
                       getTime={getTime}
                       onSaveTime={saveTimeOverride}
+                      subSteps={getSubSteps(item.display_order)}
+                      onSubStepToggle={toggleSubStepComplete}
+                      onSubStepEdit={editSubStep}
+                      onSubStepDelete={deleteSubStep}
+                      onSubStepAdd={(text) => addUserSubStep(item.display_order, text)}
+                      isSubStepCompleted={isSubStepCompleted}
                     />
                   ))}
                 </div>
@@ -645,6 +669,14 @@ const Discipline = () => {
           </Button>
         </div>
       </div>
+
+      {/* Quick Action Floating Button */}
+      <QuickActionFAB
+        morningRoutines={morningRoutines}
+        eveningRoutines={eveningRoutines}
+        isCompleted={isRoutineCompleted}
+        onComplete={toggleRoutineCompletion}
+      />
     </div>
   );
 };

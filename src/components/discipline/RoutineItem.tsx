@@ -4,6 +4,9 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import RoutineTimeEditor from "./RoutineTimeEditor";
+import SubStepsList from "./SubStepsList";
+import { SubStep } from "@/hooks/useRoutineSubSteps";
+import jailSounds from "@/lib/sounds";
 
 interface RoutineItemProps {
   id: string;
@@ -16,6 +19,14 @@ interface RoutineItemProps {
   onToggle: (id: string) => void;
   getTime: (displayOrder: number, defaultTime: string) => string;
   onSaveTime: (displayOrder: number, newTime: string) => Promise<void>;
+  // Sub-steps props
+  subSteps?: SubStep[];
+  onSubStepToggle?: (subStepId: string, isUserCreated: boolean) => void;
+  onSubStepEdit?: (subStepId: string, newText: string, isUserCreated: boolean) => Promise<boolean>;
+  onSubStepDelete?: (subStepId: string, isUserCreated: boolean) => Promise<boolean>;
+  onSubStepAdd?: (text: string) => Promise<boolean>;
+  isSubStepCompleted?: (subStepId: string) => boolean;
+  soundEnabled?: boolean;
 }
 
 export default function RoutineItem({
@@ -29,17 +40,39 @@ export default function RoutineItem({
   onToggle,
   getTime,
   onSaveTime,
+  subSteps = [],
+  onSubStepToggle,
+  onSubStepEdit,
+  onSubStepDelete,
+  onSubStepAdd,
+  isSubStepCompleted,
+  soundEnabled = true,
 }: RoutineItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [justCompleted, setJustCompleted] = useState(false);
+  
   const hasDescription = description && description.trim().length > 0;
+  const hasSubSteps = subSteps.length > 0 || onSubStepAdd;
+  const isExpandable = hasDescription || hasSubSteps;
+
+  const handleToggle = () => {
+    if (!completed) {
+      // Play sound and trigger animation
+      jailSounds.complete({ enabled: soundEnabled });
+      setJustCompleted(true);
+      setTimeout(() => setJustCompleted(false), 600);
+    }
+    onToggle(id);
+  };
 
   return (
     <div
       className={cn(
-        "w-full rounded-lg border transition-all",
+        "w-full rounded-lg border transition-all duration-300",
         completed 
-          ? "bg-primary/10 border-primary/30 animate-success-pulse" 
-          : "bg-charcoal border-border hover:border-primary/50"
+          ? "bg-primary/10 border-primary/30" 
+          : "bg-charcoal border-border hover:border-primary/50",
+        justCompleted && "animate-success-pulse"
       )}
     >
       <div className="flex items-center gap-4 p-4">
@@ -47,28 +80,33 @@ export default function RoutineItem({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onToggle(id);
+            handleToggle();
           }}
           className={cn(
             "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
             completed 
-              ? "bg-primary border-primary animate-check-pop" 
+              ? "bg-primary border-primary" 
               : "border-muted-foreground/50 hover:border-primary/70"
           )}
           aria-label={completed ? "Mark incomplete" : "Mark complete"}
         >
-          {completed && <Check className="w-4 h-4 text-primary-foreground" />}
+          {completed && (
+            <Check className={cn(
+              "w-4 h-4 text-primary-foreground",
+              justCompleted && "animate-check-pop"
+            )} />
+          )}
         </button>
 
-        {/* Content area - expands for instructions */}
+        {/* Content area - expands for instructions/sub-steps */}
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="flex-1 min-w-0">
           <CollapsibleTrigger asChild>
             <button 
               className={cn(
                 "w-full text-left flex items-center justify-between gap-2",
-                hasDescription && "cursor-pointer"
+                isExpandable && "cursor-pointer"
               )}
-              disabled={!hasDescription}
+              disabled={!isExpandable}
             >
               <div className="flex-1 min-w-0">
                 <p className={cn(
@@ -82,10 +120,10 @@ export default function RoutineItem({
                   onSave={(newTime) => onSaveTime(displayOrder, newTime)}
                 />
               </div>
-              {hasDescription && (
+              {isExpandable && (
                 <ChevronDown 
                   className={cn(
-                    "w-4 h-4 text-muted-foreground transition-transform flex-shrink-0",
+                    "w-4 h-4 text-muted-foreground transition-transform duration-200 flex-shrink-0",
                     isOpen && "rotate-180"
                   )} 
                 />
@@ -93,18 +131,34 @@ export default function RoutineItem({
             </button>
           </CollapsibleTrigger>
           
-          {hasDescription && (
+          {isExpandable && (
             <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-              <p className="text-sm text-muted-foreground mt-3 pt-3 border-t border-border/50">
-                {description}
-              </p>
+              {/* Description section */}
+              {hasDescription && (
+                <p className="text-sm text-muted-foreground mt-3 pt-3 border-t border-border/50">
+                  {description}
+                </p>
+              )}
+              
+              {/* Sub-steps section */}
+              {(hasSubSteps && onSubStepToggle && onSubStepEdit && onSubStepDelete && onSubStepAdd && isSubStepCompleted) && (
+                <SubStepsList
+                  subSteps={subSteps}
+                  onToggle={onSubStepToggle}
+                  onEdit={onSubStepEdit}
+                  onDelete={onSubStepDelete}
+                  onAdd={onSubStepAdd}
+                  isCompleted={isSubStepCompleted}
+                  soundEnabled={soundEnabled}
+                />
+              )}
             </CollapsibleContent>
           )}
         </Collapsible>
 
         {/* Completion timestamp */}
         {completed && completionTime && (
-          <div className="flex items-center gap-1 text-xs text-primary flex-shrink-0">
+          <div className="flex items-center gap-1 text-xs text-primary flex-shrink-0 animate-bar-slide">
             <Clock className="w-3 h-3" />
             {format(new Date(completionTime), "h:mm a")}
           </div>

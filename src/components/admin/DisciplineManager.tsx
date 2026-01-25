@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
-import { Sun, Moon, Plus, Edit, Trash2, Loader2, Eye, GripVertical, Copy, BarChart3, ToggleLeft, ToggleRight, FileText } from "lucide-react";
+import { Sun, Moon, Plus, Edit, Trash2, Loader2, Eye, GripVertical, Copy, BarChart3, ToggleLeft, ToggleRight, FileText, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDisciplineRoutines, DisciplineRoutine } from "@/hooks/useDisciplineRoutines";
 import { useDisciplineTemplates, RoutineItem } from "@/hooks/useDisciplineTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import DisciplineTemplatesPanel from "./DisciplineTemplatesPanel";
+import RoutineSubStepsEditor from "./RoutineSubStepsEditor";
 
 interface ComplianceStats {
   totalUsers: number;
@@ -275,31 +278,50 @@ export default function DisciplineManager() {
         </Button>
       </div>
 
-      {/* Templates Panel */}
-      <Card className="bg-charcoal border-border">
-        <CardContent className="pt-6">
-          <DisciplineTemplatesPanel
-            onApplyTemplate={async (templateRoutines: RoutineItem[]) => {
-              // Delete all existing routines
-              for (const routine of routines) {
-                await deleteRoutine(routine.id);
-              }
-              // Create new routines from template
-              for (const item of templateRoutines) {
-                await createRoutine({
-                  routine_type: item.routine_type,
-                  time_slot: item.time_slot,
-                  action_text: item.action_text,
-                  display_order: item.display_order,
-                  is_active: true,
-                  duration_minutes: 5,
-                  description: null,
-                });
-              }
-            }}
-          />
-        </CardContent>
-      </Card>
+      {/* Tabs for Templates, Sub-Steps Editor */}
+      <Tabs defaultValue="templates" className="space-y-4">
+        <TabsList className="bg-charcoal border border-border">
+          <TabsTrigger value="templates" className="gap-2">
+            <FileText className="h-4 w-4" />
+            Quick Templates
+          </TabsTrigger>
+          <TabsTrigger value="substeps" className="gap-2">
+            <Layers className="h-4 w-4" />
+            Sub-Steps Editor
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="templates">
+          <Card className="bg-charcoal border-border">
+            <CardContent className="pt-6">
+              <DisciplineTemplatesPanel
+                onApplyTemplate={async (templateRoutines: RoutineItem[]) => {
+                  // Delete all existing routines
+                  for (const routine of routines) {
+                    await deleteRoutine(routine.id);
+                  }
+                  // Create new routines from template
+                  for (const item of templateRoutines) {
+                    await createRoutine({
+                      routine_type: item.routine_type,
+                      time_slot: item.time_slot,
+                      action_text: item.action_text,
+                      display_order: item.display_order,
+                      is_active: true,
+                      duration_minutes: 5,
+                      description: null,
+                    });
+                  }
+                }}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="substeps">
+          <SubStepsEditorTab />
+        </TabsContent>
+      </Tabs>
 
 
       {/* Preview Mode */}
@@ -572,13 +594,16 @@ export default function DisciplineManager() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Description (optional)</label>
-              <Input 
+              <label className="text-sm font-medium mb-1 block">Description / Instructions</label>
+              <Textarea 
                 value={form.description || ""} 
                 onChange={(e) => setForm({ ...form, description: e.target.value })} 
-                className="bg-charcoal border-border" 
-                placeholder="Add notes for calendar export" 
+                className="bg-charcoal border-border min-h-[80px]" 
+                placeholder="Add detailed instructions that users will see when they expand this routine..."
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                This text appears when users expand the routine item. Use it for step-by-step guidance.
+              </p>
             </div>
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium">Active</label>
@@ -595,5 +620,103 @@ export default function DisciplineManager() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+// Sub-Steps Editor Tab Component
+function SubStepsEditorTab() {
+  const { templates, loading } = useDisciplineTemplates();
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const activeTemplates = templates.filter(t => t.is_active);
+  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+
+  return (
+    <Card className="bg-charcoal border-border">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Layers className="h-5 w-5 text-primary" />
+          Sub-Steps Editor
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Define micro-steps for each routine. Users will see these when they expand a routine item, and can customize them.
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Template Selector */}
+        <div>
+          <label className="text-sm font-medium mb-2 block">Select Template to Edit</label>
+          <Select 
+            value={selectedTemplateId || ""} 
+            onValueChange={(v) => setSelectedTemplateId(v || null)}
+          >
+            <SelectTrigger className="bg-background border-border w-full max-w-md">
+              <SelectValue placeholder="Choose a discipline template..." />
+            </SelectTrigger>
+            <SelectContent>
+              {activeTemplates.map((template) => (
+                <SelectItem key={template.id} value={template.id}>
+                  {template.name} ({template.routines.length} routines)
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Routines List with Sub-Steps Editors */}
+        {selectedTemplate && (
+          <div className="space-y-4 pt-4 border-t border-border">
+            <div className="flex items-center gap-2 mb-2">
+              <Sun className="h-4 w-4 text-primary" />
+              <span className="font-semibold text-sm">Morning Routines</span>
+            </div>
+            {selectedTemplate.routines
+              .filter(r => r.routine_type === "morning")
+              .sort((a, b) => a.display_order - b.display_order)
+              .map((routine) => (
+                <RoutineSubStepsEditor
+                  key={`${selectedTemplate.id}-${routine.display_order}`}
+                  templateId={selectedTemplate.id}
+                  routineIndex={routine.display_order}
+                  routineName={routine.action_text}
+                />
+              ))}
+
+            <Separator className="my-6" />
+
+            <div className="flex items-center gap-2 mb-2">
+              <Moon className="h-4 w-4 text-primary" />
+              <span className="font-semibold text-sm">Evening Routines</span>
+            </div>
+            {selectedTemplate.routines
+              .filter(r => r.routine_type === "evening")
+              .sort((a, b) => a.display_order - b.display_order)
+              .map((routine) => (
+                <RoutineSubStepsEditor
+                  key={`${selectedTemplate.id}-evening-${routine.display_order}`}
+                  templateId={selectedTemplate.id}
+                  routineIndex={routine.display_order}
+                  routineName={routine.action_text}
+                />
+              ))}
+          </div>
+        )}
+
+        {!selectedTemplate && (
+          <div className="text-center py-8 text-muted-foreground">
+            <Layers className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <p>Select a template above to edit its routine sub-steps.</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

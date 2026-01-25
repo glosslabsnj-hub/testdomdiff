@@ -117,6 +117,32 @@ export default {
           "0%, 100%": { boxShadow: "0 0 0 0 hsl(43 74% 49% / 0.4)" },
           "50%": { boxShadow: "0 0 0 15px hsl(43 74% 49% / 0)" },
         },
+        // Jail-themed animations
+        "iron-slam": {
+          "0%": { transform: "translateY(-20px) scale(0.8)", opacity: "0" },
+          "50%": { transform: "translateY(5px) scale(1.1)" },
+          "100%": { transform: "translateY(0) scale(1)", opacity: "1" },
+        },
+        "check-pop": {
+          "0%": { transform: "scale(0)" },
+          "50%": { transform: "scale(1.3)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "bar-slide": {
+          "0%": { transform: "translateX(-100%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "cell-lock": {
+          "0%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(-5deg)" },
+          "75%": { transform: "rotate(5deg)" },
+          "100%": { transform: "rotate(0deg)" },
+        },
+        "success-pulse": {
+          "0%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0.4)" },
+          "70%": { boxShadow: "0 0 0 10px hsl(var(--primary) / 0)" },
+          "100%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -124,6 +150,11 @@ export default {
         "fade-in": "fade-in 0.6s ease-out forwards",
         "slide-up": "slide-up 0.6s ease-out forwards",
         "pulse-gold": "pulse-gold 2s infinite",
+        "iron-slam": "iron-slam 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+        "check-pop": "check-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+        "bar-slide": "bar-slide 0.3s ease-out forwards",
+        "cell-lock": "cell-lock 0.3s ease-in-out",
+        "success-pulse": "success-pulse 0.6s ease-out",
       },
       backgroundImage: {
         "gradient-gold": "linear-gradient(135deg, hsl(43 74% 49%), hsl(43 74% 35%))",
