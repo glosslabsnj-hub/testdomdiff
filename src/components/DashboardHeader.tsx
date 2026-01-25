@@ -182,7 +182,7 @@ const DashboardHeader = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
                   className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-muted/30 hover:bg-muted/50 rounded-md border border-border text-muted-foreground hover:text-foreground transition-colors text-xs"
                 >
                   <Command className="w-3 h-3" />

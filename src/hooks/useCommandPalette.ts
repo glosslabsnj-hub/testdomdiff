@@ -259,12 +259,21 @@ export function useCommandPalette() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
+        e.stopPropagation();
         setOpen((prev) => !prev);
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    // Also listen for custom event to open palette (avoids Lovable editor intercept)
+    const handleCustomOpen = () => setOpen(true);
+
+    document.addEventListener("keydown", handleKeyDown, { capture: true });
+    window.addEventListener("open-command-palette", handleCustomOpen);
+    
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown, { capture: true });
+      window.removeEventListener("open-command-palette", handleCustomOpen);
+    };
   }, []);
 
   // Clear search when closing
