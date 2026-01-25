@@ -163,6 +163,33 @@ const Discipline = () => {
     }
   }, [streak, checkStreakMilestones]);
 
+  // Handle #incomplete scroll on mount
+  useEffect(() => {
+    if (window.location.hash === "#incomplete" && !loading) {
+      // Find which section has incomplete tasks
+      const morningComplete = morningRoutines.every(r => isRoutineCompleted(r.id)) &&
+        morningCustomRoutines.every(r => isRoutineCompleted(r.id));
+      const eveningComplete = eveningRoutines.every(r => isRoutineCompleted(r.id)) &&
+        eveningCustomRoutines.every(r => isRoutineCompleted(r.id));
+      
+      let targetId = "";
+      if (!morningComplete) {
+        targetId = "morning-routine";
+      } else if (!eveningComplete) {
+        targetId = "evening-routine";
+      }
+      
+      if (targetId) {
+        setTimeout(() => {
+          const element = document.getElementById(targetId);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      }
+    }
+  }, [loading, morningRoutines, eveningRoutines, morningCustomRoutines, eveningCustomRoutines, isRoutineCompleted]);
+
   // Handler for when template changes - refetch routines
   const handleTemplateChange = async (templateId: string) => {
     setCurrentTemplateId(templateId);
@@ -258,33 +285,6 @@ const Discipline = () => {
   
   const morningExportRoutines = prepareRoutinesForExport(morningRoutines, morningCustomRoutines, "morning");
   const eveningExportRoutines = prepareRoutinesForExport(eveningRoutines, eveningCustomRoutines, "evening");
-
-  // Handle #incomplete scroll on mount
-  useEffect(() => {
-    if (window.location.hash === "#incomplete" && !loading) {
-      // Find which section has incomplete tasks
-      const morningComplete = morningRoutines.every(r => isRoutineCompleted(r.id)) &&
-        morningCustomRoutines.every(r => isRoutineCompleted(r.id));
-      const eveningComplete = eveningRoutines.every(r => isRoutineCompleted(r.id)) &&
-        eveningCustomRoutines.every(r => isRoutineCompleted(r.id));
-      
-      let targetId = "";
-      if (!morningComplete) {
-        targetId = "morning-routine";
-      } else if (!eveningComplete) {
-        targetId = "evening-routine";
-      }
-      
-      if (targetId) {
-        setTimeout(() => {
-          const element = document.getElementById(targetId);
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        }, 100);
-      }
-    }
-  }, [loading, morningRoutines, eveningRoutines, morningCustomRoutines, eveningCustomRoutines, isRoutineCompleted]);
 
   return (
     <div className="min-h-screen bg-background">
