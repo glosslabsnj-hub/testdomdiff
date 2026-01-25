@@ -1,11 +1,22 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Users, Flame, Target } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProgramComparisonTable from "@/components/ProgramComparisonTable";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Programs = () => {
+  const { trackConversion } = useAnalytics();
+  
+  // Track programs page view (ViewTiers)
+  useEffect(() => {
+    trackConversion("ViewContent", {
+      content_name: "programs_page",
+      content_category: "tiers",
+    });
+  }, []);
   const programs = [
     {
       id: "membership",

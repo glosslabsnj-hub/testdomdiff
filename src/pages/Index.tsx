@@ -1,15 +1,28 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Flame, Cross, Target, BookOpen, Trophy, ArrowRight, ChevronDown } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MerchShowcase from "@/components/MerchShowcase";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import heroImage from "@/assets/hero-image.jpg";
 import storyImage from "@/assets/story-image.jpg";
 import trainingImage from "@/assets/training-image.jpg";
 import faithImage from "@/assets/faith-image.jpg";
 import transformationImage from "@/assets/transformation-image.jpg";
+
 const Index = () => {
+  const { trackConversion } = useAnalytics();
+  
+  // Track landing page view
+  useEffect(() => {
+    trackConversion("ViewContent", {
+      content_name: "landing_page",
+      content_category: "marketing",
+    });
+  }, []);
+  
   const targetAudience = ["You're done making excuses and ready to be held accountable", "You want your faith to be the foundation — not an afterthought", "You need structure that works anywhere, anytime, with minimal equipment", "You're tired of inconsistency and ready for daily discipline", "You want to be part of a brotherhood, not just another gym bro"];
   const howItWorks = [{
     step: "01",

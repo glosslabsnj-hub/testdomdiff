@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Play, CheckSquare, Dumbbell, Crown, Calendar, MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const IntakeComplete = () => {
   const { subscription } = useAuth();
+  const { trackIntakeComplete } = useAnalytics();
   const isCoaching = subscription?.plan_type === "coaching";
   const isTransformation = subscription?.plan_type === "transformation";
+
+  // Track intake completion (Lead conversion event)
+  useEffect(() => {
+    trackIntakeComplete();
+  }, []);
 
   // Tier-specific content
   const getTierContent = () => {

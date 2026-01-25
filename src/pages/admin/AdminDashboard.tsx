@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { TrendingUp, Users, Package, BookOpen, MessageSquare, ArrowLeft, Loader2 } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { TrendingUp, Users, Package, BookOpen, MessageSquare, ArrowLeft, Loader2, Settings, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ import MealAnalyticsPanel from "@/components/admin/MealAnalyticsPanel";
 import DisciplineManager from "@/components/admin/DisciplineManager";
 import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
 import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
+import SiteSettingsManager from "@/components/admin/SiteSettingsManager";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
@@ -96,6 +97,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="content" className="text-xs sm:text-sm px-3">
               <BookOpen className="h-4 w-4 mr-2" />
               Content CMS
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm px-3">
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
             </TabsTrigger>
           </TabsList>
 
@@ -277,6 +282,23 @@ export default function AdminDashboard() {
                 {contentSection === "welcome-videos" && <WelcomeVideosManager />}
               </div>
             </div>
+          </TabsContent>
+
+          {/* Settings Hub */}
+          <TabsContent value="settings" className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Site Settings</h2>
+                <p className="text-sm text-muted-foreground">Configure analytics pixels, integrations, and contact info</p>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/admin/audit" className="flex items-center gap-2">
+                  <ClipboardCheck className="h-4 w-4" />
+                  View Audit Report
+                </Link>
+              </Button>
+            </div>
+            <SiteSettingsManager />
           </TabsContent>
         </Tabs>
       </main>

@@ -1,15 +1,37 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, Phone, ArrowRight, Clock, CheckCircle } from "lucide-react";
+import { Calendar, Phone, ArrowRight, Clock, CheckCircle, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-// TODO: Replace with your actual Calendly URL when ready
-const CALENDLY_URL = "https://calendly.com/your-link";
+import { supabase } from "@/integrations/supabase/client";
 
 const BookCall = () => {
+  const [calendlyUrl, setCalendlyUrl] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
+    // Load Calendly URL from database
+    const loadCalendlyUrl = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "calendly_url")
+          .single();
+        
+        if (data?.value) {
+          setCalendlyUrl(data.value);
+        }
+      } catch (error) {
+        console.error("Failed to load Calendly URL:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCalendlyUrl();
+
     // Load Calendly widget script
     const script = document.createElement("script");
     script.src = "https://assets.calendly.com/assets/external/widget.js";
@@ -26,6 +48,8 @@ const BookCall = () => {
       }
     };
   }, []);
+
+  const isPlaceholderUrl = !calendlyUrl || calendlyUrl === "https://calendly.com/your-link";
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,11 +71,30 @@ const BookCall = () => {
 
             {/* Calendly Widget */}
             <div className="bg-charcoal rounded-xl border border-border overflow-hidden mb-12">
-              <div 
-                className="calendly-inline-widget" 
-                data-url={CALENDLY_URL}
-                style={{ minWidth: "320px", height: "700px" }}
-              />
+              {loading ? (
+                <div className="p-12 flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : isPlaceholderUrl ? (
+                <div className="p-12 text-center">
+                  <Calendar className="w-16 h-16 text-primary mx-auto mb-6" />
+                  <h3 className="headline-card mb-4">Booking Coming Soon</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Our scheduling system is being set up. In the meantime, reach out directly.
+                  </p>
+                  <Button variant="gold" size="lg" asChild>
+                    <a href="mailto:support@domdifferent.com">
+                      Email Us
+                    </a>
+                  </Button>
+                </div>
+              ) : (
+                <div 
+                  className="calendly-inline-widget" 
+                  data-url={calendlyUrl}
+                  style={{ minWidth: "320px", height: "700px" }}
+                />
+              )}
               
               {/* Fallback if widget doesn't load */}
               <noscript>
@@ -62,8 +105,8 @@ const BookCall = () => {
                     JavaScript is required to display the scheduling widget.
                   </p>
                   <Button variant="gold" size="lg" asChild>
-                    <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">
-                      Open Scheduler
+                    <a href={calendlyUrl || "mailto:support@domdifferent.com"} target="_blank" rel="noopener noreferrer">
+                      {calendlyUrl ? "Open Scheduler" : "Email Us"}
                     </a>
                   </Button>
                 </div>
@@ -73,8 +116,8 @@ const BookCall = () => {
             {/* What to Expect */}
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="p-6 rounded-lg bg-charcoal border border-border text-center">
-                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                  <Clock className="w-6 h-6 text-gold" />
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">15 Minutes</h3>
                 <p className="text-sm text-muted-foreground">
@@ -82,8 +125,8 @@ const BookCall = () => {
                 </p>
               </div>
               <div className="p-6 rounded-lg bg-charcoal border border-border text-center">
-                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                  <Phone className="w-6 h-6 text-gold" />
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Phone className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">No Pressure</h3>
                 <p className="text-sm text-muted-foreground">
@@ -91,8 +134,8 @@ const BookCall = () => {
                 </p>
               </div>
               <div className="p-6 rounded-lg bg-charcoal border border-border text-center">
-                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-6 h-6 text-gold" />
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">Clear Direction</h3>
                 <p className="text-sm text-muted-foreground">
@@ -102,7 +145,7 @@ const BookCall = () => {
             </div>
 
             {/* Alternative CTA */}
-            <div className="text-center p-8 bg-charcoal rounded-lg border border-gold/30">
+            <div className="text-center p-8 bg-charcoal rounded-lg border border-primary/30">
               <h3 className="headline-card mb-4">Ready to Start Now?</h3>
               <p className="text-muted-foreground mb-6">
                 Skip the call and jump straight into the transformation.
