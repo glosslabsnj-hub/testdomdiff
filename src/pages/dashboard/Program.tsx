@@ -347,13 +347,11 @@ const Program = () => {
               </Badge>
               {/* Quick-complete button on collapsed card */}
               <Button
-                variant="ghost"
-                size="icon"
+                variant={isCompleted ? "outline" : "gold"}
+                size="sm"
                 className={cn(
-                  "h-9 w-9 rounded-full shrink-0",
-                  isCompleted 
-                    ? "text-destructive hover:bg-destructive/10" 
-                    : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  "shrink-0 gap-1.5 px-3",
+                  isCompleted && "border-destructive/50 text-destructive hover:bg-destructive/10"
                 )}
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent expand toggle
@@ -362,12 +360,13 @@ const Program = () => {
                 disabled={completing}
               >
                 {completing ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : isCompleted ? (
-                  <Lock className="w-4 h-4" />
+                  <Lock className="w-3.5 h-3.5" />
                 ) : (
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-3.5 h-3.5" />
                 )}
+                <span className="hidden sm:inline">{isCompleted ? "Undo" : "Complete"}</span>
               </Button>
               {isOpen ? (
                 <ChevronDown className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
