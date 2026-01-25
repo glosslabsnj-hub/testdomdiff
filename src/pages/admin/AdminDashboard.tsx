@@ -22,6 +22,7 @@ import MealAnalyticsPanel from "@/components/admin/MealAnalyticsPanel";
 import DisciplineManager from "@/components/admin/DisciplineManager";
 import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
 import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
+import TierOnboardingManager from "@/components/admin/TierOnboardingManager";
 import SiteSettingsManager from "@/components/admin/SiteSettingsManager";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
@@ -280,6 +281,7 @@ export default function AdminDashboard() {
                 {contentSection === "discipline" && <DisciplineManager />}
                 {contentSection === "skills" && <SkillLessonsManager />}
                 {contentSection === "welcome-videos" && <WelcomeVideosManager />}
+                {contentSection === "tier-onboarding" && <TierOnboardingManager />}
               </div>
             </div>
           </TabsContent>

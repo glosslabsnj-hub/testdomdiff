@@ -1,0 +1,150 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// The Warden's voice (Dom's voice for coaching)
+const VOICE_ID = "whW3u9nCRzIXd1EfN1YN";
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { video_id, script_text, tier_key } = await req.json();
+
+    if (!script_text || !video_id || !tier_key) {
+      return new Response(
+        JSON.stringify({ error: "video_id, script_text, and tier_key are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+    if (!ELEVENLABS_API_KEY) {
+      console.error("ELEVENLABS_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "ElevenLabs API key not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    console.log("Generating audio for video:", video_id, "script length:", script_text.length);
+
+    // Call ElevenLabs TTS API
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}?output_format=mp3_44100_128`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": ELEVENLABS_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: script_text,
+          model_id: "eleven_turbo_v2_5",
+          voice_settings: {
+            stability: 0.7,
+            similarity_boost: 0.75,
+            style: 0.4,
+            use_speaker_boost: true,
+            speed: 0.95,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("ElevenLabs API error:", response.status, errorText);
+      
+      // Update video record with error
+      await supabase
+        .from("tier_onboarding_videos")
+        .update({
+          status: "failed",
+          error: `ElevenLabs error: ${response.status} - ${errorText}`,
+        })
+        .eq("id", video_id);
+
+      return new Response(
+        JSON.stringify({ error: "Failed to generate audio", details: errorText }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const audioBuffer = await response.arrayBuffer();
+    console.log("Audio generated, size:", audioBuffer.byteLength, "bytes");
+
+    // Get the current config version for the filename
+    const { data: versionData } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "tier_config_version")
+      .single();
+
+    const configVersion = versionData?.value || "1";
+    const audioPath = `${tier_key}/audio-v${configVersion}.mp3`;
+
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from("onboarding-assets")
+      .upload(audioPath, audioBuffer, {
+        contentType: "audio/mpeg",
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      await supabase
+        .from("tier_onboarding_videos")
+        .update({
+          status: "failed",
+          error: `Storage upload error: ${uploadError.message}`,
+        })
+        .eq("id", video_id);
+
+      return new Response(
+        JSON.stringify({ error: "Failed to upload audio", details: uploadError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get the public URL
+    const { data: urlData } = supabase.storage
+      .from("onboarding-assets")
+      .getPublicUrl(audioPath);
+
+    const audioUrl = urlData.publicUrl;
+    console.log("Audio uploaded to:", audioUrl);
+
+    // Update the video record
+    await supabase
+      .from("tier_onboarding_videos")
+      .update({
+        audio_url: audioUrl,
+        status: "generating_captions",
+      })
+      .eq("id", video_id);
+
+    return new Response(
+      JSON.stringify({ audio_url: audioUrl }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Audio generation error:", error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

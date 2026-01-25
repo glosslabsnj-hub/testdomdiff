@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import DashboardBackLink from "@/components/DashboardBackLink";
+import { OnboardingVideoPlayer } from "@/components/OnboardingVideoPlayer";
 
 // Tier-specific checklist configurations with improved descriptions
 const SOLITARY_CHECKLIST = [
@@ -262,7 +263,16 @@ const StartHere = () => {
 
       <div className="section-container py-8">
         <div className="max-w-3xl">
-          {/* Welcome Video Card */}
+          {/* AI-Generated Tier Walkthrough */}
+          <OnboardingVideoPlayer
+            tierKey={planType}
+            tierName={tierConfig.name}
+            accentClass={tierConfig.accentClass}
+            borderClass={tierConfig.borderClass}
+            onVideoWatched={markVideoWatched}
+          />
+
+          {/* Welcome Video Card (legacy - from admin uploads) */}
           {welcomeVideo?.video_url && (
             <div className={cn(
               "mb-8 p-6 rounded-xl border bg-card",
