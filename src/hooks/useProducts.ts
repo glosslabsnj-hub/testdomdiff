@@ -7,9 +7,12 @@ export interface Product {
   description: string | null;
   price: number;
   image_url: string | null;
+  images: string[] | null;
   category: string;
   sizes: string[];
   is_active: boolean;
+  in_stock: boolean;
+  stock_quantity: number;
   display_order: number;
   created_at: string;
   updated_at: string;
