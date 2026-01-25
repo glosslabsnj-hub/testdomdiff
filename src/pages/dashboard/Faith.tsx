@@ -81,7 +81,7 @@ const Faith = () => {
   );
 
   const completedWeeks = memorizedScriptures.length;
-  const progressPercent = (completedWeeks / 12) * 100;
+  const progressPercent = Math.min(100, Math.max(0, (completedWeeks / 12) * 100));
 
   const saveJournal = () => {
     if (user?.id) {

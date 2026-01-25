@@ -168,9 +168,9 @@ const CoachingPortal = () => {
                       <div key={goal.id} className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-medium">{goal.title}</span>
-                          <span className="text-purple-400">{goal.progress_pct}%</span>
+                          <span className="text-purple-400">{Math.min(100, Math.max(0, goal.progress_pct || 0))}%</span>
                         </div>
-                        <Progress value={goal.progress_pct} className="h-2" />
+                        <Progress value={Math.min(100, Math.max(0, goal.progress_pct || 0))} className="h-2" />
                       </div>
                     ))}
                   </div>

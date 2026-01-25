@@ -103,7 +103,7 @@ export function WeeklyProgressCard() {
           </div>
           <p className="text-2xl font-display text-foreground">{workoutsThisWeek}/6</p>
           <p className="text-xs text-muted-foreground">Workouts</p>
-          <Progress value={(workoutsThisWeek / 6) * 100} className="h-1 mt-2" />
+          <Progress value={Math.min(100, (workoutsThisWeek / 6) * 100)} className="h-1 mt-2" />
         </div>
         
         {/* Discipline Compliance */}

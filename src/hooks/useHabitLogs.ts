@@ -125,7 +125,7 @@ export const useHabitLogs = (weekStartDate?: Date) => {
   const getWeeklyCompliancePercent = (): number => {
     const totalPossible = DEFAULT_HABITS.length * 7;
     const completed = logs.filter(l => l.completed).length;
-    return Math.round((completed / totalPossible) * 100);
+    return Math.min(100, Math.max(0, Math.round((completed / totalPossible) * 100)));
   };
 
   return {

@@ -105,14 +105,14 @@ export function useWorkoutCompletions(weekNumber: number | null) {
   const getWorkoutProgress = (dayWorkoutId: string, exerciseIds: string[]): number => {
     if (exerciseIds.length === 0) return 0;
     const completed = exerciseIds.filter(id => completedExerciseIds.has(id)).length;
-    return Math.round((completed / exerciseIds.length) * 100);
+    return Math.min(100, Math.max(0, Math.round((completed / exerciseIds.length) * 100)));
   };
 
   const getDayProgress = (dayWorkoutExercises: Record<string, string[]>): number => {
     const allExerciseIds = Object.values(dayWorkoutExercises).flat();
     if (allExerciseIds.length === 0) return 0;
     const completed = allExerciseIds.filter(id => completedExerciseIds.has(id)).length;
-    return Math.round((completed / allExerciseIds.length) * 100);
+    return Math.min(100, Math.max(0, Math.round((completed / allExerciseIds.length) * 100)));
   };
 
   useEffect(() => {
