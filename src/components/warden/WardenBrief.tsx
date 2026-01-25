@@ -1,4 +1,4 @@
-import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown, Volume2, VolumeX, Loader2, Hand } from "lucide-react";
+import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown, ChevronUp, Volume2, VolumeX, Loader2, Hand, Minimize2, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWarden } from "@/hooks/useWarden";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/collapsible";
 
 const LAST_WARDEN_AUDIO_KEY = "lastWardenAudioDate";
+const WARDEN_COLLAPSED_KEY = "wardenBriefCollapsed";
 
 const openWardenChat = () => {
   window.dispatchEvent(new CustomEvent('open-warden-chat'));
@@ -26,8 +27,20 @@ export function WardenBrief() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem(WARDEN_COLLAPSED_KEY) === "true";
+  });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+
+  // Persist collapse state
+  const toggleCollapse = useCallback(() => {
+    setIsCollapsed(prev => {
+      const newState = !prev;
+      localStorage.setItem(WARDEN_COLLAPSED_KEY, String(newState));
+      return newState;
+    });
+  }, []);
 
   const stopAudio = useCallback(() => {
     if (audioRef.current) {
@@ -207,6 +220,33 @@ export function WardenBrief() {
     general: "bg-muted text-muted-foreground border-border",
   };
 
+  // Collapsed compact view
+  if (isCollapsed) {
+    return (
+      <div className="space-y-3">
+        <button
+          onClick={toggleCollapse}
+          className="w-full bg-charcoal-dark border border-gold/20 rounded-xl p-3 flex items-center justify-between hover:border-gold/40 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+              <Shield className="h-4 w-4 text-gold" />
+            </div>
+            <div className="text-left">
+              <span className="font-medium text-foreground text-sm">The Warden</span>
+              <span className="text-muted-foreground mx-2">·</span>
+              <span className="text-xs text-gold">
+                Week {weeklyBrief.week_number} — {weeklyBrief.focus_area ? `Focus: ${weeklyBrief.focus_area.charAt(0).toUpperCase() + weeklyBrief.focus_area.slice(1)}` : "Orders Ready"}
+              </span>
+            </div>
+          </div>
+          <Maximize2 className="h-4 w-4 text-muted-foreground group-hover:text-gold transition-colors" />
+        </button>
+        <RotatingWardenTip />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {/* Main Warden Brief Card */}
@@ -272,6 +312,16 @@ export function WardenBrief() {
               className="text-muted-foreground hover:text-foreground flex-shrink-0"
             >
               <RefreshCw className={cn("h-4 w-4", briefLoading && "animate-spin")} />
+            </Button>
+            {/* Collapse button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleCollapse}
+              className="text-muted-foreground hover:text-gold hover:bg-gold/10 flex-shrink-0"
+              title="Minimize"
+            >
+              <Minimize2 className="h-4 w-4" />
             </Button>
           </div>
         </div>

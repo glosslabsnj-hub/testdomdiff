@@ -48,6 +48,24 @@ export function TransformationWidget() {
   };
   const weeksDiff = getWeeksDiff();
 
+  // Hide widget completely if no photos - show a minimal CTA instead
+  if (!hasAnyPhotos) {
+    return (
+      <div className="cell-block p-3 mb-6">
+        <Link 
+          to="/dashboard/progress" 
+          className="flex items-center justify-between text-sm group hover:bg-primary/5 p-2 -m-2 rounded-lg transition-colors"
+        >
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Camera className="w-4 h-4 text-primary" />
+            <span>{isCoaching ? "Document your journey — add your first photo" : "Take your booking mugshot"}</span>
+          </div>
+          <ArrowRight className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="cell-block p-4 mb-6">
       <div className="flex items-center justify-between mb-4">
@@ -57,14 +75,12 @@ export function TransformationWidget() {
             {isCoaching ? "Your Transformation" : "Mugshot Timeline"}
           </h3>
         </div>
-        {hasAnyPhotos && (
-          <Link 
-            to="/dashboard/photos" 
-            className="text-xs text-primary hover:underline transition-colors"
-          >
-            View Gallery →
-          </Link>
-        )}
+        <Link 
+          to="/dashboard/photos" 
+          className="text-xs text-primary hover:underline transition-colors"
+        >
+          View Gallery →
+        </Link>
       </div>
 
       {hasComparison ? (
@@ -107,7 +123,7 @@ export function TransformationWidget() {
             </p>
           </div>
         </div>
-      ) : hasAnyPhotos ? (
+      ) : (
         <div className="text-center p-4 bg-muted/20 rounded-lg border border-border">
           <p className="text-sm text-muted-foreground mb-3">
             {photos.length === 1 
@@ -116,20 +132,6 @@ export function TransformationWidget() {
           </p>
           <Button variant="goldOutline" size="sm" asChild>
             <Link to="/dashboard/progress">Add More Photos</Link>
-          </Button>
-        </div>
-      ) : (
-        <div className="text-center p-6 bg-primary/5 rounded-lg border border-primary/20">
-          <Camera className="w-10 h-10 text-primary mx-auto mb-3 opacity-60" />
-          <p className="text-sm text-muted-foreground mb-3">
-            {isCoaching
-              ? "Document your journey from day one"
-              : "Every transformation starts with a mugshot"}
-          </p>
-          <Button variant="gold" size="sm" asChild>
-            <Link to="/dashboard/progress">
-              {isCoaching ? "Upload First Photo" : "Take Your Mugshot"}
-            </Link>
           </Button>
         </div>
       )}

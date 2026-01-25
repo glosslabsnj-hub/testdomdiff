@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
-  ArrowLeft, ChefHat, Flame, Beef, Wheat, Droplet, 
+  ChefHat, Flame, Beef, Wheat, Droplet, 
   ShoppingCart, Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,8 @@ import { useMealFeedback } from "@/hooks/useMealFeedback";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import BasicNutritionPlan from "@/components/nutrition/BasicNutritionPlan";
-import DashboardHeader from "@/components/DashboardHeader";
-import Footer from "@/components/Footer";
+import DashboardLayout from "@/components/DashboardLayout";
+import DashboardBackLink from "@/components/DashboardBackLink";
 import { MealCard } from "@/components/nutrition/MealCard";
 import { MealSwapDialog } from "@/components/nutrition/MealSwapDialog";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
@@ -122,16 +122,14 @@ const Nutrition = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <DashboardHeader />
-        <main className="flex-1 section-container py-8 pt-24">
+      <DashboardLayout>
+        <div className="section-container py-8">
           <DashboardSkeleton variant="cards" count={4} />
           <div className="mt-8">
             <DashboardSkeleton variant="list" count={4} />
           </div>
-        </main>
-        <Footer />
-      </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
@@ -155,15 +153,9 @@ const Nutrition = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <DashboardHeader />
-      <main className="flex-1 section-container py-8 pt-24">
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-        </Link>
+    <DashboardLayout>
+      <div className="section-container py-8">
+        <DashboardBackLink />
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">
@@ -341,26 +333,22 @@ const Nutrition = () => {
           <Button variant="gold" asChild>
             <Link to="/dashboard/check-in">Go to Weekly Check-In</Link>
           </Button>
-          <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Dashboard</Link>
-          </Button>
         </div>
-      </main>
-      <Footer />
 
-      {/* Swap Dialog */}
-      {mealToSwap && userCalories && (
-        <MealSwapDialog
-          open={swapDialogOpen}
-          onOpenChange={setSwapDialogOpen}
-          currentMeal={mealToSwap}
-          availableMeals={allMeals}
-          onSwap={handleSwap}
-          targetCalories={userCalories.targetCalories}
-          targetProtein={userCalories.protein}
-        />
-      )}
-    </div>
+        {/* Swap Dialog */}
+        {mealToSwap && userCalories && (
+          <MealSwapDialog
+            open={swapDialogOpen}
+            onOpenChange={setSwapDialogOpen}
+            currentMeal={mealToSwap}
+            availableMeals={allMeals}
+            onSwap={handleSwap}
+            targetCalories={userCalories.targetCalories}
+            targetProtein={userCalories.protein}
+          />
+        )}
+      </div>
+    </DashboardLayout>
   );
 };
 

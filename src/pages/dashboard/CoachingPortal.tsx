@@ -5,13 +5,10 @@ import {
   Crown, 
   Video, 
   MessageCircle, 
-  FileText, 
   Calendar, 
-  ArrowLeft,
   Star,
   Target,
   CheckCircle2,
-  Clock,
   Loader2,
   Send,
   AlertCircle,
@@ -22,13 +19,17 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardLayout from "@/components/DashboardLayout";
+import DashboardBackLink from "@/components/DashboardBackLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCoachingSessions } from "@/hooks/useCoachingSessions";
 import { useCoachingGoals } from "@/hooks/useCoachingGoals";
 import { useCoachingActionItems } from "@/hooks/useCoachingActionItems";
 import { useDirectMessages } from "@/hooks/useDirectMessages";
 import { useToast } from "@/hooks/use-toast";
+
+// Dom's admin user ID - needed for direct messaging
+const DOM_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 const CoachingPortal = () => {
   const { user } = useAuth();
@@ -61,41 +62,44 @@ const CoachingPortal = () => {
   const handleSendMessage = async () => {
     if (!quickMessage.trim()) return;
     
-    // In a real app, you'd have a way to get Dom's user_id
-    // For now, we'll show a toast directing them to the DM page
-    toast({
-      title: "Message Your P.O.",
-      description: "Use the community messages to contact Dom directly.",
-    });
-    setQuickMessage("");
+    setSending(true);
+    try {
+      const success = await sendMessage(DOM_USER_ID, quickMessage.trim());
+      if (success) {
+        toast({
+          title: "Message Sent",
+          description: "Your P.O. will respond within 24-48 hours.",
+        });
+        setQuickMessage("");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   const loading = sessionsLoading || goalsLoading || itemsLoading;
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="section-container py-12">
-        <div className="mb-8">
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Cell Block
-          </Link>
-          
-          {/* Premium Header */}
-          <div className="flex items-center gap-3 mb-2">
-            <Crown className="w-8 h-8 text-purple-400" />
-            <h1 className="headline-section">
-              <span className="text-purple-400">Free World</span> — P.O. Portal
-            </h1>
-          </div>
-          <p className="text-muted-foreground">
-            Your direct line to Dom. Maximum accountability on the outside.
-          </p>
+    <DashboardLayout>
+      <div className="section-container py-8">
+        <DashboardBackLink />
+        
+        {/* Premium Header */}
+        <div className="flex items-center gap-3 mb-2">
+          <Crown className="w-8 h-8 text-purple-400" />
+          <h1 className="headline-section">
+            <span className="text-purple-400">Free World</span> — P.O. Portal
+          </h1>
         </div>
+        <p className="text-muted-foreground mb-8">
+          Your direct line to Dom. Maximum accountability on the outside.
+        </p>
 
         {loading ? (
           <div className="flex justify-center py-12">
@@ -284,8 +288,8 @@ const CoachingPortal = () => {
             </div>
           </>
         )}
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

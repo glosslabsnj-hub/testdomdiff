@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
-  ArrowLeft, 
   BookOpen, 
   ChevronLeft, 
   ChevronRight, 
@@ -25,6 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
 import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import DashboardLayout from "@/components/DashboardLayout";
+import DashboardBackLink from "@/components/DashboardBackLink";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
 
@@ -145,14 +146,12 @@ const Faith = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="section-container py-12">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </Link>
+      <DashboardLayout>
+        <div className="section-container py-8">
+          <DashboardBackLink />
           <DashboardSkeleton variant="detail" />
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -161,11 +160,9 @@ const Faith = () => {
   const reflectionQuestions = currentLesson?.reflection_questions?.split('\n').filter(q => q.trim()) || [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="section-container py-12">
-        <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-        </Link>
+    <DashboardLayout>
+      <div className="section-container py-8">
+        <DashboardBackLink />
 
         {/* Header with Progress */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -513,13 +510,8 @@ const Faith = () => {
           </Tabs>
         )}
 
-        <div className="mt-8">
-          <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Dashboard</Link>
-          </Button>
-        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
