@@ -11,8 +11,6 @@ import {
   DollarSign,
   Users,
   Lightbulb,
-  ChevronRight,
-  Download,
   Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -144,69 +142,162 @@ const SkillBuilding = () => {
           </TabsList>
 
           {/* Lessons Tab */}
-          <TabsContent value="lessons" className="space-y-4">
+          <TabsContent value="lessons" className="space-y-6">
+            {/* Progress Summary */}
+            {visibleLessons.length > 0 && (
+              <div className="bg-card p-4 rounded-lg border border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-primary" />
+                    <span className="font-semibold">Skill Curriculum</span>
+                  </div>
+                  <Badge variant="outline" className="text-muted-foreground">
+                    {visibleLessons.length} Lessons Available
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Each lesson is designed to teach you a real skill that makes money. Study, apply, earn.
+                </p>
+              </div>
+            )}
+
             {visibleLessons.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12 bg-card rounded-lg border border-border">
                 <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No skill lessons available yet.</p>
                 <p className="text-sm text-muted-foreground mt-2">Check back soon!</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {visibleLessons.map((lesson) => (
+                {visibleLessons.map((lesson, lessonIndex) => (
                   <div
                     key={lesson.id}
-                    className="p-6 rounded-lg bg-card border border-border hover:border-primary/50 transition-all"
+                    className="rounded-lg bg-card border border-border hover:border-primary/50 transition-all overflow-hidden"
                   >
-                    <div className="flex flex-col md:flex-row md:items-start gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-display text-xl flex-shrink-0">
-                        {lesson.week_number}
-                      </div>
+                    {/* Lesson Header */}
+                    <div className="p-5 border-b border-border/50">
+                      <div className="flex flex-col md:flex-row md:items-start gap-4">
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-amber-500 text-primary-foreground flex items-center justify-center font-display text-2xl flex-shrink-0 shadow-lg">
+                          {lesson.week_number}
+                        </div>
 
-                      <div className="flex-grow">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                            Week {lesson.week_number}
-                          </p>
-                          {lesson.is_advanced && (
-                            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
-                              Advanced
-                            </Badge>
+                        <div className="flex-grow">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                              Week {lesson.week_number} • Lesson {lessonIndex + 1}
+                            </p>
+                            {lesson.is_advanced && (
+                              <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
+                                <Lightbulb className="w-3 h-3 mr-1" /> Advanced
+                              </Badge>
+                            )}
+                          </div>
+                          <h3 className="headline-card text-xl mb-2">{lesson.title}</h3>
+                          {lesson.description && (
+                            <p className="text-muted-foreground">{lesson.description}</p>
                           )}
                         </div>
-                        <h3 className="headline-card mb-2">{lesson.title}</h3>
-                        {lesson.description && (
-                          <p className="text-sm text-muted-foreground mb-4">{lesson.description}</p>
-                        )}
+                      </div>
+                    </div>
 
-                        {lesson.video_url && (
-                          <div className="mb-4 rounded-lg overflow-hidden bg-charcoal border border-border">
-                            <div className="aspect-video">
-                              <iframe
-                                src={lesson.video_url}
-                                className="w-full h-full"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              />
+                    {/* Video Section */}
+                    {lesson.video_url && (
+                      <div className="bg-charcoal">
+                        <div className="aspect-video">
+                          <iframe
+                            src={lesson.video_url}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Content Section */}
+                    {lesson.content && (
+                      <div className="p-5 border-t border-border/50">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Eye className="w-4 h-4 text-primary" />
+                          <h4 className="font-semibold text-primary">Lesson Content</h4>
+                        </div>
+                        <div className="prose prose-invert prose-sm max-w-none">
+                          {lesson.content.split('\n\n').map((paragraph, pIdx) => (
+                            <div key={pIdx} className="mb-3">
+                              {paragraph.split('\n').map((line, lIdx) => {
+                                // Handle bold headers
+                                if (line.startsWith('**') && line.includes(':**')) {
+                                  return (
+                                    <h5 key={lIdx} className="text-primary font-semibold mt-4 mb-2">
+                                      {line.replace(/\*\*/g, '')}
+                                    </h5>
+                                  );
+                                }
+                                // Handle bullet points
+                                if (line.startsWith('- ') || line.startsWith('• ')) {
+                                  return (
+                                    <li key={lIdx} className="text-muted-foreground ml-4 mb-1">
+                                      {line.substring(2)}
+                                    </li>
+                                  );
+                                }
+                                // Handle numbered lists
+                                if (/^\d+\.\s/.test(line)) {
+                                  return (
+                                    <li key={lIdx} className="text-muted-foreground ml-4 mb-1 list-decimal">
+                                      {line.replace(/^\d+\.\s/, '')}
+                                    </li>
+                                  );
+                                }
+                                // Regular paragraph
+                                return line ? (
+                                  <p key={lIdx} className="text-muted-foreground mb-2">{line}</p>
+                                ) : null;
+                              })}
                             </div>
-                          </div>
-                        )}
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                        {lesson.content && (
-                          <div className="p-4 rounded bg-charcoal border border-border mb-4">
-                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lesson.content}</p>
+                    {/* Action Steps Section */}
+                    {lesson.action_steps && (
+                      <div className="p-5 bg-primary/5 border-t border-primary/20">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <CheckCircle className="w-4 h-4 text-primary" />
                           </div>
-                        )}
+                          <div>
+                            <h4 className="font-semibold text-primary">Action Steps</h4>
+                            <p className="text-xs text-muted-foreground">Apply what you learned</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          {lesson.action_steps.split('\n').filter(step => step.trim()).map((step, stepIdx) => {
+                            const cleanStep = step.replace(/^[-•\d.]\s*/, '').trim();
+                            if (!cleanStep) return null;
+                            return (
+                              <div key={stepIdx} className="flex items-start gap-3 p-3 bg-charcoal rounded-lg">
+                                <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                  {stepIdx + 1}
+                                </div>
+                                <p className="text-sm text-foreground">{cleanStep}</p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
-                        {lesson.action_steps && (
-                          <div className="p-4 rounded bg-charcoal border border-primary/20 mb-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <CheckCircle className="w-4 h-4 text-primary" />
-                              <p className="text-sm text-primary font-medium">Action Steps</p>
-                            </div>
-                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lesson.action_steps}</p>
-                          </div>
-                        )}
+                    {/* Lesson Footer */}
+                    <div className="p-4 bg-charcoal/50 border-t border-border/50 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <FileText className="w-3 h-3" />
+                        Week {lesson.week_number} Material
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-primary">
+                        <Target className="w-3 h-3" />
+                        Take action today
                       </div>
                     </div>
                   </div>
