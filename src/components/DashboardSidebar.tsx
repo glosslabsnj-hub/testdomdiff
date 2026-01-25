@@ -66,7 +66,7 @@ export function DashboardSidebar() {
       icon: Home,
     },
     {
-      title: isCoaching ? "Orientation" : "Intake",
+      title: isCoaching ? "Welcome Home" : "Intake",
       subtitle: "Start Here",
       href: "/dashboard/start-here",
       icon: Play,

@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Plus, Clock, X, Loader2 } from "lucide-react";
+import { Plus, Clock, Loader2, Timer, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
 import {
   Dialog,
   DialogContent,
@@ -14,13 +16,21 @@ import { cn } from "@/lib/utils";
 
 interface AddCustomRoutineDialogProps {
   routineType: "morning" | "evening";
-  onAdd: (data: { routine_type: "morning" | "evening"; time_slot: string; action_text: string }) => Promise<boolean>;
+  onAdd: (data: { 
+    routine_type: "morning" | "evening"; 
+    time_slot: string; 
+    action_text: string;
+    duration_minutes: number;
+    description: string | null;
+  }) => Promise<boolean>;
 }
 
 export default function AddCustomRoutineDialog({ routineType, onAdd }: AddCustomRoutineDialogProps) {
   const [open, setOpen] = useState(false);
   const [actionText, setActionText] = useState("");
   const [timeSlot, setTimeSlot] = useState(routineType === "morning" ? "8:00 AM" : "8:00 PM");
+  const [durationMinutes, setDurationMinutes] = useState(5);
+  const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,12 +42,16 @@ export default function AddCustomRoutineDialog({ routineType, onAdd }: AddCustom
       routine_type: routineType,
       time_slot: timeSlot,
       action_text: actionText.trim(),
+      duration_minutes: durationMinutes,
+      description: description.trim() || null,
     });
     setSaving(false);
 
     if (success) {
       setActionText("");
       setTimeSlot(routineType === "morning" ? "8:00 AM" : "8:00 PM");
+      setDurationMinutes(5);
+      setDescription("");
       setOpen(false);
     }
   };
@@ -51,8 +65,8 @@ export default function AddCustomRoutineDialog({ routineType, onAdd }: AddCustom
           className={cn(
             "w-full mt-4 border-dashed",
             routineType === "morning" 
-              ? "border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/50" 
-              : "border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/50"
+              ? "border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50" 
+              : "border-secondary/30 text-secondary-foreground hover:bg-secondary/10 hover:border-secondary/50"
           )}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -80,16 +94,50 @@ export default function AddCustomRoutineDialog({ routineType, onAdd }: AddCustom
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="timeSlot" className="flex items-center gap-2">
+                <Clock className="w-4 h-4" /> Time
+              </Label>
+              <Input
+                id="timeSlot"
+                value={timeSlot}
+                onChange={(e) => setTimeSlot(e.target.value)}
+                placeholder="e.g., 6:00 AM"
+                className="mt-2 bg-charcoal"
+              />
+            </div>
+
+            <div>
+              <Label className="flex items-center gap-2">
+                <Timer className="w-4 h-4" /> Duration
+              </Label>
+              <div className="mt-2">
+                <div className="flex items-center gap-3">
+                  <Slider
+                    value={[durationMinutes]}
+                    onValueChange={(v) => setDurationMinutes(v[0])}
+                    min={1}
+                    max={60}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-mono w-16 text-right">{durationMinutes} min</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div>
-            <Label htmlFor="timeSlot" className="flex items-center gap-2">
-              <Clock className="w-4 h-4" /> Time
+            <Label htmlFor="description" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" /> Notes (optional)
             </Label>
-            <Input
-              id="timeSlot"
-              value={timeSlot}
-              onChange={(e) => setTimeSlot(e.target.value)}
-              placeholder="e.g., 6:00 AM"
-              className="mt-2 bg-charcoal"
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add details or notes (shown in calendar event)"
+              className="mt-2 bg-charcoal resize-none h-20"
             />
           </div>
 

@@ -123,14 +123,14 @@ const StartHere = () => {
       case "coaching":
         return {
           name: "Free World",
-          subtitle: "Client Orientation",
-          description: "Welcome to elite coaching. Complete your orientation to maximize your investment.",
+          subtitle: "Welcome Home, You're on Probation",
+          description: "Dom is your parole officer, and he's got your back. He's going to help you have success in your reintroduction to society.",
           checklist: FREE_WORLD_CHECKLIST,
           accentClass: "text-green-400",
           bgClass: "from-green-500/20",
           borderClass: "border-green-500/30",
           backLabel: "Back to Dashboard",
-          ctaLabel: "Start Training",
+          ctaLabel: "Start Your New Life",
           ctaHref: "/dashboard/program",
         };
       case "transformation":

@@ -11,6 +11,8 @@ export interface CustomRoutine {
   action_text: string;
   display_order: number;
   is_active: boolean;
+  duration_minutes: number;
+  description: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +66,8 @@ export function useCustomRoutines() {
         action_text: routine.action_text,
         display_order: maxOrder + 1,
         is_active: true,
+        duration_minutes: routine.duration_minutes || 5,
+        description: routine.description || null,
       });
 
       if (error) throw error;
