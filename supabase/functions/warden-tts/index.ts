@@ -5,8 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// The Warden's voice: Brian - Deep, stern, authoritative
-const VOICE_ID = "nPczCjzI2devNBz1zQrb"; // Brian
+// The Warden's voice: Custom user voice
+const VOICE_ID = "whW3u9nCRzIXd1EfN1YN";
 
 serve(async (req) => {
   // Handle CORS preflight
