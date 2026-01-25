@@ -11,8 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardHeader from "@/components/DashboardHeader";
-import Footer from "@/components/Footer";
+import DashboardLayout from "@/components/DashboardLayout";
 import AvatarUpload from "@/components/AvatarUpload";
 import MilestoneBadge from "@/components/MilestoneBadge";
 import { useMilestones, PAROLE_MILESTONES } from "@/hooks/useMilestones";
@@ -301,10 +300,8 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <DashboardHeader />
-      
-      <main className="flex-1 section-container py-8">
+    <DashboardLayout showBreadcrumb={false}>
+      <main className="section-container py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button 
@@ -844,8 +841,6 @@ export default function Settings() {
           </Card>
         </div>
       </main>
-      
-      <Footer />
-    </div>
+    </DashboardLayout>
   );
 }

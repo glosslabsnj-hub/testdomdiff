@@ -17,6 +17,14 @@ const NotFound = () => {
     { text: "For I know the plans I have for you, plans to prosper you and not to harm you.", reference: "Jeremiah 29:11" },
     { text: "I can do all things through Christ who strengthens me.", reference: "Philippians 4:13" },
     { text: "Be strong and courageous. Do not be afraid; do not be discouraged.", reference: "Joshua 1:9" },
+    { text: "The Lord is my light and my salvation — whom shall I fear?", reference: "Psalm 27:1" },
+    { text: "Trust in the Lord with all your heart and lean not on your own understanding.", reference: "Proverbs 3:5" },
+    { text: "No weapon formed against you shall prosper.", reference: "Isaiah 54:17" },
+    { text: "When you pass through the waters, I will be with you.", reference: "Isaiah 43:2" },
+    { text: "He gives strength to the weary and increases the power of the weak.", reference: "Isaiah 40:29" },
+    { text: "The righteous may fall seven times, but they rise again.", reference: "Proverbs 24:16" },
+    { text: "God is our refuge and strength, an ever-present help in trouble.", reference: "Psalm 46:1" },
+    { text: "Do not be overcome by evil, but overcome evil with good.", reference: "Romans 12:21" },
   ];
   
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];

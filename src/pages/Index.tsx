@@ -188,7 +188,7 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative group">
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-transparent rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <img src={storyImage} alt="Dom's transformation" className="relative rounded-lg w-full aspect-square object-cover border border-border" />
+              <img src={storyImage} alt="Dom's transformation" loading="lazy" className="relative rounded-lg w-full aspect-square object-cover border border-border" />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent rounded-lg" />
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/20 border border-primary/30 rounded-full">
@@ -303,7 +303,7 @@ const Index = () => {
           <div className="relative mb-16 max-w-4xl mx-auto group">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/10 to-primary/30 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity" />
             <div className="relative">
-              <img src={transformationImage} alt="Transformation results" className="w-full rounded-lg border border-border" />
+              <img src={transformationImage} alt="Transformation results" loading="lazy" className="w-full rounded-lg border border-border" />
               <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-background/70 rounded-lg" />
               <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm px-4 py-2 rounded border border-primary/30">
                 <p className="text-sm text-primary uppercase tracking-wider font-bold">Before → After</p>
@@ -366,7 +366,7 @@ const Index = () => {
             </div>
             <div className="relative group">
               <div className="absolute -inset-4 bg-gradient-to-r from-transparent via-primary/10 to-primary/20 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <img src={trainingImage} alt="Training intensity" className="relative rounded-lg w-full aspect-square object-cover border border-border" />
+              <img src={trainingImage} alt="Training intensity" loading="lazy" className="relative rounded-lg w-full aspect-square object-cover border border-border" />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent rounded-lg" />
             </div>
           </div>

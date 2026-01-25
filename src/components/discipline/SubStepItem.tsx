@@ -91,17 +91,22 @@ export default function SubStepItem({
           : "hover:bg-charcoal/50"
       )}
     >
-      {/* Mini checkbox */}
+      {/* Mini checkbox with accessible touch target */}
       <button
         onClick={handleToggle}
-        className={cn(
-          "w-4 h-4 rounded border flex items-center justify-center transition-all flex-shrink-0",
-          completed
-            ? "bg-primary/80 border-primary animate-check-pop"
-            : "border-muted-foreground/40 hover:border-primary/60"
-        )}
+        className="min-w-[44px] min-h-[44px] flex items-center justify-center -m-2 flex-shrink-0"
+        aria-label={completed ? "Mark sub-step incomplete" : "Mark sub-step complete"}
       >
-        {completed && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+        <div
+          className={cn(
+            "w-4 h-4 rounded border flex items-center justify-center transition-all",
+            completed
+              ? "bg-primary/80 border-primary animate-check-pop"
+              : "border-muted-foreground/40 hover:border-primary/60"
+          )}
+        >
+          {completed && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+        </div>
       </button>
 
       {/* Text */}
@@ -114,25 +119,25 @@ export default function SubStepItem({
         {subStep.action_text}
       </span>
 
-      {/* Actions (visible on hover) */}
+      {/* Actions (visible on hover) - with accessible touch targets */}
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={() => {
             setEditText(subStep.action_text);
             setIsEditing(true);
           }}
-          className="p-1 text-muted-foreground hover:text-primary"
-          title="Edit step"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center -m-2 text-muted-foreground hover:text-primary"
+          aria-label="Edit step"
         >
-          <Pencil className="h-3 w-3" />
+          <Pencil className="h-4 w-4" />
         </button>
         <button
           onClick={handleDelete}
           disabled={saving}
-          className="p-1 text-muted-foreground hover:text-destructive"
-          title="Remove step"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center -m-2 text-muted-foreground hover:text-destructive disabled:opacity-50"
+          aria-label="Remove step"
         >
-          <Trash2 className="h-3 w-3" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
 
