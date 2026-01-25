@@ -9,21 +9,53 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+// Three-tier terminology mapping
+function getTierTerms(planType: string) {
+  if (planType === "coaching") {
+    return {
+      workouts: "training sessions",
+      discipline: "daily structure",
+      nutrition: "meal planning",
+      faith: "faith & growth",
+      community: "The Network",
+      checkIn: "weekly report",
+      progress: "progress report",
+      program: "your custom training plan",
+      primaryWorkoutPath: "/dashboard/program",
+      tierName: "Free World",
+    };
+  } else if (planType === "transformation") {
+    return {
+      workouts: "The Sentence", // Gen Pop's main focus is the 12-week program
+      discipline: "routine",
+      nutrition: "chow hall",
+      faith: "chapel",
+      community: "The Yard",
+      checkIn: "roll call",
+      progress: "time served",
+      program: "The Sentence",
+      primaryWorkoutPath: "/dashboard/program",
+      tierName: "General Population",
+    };
+  } else {
+    // membership (Solitary Confinement)
+    return {
+      workouts: "yard time", // Solitary only has bodyweight templates
+      discipline: "routine",
+      nutrition: "chow hall",
+      faith: "chapel",
+      community: "The Yard",
+      checkIn: "roll call",
+      progress: "time served",
+      program: "yard time",
+      primaryWorkoutPath: "/dashboard/workouts",
+      tierName: "Solitary Confinement",
+    };
+  }
+}
+
 function buildSystemPrompt(planType: string): string {
-  const isCoaching = planType === "coaching";
-  
-  // Tier-specific terminology for the brief
-  const terms = isCoaching ? {
-    workouts: "training sessions",
-    discipline: "daily structure",
-    community: "The Network",
-    checkIn: "weekly report",
-  } : {
-    workouts: "yard time",
-    discipline: "routine",
-    community: "The Yard",
-    checkIn: "roll call",
-  };
+  const terms = getTierTerms(planType);
 
   return `You are The Warden—a battle-tested coach who has walked through the fire and now guides men through their transformation. You speak with the authority of someone who has been in the trenches. You are direct, no-nonsense, but deeply caring.
 
@@ -37,11 +69,21 @@ YOUR VOICE:
 - NEVER use the words "AI", "artificial", "language model", or anything suggesting you're not real
 - You are The Warden. That's it.
 
+USER'S TIER: ${terms.tierName}
+PRIMARY WORKOUT DESTINATION: ${terms.primaryWorkoutPath}
+
 TERMINOLOGY (use these terms based on user's plan):
-- Workouts: ${terms.workouts}
+- Primary Workouts: ${terms.workouts} (link to ${terms.primaryWorkoutPath})
 - Discipline: ${terms.discipline}
 - Community: ${terms.community}
 - Check-ins: ${terms.checkIn}
+
+TIER-SPECIFIC WORKOUT GUIDANCE:
+- Solitary Confinement (membership): Direct to "yard time" at /dashboard/workouts for bodyweight templates
+- General Population (transformation): Direct to "The Sentence" at /dashboard/program for their 12-week structured program  
+- Free World (coaching): Direct to "your custom training plan" at /dashboard/program for personalized training
+
+CRITICAL: NEVER direct a Gen Pop (transformation) user to "Yard Time" - their primary training is "The Sentence" (the 12-week program).
 
 YOUR APPROACH:
 - When compliance is high: Acknowledge the grind, push for more
@@ -78,12 +120,15 @@ async function generateWardenBrief(context: UserContext): Promise<{
   scriptureText: string | null;
   focusArea: string;
 }> {
+  const terms = getTierTerms(context.planType);
+  
   const contextPrompt = `
 USER CONTEXT:
 - Name: ${context.firstName || "Brother"}
 - Current Week: ${context.currentWeek} of 12
 - Goal: ${context.goal || "transformation"}
-- Plan: ${context.planType}
+- Plan: ${context.planType} (${terms.tierName})
+- Primary Workout Location: ${terms.workouts} at ${terms.primaryWorkoutPath}
 - Discipline Compliance: ${context.compliancePercent}%
 - Current Streak: ${context.streak} days
 - Workouts This Week: ${context.workoutsCompleted}/${context.totalWorkouts}
@@ -97,6 +142,7 @@ Generate a weekly brief for this user. The brief should:
 3. Include ONE relevant scripture reference if it fits naturally (provide the reference and the verse text)
 4. Identify the main focus area: discipline, workouts, nutrition, faith, or general
 5. End with a clear direction or mindset shift
+6. When mentioning workouts, use "${terms.workouts}" terminology (NOT "yard time" for transformation users)
 
 Respond in this exact JSON format:
 {
