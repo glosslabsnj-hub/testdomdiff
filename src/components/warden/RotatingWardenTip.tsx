@@ -4,6 +4,10 @@ import { useWardenTips } from "@/hooks/useWardenTips";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface RotatingWardenTipProps {
+  planType?: string;
+}
+
 const categoryIcons = {
   discipline: Timer,
   workout: Dumbbell,
@@ -28,8 +32,8 @@ const categoryBgColors = {
   faith: "bg-purple-400/10",
 };
 
-export function RotatingWardenTip() {
-  const { currentTip, refreshTip } = useWardenTips();
+export function RotatingWardenTip({ planType = "membership" }: RotatingWardenTipProps) {
+  const { currentTip, refreshTip } = useWardenTips(planType);
 
   if (!currentTip) return null;
 
