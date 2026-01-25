@@ -98,6 +98,162 @@ const getHardcodedInstructions = (exerciseName: string): {
     };
   }
   
+  // Pull-up variations
+  if (exerciseLower.includes("pull-up") || exerciseLower.includes("pullup") || exerciseLower.includes("pull up") || exerciseLower.includes("chin-up") || exerciseLower.includes("chinup")) {
+    return {
+      instructions: [
+        "Grip the bar with hands shoulder-width apart (overhand for pull-ups, underhand for chin-ups)",
+        "Hang with arms fully extended, shoulders engaged (not shrugged to ears)",
+        "Pull your chest toward the bar by driving elbows down and back",
+        "Lead with your chest, not your chin - imagine pulling through your elbows",
+        "Pause briefly when your chin clears the bar",
+        "Lower under control to full extension before the next rep"
+      ],
+      formTips: [
+        "Engage lats before pulling by depressing shoulders",
+        "Avoid swinging or kipping - strict form builds real strength",
+        "Squeeze shoulder blades together at the top"
+      ],
+      musclesWorked: ["Lats", "Biceps", "Rear Delts", "Core", "Forearms"],
+      breathingCue: "Exhale as you pull up, inhale on the way down",
+      commonMistakes: [
+        "Using momentum and swinging",
+        "Not going to full extension at the bottom",
+        "Only pulling until chin barely reaches bar"
+      ]
+    };
+  }
+  
+  // Rows (inverted rows, dumbbell rows, etc.)
+  if (exerciseLower.includes("row") && !exerciseLower.includes("renegade")) {
+    return {
+      instructions: [
+        "Set up with your back flat and core braced",
+        "For dumbbell rows: hinge at hips, one hand on bench for support",
+        "For inverted rows: hang under a bar with body straight",
+        "Pull the weight (or your body) toward your hip/ribcage",
+        "Squeeze your shoulder blade back and down at the top",
+        "Lower under control, feeling the stretch in your lats"
+      ],
+      formTips: [
+        "Don't round your back - keep it flat throughout",
+        "Pull to your hip, not your armpit",
+        "Lead with your elbow, not your hand"
+      ],
+      musclesWorked: ["Lats", "Rhomboids", "Rear Delts", "Biceps", "Core"],
+      breathingCue: "Exhale as you pull, inhale as you lower",
+      commonMistakes: [
+        "Rounding the back during the pull",
+        "Using too much bicep instead of back",
+        "Not getting full range of motion"
+      ]
+    };
+  }
+  
+  // Dips
+  if (exerciseLower.includes("dip")) {
+    return {
+      instructions: [
+        "Grip the parallel bars or bench with arms straight",
+        "Keep your chest up and shoulders down and back",
+        "Lower your body by bending elbows to at least 90 degrees",
+        "Lean slightly forward to target chest, stay upright for triceps",
+        "Press through your palms to push back up",
+        "Lock out arms at the top without hyperextending"
+      ],
+      formTips: [
+        "Don't let shoulders roll forward at the bottom",
+        "Keep core tight to prevent swinging",
+        "Control the descent - don't drop"
+      ],
+      musclesWorked: ["Triceps", "Chest", "Shoulders", "Core"],
+      breathingCue: "Inhale on the way down, exhale as you push up",
+      commonMistakes: [
+        "Not going deep enough (90 degrees minimum)",
+        "Shoulders rolling forward at the bottom",
+        "Flaring elbows too wide"
+      ]
+    };
+  }
+  
+  // Deadlifts (Romanian, conventional, etc.)
+  if (exerciseLower.includes("deadlift") || exerciseLower.includes("rdl")) {
+    return {
+      instructions: [
+        "Stand with feet hip-width apart, weight in front of thighs",
+        "Brace your core and pull shoulders back and down",
+        "Hinge at hips, pushing them back while keeping back flat",
+        "Lower the weight along your legs, feeling hamstring stretch",
+        "Once you feel maximum stretch, drive hips forward to stand",
+        "Squeeze glutes hard at the top - don't hyperextend back"
+      ],
+      formTips: [
+        "Keep the weight close to your body throughout",
+        "Don't round your lower back - flat back always",
+        "Think 'hips back' not 'bend over'"
+      ],
+      musclesWorked: ["Hamstrings", "Glutes", "Lower Back", "Core", "Traps"],
+      breathingCue: "Inhale at the top, hold during descent, exhale standing up",
+      commonMistakes: [
+        "Rounding the lower back",
+        "Bending knees too much (not a squat)",
+        "Looking up and hyperextending neck"
+      ]
+    };
+  }
+  
+  // Bench Press / Floor Press
+  if (exerciseLower.includes("bench") || exerciseLower.includes("floor press") || exerciseLower.includes("chest press")) {
+    return {
+      instructions: [
+        "Lie on bench with feet flat on floor, slight arch in lower back",
+        "Grip bar slightly wider than shoulder width",
+        "Unrack and position bar directly over your chest",
+        "Lower bar to mid-chest with elbows at 45-degree angle",
+        "Touch chest lightly, pause briefly",
+        "Press back up in a slight arc to lockout over shoulders"
+      ],
+      formTips: [
+        "Keep shoulder blades pinched together",
+        "Drive your feet into the floor for stability",
+        "Don't bounce the bar off your chest"
+      ],
+      musclesWorked: ["Chest", "Triceps", "Front Delts"],
+      breathingCue: "Inhale as you lower, exhale as you press",
+      commonMistakes: [
+        "Flaring elbows to 90 degrees (bad for shoulders)",
+        "Bouncing bar off chest",
+        "Lifting hips off the bench"
+      ]
+    };
+  }
+  
+  // Shoulder Press / Overhead Press
+  if (exerciseLower.includes("shoulder press") || exerciseLower.includes("overhead") || exerciseLower.includes("military press") || exerciseLower.includes("arnold")) {
+    return {
+      instructions: [
+        "Stand or sit with core braced and back straight",
+        "Hold weights at shoulder height, palms facing forward",
+        "Press straight overhead until arms are fully extended",
+        "Don't lean back - keep your ribcage down",
+        "Lower under control back to shoulder height",
+        "For Arnold press: start palms facing you, rotate as you press"
+      ],
+      formTips: [
+        "Keep core tight to protect lower back",
+        "Don't arch your back excessively",
+        "Press in a slight arc, not straight up"
+      ],
+      musclesWorked: ["Shoulders", "Triceps", "Upper Chest", "Core"],
+      breathingCue: "Exhale as you press up, inhale as you lower",
+      commonMistakes: [
+        "Excessive back arch (turns it into incline press)",
+        "Not going to full lockout",
+        "Letting ribs flare out"
+      ]
+    };
+  }
+  
   // Squat variations
   if (exerciseLower.includes("squat")) {
     return {
@@ -224,6 +380,84 @@ const getHardcodedInstructions = (exerciseName: string): {
         "Hips bouncing up and down",
         "Not bringing knees far enough forward",
         "Letting core disengage"
+      ]
+    };
+  }
+  
+  // Bicep Curls
+  if (exerciseLower.includes("curl") && (exerciseLower.includes("bicep") || exerciseLower.includes("hammer") || exerciseLower.includes("21"))) {
+    return {
+      instructions: [
+        "Stand with feet shoulder-width apart, weights at sides",
+        "Keep elbows pinned to your sides throughout",
+        "Curl weights toward shoulders by bending elbows",
+        "Squeeze biceps hard at the top of the movement",
+        "Lower under control - 2-3 seconds on the way down",
+        "Don't swing the weights - strict form only"
+      ],
+      formTips: [
+        "Keep upper arms completely still",
+        "Don't use momentum from your hips",
+        "Slow negatives build more muscle"
+      ],
+      musclesWorked: ["Biceps", "Forearms", "Brachialis"],
+      breathingCue: "Exhale as you curl up, inhale as you lower",
+      commonMistakes: [
+        "Swinging the weight with hip momentum",
+        "Not controlling the negative",
+        "Elbows drifting forward"
+      ]
+    };
+  }
+  
+  // Lateral Raises
+  if (exerciseLower.includes("lateral raise") || exerciseLower.includes("side raise")) {
+    return {
+      instructions: [
+        "Stand with weights at your sides, slight bend in elbows",
+        "Lead with your elbows, not your hands",
+        "Raise arms out to the sides until parallel with floor",
+        "Pause briefly at the top - feel the burn",
+        "Lower under control, don't just drop",
+        "Keep slight forward lean to hit side delts"
+      ],
+      formTips: [
+        "Lead with elbows, hands follow",
+        "Don't go above shoulder height",
+        "Keep a slight bend in elbows"
+      ],
+      musclesWorked: ["Side Delts", "Traps", "Forearms"],
+      breathingCue: "Exhale as you raise, inhale as you lower",
+      commonMistakes: [
+        "Using too much weight and swinging",
+        "Raising arms too high (traps take over)",
+        "Letting hands go higher than elbows"
+      ]
+    };
+  }
+  
+  // Thrusters
+  if (exerciseLower.includes("thruster")) {
+    return {
+      instructions: [
+        "Hold weights at shoulder height, feet shoulder-width apart",
+        "Squat down until thighs are parallel or below",
+        "Explode up out of the squat using leg drive",
+        "Use momentum to press weights overhead in one fluid motion",
+        "Lock out arms at the top, biceps by ears",
+        "Lower weights back to shoulders as you descend into next squat"
+      ],
+      formTips: [
+        "Make it one smooth movement - squat flows into press",
+        "Use your legs to help drive the weight up",
+        "Keep core braced throughout"
+      ],
+      musclesWorked: ["Quads", "Glutes", "Shoulders", "Core", "Triceps"],
+      breathingCue: "Inhale at bottom, exhale as you press up",
+      commonMistakes: [
+        "Pausing between squat and press",
+        "Not using enough leg drive",
+        "Letting knees cave in on the squat"
       ]
     };
   }
