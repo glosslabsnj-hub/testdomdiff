@@ -17,6 +17,8 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTTS } from "@/hooks/useTTS";
+import { AudioPlayButton } from "@/components/AudioPlayButton";
 
 interface Exercise {
   id: string;
@@ -503,12 +505,23 @@ const getSectionInfo = (sectionType: string) => {
 
 const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDialogProps) => {
   const [activeTab, setActiveTab] = useState("howto");
+  const tts = useTTS();
   
   if (!exercise) return null;
   
   const exerciseData = getExerciseInstructions(exercise);
   const sectionInfo = getSectionInfo(exercise.section_type);
   const SectionIcon = sectionInfo.icon;
+
+  const handleListenToInstructions = () => {
+    const parts = [
+      `${exercise.exercise_name}.`,
+      ...exerciseData.instructions,
+      `Form tips: ${exerciseData.formTips.join(". ")}.`,
+      `Breathing cue: ${exerciseData.breathingCue}.`,
+    ];
+    tts.speak(parts.join(" "));
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -585,10 +598,21 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
           <TabsContent value="howto" className="space-y-4 mt-4">
             {/* Step by step instructions */}
             <div className="bg-charcoal rounded-lg p-4">
-              <h4 className="font-semibold text-primary flex items-center gap-2 mb-4">
-                <Target className="w-5 h-5" />
-                Step-by-Step Instructions
-              </h4>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-primary flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Step-by-Step Instructions
+                </h4>
+                <AudioPlayButton
+                  variant="compact"
+                  label="Listen"
+                  isLoading={tts.isLoading}
+                  isPlaying={tts.isPlaying}
+                  isPaused={tts.isPaused}
+                  onClick={handleListenToInstructions}
+                  onStop={tts.stop}
+                />
+              </div>
               <div className="space-y-3">
                 {exerciseData.instructions.map((step, i) => (
                   <div key={i} className="flex items-start gap-3">

@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSkillLessons } from "@/hooks/useSkillLessons";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTTS } from "@/hooks/useTTS";
+import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import EmpireBuilding from "@/components/skills/EmpireBuilding";
 
@@ -21,6 +23,7 @@ const AdvancedSkills = () => {
   const { subscription } = useAuth();
   const { lessons, loading } = useSkillLessons();
   const [activeTab, setActiveTab] = useState("empire");
+  const tts = useTTS();
 
   // Only coaching users can access
   if (subscription?.plan_type !== "coaching") {
@@ -128,13 +131,32 @@ const AdvancedSkills = () => {
                       </div>
 
                       <div className="flex-grow">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <p className="text-xs text-muted-foreground uppercase tracking-wider">
                             Week {lesson.week_number}
                           </p>
                           <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
                             Advanced
                           </Badge>
+                          {lesson.content && (
+                            <AudioPlayButton
+                              variant="compact"
+                              label="Listen"
+                              isLoading={tts.isLoading}
+                              isPlaying={tts.isPlaying}
+                              isPaused={tts.isPaused}
+                              onClick={() => {
+                                const parts = [
+                                  `Week ${lesson.week_number}: ${lesson.title}.`,
+                                  lesson.description || "",
+                                  lesson.content || "",
+                                  lesson.action_steps ? `Action steps: ${lesson.action_steps}` : "",
+                                ].filter(Boolean);
+                                tts.speak(parts.join(" "));
+                              }}
+                              onStop={tts.stop}
+                            />
+                          )}
                         </div>
                         <h3 className="headline-card mb-2">{lesson.title}</h3>
                         {lesson.description && (
