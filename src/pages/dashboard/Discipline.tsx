@@ -361,83 +361,89 @@ const Discipline = () => {
         ) : (
           <div className="grid md:grid-cols-2 gap-8">
             {/* Morning Routine */}
-            <div className="bg-card p-6 md:p-8 rounded-lg border border-border">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/20">
-                    <Sun className="w-6 h-6 text-primary" />
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              {/* Sticky Header - Morning */}
+              <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm p-4 md:p-6 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/20">
+                      <Sun className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: AM</p>
+                      <h2 className="font-display text-lg md:text-xl">Reveille → Word → Work</h2>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-primary uppercase tracking-wider font-semibold">Count Time: AM</p>
-                    <h2 className="font-display text-xl">Reveille → Word → Work</h2>
-                  </div>
+                  {morningExportRoutines.length > 0 && (
+                    <ExportScheduleDialog
+                      routineType="morning"
+                      routines={morningExportRoutines}
+                      baseTime={morningRoutines[0]?.time_slot || "5:30 AM"}
+                      trigger={
+                        <Button variant="ghost" size="sm" className="gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span className="hidden sm:inline">Export</span>
+                        </Button>
+                      }
+                    />
+                  )}
                 </div>
-                {morningExportRoutines.length > 0 && (
-                  <ExportScheduleDialog
-                    routineType="morning"
-                    routines={morningExportRoutines}
-                    baseTime={morningRoutines[0]?.time_slot || "5:30 AM"}
-                    trigger={
-                      <Button variant="ghost" size="sm" className="gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Export
-                      </Button>
-                    }
-                  />
-                )}
               </div>
 
-              {morningRoutines.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No morning routine set</p>
-              ) : (
-                <div className="space-y-3">
-                  {morningRoutines.map((item) => (
-                    <RoutineItem
-                      key={item.id}
-                      id={item.id}
-                      actionText={item.action_text}
-                      timeSlot={item.time_slot}
-                      description={(item as any).description}
-                      displayOrder={item.display_order}
-                      completed={isRoutineCompleted(item.id)}
-                      completionTime={getCompletionTime(item.id)}
+              {/* Morning Routine Content */}
+              <div className="p-4 md:p-6">
+                {morningRoutines.length === 0 ? (
+                  <p className="text-muted-foreground text-sm">No morning routine set</p>
+                ) : (
+                  <div className="space-y-3">
+                    {morningRoutines.map((item) => (
+                      <RoutineItem
+                        key={item.id}
+                        id={item.id}
+                        actionText={item.action_text}
+                        timeSlot={item.time_slot}
+                        description={(item as any).description}
+                        displayOrder={item.display_order}
+                        completed={isRoutineCompleted(item.id)}
+                        completionTime={getCompletionTime(item.id)}
+                        onToggle={toggleRoutineCompletion}
+                        getTime={getTime}
+                        onSaveTime={saveTimeOverride}
+                        durationMinutes={getDuration(item.display_order, item.action_text)}
+                        onSaveDuration={saveDurationOverride}
+                        subSteps={getSubSteps(item.display_order)}
+                        onSubStepToggle={toggleSubStepComplete}
+                        onSubStepEdit={editSubStep}
+                        onSubStepDelete={deleteSubStep}
+                        onSubStepAdd={(text) => addUserSubStep(item.display_order, text)}
+                        isSubStepCompleted={isSubStepCompleted}
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                {/* Custom Morning Routines */}
+                {morningCustomRoutines.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-border/50">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Your Custom Tasks</p>
+                    <DraggableRoutineList
+                      routines={morningCustomRoutines}
+                      onReorder={(orderedIds) => reorderCustomRoutines("morning", orderedIds)}
                       onToggle={toggleRoutineCompletion}
-                      getTime={getTime}
-                      onSaveTime={saveTimeOverride}
-                      durationMinutes={getDuration(item.display_order, item.action_text)}
-                      onSaveDuration={saveDurationOverride}
-                      subSteps={getSubSteps(item.display_order)}
-                      onSubStepToggle={toggleSubStepComplete}
-                      onSubStepEdit={editSubStep}
-                      onSubStepDelete={deleteSubStep}
-                      onSubStepAdd={(text) => addUserSubStep(item.display_order, text)}
-                      isSubStepCompleted={isSubStepCompleted}
+                      isCompleted={isRoutineCompleted}
+                      getCompletionTime={getCompletionTime}
+                      onUpdate={updateCustomRoutine}
+                      onDelete={deleteCustomRoutine}
                     />
-                  ))}
-                </div>
-              )}
-              
-              {/* Custom Morning Routines */}
-              {morningCustomRoutines.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-border/50">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3">Your Custom Tasks</p>
-                  <DraggableRoutineList
-                    routines={morningCustomRoutines}
-                    onReorder={(orderedIds) => reorderCustomRoutines("morning", orderedIds)}
-                    onToggle={toggleRoutineCompletion}
-                    isCompleted={isRoutineCompleted}
-                    getCompletionTime={getCompletionTime}
-                    onUpdate={updateCustomRoutine}
-                    onDelete={deleteCustomRoutine}
-                  />
-                </div>
-              )}
-              
-              {/* Add Custom Morning Routine */}
-              <AddCustomRoutineDialog
-                routineType="morning"
-                onAdd={async (data) => addCustomRoutine({ ...data, display_order: 0, is_active: true })}
-              />
+                  </div>
+                )}
+                
+                {/* Add Custom Morning Routine */}
+                <AddCustomRoutineDialog
+                  routineType="morning"
+                  onAdd={async (data) => addCustomRoutine({ ...data, display_order: 0, is_active: true })}
+                />
+              </div>
             </div>
 
             {/* Evening Routine */}
