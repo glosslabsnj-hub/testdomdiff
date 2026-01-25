@@ -8,35 +8,44 @@ import {
   Target,
   Lightbulb,
   BookOpen,
-  ChevronRight,
   ExternalLink,
   Play,
   CheckCircle2,
-  Rocket,
   Globe,
   Megaphone,
-  PiggyBank,
   Scale,
   Briefcase,
-  BarChart3,
   Zap,
   Brain,
-  Shield,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Calendar,
+  Star,
+  Home,
+  Mic,
+  Package,
+  Layers,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // ========== COMPREHENSIVE BUSINESS MASTERY MODULES ==========
+
+interface ThirtyDayAction {
+  week: number;
+  days: string;
+  focus: string;
+  tasks: string[];
+  milestone: string;
+}
 
 interface BusinessModule {
   id: string;
@@ -53,6 +62,7 @@ interface BusinessModule {
     actionItems?: string[];
     proTips?: string[];
   }[];
+  thirtyDayPlan?: ThirtyDayAction[];
   resources: { name: string; url: string; type: "video" | "article" | "tool" | "book" }[];
   caseStudy?: {
     title: string;
@@ -159,6 +169,68 @@ Examples: Business equity, real estate appreciation, stock gains
           "You need Level 1 to fund Level 2. Don't skip steps.",
           "The wealthy have income at ALL levels simultaneously"
         ]
+      }
+    ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Mindset Audit",
+        tasks: [
+          "Write down every money belief you have (good and bad)",
+          "Track every dollar you spend this week",
+          "Read chapters 1-3 of Rich Dad Poor Dad",
+          "Identify 3 people in your life who have wealth mindset",
+          "Unfollow 5 accounts that promote consumerism",
+          "Follow 5 accounts that teach wealth building",
+          "Write your 'Why' — what you're building toward"
+        ],
+        milestone: "Clear picture of current money mindset"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Asset Identification",
+        tasks: [
+          "Complete asset vs. liability inventory of everything you own",
+          "Calculate your true net worth (assets - liabilities)",
+          "Identify 3 skills you have that could generate income",
+          "Research 2 asset types that interest you (real estate, stocks, business)",
+          "Cancel 1 subscription you don't use",
+          "Find 1 free resource to learn about investing",
+          "Schedule 30 min daily for wealth education"
+        ],
+        milestone: "Know your current financial reality"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "Income Strategy",
+        tasks: [
+          "Map out your current income sources",
+          "Identify 1 way to increase current income by 10%",
+          "Brainstorm 5 ways to earn money outside your job",
+          "Research 1 side hustle that matches your skills",
+          "Calculate how much you could invest if you cut 3 expenses",
+          "Set up a separate savings account for investing",
+          "Automate $25-100/week into that account"
+        ],
+        milestone: "First investment fund started"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Wealth Building Launch",
+        tasks: [
+          "Start 1 income-generating activity (even small)",
+          "Make your first investment (even $25)",
+          "Create 1-year financial goal with specific numbers",
+          "Break that into quarterly milestones",
+          "Share your goal with 1 accountability partner",
+          "Schedule weekly money review (30 min)",
+          "Plan next 90 days of wealth education"
+        ],
+        milestone: "Wealth building system in motion"
       }
     ],
     resources: [
@@ -283,6 +355,68 @@ Price is never the real objection.`,
           "Raise your prices 20% on your next sale",
           "Track: Did you lose more or fewer customers?"
         ]
+      }
+    ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Dream Outcome Research",
+        tasks: [
+          "Interview 5 potential/current customers about their goals",
+          "Write down their exact words for their dream outcome",
+          "List all the problems they face trying to achieve it",
+          "Research 3 competitor offers in your space",
+          "Note what's missing from competitor offers",
+          "Define your unique mechanism (how you get results)",
+          "Write your offer promise in one sentence"
+        ],
+        milestone: "Crystal clear on what your market actually wants"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Offer Stack Construction",
+        tasks: [
+          "Define your core offer deliverables",
+          "Create Bonus 1: Something that speeds up results",
+          "Create Bonus 2: Something that reduces their effort",
+          "Create Bonus 3: Addresses top objection",
+          "Create Bonus 4: Unexpected value-add",
+          "Design your guarantee (risk reversal)",
+          "Calculate total perceived value"
+        ],
+        milestone: "Complete offer stack documented"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "Pricing & Positioning",
+        tasks: [
+          "Calculate customer's cost of NOT solving problem",
+          "Set price at 1/10th of that annual cost",
+          "Create 2-3 pricing tiers if applicable",
+          "Write payment plan options",
+          "Draft sales page/pitch outline",
+          "Create FAQ addressing objections",
+          "Practice pitch with 3 people for feedback"
+        ],
+        milestone: "Complete offer ready to sell"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Launch & Iterate",
+        tasks: [
+          "Soft launch to warm audience",
+          "Get first 3-5 sales",
+          "Collect feedback from buyers",
+          "Refine offer based on feedback",
+          "Document testimonials and results",
+          "Identify what's working, what's not",
+          "Plan iteration for Version 2.0"
+        ],
+        milestone: "Validated offer with real sales"
       }
     ],
     resources: [
@@ -463,6 +597,68 @@ Do this daily = 20+ clients/month`,
         ]
       }
     ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Foundation & Platform Selection",
+        tasks: [
+          "Audit current lead sources and their costs",
+          "Choose 1 primary content platform to master",
+          "Define 3-5 content pillars for your expertise",
+          "Study top 10 creators in your niche",
+          "Create content template/format to follow",
+          "Set up basic tracking (pixel, UTMs, CRM)",
+          "Create first 7 pieces of content"
+        ],
+        milestone: "Content machine set up and running"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Content Consistency",
+        tasks: [
+          "Post daily on chosen platform",
+          "Engage with 20+ accounts daily (comments, DMs)",
+          "Start building email list with lead magnet",
+          "Create repurposing system",
+          "Analyze what content performs best",
+          "Double down on winning formats",
+          "Draft first cold outreach script"
+        ],
+        milestone: "Consistent content with early traction"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "Outbound Launch",
+        tasks: [
+          "Build list of 100 ideal prospects",
+          "Send 10 personalized outreach messages daily",
+          "Test 3 different message variations",
+          "Track responses and refine approach",
+          "Book first meetings from outreach",
+          "Continue daily content posting",
+          "Prepare paid ads creative (3-5 variations)"
+        ],
+        milestone: "Outbound producing responses"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Scale & Optimize",
+        tasks: [
+          "Launch first paid ad campaign ($20-50/day)",
+          "Test 3 audiences, 3 creatives",
+          "Scale outreach to 20-30 messages/day",
+          "Optimize based on what's working",
+          "Calculate CPA and ROI for each channel",
+          "Double down on best-performing channel",
+          "Create 30-day lead generation plan for next month"
+        ],
+        milestone: "Multi-channel lead gen producing results"
+      }
+    ],
     resources: [
       { name: "$100M Leads - Alex Hormozi", url: "https://www.amazon.com/100M-Leads-People-Actually-Want/dp/1737475766", type: "book" },
       { name: "Facebook Ads Course", url: "https://www.youtube.com/results?search_query=facebook+ads+complete+guide+2024", type: "video" },
@@ -577,6 +773,68 @@ Response: "When would be the right time? (They answer) And what's different then
           "Write out your response to each of the 4 core objections",
           "Role-play objection handling with a friend/mentor"
         ]
+      }
+    ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Framework Mastery",
+        tasks: [
+          "Memorize the CLOSER framework completely",
+          "Write out your version of each step for your offer",
+          "Create scripts for the 4 core objection responses",
+          "Record yourself doing a mock sales call",
+          "Review and identify areas for improvement",
+          "Study 3 high-ticket sales call recordings online",
+          "Practice with a friend or family member"
+        ],
+        milestone: "CLOSER framework internalized"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Live Practice",
+        tasks: [
+          "Do 3-5 real sales calls (even if not ready)",
+          "Record every call (with permission)",
+          "Review each call immediately after",
+          "Note: What worked? What didn't? What was awkward?",
+          "Refine scripts based on real conversations",
+          "Focus on asking more questions, talking less",
+          "Practice handling objections that came up"
+        ],
+        milestone: "Real-world feedback loop started"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "Refinement",
+        tasks: [
+          "Do 5+ more sales calls",
+          "Track close rate (should be improving)",
+          "Identify your strongest part of the call",
+          "Identify your weakest part and drill it",
+          "Create pre-call routine for confidence",
+          "Develop post-call follow-up sequence",
+          "Build FAQ of common objections"
+        ],
+        milestone: "Closing first deals with confidence"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Scale & Systematize",
+        tasks: [
+          "Target 10+ calls this week",
+          "Calculate your close rate and average deal size",
+          "Create calendar system for consistent call flow",
+          "Build testimonial collection process",
+          "Refine offer based on what's working in calls",
+          "Document your sales process SOPs",
+          "Set revenue goals for next 90 days"
+        ],
+        milestone: "Repeatable sales system producing revenue"
       }
     ],
     resources: [
@@ -762,6 +1020,68 @@ Established: 40% reinvest, 60% profit
         ]
       }
     ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Systems Audit",
+        tasks: [
+          "List every recurring task you do weekly",
+          "Categorize by the 5 core functions",
+          "Identify top 3 time-draining activities",
+          "Start documenting your #1 process (Loom video)",
+          "Set up Notion/docs folder for SOPs",
+          "Calculate current profit margin",
+          "Define your ideal org chart"
+        ],
+        milestone: "Full picture of current operations"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Documentation Sprint",
+        tasks: [
+          "Document 1 process per day (7 total)",
+          "Create checklists for each process",
+          "Identify what can be automated",
+          "Set up 1 automation (email, scheduling, etc.)",
+          "Define KPIs for each core function",
+          "Create weekly metrics dashboard",
+          "Draft first job description for needed hire"
+        ],
+        milestone: "Core processes documented"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "First Hire Prep",
+        tasks: [
+          "Finalize job scorecard with clear outcomes",
+          "Post job on 3 platforms",
+          "Create skills test for applicants",
+          "Design interview question bank",
+          "Set up trial project for top candidates",
+          "Prepare 30-day onboarding plan",
+          "Calculate compensation budget"
+        ],
+        milestone: "Ready to bring on first team member"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Financial Systems",
+        tasks: [
+          "Set up Profit First accounts",
+          "Create cash flow projection for next 90 days",
+          "Hire bookkeeper or set up accounting software",
+          "Review and categorize all expenses",
+          "Identify 3 expenses to cut",
+          "Set up monthly financial review calendar",
+          "Create 90-day scaling plan with revenue targets"
+        ],
+        milestone: "Financial foundation for scaling"
+      }
+    ],
     resources: [
       { name: "The E-Myth Revisited - Michael Gerber", url: "https://www.amazon.com/E-Myth-Revisited-Small-Businesses-About/dp/0887307280", type: "book" },
       { name: "Profit First - Mike Michalowicz", url: "https://www.amazon.com/Profit-First-Transform-Cash-Eating-Money-Making/dp/073521414X", type: "book" },
@@ -772,6 +1092,880 @@ Established: 40% reinvest, 60% profit
       title: "From $30K/month Solo to $200K/month with a Team",
       scenario: "Jake was doing everything: sales, fulfillment, customer service, marketing. He was making $30K/month but working 80 hours/week and burning out.",
       outcome: "Hired VA ($2K/month), then sales rep ($5K/month + commission), then fulfillment manager ($6K/month). Within 18 months: $200K/month revenue, 45% profit margin, working 25 hours/week."
+    }
+  },
+  // NEW MODULE: Personal Branding & Authority Building
+  {
+    id: "personal-branding",
+    title: "Personal Branding & Authority",
+    icon: Mic,
+    category: "Growth",
+    difficulty: "intermediate",
+    estimatedTime: "75 min",
+    description: "Build a personal brand that attracts opportunities. Become the obvious expert in your niche so clients, partners, and media come to you.",
+    keyTakeaways: [
+      "Your reputation is an asset that compounds",
+      "Visibility creates opportunity—obscurity kills it",
+      "Consistency beats perfection in building trust",
+      "Authority is earned by teaching, not claiming"
+    ],
+    sections: [
+      {
+        title: "Why Personal Brand is Your Ultimate Asset",
+        content: `**The Hard Truth About Business:**
+Companies can be copied. Products can be replicated. But YOUR brand is unique.
+
+**Personal Brand = Trust at Scale**
+When someone knows, likes, and trusts you before they meet you, sales become easy. That's what personal branding does.
+
+**The Compounding Effect:**
+- Year 1: Few followers, feels pointless
+- Year 2: Growing audience, first opportunities
+- Year 3: Inbound leads, speaking invites, partnerships
+- Year 5: Industry authority, premium pricing, opportunities chase you
+
+**What Personal Brand Actually Is:**
+It's not about being famous. It's about being KNOWN by the right people for the right thing.
+
+**The Formula:**
+Expertise + Visibility + Consistency = Authority
+
+**Most People Fail Because:**
+- They're afraid to put themselves out there
+- They try to appeal to everyone
+- They quit before momentum kicks in
+- They're inconsistent`,
+        actionItems: [
+          "Define: What do you want to be known for?",
+          "Identify 3 people who have the authority you want",
+          "Study what they do consistently",
+          "Commit to 90 days of showing up before evaluating"
+        ],
+        proTips: [
+          "Document your journey, don't just teach—people connect with stories",
+          "Polarizing opinions build stronger audiences than safe ones",
+          "Reply to every comment and DM for the first year",
+          "Your face is your logo—show it often"
+        ]
+      },
+      {
+        title: "Choosing Your Platform & Niche",
+        content: `**The Platform Question:**
+Go where your audience is, not where you're comfortable.
+
+**Platform Breakdown:**
+
+**LinkedIn:**
+- Best for: B2B, professional services, consulting
+- Format: Text posts, carousels, video
+- Audience: Decision makers, professionals
+
+**Twitter/X:**
+- Best for: Tech, finance, startups, opinions
+- Format: Threads, hot takes, engagement
+- Audience: Builders, intellectuals, investors
+
+**Instagram:**
+- Best for: Lifestyle, fitness, visual businesses
+- Format: Reels, Stories, carousels
+- Audience: Consumers, younger demographics
+
+**YouTube:**
+- Best for: Education, tutorials, long-form trust
+- Format: 10-20 min videos, Shorts
+- Audience: Learners, searchers
+
+**TikTok:**
+- Best for: Entertainment-education, Gen Z reach
+- Format: 30-90 second videos
+- Audience: Younger, trend-focused
+
+**The Rule:** Master ONE platform before adding another. Depth beats breadth.
+
+**Niche Selection:**
+- What can you talk about for 1,000 posts?
+- What do people pay money for in this space?
+- What unique angle do you bring?
+- Is the audience big enough but not too saturated?`,
+        actionItems: [
+          "Choose ONE platform as your primary focus",
+          "Follow 50 top creators in your niche",
+          "Study their best-performing content",
+          "Define your unique angle in 1 sentence"
+        ]
+      },
+      {
+        title: "Content Strategy: Attract Without Chasing",
+        content: `**The 3 Content Pillars:**
+
+**1. Authority Content (30%)**
+- Deep expertise posts
+- Original frameworks
+- Counterintuitive insights
+- Data and case studies
+Shows: You know your stuff
+
+**2. Relatable Content (40%)**
+- Personal stories
+- Behind the scenes
+- Lessons learned
+- Vulnerable moments
+Shows: You're human and trustworthy
+
+**3. Promotional Content (30%)**
+- Results and testimonials
+- Offers and CTAs
+- How you help people
+- What you're building
+Shows: You can solve their problem
+
+**Content Formats That Work:**
+- Story → Lesson → CTA
+- Myth → Truth → How
+- Before → After → How
+- List of X things
+- Controversial opinion + reasoning
+
+**The Content Machine:**
+1. Create long-form content weekly (blog, video, podcast)
+2. Chop into 5-10 short-form pieces
+3. Distribute across platforms
+4. Engage with every comment
+5. Repeat forever
+
+**Engagement Strategy:**
+Spend as much time engaging as creating. Comment on bigger accounts in your niche. Be helpful, not promotional.`,
+        proTips: [
+          "Hooks are everything—first line must stop the scroll",
+          "Teach one thing per piece of content, not everything",
+          "Repost your best content every 90 days",
+          "Create a content calendar and batch create weekly"
+        ]
+      },
+      {
+        title: "Monetizing Your Authority",
+        content: `**The Authority Monetization Ladder:**
+
+**Level 1: Service Clients**
+- Trade expertise for money directly
+- Consulting, coaching, freelance work
+- Easiest to start, hardest to scale
+
+**Level 2: Premium Pricing**
+- Charge 2-5X market rate because of brand
+- "People pay more to work with YOU"
+- Requires established reputation
+
+**Level 3: Digital Products**
+- Courses, templates, guides
+- Create once, sell forever
+- Leverages authority without your time
+
+**Level 4: Speaking & Media**
+- Podcasts, conferences, events
+- Paid speaking ($5K-$100K/talk)
+- Builds authority and generates leads
+
+**Level 5: Equity & Investments**
+- Advisor roles for equity
+- Angel investing
+- Joint ventures and partnerships
+
+**The Key Insight:**
+You don't monetize followers. You monetize trust. 1,000 true fans who trust you beats 100,000 passive followers.
+
+**The Funnel:**
+Content → Email List → Relationship → Offer → Sale → Testimonial → More Content
+
+Build the email list. It's the only audience you own.`,
+        actionItems: [
+          "Set up email list with simple lead magnet",
+          "Create your first digital product (even small)",
+          "Define your service offering and pricing",
+          "Reach out to 5 podcasts to be a guest"
+        ]
+      }
+    ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Foundation & Research",
+        tasks: [
+          "Define your niche in 1 clear sentence",
+          "Choose your primary platform",
+          "Create/optimize your profile (bio, photo, banner)",
+          "Follow 50 top creators in your space",
+          "Study their top 10 posts each",
+          "Create your 3 content pillars",
+          "Post your first 7 pieces of content"
+        ],
+        milestone: "Profile live, first week of content posted"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Consistency & Engagement",
+        tasks: [
+          "Post daily (at least 1 piece of content)",
+          "Spend 30 minutes engaging on others' content daily",
+          "Comment on 20+ posts from larger accounts",
+          "Reply to every comment on your posts",
+          "DM 5 potential connections",
+          "Create lead magnet for email list",
+          "Set up email capture page"
+        ],
+        milestone: "Engagement habits built, email list started"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "Content Optimization",
+        tasks: [
+          "Analyze which posts performed best",
+          "Create more of what worked",
+          "Experiment with 2 new content formats",
+          "Start repurposing: 1 long-form → 5 short-form",
+          "Pitch 3 podcasts to be a guest",
+          "Collaborate with 1 peer-level creator",
+          "Build content calendar for next month"
+        ],
+        milestone: "Content system running, first collaborations"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Monetization Foundation",
+        tasks: [
+          "Create simple offer (service or product)",
+          "Write sales page or pitch",
+          "Make first promotional post",
+          "DM 10 warm leads about your offer",
+          "Get first sale or client",
+          "Collect first testimonial",
+          "Plan 90-day brand building strategy"
+        ],
+        milestone: "First revenue from personal brand"
+      }
+    ],
+    resources: [
+      { name: "Building a StoryBrand - Donald Miller", url: "https://www.amazon.com/Building-StoryBrand-Clarify-Message-Customers/dp/0718033329", type: "book" },
+      { name: "Personal Branding Masterclass", url: "https://www.youtube.com/results?search_query=personal+branding+strategy", type: "video" },
+      { name: "Content Creation Tools", url: "https://www.notion.so", type: "tool" },
+      { name: "ConvertKit (Email)", url: "https://convertkit.com", type: "tool" }
+    ],
+    caseStudy: {
+      title: "From Unknown to Industry Authority in 18 Months",
+      scenario: "Maria was a marketing consultant charging $100/hour with inconsistent clients. She had no online presence and relied entirely on word of mouth. Income: $4K/month average.",
+      outcome: "Committed to posting on LinkedIn daily for 18 months. Built to 25K followers. Now charges $5,000/month retainers, has a waiting list, and earns $15K/month from her course. Total income: $30K+/month."
+    }
+  },
+  // NEW MODULE: Real Estate Fundamentals
+  {
+    id: "real-estate-fundamentals",
+    title: "Real Estate Fundamentals",
+    icon: Home,
+    category: "Wealth Building",
+    difficulty: "intermediate",
+    estimatedTime: "90 min",
+    description: "Learn the fundamentals of building wealth through real estate. From house hacking to rental properties—the strategies that create generational wealth.",
+    keyTakeaways: [
+      "Real estate is the most proven path to building wealth",
+      "You don't need to be rich to start—you need knowledge",
+      "Cash flow is king, appreciation is a bonus",
+      "Every wealthy person has real estate in their portfolio"
+    ],
+    sections: [
+      {
+        title: "Why Real Estate Creates Wealth",
+        content: `**The 5 Ways Real Estate Makes Money:**
+
+**1. Cash Flow**
+Rent collected - Expenses = Monthly profit
+Even $200/month per property compounds to freedom
+
+**2. Appreciation**
+Properties tend to increase in value over time
+$200K property → $300K in 10 years = $100K gain
+
+**3. Loan Paydown**
+Tenants pay your mortgage
+You gain equity every month without spending a dime
+
+**4. Tax Benefits**
+Depreciation, deductions, 1031 exchanges
+Real estate has the best tax treatment of any asset
+
+**5. Leverage**
+Buy a $200K asset with $40K (20% down)
+If it appreciates 10%, you made 50% on YOUR money
+
+**The Math That Changes Lives:**
+Property: $200,000
+Down payment: $40,000 (20%)
+Loan: $160,000 at 7% = ~$1,065/month
+Rent: $1,600/month
+Expenses: $400/month (insurance, taxes, maintenance)
+Cash flow: $135/month
+Equity paydown: $250/month (first year)
+Appreciation (3%/year): $500/month equivalent
+
+**Total wealth building: ~$885/month from a $40K investment = 26.5% return**`,
+        actionItems: [
+          "Calculate how much you could save for a down payment in 12 months",
+          "Research average rent prices in 3 neighborhoods you'd consider",
+          "Find 5 rental property listings and analyze the numbers",
+          "Talk to 1 person who owns rental property"
+        ],
+        proTips: [
+          "The first property is the hardest—after that, it snowballs",
+          "Buy in areas you'd want to live (you understand the tenant)",
+          "Never buy for appreciation alone—cash flow must work",
+          "House hacking is the cheat code for your first property"
+        ]
+      },
+      {
+        title: "House Hacking: Your First Step to Real Estate Wealth",
+        content: `**What is House Hacking?**
+Buy a property, live in part of it, rent out the rest. Your tenants pay your mortgage.
+
+**House Hacking Strategies:**
+
+**1. Duplex/Triplex/Fourplex**
+- Buy a 2-4 unit property
+- Live in one unit, rent the others
+- Can use FHA loan (3.5% down)
+- Best: 4-plex (maximum units, residential financing)
+
+**2. Rent by the Room**
+- Buy a single-family house
+- Rent out bedrooms individually
+- Higher cash flow than single tenant
+- Good for college towns, cities
+
+**3. Basement/ADU Rental**
+- Buy house with basement apartment or guest house
+- Live upstairs, rent basement
+- Single tenant, more privacy
+
+**4. Short-Term Rental**
+- Rent spare room on Airbnb
+- Higher income but more work
+- Check local regulations
+
+**The Math (4-plex Example):**
+Purchase: $400,000
+FHA Down (3.5%): $14,000
+Monthly mortgage: $2,800
+3 units rent at $1,200 each: $3,600
+Your unit: $0 (you live there)
+Cash flow: +$800/month
+You live for FREE and MAKE money
+
+**FHA Loan Advantage:**
+- Only 3.5% down for owner-occupied
+- Up to 4 units qualifies as residential
+- After 1 year, you can move out and rent all units`,
+        actionItems: [
+          "Search for 2-4 unit properties in your area",
+          "Calculate what you'd need for 3.5% FHA down payment",
+          "Talk to a lender about FHA pre-approval",
+          "Tour 3 properties this month"
+        ]
+      },
+      {
+        title: "Analyzing Rental Property Deals",
+        content: `**The 1% Rule (Quick Filter):**
+Monthly rent should be at least 1% of purchase price.
+$200,000 property → Should rent for $2,000+/month
+If it passes, analyze further. If not, move on.
+
+**Full Analysis Framework:**
+
+**Monthly Income:**
+- Gross rent
+- Other income (laundry, parking, storage)
+
+**Monthly Expenses:**
+- Mortgage payment (principal + interest)
+- Property taxes (1-2% of value/year ÷ 12)
+- Insurance (0.5-1% of value/year ÷ 12)
+- Vacancy (8-10% of rent—always budget for empty months)
+- Repairs/Maintenance (5-10% of rent)
+- Property management (8-10% if not self-managing)
+- CapEx reserve (5-10% for major repairs: roof, HVAC, etc.)
+
+**Cash Flow = Income - Expenses**
+Target: $100-300/unit minimum
+
+**Key Metrics:**
+
+**Cash-on-Cash Return:**
+Annual cash flow ÷ Total cash invested
+Target: 8-12%+ minimum
+
+**Cap Rate:**
+Net Operating Income ÷ Property Price
+Tells you property value compared to income
+
+**Debt Service Coverage Ratio (DSCR):**
+Net Operating Income ÷ Debt Payments
+Lenders want 1.2+ (income is 20% higher than debt)
+
+**Red Flags:**
+- Seller won't show financials
+- Below-market rents (could mean problem tenants or lies)
+- Deferred maintenance (hidden costs)
+- Declining neighborhood
+- Too good to be true`,
+        proTips: [
+          "Analyze 100 deals before buying 1—learn the market",
+          "Use the BiggerPockets calculator for quick analysis",
+          "Always get an inspection—$400 saves $40,000",
+          "Look for value-add opportunities (units that can be improved)"
+        ]
+      },
+      {
+        title: "Financing Your First Property",
+        content: `**Financing Options:**
+
+**1. Conventional Loan (Best rates)**
+- 20% down (avoid PMI)
+- 15-20% possible with PMI
+- Credit score 620+ (740+ for best rates)
+- Best for: Those with savings and good credit
+
+**2. FHA Loan (Low down payment)**
+- 3.5% down
+- Owner-occupied only
+- Up to 4 units
+- Best for: First-time house hackers
+
+**3. VA Loan (Veterans only)**
+- 0% down
+- No PMI
+- Owner-occupied
+- Best for: Qualified veterans
+
+**4. DSCR Loan (Investors)**
+- Based on property income, not personal income
+- Higher rates, more flexible qualification
+- Best for: Self-employed or multiple properties
+
+**5. Hard Money (Short-term)**
+- 60-70% LTV, 12-15% interest
+- Short term (6-12 months)
+- Best for: Flips or bridge financing
+
+**6. Seller Financing**
+- Negotiate directly with seller
+- Often better terms
+- Best for: Creative deals
+
+**Getting Pre-Approved:**
+1. Check your credit score
+2. Gather documents: 2 years taxes, pay stubs, bank statements
+3. Shop 3 lenders (rates vary)
+4. Get pre-approval letter
+5. Know your max purchase price
+
+**Saving for Down Payment:**
+- Automate savings ($500/month for 2 years = $12K)
+- Side hustle earnings → Real estate fund
+- IRA can be used for first home (up to $10K penalty-free)
+- Gift from family (must be documented)`,
+        actionItems: [
+          "Check your credit score today",
+          "Calculate how long to save for down payment",
+          "Research 3 lenders in your area",
+          "Get pre-approved (even if not buying yet—know your power)"
+        ]
+      }
+    ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Education Foundation",
+        tasks: [
+          "Read or listen to 'Rich Dad Poor Dad' (real estate chapters)",
+          "Watch 5 BiggerPockets YouTube videos on house hacking",
+          "Join BiggerPockets free forums",
+          "Define your investment criteria (area, price range, type)",
+          "Calculate your current financial position",
+          "Check your credit score and identify improvements",
+          "Set up a dedicated real estate savings account"
+        ],
+        milestone: "Clear understanding of real estate investing basics"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Market Research",
+        tasks: [
+          "Identify 3 target neighborhoods",
+          "Research average rents in those areas",
+          "Set up Zillow/Redfin alerts for your criteria",
+          "Analyze 10 properties using the 1% rule",
+          "Deep analyze 3 properties that pass",
+          "Drive through target neighborhoods",
+          "Talk to 1 local investor or property manager"
+        ],
+        milestone: "Know your target market inside and out"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "Financing Prep",
+        tasks: [
+          "Contact 3 lenders for rate quotes",
+          "Gather all documents needed for pre-approval",
+          "Get pre-approval letter",
+          "Understand your true buying power",
+          "Calculate down payment + closing costs + reserves",
+          "Create down payment savings plan",
+          "Research down payment assistance programs in your area"
+        ],
+        milestone: "Pre-approved and know your numbers"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Active Deal Hunting",
+        tasks: [
+          "Tour 5+ properties in person",
+          "Practice running full analysis on each",
+          "Connect with a real estate agent who knows investors",
+          "Make an offer (even if you're not sure—practice negotiating)",
+          "Learn from feedback on offer",
+          "Create 90-day action plan for purchase",
+          "Set specific purchase target date"
+        ],
+        milestone: "Ready to pull trigger on right deal"
+      }
+    ],
+    resources: [
+      { name: "BiggerPockets Real Estate Podcast", url: "https://www.biggerpockets.com/podcast", type: "video" },
+      { name: "The Book on Rental Property Investing - Brandon Turner", url: "https://www.amazon.com/Book-Rental-Property-Investing-Intelligent/dp/099071179X", type: "book" },
+      { name: "BiggerPockets Calculator", url: "https://www.biggerpockets.com/rental-property-calculator", type: "tool" },
+      { name: "Zillow/Redfin", url: "https://www.zillow.com", type: "tool" }
+    ],
+    caseStudy: {
+      title: "From Renting to 6 Units in 3 Years",
+      scenario: "DeShawn was paying $1,400/month rent after release. Saved aggressively while working full-time. Knew real estate was the path but had never owned property.",
+      outcome: "Year 1: Bought a duplex with FHA (3.5% down), lived in one unit, rented the other for $1,200. Lived essentially free. Year 3: Moved out, bought a 4-plex. Now owns 6 units, cash flows $2,400/month, quit his job, and manages properties full-time."
+    }
+  },
+  // NEW MODULE: Digital Products & Passive Income
+  {
+    id: "digital-products",
+    title: "Digital Products & Passive Income",
+    icon: Package,
+    category: "Wealth Building",
+    difficulty: "intermediate",
+    estimatedTime: "80 min",
+    description: "Create products once, sell forever. Learn to package your knowledge into digital products that generate income while you sleep.",
+    keyTakeaways: [
+      "Digital products have 90%+ profit margins",
+      "You don't need to be the world's top expert—just help people one step behind you",
+      "Start ugly, improve based on feedback",
+      "One good product can replace your entire income"
+    ],
+    sections: [
+      {
+        title: "The Digital Product Revolution",
+        content: `**Why Digital Products Change Everything:**
+
+**Traditional Business:**
+- Make a sale, do the work
+- Trade time for money
+- Income stops when you stop
+
+**Digital Product Business:**
+- Create once, sell infinitely
+- 90%+ profit margins
+- Income while you sleep
+- Scales without your time
+
+**Types of Digital Products:**
+
+**1. Courses (Video/Text)**
+- Price range: $97-$2,000+
+- Most common, highest potential
+- Teach a transformation or skill
+
+**2. Templates & Tools**
+- Price range: $17-$197
+- Notion templates, spreadsheets, Canva designs
+- Quick to create, easy to sell
+
+**3. Ebooks & Guides**
+- Price range: $9-$47
+- Written deep-dives
+- Good for low-ticket offers
+
+**4. Membership/Community**
+- Price range: $29-$297/month
+- Recurring revenue
+- Requires ongoing engagement
+
+**5. Software/Apps**
+- Price range: $29-$999+
+- Highest barrier, highest potential
+- Requires development skills
+
+**The Truth:**
+You don't need:
+- To be the world's best expert
+- A massive audience
+- Expensive equipment
+- Years of experience
+
+You DO need:
+- To know something others want to learn
+- The ability to teach it clearly
+- Consistency to market it`,
+        actionItems: [
+          "List 5 things you know that others have asked you about",
+          "Research existing products in each area",
+          "Identify gaps or ways you could do it better",
+          "Pick 1 product idea to pursue"
+        ],
+        proTips: [
+          "Sell before you build—validate demand first",
+          "Your first product will be your worst—ship it anyway",
+          "Bundle knowledge + templates + community for higher prices",
+          "Focus on transformation, not information"
+        ]
+      },
+      {
+        title: "Finding Your Profitable Product Idea",
+        content: `**The Product Idea Framework:**
+
+**What you know** ∩ **What people pay for** ∩ **What you enjoy teaching** = Your product
+
+**Validation Questions:**
+
+1. Are people already paying to learn this?
+   - Search Udemy, Skillshare, Gumroad for existing products
+   - If competition exists, market exists
+
+2. Can you help someone get a specific result?
+   - "Learn to play guitar" → Too vague
+   - "Play 10 popular songs in 30 days" → Specific, sellable
+
+3. Is this a hair-on-fire problem?
+   - Strong pain = strong sales
+   - Nice-to-know vs. need-to-know
+
+4. Can you reach these people?
+   - Where do they hang out online?
+   - How will you get in front of them?
+
+**Profitable Niches:**
+- Health: Weight loss, fitness, nutrition, mental health
+- Wealth: Making money, investing, career, business
+- Relationships: Dating, marriage, parenting, networking
+- Skills: Creative skills, tech skills, professional skills
+
+**Red Flags:**
+- Can't find anyone selling similar products (no market)
+- Target audience has no money
+- You're not passionate enough to talk about it for years
+- Too broad or too niche`,
+        actionItems: [
+          "Research 5 competitors' products in your potential niche",
+          "Survey 10 people in your target audience about their struggles",
+          "Define your specific transformation in 1 sentence",
+          "Validate: Would at least 3 people pay for this solution?"
+        ]
+      },
+      {
+        title: "Creating Your First Digital Product",
+        content: `**The Minimum Viable Product (MVP) Approach:**
+
+**Week 1: Outline**
+- Define the transformation (before → after)
+- List 5-8 main modules/chapters
+- Outline key lessons in each module
+- Define deliverables (worksheets, templates, bonuses)
+
+**Week 2-3: Create**
+- Create core content (videos, text, or both)
+- Don't over-produce—clarity > quality
+- Build in teachable moments, not just info-dumps
+- Add actionable exercises after each section
+
+**Week 4: Package**
+- Choose your platform (Gumroad, Teachable, Podia, Kajabi)
+- Design simple branding
+- Write sales copy
+- Set up payment processing
+
+**Content Creation Tips:**
+
+**For Videos:**
+- Phone camera is fine to start
+- Good audio matters more than video quality
+- Screen share tutorials are easiest
+- Keep videos 5-15 minutes each
+
+**For Written:**
+- Use Google Docs → Export as PDF
+- Add visuals, examples, screenshots
+- Format for easy reading (short paragraphs, bullets)
+
+**For Templates:**
+- Notion, Google Sheets, Canva
+- Solve a specific problem
+- Include instructions
+
+**Pricing Your Product:**
+- Ebooks/Templates: $17-$47
+- Mini-courses: $47-$197
+- Full courses: $197-$997
+- Premium/coaching: $997-$5,000+
+
+**The Pricing Mindset:**
+What's the result worth? Not how many hours you spent.`,
+        proTips: [
+          "Pre-sell before creating—make sales page, see if people buy",
+          "Sell beta version at 50% off for testimonials",
+          "Focus on completion—a shipped product beats a perfect draft",
+          "Improve based on student feedback after launch"
+        ]
+      },
+      {
+        title: "Marketing & Selling Your Digital Product",
+        content: `**The Launch Funnel:**
+
+**1. Build Audience (Ongoing)**
+- Content marketing (social, blog, YouTube)
+- Email list building
+- Community engagement
+- Podcast guesting
+
+**2. Create Lead Magnet (Free Value)**
+- Free mini-course or guide
+- Template or checklist
+- First module of your paid product
+- Purpose: Demonstrate expertise, build list
+
+**3. Nurture with Email**
+- Welcome sequence (5-7 emails)
+- Regular valuable content
+- Build relationship before selling
+
+**4. Launch Your Product**
+- Build anticipation (coming soon)
+- Open cart with deadline
+- Share testimonials and results
+- Create urgency (limited time, bonuses)
+
+**5. Evergreen Sales**
+- Automated email sequences
+- Paid ads to lead magnet
+- Continuous content → funnel
+
+**Sales Page Elements:**
+1. Hook/headline that speaks to pain
+2. Problem agitation (make them feel it)
+3. Solution introduction (your product)
+4. What they'll learn/get
+5. About you (why you're qualified)
+6. Testimonials and results
+7. FAQ (handle objections)
+8. Clear CTA with price
+9. Guarantee (reduce risk)
+10. Urgency (deadline or scarcity)
+
+**Traffic Sources:**
+- Organic social media
+- SEO (blog, YouTube)
+- Paid ads (once you have conversions)
+- Affiliates and partnerships
+- Podcast guesting
+- Email list`,
+        actionItems: [
+          "Create a lead magnet related to your product topic",
+          "Set up email list with welcome sequence",
+          "Write your sales page (even in draft)",
+          "Plan your first launch with timeline"
+        ]
+      }
+    ],
+    thirtyDayPlan: [
+      {
+        week: 1,
+        days: "Days 1-7",
+        focus: "Idea Validation",
+        tasks: [
+          "List 10 things you could teach others",
+          "Research existing products in each area",
+          "Pick your best opportunity based on demand + capability",
+          "Define the specific transformation you deliver",
+          "Survey 10 potential customers about their struggles",
+          "Check if at least 3 would pay for your solution",
+          "Finalize your product concept and format"
+        ],
+        milestone: "Validated product idea with clear transformation"
+      },
+      {
+        week: 2,
+        days: "Days 8-14",
+        focus: "Product Outline & Pre-Sale",
+        tasks: [
+          "Create complete module outline",
+          "Define all deliverables and bonuses",
+          "Choose your platform (Gumroad, Teachable, etc.)",
+          "Write sales page copy",
+          "Set up pre-sale (sell before building)",
+          "Share pre-sale with your audience",
+          "Goal: Get 5-10 pre-sales to validate"
+        ],
+        milestone: "First pre-sales made before product is built"
+      },
+      {
+        week: 3,
+        days: "Days 15-21",
+        focus: "Content Creation Sprint",
+        tasks: [
+          "Create module 1-3 content (videos/text)",
+          "Build worksheets and templates",
+          "Keep quality good enough, not perfect",
+          "Create module 4-6 content",
+          "Finalize bonus materials",
+          "Upload to platform",
+          "Test student experience"
+        ],
+        milestone: "Complete product ready to deliver"
+      },
+      {
+        week: 4,
+        days: "Days 22-30",
+        focus: "Launch & Collect Feedback",
+        tasks: [
+          "Deliver to pre-sale customers",
+          "Get feedback and testimonials",
+          "Make quick improvements based on feedback",
+          "Announce public launch",
+          "Create lead magnet from product preview",
+          "Set up email funnel for ongoing sales",
+          "Plan content marketing for next 90 days"
+        ],
+        milestone: "Live product with testimonials and sales"
+      }
+    ],
+    resources: [
+      { name: "Gumroad (Sell Digital Products)", url: "https://gumroad.com", type: "tool" },
+      { name: "Teachable (Course Platform)", url: "https://teachable.com", type: "tool" },
+      { name: "ConvertKit (Email Marketing)", url: "https://convertkit.com", type: "tool" },
+      { name: "Digital Product Creation", url: "https://www.youtube.com/results?search_query=create+digital+product+course", type: "video" }
+    ],
+    caseStudy: {
+      title: "From Free Advice to $50K Product Business",
+      scenario: "Rachel was constantly helping friends with their resumes. She spent hours giving free advice. She realized this knowledge had value but didn't know how to package it.",
+      outcome: "Created a $47 resume template bundle with video walkthrough. First month: $1,400 in sales. Added a $197 course on job hunting. Year 1 revenue: $52,000. Now works 10 hours/week on the business, rest is automated."
     }
   }
 ];
@@ -786,6 +1980,7 @@ const difficultyConfig = {
 const EmpireBuilding = () => {
   const [activeModule, setActiveModule] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeTab, setActiveTab] = useState("content");
   
   const categories = ["all", ...new Set(businessModules.map(m => m.category))];
   const filteredModules = activeCategory === "all" 
@@ -800,7 +1995,7 @@ const EmpireBuilding = () => {
         {/* Back Button */}
         <Button 
           variant="ghost" 
-          onClick={() => setActiveModule(null)}
+          onClick={() => { setActiveModule(null); setActiveTab("content"); }}
           className="mb-4"
         >
           ← Back to Modules
@@ -843,125 +2038,310 @@ const EmpireBuilding = () => {
           </div>
         </div>
 
-        {/* Module Sections */}
-        <div className="space-y-4">
-          <Accordion type="multiple" className="space-y-3">
-            {selectedModule.sections.map((section, idx) => (
-              <AccordionItem 
-                key={idx} 
-                value={`section-${idx}`}
-                className="steel-plate border border-steel-light/20 px-4"
-              >
-                <AccordionTrigger className="hover:no-underline py-4">
-                  <div className="flex items-center gap-3 text-left">
-                    <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-                      {idx + 1}
-                    </span>
-                    <span className="font-semibold">{section.title}</span>
+        {/* Tabs for Content vs 30-Day Plan */}
+        {selectedModule.thirtyDayPlan && (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2 bg-charcoal">
+              <TabsTrigger value="content" className="gap-2">
+                <BookOpen className="w-4 h-4" /> Learn
+              </TabsTrigger>
+              <TabsTrigger value="action-plan" className="gap-2">
+                <Calendar className="w-4 h-4" /> 30-Day Action Plan
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="content" className="space-y-4">
+              {/* Module Sections */}
+              <div className="space-y-4">
+                <Accordion type="multiple" className="space-y-3">
+                  {selectedModule.sections.map((section, idx) => (
+                    <AccordionItem 
+                      key={idx} 
+                      value={`section-${idx}`}
+                      className="steel-plate border border-steel-light/20 px-4"
+                    >
+                      <AccordionTrigger className="hover:no-underline py-4">
+                        <div className="flex items-center gap-3 text-left">
+                          <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                            {idx + 1}
+                          </span>
+                          <span className="font-semibold">{section.title}</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-2 pb-6 space-y-4">
+                        {/* Main Content */}
+                        <div className="prose prose-invert prose-sm max-w-none">
+                          {section.content.split('\n\n').map((paragraph, pIdx) => (
+                            <div key={pIdx} className="mb-4">
+                              {paragraph.split('\n').map((line, lIdx) => {
+                                if (line.startsWith('**') && line.endsWith('**')) {
+                                  return <h4 key={lIdx} className="text-primary font-semibold mt-4 mb-2">{line.replace(/\*\*/g, '')}</h4>;
+                                }
+                                if (line.startsWith('**')) {
+                                  return <p key={lIdx} className="font-semibold text-foreground">{line.replace(/\*\*/g, '')}</p>;
+                                }
+                                if (line.startsWith('- ')) {
+                                  return <li key={lIdx} className="text-muted-foreground ml-4">{line.substring(2)}</li>;
+                                }
+                                return <p key={lIdx} className="text-muted-foreground">{line}</p>;
+                              })}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Action Items */}
+                        {section.actionItems && section.actionItems.length > 0 && (
+                          <div className="p-4 bg-primary/10 rounded-lg border border-primary/30">
+                            <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
+                              <Target className="w-4 h-4" /> Action Items
+                            </h4>
+                            <ol className="space-y-2">
+                              {section.actionItems.map((item, aIdx) => (
+                                <li key={aIdx} className="flex items-start gap-2 text-sm">
+                                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                    {aIdx + 1}
+                                  </span>
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+                        )}
+
+                        {/* Pro Tips */}
+                        {section.proTips && section.proTips.length > 0 && (
+                          <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                            <h4 className="font-semibold text-amber-400 mb-2 flex items-center gap-2">
+                              <Lightbulb className="w-4 h-4" /> Pro Tips
+                            </h4>
+                            <ul className="space-y-1 text-sm">
+                              {section.proTips.map((tip, tIdx) => (
+                                <li key={tIdx} className="text-muted-foreground">• {tip}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+
+              {/* Case Study */}
+              {selectedModule.caseStudy && (
+                <div className="steel-plate p-6 border border-green-500/30">
+                  <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" /> Case Study: {selectedModule.caseStudy.title}
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">The Situation</p>
+                      <p className="text-sm">{selectedModule.caseStudy.scenario}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-green-400 uppercase tracking-wider mb-1">The Outcome</p>
+                      <p className="text-sm text-green-400/90">{selectedModule.caseStudy.outcome}</p>
+                    </div>
                   </div>
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-6 space-y-4">
-                  {/* Main Content */}
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    {section.content.split('\n\n').map((paragraph, pIdx) => (
-                      <div key={pIdx} className="mb-4">
-                        {paragraph.split('\n').map((line, lIdx) => {
-                          if (line.startsWith('**') && line.endsWith('**')) {
-                            return <h4 key={lIdx} className="text-primary font-semibold mt-4 mb-2">{line.replace(/\*\*/g, '')}</h4>;
-                          }
-                          if (line.startsWith('**')) {
-                            return <p key={lIdx} className="font-semibold text-foreground">{line.replace(/\*\*/g, '')}</p>;
-                          }
-                          if (line.startsWith('- ')) {
-                            return <li key={lIdx} className="text-muted-foreground ml-4">{line.substring(2)}</li>;
-                          }
-                          return <p key={lIdx} className="text-muted-foreground">{line}</p>;
-                        })}
+                </div>
+              )}
+
+              {/* Resources */}
+              <div className="steel-plate p-6">
+                <h4 className="font-semibold mb-4 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary" /> Go Deeper
+                </h4>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {selectedModule.resources.map((resource, rIdx) => (
+                    <a
+                      key={rIdx}
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg bg-charcoal hover:bg-primary/10 border border-border hover:border-primary/30 transition-colors"
+                    >
+                      {resource.type === "video" && <Play className="w-5 h-5 text-red-400" />}
+                      {resource.type === "book" && <BookOpen className="w-5 h-5 text-blue-400" />}
+                      {resource.type === "article" && <Globe className="w-5 h-5 text-green-400" />}
+                      {resource.type === "tool" && <Zap className="w-5 h-5 text-amber-400" />}
+                      <span className="text-sm font-medium">{resource.name}</span>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground ml-auto" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="action-plan" className="space-y-4">
+              {/* 30-Day Action Plan */}
+              <div className="bg-gradient-to-br from-primary/10 to-amber-500/5 p-6 rounded-lg border border-primary/30 mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <Calendar className="w-6 h-6 text-primary" />
+                  <h3 className="text-xl font-semibold">30-Day Action Plan</h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Don't just learn—APPLY. This 30-day plan breaks down exactly what to do each week. 
+                  Follow it step by step and you'll have real results by day 30.
+                </p>
+              </div>
+
+              {selectedModule.thirtyDayPlan?.map((week, weekIdx) => (
+                <div key={weekIdx} className="steel-plate p-5 border border-border">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg">
+                      W{week.week}
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">{week.days}</p>
+                      <h4 className="font-semibold text-lg">{week.focus}</h4>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    {week.tasks.map((task, taskIdx) => (
+                      <div key={taskIdx} className="flex items-start gap-3 p-2 rounded bg-charcoal">
+                        <div className="w-5 h-5 rounded border border-primary/50 flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="text-xs text-primary">{taskIdx + 1}</span>
+                        </div>
+                        <p className="text-sm">{task}</p>
                       </div>
                     ))}
                   </div>
 
-                  {/* Action Items */}
-                  {section.actionItems && section.actionItems.length > 0 && (
-                    <div className="p-4 bg-primary/10 rounded-lg border border-primary/30">
-                      <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
-                        <Target className="w-4 h-4" /> Action Items
-                      </h4>
-                      <ol className="space-y-2">
-                        {section.actionItems.map((item, aIdx) => (
-                          <li key={aIdx} className="flex items-start gap-2 text-sm">
-                            <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
-                              {aIdx + 1}
-                            </span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ol>
+                  <div className="p-3 bg-primary/10 rounded-lg border border-primary/30">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-primary" />
+                      <p className="text-sm">
+                        <span className="font-semibold text-primary">Week {week.week} Milestone:</span>{" "}
+                        {week.milestone}
+                      </p>
                     </div>
-                  )}
-
-                  {/* Pro Tips */}
-                  {section.proTips && section.proTips.length > 0 && (
-                    <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
-                      <h4 className="font-semibold text-amber-400 mb-2 flex items-center gap-2">
-                        <Lightbulb className="w-4 h-4" /> Pro Tips
-                      </h4>
-                      <ul className="space-y-1 text-sm">
-                        {section.proTips.map((tip, tIdx) => (
-                          <li key={tIdx} className="text-muted-foreground">• {tip}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-
-        {/* Case Study */}
-        {selectedModule.caseStudy && (
-          <div className="steel-plate p-6 border border-success/30">
-            <h4 className="font-semibold text-success mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" /> Case Study: {selectedModule.caseStudy.title}
-            </h4>
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">The Situation</p>
-                <p className="text-sm">{selectedModule.caseStudy.scenario}</p>
-              </div>
-              <div>
-                <p className="text-xs text-success uppercase tracking-wider mb-1">The Outcome</p>
-                <p className="text-sm text-success/90">{selectedModule.caseStudy.outcome}</p>
-              </div>
-            </div>
-          </div>
+                  </div>
+                </div>
+              ))}
+            </TabsContent>
+          </Tabs>
         )}
 
-        {/* Resources */}
-        <div className="steel-plate p-6">
-          <h4 className="font-semibold mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" /> Go Deeper
-          </h4>
-          <div className="grid md:grid-cols-2 gap-3">
-            {selectedModule.resources.map((resource, rIdx) => (
-              <a
-                key={rIdx}
-                href={resource.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 rounded-lg bg-charcoal hover:bg-primary/10 border border-border hover:border-primary/30 transition-colors"
-              >
-                {resource.type === "video" && <Play className="w-5 h-5 text-red-400" />}
-                {resource.type === "book" && <BookOpen className="w-5 h-5 text-blue-400" />}
-                {resource.type === "article" && <Globe className="w-5 h-5 text-green-400" />}
-                {resource.type === "tool" && <Zap className="w-5 h-5 text-amber-400" />}
-                <span className="text-sm font-medium">{resource.name}</span>
-                <ExternalLink className="w-4 h-4 text-muted-foreground ml-auto" />
-              </a>
-            ))}
-          </div>
-        </div>
+        {/* If no 30-day plan, show content directly */}
+        {!selectedModule.thirtyDayPlan && (
+          <>
+            {/* Module Sections */}
+            <div className="space-y-4">
+              <Accordion type="multiple" className="space-y-3">
+                {selectedModule.sections.map((section, idx) => (
+                  <AccordionItem 
+                    key={idx} 
+                    value={`section-${idx}`}
+                    className="steel-plate border border-steel-light/20 px-4"
+                  >
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <div className="flex items-center gap-3 text-left">
+                        <span className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                          {idx + 1}
+                        </span>
+                        <span className="font-semibold">{section.title}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-2 pb-6 space-y-4">
+                      <div className="prose prose-invert prose-sm max-w-none">
+                        {section.content.split('\n\n').map((paragraph, pIdx) => (
+                          <div key={pIdx} className="mb-4">
+                            {paragraph.split('\n').map((line, lIdx) => {
+                              if (line.startsWith('**') && line.endsWith('**')) {
+                                return <h4 key={lIdx} className="text-primary font-semibold mt-4 mb-2">{line.replace(/\*\*/g, '')}</h4>;
+                              }
+                              if (line.startsWith('**')) {
+                                return <p key={lIdx} className="font-semibold text-foreground">{line.replace(/\*\*/g, '')}</p>;
+                              }
+                              if (line.startsWith('- ')) {
+                                return <li key={lIdx} className="text-muted-foreground ml-4">{line.substring(2)}</li>;
+                              }
+                              return <p key={lIdx} className="text-muted-foreground">{line}</p>;
+                            })}
+                          </div>
+                        ))}
+                      </div>
+
+                      {section.actionItems && section.actionItems.length > 0 && (
+                        <div className="p-4 bg-primary/10 rounded-lg border border-primary/30">
+                          <h4 className="font-semibold text-primary mb-3 flex items-center gap-2">
+                            <Target className="w-4 h-4" /> Action Items
+                          </h4>
+                          <ol className="space-y-2">
+                            {section.actionItems.map((item, aIdx) => (
+                              <li key={aIdx} className="flex items-start gap-2 text-sm">
+                                <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                  {aIdx + 1}
+                                </span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+
+                      {section.proTips && section.proTips.length > 0 && (
+                        <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                          <h4 className="font-semibold text-amber-400 mb-2 flex items-center gap-2">
+                            <Lightbulb className="w-4 h-4" /> Pro Tips
+                          </h4>
+                          <ul className="space-y-1 text-sm">
+                            {section.proTips.map((tip, tIdx) => (
+                              <li key={tIdx} className="text-muted-foreground">• {tip}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+
+            {selectedModule.caseStudy && (
+              <div className="steel-plate p-6 border border-green-500/30">
+                <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5" /> Case Study: {selectedModule.caseStudy.title}
+                </h4>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">The Situation</p>
+                    <p className="text-sm">{selectedModule.caseStudy.scenario}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-green-400 uppercase tracking-wider mb-1">The Outcome</p>
+                    <p className="text-sm text-green-400/90">{selectedModule.caseStudy.outcome}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="steel-plate p-6">
+              <h4 className="font-semibold mb-4 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" /> Go Deeper
+              </h4>
+              <div className="grid md:grid-cols-2 gap-3">
+                {selectedModule.resources.map((resource, rIdx) => (
+                  <a
+                    key={rIdx}
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-lg bg-charcoal hover:bg-primary/10 border border-border hover:border-primary/30 transition-colors"
+                  >
+                    {resource.type === "video" && <Play className="w-5 h-5 text-red-400" />}
+                    {resource.type === "book" && <BookOpen className="w-5 h-5 text-blue-400" />}
+                    {resource.type === "article" && <Globe className="w-5 h-5 text-green-400" />}
+                    {resource.type === "tool" && <Zap className="w-5 h-5 text-amber-400" />}
+                    <span className="text-sm font-medium">{resource.name}</span>
+                    <ExternalLink className="w-4 h-4 text-muted-foreground ml-auto" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     );
   }
@@ -1016,11 +2396,16 @@ const EmpireBuilding = () => {
                 <module.icon className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-grow">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Badge className={difficultyConfig[module.difficulty].color} variant="outline">
                     {difficultyConfig[module.difficulty].label}
                   </Badge>
                   <span className="text-xs text-muted-foreground">{module.estimatedTime}</span>
+                  {module.thirtyDayPlan && (
+                    <Badge variant="outline" className="text-xs bg-green-500/10 text-green-400 border-green-500/30">
+                      <Calendar className="w-3 h-3 mr-1" /> 30-Day Plan
+                    </Badge>
+                  )}
                 </div>
                 <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors">
                   {module.title}
