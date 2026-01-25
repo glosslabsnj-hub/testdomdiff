@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import DashboardHeader from "@/components/DashboardHeader";
+import AdminPreviewBanner from "@/components/AdminPreviewBanner";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import MobileBackButton from "@/components/MobileBackButton";
@@ -16,7 +17,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
@@ -68,9 +69,8 @@ const coachingLabels: Record<string, string> = {
 
 export function DashboardLayout({ children, showBreadcrumb = true }: DashboardLayoutProps) {
   const location = useLocation();
-  const { subscription } = useAuth();
+  const { isCoaching } = useEffectiveSubscription();
   const isMobile = useIsMobile();
-  const isCoaching = subscription?.plan_type === "coaching";
   
   // Parse current path into breadcrumb segments
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -98,6 +98,9 @@ export function DashboardLayout({ children, showBreadcrumb = true }: DashboardLa
         <DashboardSidebar />
         
         <div className="flex-1 flex flex-col min-w-0">
+          {/* Admin Preview Mode Banner */}
+          <AdminPreviewBanner />
+          
           {/* Header with sidebar trigger */}
           <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
             <div className="flex items-center gap-4 px-4 py-2">

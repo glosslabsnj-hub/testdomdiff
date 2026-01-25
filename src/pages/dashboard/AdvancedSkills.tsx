@@ -13,20 +13,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSkillLessons } from "@/hooks/useSkillLessons";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useTTS } from "@/hooks/useTTS";
 import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import EmpireBuilding from "@/components/skills/EmpireBuilding";
 
 const AdvancedSkills = () => {
-  const { subscription } = useAuth();
+  const { isCoaching } = useEffectiveSubscription();
   const { lessons, loading } = useSkillLessons();
   const [activeTab, setActiveTab] = useState("empire");
   const tts = useTTS();
 
   // Only coaching users can access
-  if (subscription?.plan_type !== "coaching") {
+  if (!isCoaching) {
     return <UpgradePrompt feature="Advanced Skill-Building" upgradeTo="coaching" />;
   }
 

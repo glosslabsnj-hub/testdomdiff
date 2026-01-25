@@ -28,6 +28,7 @@ import { useProgramTracks } from "@/hooks/useProgramTracks";
 import { useDayCompletions } from "@/hooks/useDayCompletions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import ExerciseDetailDialog from "@/components/workout/ExerciseDetailDialog";
@@ -68,7 +69,8 @@ const DAYS_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "sat
 
 const Program = () => {
   const { tracks, loading: tracksLoading, getTrackByGoal } = useProgramTracks();
-  const { subscription, profile } = useAuth();
+  const { subscription, isMembership } = useEffectiveSubscription();
+  const { profile } = useAuth();
   const { toast } = useToast();
   
   // Get user's track based on their goal
@@ -154,7 +156,7 @@ const Program = () => {
   }, [weeks]);
 
   // Only transformation and coaching users can access
-  if (subscription?.plan_type === "membership") {
+  if (isMembership) {
     return <UpgradePrompt feature="12-Week Program" upgradeTo="transformation" />;
   }
 

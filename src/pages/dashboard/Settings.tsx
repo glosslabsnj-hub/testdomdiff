@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
@@ -36,14 +37,10 @@ const passwordSchema = z.object({
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { profile, refreshProfile, subscription } = useAuth();
+  const { profile, refreshProfile } = useAuth();
+  const { subscription, isCoaching, isTransformation } = useEffectiveSubscription();
   const { milestones, loading: milestonesLoading, hasMilestone, getFeaturedBadge } = useMilestones();
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, permission: pushPermission, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePushNotifications();
-
-  // Tier-aware settings labels
-  const planType = subscription?.plan_type;
-  const isCoaching = planType === "coaching";
-  const isTransformation = planType === "transformation";
   
   const getSettingsLabels = () => {
     if (isCoaching) {

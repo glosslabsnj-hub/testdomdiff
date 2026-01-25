@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSkillLessons } from "@/hooks/useSkillLessons";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useTTS } from "@/hooks/useTTS";
 import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
@@ -27,20 +27,19 @@ import JobSearchTools from "@/components/skills/JobSearchTools";
 import HustleIdeas from "@/components/skills/HustleIdeas";
 
 const SkillBuilding = () => {
-  const { subscription } = useAuth();
+  const { subscription, isMembership, isCoaching } = useEffectiveSubscription();
   const { lessons, loading } = useSkillLessons();
   const [activeTab, setActiveTab] = useState("lessons");
   const tts = useTTS();
 
   // Only transformation and coaching users can access
-  const planType = subscription?.plan_type;
-  if (planType === "membership") {
+  if (isMembership) {
     return <UpgradePrompt feature="Work Release Program" upgradeTo="transformation" />;
   }
 
   // Filter out advanced lessons for non-coaching users
   const visibleLessons = lessons.filter(
-    (l) => !l.is_advanced || planType === "coaching"
+    (l) => !l.is_advanced || isCoaching
   );
 
   if (loading) {

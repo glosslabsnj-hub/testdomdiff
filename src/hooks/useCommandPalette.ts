@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import {
   Play,
   Dumbbell,
@@ -38,11 +38,7 @@ export function useCommandPalette() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const { subscription } = useAuth();
-
-  const planType = subscription?.plan_type;
-  const isCoaching = planType === "coaching";
-  const isMembership = planType === "membership";
+  const { isCoaching, isMembership } = useEffectiveSubscription();
 
   // Define all command items based on tier
   const allItems: CommandItem[] = useMemo(() => {

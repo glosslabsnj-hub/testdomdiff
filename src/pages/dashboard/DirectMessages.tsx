@@ -6,20 +6,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useDirectMessages } from "@/hooks/useDirectMessages";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import UpgradePrompt from "@/components/UpgradePrompt";
 
 // Dom's user ID - this would typically come from an admin config
 const DOM_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 const DirectMessages = () => {
-  const { subscription, user } = useAuth();
+  const { user } = useAuth();
+  const { isCoaching } = useEffectiveSubscription();
   const { messages, loading, sendMessage } = useDirectMessages();
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Only coaching users can access
-  if (subscription?.plan_type !== "coaching") {
+  if (!isCoaching) {
     return <UpgradePrompt feature="Direct Messaging" upgradeTo="coaching" />;
   }
 

@@ -33,7 +33,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -50,12 +50,7 @@ export function DashboardSidebar() {
   const location = useLocation();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { subscription } = useAuth();
-  
-  const planType = subscription?.plan_type;
-  const isCoaching = planType === "coaching";
-  const isTransformation = planType === "transformation";
-  const isMembership = planType === "membership";
+  const { isCoaching, isTransformation, isMembership } = useEffectiveSubscription();
 
   // Core navigation items available to all tiers
   const coreItems: NavItem[] = [

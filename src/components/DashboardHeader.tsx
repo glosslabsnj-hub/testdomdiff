@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield, Settings, Command } from "lucide-react";
+import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield, Settings, Command, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useAdminPreview } from "@/contexts/AdminPreviewContext";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -17,10 +18,21 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const DashboardHeader = () => {
-  const { profile, subscription, daysRemaining, signOut } = useAuth();
+  const { profile, daysRemaining, signOut } = useAuth();
   const { isAdmin } = useAdminCheck();
+  const { effectiveSubscription, previewTier, setPreviewTier, isPreviewMode } = useAdminPreview();
+  
+  // Use effective subscription for display
+  const subscription = effectiveSubscription;
 
   const handleSignOut = async () => {
     await signOut();
@@ -101,6 +113,55 @@ const DashboardHeader = () => {
 
           {/* User Info & Actions */}
           <div className="flex items-center gap-3 sm:gap-4">
+            {/* Admin Tier Preview Toggle */}
+            {isAdmin && (
+              <div className="hidden md:flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center">
+                      <Eye className={`w-4 h-4 mr-2 ${isPreviewMode ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <Select
+                        value={previewTier || "real"}
+                        onValueChange={(value) => setPreviewTier(value === "real" ? null : value as "membership" | "transformation" | "coaching")}
+                      >
+                        <SelectTrigger className="w-[140px] h-8 text-xs bg-muted/30 border-border">
+                          <SelectValue placeholder="Preview as..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="real">
+                            <span className="flex items-center gap-2">
+                              ↩️ Real Account
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="coaching">
+                            <span className="flex items-center gap-2">
+                              <Crown className="w-3 h-3 text-primary" />
+                              Free World
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="transformation">
+                            <span className="flex items-center gap-2">
+                              <Sparkles className="w-3 h-3 text-primary" />
+                              Gen Pop
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="membership">
+                            <span className="flex items-center gap-2">
+                              <User className="w-3 h-3" />
+                              Solitary
+                            </span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Preview dashboard as different tier</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+
             {/* Command Palette Hint */}
             <Tooltip>
               <TooltipTrigger asChild>
