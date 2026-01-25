@@ -24,7 +24,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
-import { useSetupProgress } from "@/hooks/useSetupProgress";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
 import OrientationModal from "@/components/OrientationModal";
@@ -33,8 +32,6 @@ import { TransformationWidget } from "@/components/TransformationWidget";
 import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
-import { SetupWizard } from "@/components/setup";
-import TodaysMission from "@/components/TodaysMission";
 import {
   Tooltip,
   TooltipContent,
@@ -132,19 +129,10 @@ function getWeekSpecificMessage(week: number, isCoaching: boolean, isMembership:
 const Dashboard = () => {
   const { profile } = useAuth();
   const { subscription, isCoaching, isTransformation, isMembership } = useEffectiveSubscription();
-  const { needsSetupWizard, isWizardComplete } = useSetupProgress();
   
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
-  const [showWizard, setShowWizard] = useState(false);
-
-  // Show wizard if user needs it
-  useEffect(() => {
-    if (needsSetupWizard && !isWizardComplete) {
-      setShowWizard(true);
-    }
-  }, [needsSetupWizard, isWizardComplete]);
 
   // Calculate current week based on subscription start date
   const currentWeek = (() => {
@@ -413,19 +401,11 @@ const Dashboard = () => {
     }
   };
 
-  // Show setup wizard if needed
-  if (showWizard) {
-    return <SetupWizard onComplete={() => setShowWizard(false)} />;
-  }
-
   return (
     <DashboardLayout showBreadcrumb={false}>
       <div className="section-container py-8">
         {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
         <StreakWarningBanner />
-        
-        {/* Today's Mission - focused action card for new users */}
-        {isNewUser && <TodaysMission className="mb-8" />}
 
         {/* Welcome Banner for New Users */}
         {showWelcomeBanner && (

@@ -1228,12 +1228,8 @@ export type Database = {
           onboarding_video_watched: boolean | null
           orientation_dismissed: boolean | null
           phone: string | null
-          setup_wizard_completed: boolean | null
-          setup_wizard_step: number | null
-          sleep_time: string | null
           updated_at: string
           user_id: string
-          wake_time: string | null
           weight: string | null
         }
         Insert: {
@@ -1257,12 +1253,8 @@ export type Database = {
           onboarding_video_watched?: boolean | null
           orientation_dismissed?: boolean | null
           phone?: string | null
-          setup_wizard_completed?: boolean | null
-          setup_wizard_step?: number | null
-          sleep_time?: string | null
           updated_at?: string
           user_id: string
-          wake_time?: string | null
           weight?: string | null
         }
         Update: {
@@ -1286,12 +1278,8 @@ export type Database = {
           onboarding_video_watched?: boolean | null
           orientation_dismissed?: boolean | null
           phone?: string | null
-          setup_wizard_completed?: boolean | null
-          setup_wizard_step?: number | null
-          sleep_time?: string | null
           updated_at?: string
           user_id?: string
-          wake_time?: string | null
           weight?: string | null
         }
         Relationships: [
