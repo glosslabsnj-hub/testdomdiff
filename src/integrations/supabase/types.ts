@@ -1614,6 +1614,47 @@ export type Database = {
         }
         Relationships: []
       }
+      routine_substeps: {
+        Row: {
+          action_text: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          routine_index: number
+          step_order: number
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_text: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          routine_index: number
+          step_order?: number
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_text?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          routine_index?: number
+          step_order?: number
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routine_substeps_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "discipline_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scripture_library: {
         Row: {
           created_at: string | null
@@ -1905,6 +1946,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_routine_substeps: {
+        Row: {
+          action_text: string
+          created_at: string
+          id: string
+          is_deleted: boolean
+          is_override: boolean
+          original_substep_id: string | null
+          routine_index: number
+          step_order: number
+          template_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_text: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          is_override?: boolean
+          original_substep_id?: string | null
+          routine_index: number
+          step_order?: number
+          template_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_text?: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          is_override?: boolean
+          original_substep_id?: string | null
+          routine_index?: number
+          step_order?: number
+          template_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_routine_substeps_original_substep_id_fkey"
+            columns: ["original_substep_id"]
+            isOneToOne: false
+            referencedRelation: "routine_substeps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_routine_substeps_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "discipline_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_routine_times: {
         Row: {
           created_at: string | null
@@ -1939,6 +2037,48 @@ export type Database = {
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "discipline_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_substep_completions: {
+        Row: {
+          completed_at: string
+          completion_date: string
+          id: string
+          substep_id: string | null
+          user_id: string
+          user_substep_id: string | null
+        }
+        Insert: {
+          completed_at?: string
+          completion_date?: string
+          id?: string
+          substep_id?: string | null
+          user_id: string
+          user_substep_id?: string | null
+        }
+        Update: {
+          completed_at?: string
+          completion_date?: string
+          id?: string
+          substep_id?: string | null
+          user_id?: string
+          user_substep_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_substep_completions_substep_id_fkey"
+            columns: ["substep_id"]
+            isOneToOne: false
+            referencedRelation: "routine_substeps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_substep_completions_user_substep_id_fkey"
+            columns: ["user_substep_id"]
+            isOneToOne: false
+            referencedRelation: "user_routine_substeps"
             referencedColumns: ["id"]
           },
         ]
