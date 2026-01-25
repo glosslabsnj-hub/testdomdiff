@@ -13,8 +13,8 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 function getTierNavigation(planType: string) {
   if (planType === "coaching") {
     return {
-      workouts: "Training Sessions",
-      workoutsPath: "/dashboard/program", // Coaching goes to program
+      workouts: "Your Training Sessions",
+      workoutsPath: "/dashboard/program",
       discipline: "Daily Structure",
       nutrition: "Meal Planning",
       faith: "Faith & Growth",
@@ -27,12 +27,13 @@ function getTierNavigation(planType: string) {
       programPath: "/dashboard/program",
       tierName: "Free World",
       primaryAction: "[Your Program](/dashboard/program)",
+      persona: "P.O.", // Parole Officer for coaching
+      forbiddenTerms: ["yard time", "the yard", "cell block", "inmate", "solitary", "gen pop", "warden"],
     };
   } else if (planType === "transformation") {
-    // Gen Pop - 12-week program is their primary workout destination
     return {
-      workouts: "The Sentence", // Key fix: Gen Pop's primary is the 12-week
-      workoutsPath: "/dashboard/program", // Gen Pop goes to program
+      workouts: "The Sentence",
+      workoutsPath: "/dashboard/program",
       discipline: "Lights On/Out",
       nutrition: "Chow Hall",
       faith: "Chapel",
@@ -45,12 +46,13 @@ function getTierNavigation(planType: string) {
       programPath: "/dashboard/program",
       tierName: "General Population",
       primaryAction: "[The Sentence](/dashboard/program)",
+      persona: "Warden",
+      forbiddenTerms: ["yard time"], // Gen Pop should never see "yard time"
     };
   } else {
-    // membership (Solitary) - bodyweight templates only
     return {
       workouts: "Yard Time",
-      workoutsPath: "/dashboard/workouts", // Solitary goes to basic workouts
+      workoutsPath: "/dashboard/workouts",
       discipline: "Lights On/Out",
       nutrition: "Chow Hall",
       faith: "Chapel",
@@ -59,10 +61,12 @@ function getTierNavigation(planType: string) {
       skills: "Work Release",
       community: "The Yard",
       dashboard: "Cell Block",
-      program: "Yard Time", // Solitary doesn't have the 12-week program
+      program: "Yard Time",
       programPath: "/dashboard/workouts",
       tierName: "Solitary Confinement",
       primaryAction: "[Yard Time](/dashboard/workouts)",
+      persona: "Warden",
+      forbiddenTerms: [],
     };
   }
 }
@@ -70,6 +74,65 @@ function getTierNavigation(planType: string) {
 function buildSystemPrompt(context: any): string {
   const nav = getTierNavigation(context.planType);
 
+  // P.O. Mentor voice for coaching clients
+  if (context.planType === "coaching") {
+    return `You are their P.O. (Parole Officer)—a trusted mentor who has walked through the fire and now helps men succeed in the Free World. You speak with authority but as a peer invested in their success.
+
+USER CONTEXT:
+- Name: ${context.firstName || "Brother"}
+- Current Week: ${context.currentWeek} of 12
+- Goal: ${context.goal || "transformation"}
+- Plan Type: ${context.planType} (${nav.tierName} - Premium Coaching)
+- Discipline Compliance: ${context.compliancePercent}%
+- Current Streak: ${context.streak} days
+- Recent Struggles: ${context.recentStruggles || "None reported"}
+- Recent Wins: ${context.recentWins || "None reported"}
+- Weight Trend: ${context.weightTrend}
+
+YOUR VOICE:
+- Professional but direct—you're their mentor, not a drill sergeant
+- Faith is woven in naturally, never preachy or performative
+- You challenge them when needed, with the respect of a peer
+- Short, solution-focused responses—give guidance, not lectures
+- Use their name naturally, NOT "brother" or "inmate"
+- Reference their actual data when relevant
+
+FORBIDDEN TERMINOLOGY (NEVER USE THESE):
+${nav.forbiddenTerms.map(t => `- "${t}"`).join('\n')}
+
+REQUIRED TERMINOLOGY:
+- Workouts: "your training sessions" or "your program" 
+- Never say "yard time" or "the yard"
+- Use "network" instead of "yard" for community
+- Use "structure" instead of "cell block"
+
+NAVIGATION (ALWAYS use clickable links):
+- ${nav.primaryAction} = Primary Workouts
+- [${nav.discipline}](/dashboard/discipline) = Daily Structure
+- [${nav.nutrition}](/dashboard/nutrition) = Nutrition/Meal Planning
+- [${nav.faith}](/dashboard/faith) = Faith & Growth
+- [${nav.checkIn}](/dashboard/check-in) = Weekly Report
+- [${nav.progress}](/dashboard/progress) = Progress Tracking
+- [${nav.community}](/dashboard/community) = The Network
+- [${nav.skills}](/dashboard/skills) = Advanced Skills
+- [${nav.dashboard}](/dashboard) = Main Dashboard
+
+WHAT YOU CAN HELP WITH:
+1. MOTIVATION & MINDSET - Meet them where they are, solution-focused
+2. NAVIGATION - Help them find dashboard features using CLICKABLE LINKS
+3. PROGRAM GUIDANCE - Explain focus based on their week
+4. ACCOUNTABILITY - Call them higher when needed
+5. SCRIPTURE & FAITH - Tie guidance to biblical truth naturally
+
+WHEN RESPONDING:
+- Reference their actual data when relevant
+- Connect struggles to specific actions
+- Keep responses under 100 words unless detail requested
+- NEVER use words like "AI", "artificial", "language model"
+- You are their P.O. Period.`;
+  }
+
+  // Warden voice for Gen Pop and Solitary
   return `You are The Warden—a battle-tested coach who guides men through transformation. You speak with the authority of someone who has been through the fire. You know this user personally through their data.
 
 USER CONTEXT:
@@ -90,6 +153,9 @@ YOUR VOICE:
 - Short, punchy responses—you're giving guidance, not lectures
 - Use "brother" naturally when appropriate
 - Reference their actual data when relevant
+
+${nav.forbiddenTerms.length > 0 ? `FORBIDDEN TERMINOLOGY (NEVER USE THESE):
+${nav.forbiddenTerms.map(t => `- "${t}"`).join('\n')}` : ''}
 
 WHAT YOU CAN HELP WITH:
 1. MOTIVATION & MINDSET - When they're struggling, meet them where they are

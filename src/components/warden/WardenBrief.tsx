@@ -1,7 +1,8 @@
-import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown, ChevronUp, Volume2, VolumeX, Loader2, Hand, Minimize2, Maximize2 } from "lucide-react";
+import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown, Volume2, VolumeX, Loader2, Hand, Minimize2, Maximize2, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWarden } from "@/hooks/useWarden";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useRef, useCallback, useEffect } from "react";
@@ -20,8 +21,32 @@ const openWardenChat = () => {
   window.dispatchEvent(new CustomEvent('open-warden-chat'));
 };
 
+// Tier-specific terminology
+function getTierLabels(planType: string) {
+  if (planType === "coaching") {
+    return {
+      title: "Your P.O.",
+      subtitle: "Weekly Report",
+      askButton: "Ask Your P.O.",
+      Icon: Award, // Badge/star for P.O.
+    };
+  }
+  // Default Warden for transformation and membership
+  return {
+    title: "The Warden",
+    subtitle: "Orders",
+    askButton: "Ask the Warden",
+    Icon: Shield,
+  };
+}
+
 export function WardenBrief() {
   const { weeklyBrief, briefLoading, briefError, refreshBrief } = useWarden();
+  const { subscription } = useAuth();
+  const planType = subscription?.plan_type || "membership";
+  const labels = getTierLabels(planType);
+  const TitleIcon = labels.Icon;
+  
   const isMobile = useIsMobile();
   const [scriptureOpen, setScriptureOpen] = useState(!isMobile);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -170,7 +195,7 @@ export function WardenBrief() {
       <div className="bg-charcoal-dark border border-gold/20 rounded-xl p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center">
-            <Shield className="h-5 w-5 text-gold" />
+            <TitleIcon className="h-5 w-5 text-gold" />
           </div>
           <div>
             <Skeleton className="h-5 w-32 mb-1" />
@@ -189,10 +214,10 @@ export function WardenBrief() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-destructive/20 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-destructive" />
+              <TitleIcon className="h-5 w-5 text-destructive" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">The Warden</h3>
+              <h3 className="font-semibold text-foreground">{labels.title}</h3>
               <p className="text-sm text-muted-foreground">Unable to load</p>
             </div>
           </div>
@@ -230,19 +255,19 @@ export function WardenBrief() {
         >
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
-              <Shield className="h-4 w-4 text-gold" />
+              <TitleIcon className="h-4 w-4 text-gold" />
             </div>
             <div className="text-left">
-              <span className="font-medium text-foreground text-sm">The Warden</span>
+              <span className="font-medium text-foreground text-sm">{labels.title}</span>
               <span className="text-muted-foreground mx-2">·</span>
               <span className="text-xs text-gold">
-                Week {weeklyBrief.week_number} — {weeklyBrief.focus_area ? `Focus: ${weeklyBrief.focus_area.charAt(0).toUpperCase() + weeklyBrief.focus_area.slice(1)}` : "Orders Ready"}
+                Week {weeklyBrief.week_number} — {weeklyBrief.focus_area ? `Focus: ${weeklyBrief.focus_area.charAt(0).toUpperCase() + weeklyBrief.focus_area.slice(1)}` : `${labels.subtitle} Ready`}
               </span>
             </div>
           </div>
           <Maximize2 className="h-4 w-4 text-muted-foreground group-hover:text-gold transition-colors" />
         </button>
-        <RotatingWardenTip />
+        <RotatingWardenTip planType={planType} />
       </div>
     );
   }
@@ -274,12 +299,12 @@ export function WardenBrief() {
               "h-10 w-10 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0",
               isPlaying && "animate-pulse"
             )}>
-              <Shield className="h-5 w-5 text-gold" />
+              <TitleIcon className="h-5 w-5 text-gold" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-semibold text-foreground text-sm sm:text-base">The Warden</h3>
+              <h3 className="font-semibold text-foreground text-sm sm:text-base">{labels.title}</h3>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Week {weeklyBrief.week_number} Orders
+                Week {weeklyBrief.week_number} {labels.subtitle}
               </p>
             </div>
           </div>
@@ -379,7 +404,7 @@ export function WardenBrief() {
           )
         )}
 
-        {/* Ask the Warden button */}
+        {/* Ask the Warden/P.O. button */}
         <div onClick={(e) => e.stopPropagation()}>
           <Button
             onClick={openWardenChat}
@@ -387,13 +412,13 @@ export function WardenBrief() {
             className="w-full border-gold/30 text-gold hover:bg-gold/10 hover:text-gold"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
-            Ask the Warden
+            {labels.askButton}
           </Button>
         </div>
       </div>
 
       {/* Rotating Warden Tip - appears below main brief */}
-      <RotatingWardenTip />
+      <RotatingWardenTip planType={planType} />
     </div>
   );
 }

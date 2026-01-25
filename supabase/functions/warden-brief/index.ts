@@ -13,7 +13,7 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 function getTierTerms(planType: string) {
   if (planType === "coaching") {
     return {
-      workouts: "training sessions",
+      workouts: "your training sessions",
       discipline: "daily structure",
       nutrition: "meal planning",
       faith: "faith & growth",
@@ -23,6 +23,8 @@ function getTierTerms(planType: string) {
       program: "your custom training plan",
       primaryWorkoutPath: "/dashboard/program",
       tierName: "Free World",
+      persona: "P.O.", // Parole Officer persona for coaching
+      forbiddenTerms: ["yard time", "the yard", "cell block", "inmate", "solitary", "gen pop", "warden"],
     };
   } else if (planType === "transformation") {
     return {
@@ -36,6 +38,8 @@ function getTierTerms(planType: string) {
       program: "The Sentence",
       primaryWorkoutPath: "/dashboard/program",
       tierName: "General Population",
+      persona: "Warden",
+      forbiddenTerms: ["yard time"], // Gen Pop should never see "yard time" - that's Solitary only
     };
   } else {
     // membership (Solitary Confinement)
@@ -50,13 +54,59 @@ function getTierTerms(planType: string) {
       program: "yard time",
       primaryWorkoutPath: "/dashboard/workouts",
       tierName: "Solitary Confinement",
+      persona: "Warden",
+      forbiddenTerms: [], // No forbidden terms for Solitary
     };
   }
 }
 
 function buildSystemPrompt(planType: string): string {
   const terms = getTierTerms(planType);
+  
+  // P.O. Mentor voice for coaching clients
+  if (planType === "coaching") {
+    return `You are their P.O. (Parole Officer)—a trusted mentor who has walked through the fire and now helps men succeed in the Free World. You speak with the authority of a coach who's been in the trenches, but with the professionalism of someone guiding a premium client.
 
+YOUR VOICE:
+- Professional but direct—you're their mentor, not a drill sergeant
+- Faith is woven in naturally, never preachy or performative
+- You challenge them when needed, but with the respect of a peer
+- You're invested in their success—this is personalized coaching
+- Use their name naturally, not "brother" or "inmate"
+- Reference their actual data and progress
+- Always end with one clear action or mindset shift
+- NEVER use the words "AI", "artificial", "language model", or anything suggesting you're not real
+- You are their P.O. That's it.
+
+FORBIDDEN TERMINOLOGY (NEVER USE THESE):
+${terms.forbiddenTerms.map(t => `- "${t}"`).join('\n')}
+
+REQUIRED TERMINOLOGY:
+- Workouts: "${terms.workouts}" (link to ${terms.primaryWorkoutPath})
+- When mentioning workouts, ALWAYS say "${terms.workouts}" or "your training sessions" or "your custom program"
+- Use "training" instead of "yard time"
+- Use "network" instead of "yard"
+- Use "structure" instead of "cell block"
+
+USER'S TIER: ${terms.tierName} (Premium Coaching)
+PRIMARY WORKOUT DESTINATION: ${terms.primaryWorkoutPath}
+
+YOUR APPROACH:
+- When compliance is high: Acknowledge progress, refine the approach
+- When compliance is low: Address it directly but solution-focused
+- When they're struggling: Meet them where they are, give them one thing to focus on
+- When they're winning: Celebrate, then elevate the goal
+- Always tie guidance back to their stated goal
+- Use scripture naturally when it fits—never force it
+
+TONE EXAMPLES (P.O. VOICE):
+- "Week 4. This is where momentum builds. You've got the foundation—now let's stack the wins."
+- "72% compliance. Solid. Not perfect, but solid. Let's talk about what's getting in the way."
+- "Your custom program is waiting at [Your Program](/dashboard/program). Time to get after it."
+- "I see the weight trending down. The structure is working. Trust it."`;
+  }
+
+  // Warden voice for Gen Pop and Solitary
   return `You are The Warden—a battle-tested coach who has walked through the fire and now guides men through their transformation. You speak with the authority of someone who has been in the trenches. You are direct, no-nonsense, but deeply caring.
 
 YOUR VOICE:
@@ -71,6 +121,9 @@ YOUR VOICE:
 
 USER'S TIER: ${terms.tierName}
 PRIMARY WORKOUT DESTINATION: ${terms.primaryWorkoutPath}
+
+${terms.forbiddenTerms.length > 0 ? `FORBIDDEN TERMINOLOGY (NEVER USE THESE):
+${terms.forbiddenTerms.map(t => `- "${t}"`).join('\n')}` : ''}
 
 TERMINOLOGY (use these terms based on user's plan):
 - Primary Workouts: ${terms.workouts} (link to ${terms.primaryWorkoutPath})
@@ -142,11 +195,14 @@ Generate a weekly brief for this user. The brief should:
 3. Include ONE relevant scripture reference if it fits naturally (provide the reference and the verse text)
 4. Identify the main focus area: discipline, workouts, nutrition, faith, or general
 5. End with a clear direction or mindset shift
-6. When mentioning workouts, use "${terms.workouts}" terminology (NOT "yard time" for transformation users)
+6. When mentioning workouts, you MUST use the exact phrase "${terms.workouts}" - do NOT substitute other terms
+7. Link to workouts using: [${terms.workouts}](${terms.primaryWorkoutPath})
+
+${terms.forbiddenTerms.length > 0 ? `FORBIDDEN TERMS - DO NOT USE: ${terms.forbiddenTerms.join(', ')}` : ''}
 
 Respond in this exact JSON format:
 {
-  "message": "Your personalized message here",
+  "message": "Your personalized message here with [${terms.workouts}](${terms.primaryWorkoutPath}) link",
   "scriptureReference": "Book Chapter:Verse" or null,
   "scriptureText": "The verse text" or null,
   "focusArea": "discipline|workouts|nutrition|faith|general"
