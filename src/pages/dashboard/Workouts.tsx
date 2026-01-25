@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Dumbbell } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,6 +8,7 @@ import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
 import AddToCalendarButton from "@/components/AddToCalendarButton";
 import { addMinutes } from "@/lib/calendarUtils";
+import DashboardBackLink from "@/components/DashboardBackLink";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
@@ -20,12 +21,7 @@ const Workouts = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to {isCoaching ? "Dashboard" : "Cell Block"}
-        </Link>
+        <DashboardBackLink className="mb-8" />
 
         <div className="flex items-center justify-between mb-8">
           <div>

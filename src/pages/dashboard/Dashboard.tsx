@@ -30,6 +30,7 @@ import { WardenBrief } from "@/components/warden";
 import { TransformationWidget } from "@/components/TransformationWidget";
 import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
+import OnboardingTooltip from "@/components/OnboardingTooltip";
 import {
   Tooltip,
   TooltipContent,
@@ -370,16 +371,18 @@ const Dashboard = () => {
         {/* Transformation Progress Widget */}
         <TransformationWidget />
 
-        <div className="mb-8">
-          <h1 className="headline-section mb-2">
-            Your <span className="text-primary">{isCoaching ? "Dashboard" : "Cell Block"}</span>
-          </h1>
-          <p className="text-muted-foreground">
-            {isCoaching 
-              ? "Access your programs, track your progress, and stay focused."
-              : "Access your templates, track your progress, and stay disciplined."}
-          </p>
-        </div>
+        <OnboardingTooltip tooltipId="dashboard" position="bottom">
+          <div className="mb-8">
+            <h1 className="headline-section mb-2">
+              Your <span className="text-primary">{isCoaching ? "Dashboard" : "Cell Block"}</span>
+            </h1>
+            <p className="text-muted-foreground">
+              {isCoaching 
+                ? "Access your programs, track your progress, and stay focused."
+                : "Access your templates, track your progress, and stay disciplined."}
+            </p>
+          </div>
+        </OnboardingTooltip>
 
         {/* Tiles Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

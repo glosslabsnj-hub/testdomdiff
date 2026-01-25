@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { 
-  ArrowLeft, Sun, Moon, Droplet, BookOpen, Loader2, Check,
+  Sun, Moon, Droplet, BookOpen, Loader2, Check,
   Flame, Clock, History, ChevronRight, Save, Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import RoutineItem from "@/components/discipline/RoutineItem";
 import QuickActionFAB from "@/components/discipline/QuickActionFAB";
 import { MorningBriefing, WardenTip } from "@/components/warden";
 import { RoutineWithDuration } from "@/lib/calendarUtils";
+import DashboardBackLink from "@/components/DashboardBackLink";
 
 const JOURNAL_PROMPTS = [
   "What were my 3 wins today?",
@@ -258,15 +259,37 @@ const Discipline = () => {
   const morningExportRoutines = prepareRoutinesForExport(morningRoutines, morningCustomRoutines, "morning");
   const eveningExportRoutines = prepareRoutinesForExport(eveningRoutines, eveningCustomRoutines, "evening");
 
+  // Handle #incomplete scroll on mount
+  useEffect(() => {
+    if (window.location.hash === "#incomplete" && !loading) {
+      // Find which section has incomplete tasks
+      const morningComplete = morningRoutines.every(r => isRoutineCompleted(r.id)) &&
+        morningCustomRoutines.every(r => isRoutineCompleted(r.id));
+      const eveningComplete = eveningRoutines.every(r => isRoutineCompleted(r.id)) &&
+        eveningCustomRoutines.every(r => isRoutineCompleted(r.id));
+      
+      let targetId = "";
+      if (!morningComplete) {
+        targetId = "morning-routine";
+      } else if (!eveningComplete) {
+        targetId = "evening-routine";
+      }
+      
+      if (targetId) {
+        setTimeout(() => {
+          const element = document.getElementById(targetId);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      }
+    }
+  }, [loading, morningRoutines, eveningRoutines, morningCustomRoutines, eveningCustomRoutines, isRoutineCompleted]);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-        </Link>
+        <DashboardBackLink className="mb-8" />
 
         {/* Morning Briefing - Daily Devotional */}
         <div className="mb-4">
@@ -361,7 +384,7 @@ const Discipline = () => {
         ) : (
           <div className="grid md:grid-cols-2 gap-8">
             {/* Morning Routine */}
-            <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <div id="morning-routine" className="bg-card rounded-lg border border-border overflow-hidden">
               {/* Sticky Header - Morning */}
               <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm p-4 md:p-6 border-b border-border">
                 <div className="flex items-center justify-between">
@@ -447,7 +470,7 @@ const Discipline = () => {
             </div>
 
             {/* Evening Routine */}
-            <div className="bg-card p-6 md:p-8 rounded-lg border border-border">
+            <div id="evening-routine" className="bg-card p-6 md:p-8 rounded-lg border border-border">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-secondary/20">
