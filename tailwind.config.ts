@@ -143,6 +143,36 @@ export default {
           "70%": { boxShadow: "0 0 0 10px hsl(var(--primary) / 0)" },
           "100%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0)" },
         },
+        // New micro-animations
+        "bounce-in": {
+          "0%": { transform: "scale(0.3)", opacity: "0" },
+          "50%": { transform: "scale(1.05)" },
+          "70%": { transform: "scale(0.9)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "slide-in-bottom": {
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "scale-up-center": {
+          "0%": { transform: "scale(0.5)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(-3deg)" },
+          "50%": { transform: "rotate(3deg)" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "heartbeat": {
+          "0%, 100%": { transform: "scale(1)" },
+          "14%": { transform: "scale(1.1)" },
+          "28%": { transform: "scale(1)" },
+          "42%": { transform: "scale(1.1)" },
+          "70%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -155,6 +185,13 @@ export default {
         "bar-slide": "bar-slide 0.3s ease-out forwards",
         "cell-lock": "cell-lock 0.3s ease-in-out",
         "success-pulse": "success-pulse 0.6s ease-out",
+        // New animations
+        "bounce-in": "bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+        "slide-in-bottom": "slide-in-bottom 0.3s ease-out forwards",
+        "scale-up": "scale-up-center 0.2s ease-out forwards",
+        "wiggle": "wiggle 0.5s ease-in-out",
+        "shimmer": "shimmer 2s linear infinite",
+        "heartbeat": "heartbeat 1.5s ease-in-out",
       },
       backgroundImage: {
         "gradient-gold": "linear-gradient(135deg, hsl(43 74% 49%), hsl(43 74% 35%))",

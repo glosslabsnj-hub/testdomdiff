@@ -29,7 +29,7 @@ const Index = () => {
   }];
   const programs = [{
     title: "Solitary Confinement",
-    price: "$19.99",
+    price: "$49.99",
     period: "/month",
     description: "The foundation. Strip away distractions. Just the essentials needed to perform.",
     features: ["4 bodyweight workout templates", "Daily discipline routine templates", "Basic nutrition template", "Weekly check-in submissions", "Progress tracking"],
@@ -38,7 +38,7 @@ const Index = () => {
     popular: false
   }, {
     title: "General Population",
-    price: "$299.99",
+    price: "$379.99",
     period: "one-time",
     description: "You've earned your place. Connect with peers, get video instruction, and start building your hustle.",
     features: ["Complete 12-week framework", "Weekly video coaching", "Nutrition templates + meal guides", "Faith + mindset lessons", "Skill-building lessons", "Community access"],
@@ -49,8 +49,8 @@ const Index = () => {
     title: "Free World 1:1 Coaching",
     price: "$999.99",
     period: "/month",
-    description: "You've done the time. Now live free. Direct access to Dom.",
-    features: ["Weekly 1:1 video calls", "Direct messaging access", "Custom-built programming", "Advanced skill-building", "Everything in Gen Pop included"],
+    description: "You've done the time. Now live free. Direct access to Dom. Limited to 10 clients.",
+    features: ["Weekly 1:1 video calls", "Direct messaging access", "Custom-built programming", "In-person training (NJ area)", "Advanced skill-building", "Everything in Gen Pop"],
     cta: "Apply for Free World",
     href: "/programs/coaching",
     popular: false

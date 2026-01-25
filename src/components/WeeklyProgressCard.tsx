@@ -34,7 +34,15 @@ export function WeeklyProgressCard() {
   const planType = subscription?.plan_type;
   const isCoaching = planType === "coaching";
   const isMembership = planType === "membership";
+  const isTransformation = planType === "transformation";
   const compliance = getTodayCompliance();
+  
+  // Get tier-specific workout label
+  const getWorkoutLabel = () => {
+    if (isMembership) return "Yard Time";
+    if (isCoaching) return "Training Sessions";
+    return "The Sentence"; // Transformation
+  };
   
   // Get workout navigation path based on tier
   const getWorkoutPath = () => {
@@ -127,7 +135,7 @@ export function WeeklyProgressCard() {
           <p className="text-2xl font-display text-foreground">
             <CountingNumber value={workoutsThisWeek} />/6
           </p>
-          <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">Workouts</p>
+          <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">{getWorkoutLabel()}</p>
           <Progress value={Math.min(100, (workoutsThisWeek / 6) * 100)} className="h-1 mt-2" />
         </Link>
         

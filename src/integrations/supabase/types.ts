@@ -244,6 +244,54 @@ export type Database = {
         }
         Relationships: []
       }
+      coaching_spots: {
+        Row: {
+          id: string
+          max_spots: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          max_spots?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          max_spots?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      coaching_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       community_channels: {
         Row: {
           category: string

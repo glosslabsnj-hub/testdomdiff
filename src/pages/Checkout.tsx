@@ -27,13 +27,13 @@ const Checkout = () => {
   const plans = {
     membership: {
       name: "Solitary Confinement",
-      price: "$19.99",
+      price: "$49.99",
       period: "/month",
       description: "The foundation — essentials only",
     },
     transformation: {
       name: "General Population",
-      price: "$299.99",
+      price: "$379.99",
       period: "one-time",
       description: "Earn your place — full program access",
     },
@@ -41,7 +41,7 @@ const Checkout = () => {
       name: "Free World 1:1 Coaching",
       price: "$999.99",
       period: "/month",
-      description: "Live free with direct access to Dom",
+      description: "Live free with direct access to Dom (10 spots max)",
     },
   };
 

@@ -1,11 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Target, MessageSquare, Phone, Calendar, Shield, Crown, Dumbbell, UtensilsCrossed, Briefcase, Brain, GraduationCap, Users } from "lucide-react";
+import { Check, Target, MessageSquare, Phone, Calendar, Shield, Crown, Dumbbell, UtensilsCrossed, Briefcase, Brain, GraduationCap, Users, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import coachingImage from "@/assets/coaching-image.jpg";
+import { CoachingSpotsDisplay } from "@/components/CoachingSpotsDisplay";
+import { CoachingWaitlistForm } from "@/components/CoachingWaitlistForm";
+import { useCoachingSpots } from "@/hooks/useCoachingSpots";
 
 const Coaching = () => {
+  const { isFull, loading: spotsLoading } = useCoachingSpots();
+  
   const exclusiveFeatures = [
     {
       icon: Phone,
@@ -23,6 +28,12 @@ const Coaching = () => {
       icon: Target,
       title: "Custom Programming",
       description: "Your program built from scratch based on your goals, equipment, and schedule.",
+      exclusive: true,
+    },
+    {
+      icon: MapPin,
+      title: "In-Person Training",
+      description: "Available for clients who can meet in the Hamilton, NJ area. Train with Dom directly.",
       exclusive: true,
     },
     {
@@ -132,9 +143,12 @@ const Coaching = () => {
         <div className="section-container relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-6">
-                <Crown className="w-4 h-4 text-primary" />
-                <span className="text-sm text-primary uppercase tracking-wider">Limited Spots</span>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full">
+                  <Crown className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-primary uppercase tracking-wider">Limited to 10 Clients</span>
+                </div>
+                <CoachingSpotsDisplay variant="badge" />
               </div>
               <h1 className="headline-hero mb-6">
                 <span className="text-primary">Free World</span> 1:1 Coaching
@@ -143,16 +157,28 @@ const Coaching = () => {
                 You've done the time. Now live free. Direct access to Dom, custom programming, 
                 and maximum accountability for men ready to thrive on the outside.
               </p>
-              <div className="flex items-baseline gap-2 mb-8">
+              <div className="flex items-baseline gap-2 mb-4">
                 <span className="text-5xl font-display text-primary">$999.99</span>
                 <span className="text-muted-foreground text-xl">/month</span>
               </div>
-              <Button variant="hero" size="hero" asChild>
-                <Link to="/checkout?plan=coaching">Apply for Free World</Link>
-              </Button>
-              <p className="text-sm text-muted-foreground mt-4">
-                * Limited to 10 active clients. Apply to check availability.
-              </p>
+              
+              {/* Spots banner */}
+              <CoachingSpotsDisplay variant="banner" className="mb-6" />
+              
+              {isFull ? (
+                <div className="bg-card p-6 rounded-lg border border-border">
+                  <CoachingWaitlistForm />
+                </div>
+              ) : (
+                <>
+                  <Button variant="hero" size="hero" asChild>
+                    <Link to="/checkout?plan=coaching">Apply for Free World</Link>
+                  </Button>
+                  <p className="text-sm text-muted-foreground mt-4">
+                    * In-person training available in the New Jersey area.
+                  </p>
+                </>
+              )}
             </div>
             <div className="relative hidden lg:block">
               <img
@@ -277,9 +303,12 @@ const Coaching = () => {
       <section className="py-20 md:py-32 bg-charcoal">
         <div className="section-container">
           <div className="max-w-lg mx-auto bg-background p-8 rounded-lg border border-primary shadow-[0_0_40px_-10px_hsl(43_74%_49%_/_0.3)]">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full mb-4">
-              <Crown className="w-4 h-4 text-primary" />
-              <span className="text-xs text-primary uppercase tracking-wider">Premium</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full">
+                <Crown className="w-4 h-4 text-primary" />
+                <span className="text-xs text-primary uppercase tracking-wider">Premium</span>
+              </div>
+              <CoachingSpotsDisplay variant="badge" />
             </div>
             <h3 className="headline-card mb-4">Free World 1:1 Coaching</h3>
             <div className="flex items-baseline gap-2 mb-6">
@@ -297,6 +326,10 @@ const Coaching = () => {
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-primary" />
+                In-person training (NJ area)
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <Check className="w-4 h-4 text-primary" />
                 Custom-built program
               </li>
               <li className="flex items-center gap-2 text-sm">
@@ -308,12 +341,18 @@ const Coaching = () => {
                 Cancel anytime
               </li>
             </ul>
-            <Button variant="gold" size="xl" className="w-full" asChild>
-              <Link to="/checkout?plan=coaching">Apply for Free World</Link>
-            </Button>
-            <p className="text-xs text-muted-foreground text-center mt-4">
-              Limited spots available
-            </p>
+            {isFull ? (
+              <CoachingWaitlistForm />
+            ) : (
+              <>
+                <Button variant="gold" size="xl" className="w-full" asChild>
+                  <Link to="/checkout?plan=coaching">Apply for Free World</Link>
+                </Button>
+                <p className="text-xs text-muted-foreground text-center mt-4">
+                  Limited to 10 clients only
+                </p>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -328,9 +367,17 @@ const Coaching = () => {
             You've done the time. Now it's time to live free with maximum accountability.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="hero" size="hero" asChild>
-              <Link to="/checkout?plan=coaching">Apply for Free World</Link>
-            </Button>
+            {isFull ? (
+              <Button variant="hero" size="hero" asChild>
+                <Link to="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  Join Waitlist
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="hero" size="hero" asChild>
+                <Link to="/checkout?plan=coaching">Apply for Free World</Link>
+              </Button>
+            )}
             <Button variant="heroOutline" size="hero" asChild>
               <Link to="/book-call">Book a Call First</Link>
             </Button>

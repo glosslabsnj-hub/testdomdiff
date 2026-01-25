@@ -68,7 +68,7 @@ export default function ProgramComparisonTable() {
             <th className="text-center py-4 px-4 min-w-[120px]">
               <div className="flex flex-col items-center gap-1">
                 <span className="text-sm text-muted-foreground uppercase tracking-wider">Solitary</span>
-                <span className="text-primary font-display text-lg">$19.99</span>
+                <span className="text-primary font-display text-lg">$49.99</span>
                 <span className="text-xs text-muted-foreground">/month</span>
               </div>
             </th>
@@ -76,13 +76,13 @@ export default function ProgramComparisonTable() {
               <div className="flex flex-col items-center gap-1">
                 <span className="text-xs text-primary uppercase tracking-wider font-bold">Most Popular</span>
                 <span className="text-sm text-muted-foreground uppercase tracking-wider">Gen Pop</span>
-                <span className="text-primary font-display text-lg">$299.99</span>
+                <span className="text-primary font-display text-lg">$379.99</span>
                 <span className="text-xs text-muted-foreground">one-time</span>
               </div>
             </th>
             <th className="text-center py-4 px-4 min-w-[120px]">
               <div className="flex flex-col items-center gap-1">
-                <span className="text-xs text-accent uppercase tracking-wider font-bold">Elite</span>
+                <span className="text-xs text-accent uppercase tracking-wider font-bold">10 Spots Only</span>
                 <span className="text-sm text-muted-foreground uppercase tracking-wider">Free World</span>
                 <span className="text-primary font-display text-lg">$999.99</span>
                 <span className="text-xs text-muted-foreground">/month</span>

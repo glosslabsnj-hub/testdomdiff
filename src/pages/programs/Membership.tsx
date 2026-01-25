@@ -70,7 +70,7 @@ const Membership = () => {
               the raw guidelines needed to perform. No noise. Just discipline.
             </p>
             <div className="flex items-baseline gap-2 mb-8">
-              <span className="text-5xl font-display text-primary">$19.99</span>
+              <span className="text-5xl font-display text-primary">$49.99</span>
               <span className="text-muted-foreground text-xl">/month</span>
             </div>
             <Button variant="hero" size="hero" asChild>
@@ -171,7 +171,7 @@ const Membership = () => {
           <div className="max-w-lg mx-auto bg-charcoal p-8 rounded-lg border border-border">
             <h3 className="headline-card mb-4">Solitary Confinement</h3>
             <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-4xl font-display text-primary">$19.99</span>
+              <span className="text-4xl font-display text-primary">$49.99</span>
               <span className="text-muted-foreground">/month</span>
             </div>
             <ul className="space-y-3 mb-8">
@@ -208,7 +208,7 @@ const Membership = () => {
             Strip away the noise. Start with the essentials.
           </p>
           <Button variant="hero" size="hero" asChild>
-            <Link to="/checkout?plan=membership">Enter Solitary — $19.99/mo</Link>
+            <Link to="/checkout?plan=membership">Enter Solitary — $49.99/mo</Link>
           </Button>
         </div>
       </section>
