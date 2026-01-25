@@ -67,17 +67,28 @@ function sanitizeMessageForTier(message: string, planType: string): string {
   if (planType === "transformation") {
     // Gen Pop: Replace "yard time" with "The Sentence"
     sanitized = sanitized.replace(/yard time/gi, "The Sentence");
-    sanitized = sanitized.replace(/Yard Time/g, "The Sentence");
+    
+    // Replace markdown links pointing to workouts with program links
+    sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/\[([^\]]*)\]\(dashboard\/workouts\)/gi, "[The Sentence](/dashboard/program)");
+    
+    // Replace standalone paths (with or without leading slash)
     sanitized = sanitized.replace(/\/dashboard\/workouts/g, "/dashboard/program");
+    sanitized = sanitized.replace(/dashboard\/workouts/g, "/dashboard/program");
   } else if (planType === "coaching") {
     // Coaching: Replace prison terminology with professional terms
     sanitized = sanitized.replace(/yard time/gi, "your training sessions");
-    sanitized = sanitized.replace(/Yard Time/g, "Your Training Sessions");
     sanitized = sanitized.replace(/the yard/gi, "The Network");
     sanitized = sanitized.replace(/warden/gi, "P.O.");
-    sanitized = sanitized.replace(/Warden/g, "P.O.");
     sanitized = sanitized.replace(/inmate/gi, "client");
+    
+    // Replace markdown links pointing to workouts with program links
+    sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[Your Program](/dashboard/program)");
+    sanitized = sanitized.replace(/\[([^\]]*)\]\(dashboard\/workouts\)/gi, "[Your Program](/dashboard/program)");
+    
+    // Replace standalone paths
     sanitized = sanitized.replace(/\/dashboard\/workouts/g, "/dashboard/program");
+    sanitized = sanitized.replace(/dashboard\/workouts/g, "/dashboard/program");
   }
   // Solitary (membership) keeps "yard time" - no changes needed
 
