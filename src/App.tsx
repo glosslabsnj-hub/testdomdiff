@@ -11,6 +11,7 @@ import { FloatingActionStack } from "@/components/FloatingActionStack";
 import CartDrawer from "@/components/shop/CartDrawer";
 import AnimatedRoutes from "@/components/AnimatedRoutes";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,8 @@ const App = () => (
               {/* ChatWidget for public visitors, FloatingActionStack for logged-in users */}
               <ChatWidget />
               <FloatingActionStack />
+              {/* Global Command Palette - Cmd/Ctrl+K */}
+              <CommandPalette />
             </CartProvider>
           </AuthProvider>
         </BrowserRouter>
