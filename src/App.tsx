@@ -7,7 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import { ChatWidget } from "@/components/chat/ChatWidget";
-import { WardenChat } from "@/components/warden";
+import { FloatingActionStack } from "@/components/FloatingActionStack";
 import CartDrawer from "@/components/shop/CartDrawer";
 import AnimatedRoutes from "@/components/AnimatedRoutes";
 
@@ -26,9 +26,9 @@ const App = () => (
           <CartProvider>
             <AnimatedRoutes />
             <CartDrawer />
-            {/* ChatWidget for public visitors, WardenChat for logged-in users */}
+            {/* ChatWidget for public visitors, FloatingActionStack for logged-in users */}
             <ChatWidget />
-            <WardenChat />
+            <FloatingActionStack />
           </CartProvider>
         </AuthProvider>
       </BrowserRouter>

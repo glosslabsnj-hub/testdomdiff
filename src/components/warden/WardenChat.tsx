@@ -15,6 +15,8 @@ import {
 
 interface WardenChatProps {
   className?: string;
+  compact?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 export function WardenChat({ className }: WardenChatProps) {
