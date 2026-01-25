@@ -5,9 +5,9 @@ import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 
 // Pricing assumptions
 const PLAN_PRICES = {
-  membership: 49.99,      // Monthly
-  transformation: 749.99, // One-time (spread over 3 months for MRR calc)
-  coaching: 1250,         // Monthly
+  membership: 49.99,       // Monthly
+  transformation: 379.99,  // One-time (spread over 3 months for MRR calc)
+  coaching: 999.99,        // Monthly
 } as const;
 
 export function RevenueAnalytics() {

@@ -68,7 +68,7 @@ const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: 
             Upgrade to unlock
           </p>
           <h3 className="text-xl font-display text-center mb-1">General Population</h3>
-          <p className="text-2xl font-display text-primary text-center mb-6">$299.99</p>
+          <p className="text-2xl font-display text-primary text-center mb-6">$379.99</p>
 
           <div className="space-y-3">
             {benefits.map((benefit, i) => (

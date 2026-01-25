@@ -9,7 +9,35 @@ interface PageTransitionProps {
 const pageVariants: Variants = {
   initial: {
     opacity: 0,
-    y: 8,
+    y: 12,
+    scale: 0.99,
+  },
+  enter: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.35,
+      ease: [0.25, 0.1, 0.25, 1],
+      staggerChildren: 0.05,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    scale: 0.99,
+    transition: {
+      duration: 0.2,
+      ease: [0.4, 0, 1, 1],
+    },
+  },
+};
+
+// Child item variants for staggered animations
+export const itemVariants: Variants = {
+  initial: {
+    opacity: 0,
+    y: 10,
   },
   enter: {
     opacity: 1,
@@ -17,14 +45,6 @@ const pageVariants: Variants = {
     transition: {
       duration: 0.3,
       ease: "easeOut",
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -8,
-    transition: {
-      duration: 0.2,
-      ease: "easeIn",
     },
   },
 };

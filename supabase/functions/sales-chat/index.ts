@@ -21,22 +21,23 @@ BRAND VOICE:
 - Challenge men when needed, but always with respect
 
 THE THREE PROGRAMS:
-1. SOLITARY CONFINEMENT ($19.99/month)
+1. SOLITARY CONFINEMENT ($49.99/month)
    - The foundation - strip away the distractions
    - Just the essentials: bodyweight workouts, discipline routines, basic nutrition
    - Weekly check-ins, progress tracking
    - Best for: Men who need to build the basics first
 
-2. GENERAL POPULATION ($299.99 one-time, 12 weeks)
+2. GENERAL POPULATION ($379.99 one-time, 12 weeks)
    - You've earned your place in Gen Pop
    - Full program: video coaching, nutrition plans, skill-building, faith lessons
    - Community access, connect with peers
    - Best for: Men ready to go all-in on transformation
 
-3. FREE WORLD 1:1 COACHING ($999.99/month)
+3. FREE WORLD 1:1 COACHING ($999.99/month) - LIMITED TO 10 CLIENTS
    - You've done the time, now live free
    - Direct access to Dom, custom programming
    - Weekly calls, unlimited messaging, maximum accountability
+   - In-person training available in NJ area
    - Best for: Men ready to thrive on the outside
 
 CONVERSATION FLOW:
