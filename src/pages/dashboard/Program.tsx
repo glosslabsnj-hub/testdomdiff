@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -31,9 +31,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import ExerciseDetailDialog from "@/components/workout/ExerciseDetailDialog";
+import ServedStamp from "@/components/ServedStamp";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import jailSounds from "@/lib/sounds";
+import { fireVictoryConfetti, fireTaskConfetti } from "@/lib/confetti";
 
 interface ProgramDayWorkout {
   id: string;
@@ -239,6 +241,8 @@ const Program = () => {
     const isOpen = expandedWorkouts.has(workout.id);
     const isCompleted = isDayCompleted(workout.id);
     const [completing, setCompleting] = useState(false);
+    const [showStamp, setShowStamp] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
     
     const setIsOpen = (open: boolean) => {
       // Capture scroll position before state change
@@ -265,7 +269,16 @@ const Program = () => {
       const success = await toggleDayCompletion(workout.id, weekNumber);
       if (success) {
         if (!isCompleted) {
-          jailSounds.complete({ enabled: true });
+          // Show stamp animation and play sounds
+          setShowStamp(true);
+          jailSounds.stampSlam({ enabled: true });
+          jailSounds.haptic('medium');
+          
+          // Fire confetti from the card
+          setTimeout(() => {
+            fireTaskConfetti(cardRef.current || undefined);
+          }, 200);
+          
           toast({
             title: "Day Served",
             description: `${workout.workout_name} locked in.`,
@@ -300,14 +313,18 @@ const Program = () => {
     }
 
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="w-full">
-          <div className={cn(
-            "flex items-center justify-between p-4 rounded-lg border transition-all group",
-            isCompleted 
-              ? "bg-destructive/10 border-destructive/30" 
-              : "bg-charcoal border-border hover:border-primary/50"
-          )}>
+      <div ref={cardRef} className="relative">
+        {/* Stamp animation overlay */}
+        <ServedStamp show={showStamp} />
+        
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger className="w-full">
+            <div className={cn(
+              "flex items-center justify-between p-4 rounded-lg border transition-all group",
+              isCompleted 
+                ? "bg-destructive/10 border-destructive/30" 
+                : "bg-charcoal border-border hover:border-primary/50"
+            )}>
             <div className="flex items-center gap-4">
               <div className={cn(
                 "w-12 h-12 rounded-lg flex items-center justify-center",
@@ -460,6 +477,7 @@ const Program = () => {
           </div>
         </CollapsibleContent>
       </Collapsible>
+      </div>
     );
   };
 
