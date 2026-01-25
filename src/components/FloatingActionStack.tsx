@@ -27,18 +27,18 @@ export function FloatingActionStack() {
     return <WardenChat />;
   }
 
-  // Mobile layout: horizontal positioning with Quick Actions on the left
+  // Mobile layout: Stack Quick Actions ABOVE Warden (no overlap)
   if (isMobile) {
     return (
       <>
-        {/* Quick Action - positioned to the left of Warden on mobile (hidden on discipline page) */}
+        {/* Quick Action - positioned ABOVE Warden on mobile (hidden on discipline page) */}
         {!isDisciplinePage && (
           <div
             className={cn(
               "fixed z-40 transition-all duration-300",
               quickActionExpanded
-                ? "bottom-20 right-4 left-4"
-                : "bottom-20 right-20"
+                ? "bottom-36 right-4 left-4" // Expanded: full width, above Warden
+                : "bottom-36 right-4"        // Collapsed: small pill, above Warden
             )}
           >
             <GlobalQuickAction
@@ -49,13 +49,8 @@ export function FloatingActionStack() {
           </div>
         )}
 
-        {/* Warden - right side (default position) */}
-        <WardenChat 
-          className={cn(
-            "transition-all duration-300",
-            quickActionExpanded && !isDisciplinePage && "opacity-50 scale-90"
-          )}
-        />
+        {/* Warden - bottom right (default position, never moves) */}
+        <WardenChat />
       </>
     );
   }

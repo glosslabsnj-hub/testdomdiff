@@ -153,8 +153,29 @@ const DashboardHeader = () => {
                   <TooltipContent side="bottom">
                     <p>Preview dashboard as different tier</p>
                   </TooltipContent>
-                </Tooltip>
+              </Tooltip>
               </div>
+            )}
+
+            {/* Admin Quick Access Button - always visible for admins */}
+            {isAdmin && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link to="/admin">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-1.5 text-gold hover:text-gold hover:bg-gold/10 border border-gold/30"
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span className="hidden sm:inline text-xs font-semibold uppercase tracking-wide">Admin</span>
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Admin Dashboard</p>
+                </TooltipContent>
+              </Tooltip>
             )}
 
             {/* Command Palette Hint */}
