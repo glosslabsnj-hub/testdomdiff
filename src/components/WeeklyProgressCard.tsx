@@ -7,7 +7,8 @@ import {
   TrendingUp, 
   TrendingDown, 
   Minus,
-  ChevronRight
+  ChevronRight,
+  Scale
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,8 +31,25 @@ export function WeeklyProgressCard() {
   
   const { completions, loading: workoutsLoading } = useWorkoutCompletions(currentWeek);
   
-  const isCoaching = subscription?.plan_type === "coaching";
+  const planType = subscription?.plan_type;
+  const isCoaching = planType === "coaching";
+  const isMembership = planType === "membership";
   const compliance = getTodayCompliance();
+  
+  // Get workout navigation path based on tier
+  const getWorkoutPath = () => {
+    if (isMembership) {
+      // Solitary users go to workout templates
+      return "/dashboard/workouts";
+    }
+    // Transformation and Coaching users go to the program with current week anchor
+    return `/dashboard/program#week-${currentWeek}`;
+  };
+  
+  // Get discipline path - always go to discipline with incomplete anchor
+  const getDisciplinePath = () => {
+    return "/dashboard/discipline#incomplete";
+  };
   
   // Calculate weight trend
   const weightTrend = useMemo(() => {
@@ -95,36 +113,47 @@ export function WeeklyProgressCard() {
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        {/* Workouts This Week */}
-        <div className="bg-charcoal rounded-lg p-3 border border-border">
+        {/* Workouts This Week - Clickable */}
+        <Link
+          to={getWorkoutPath()}
+          className="bg-charcoal rounded-lg p-3 border border-border hover:border-primary/50 transition-all group cursor-pointer"
+        >
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
               <Dumbbell className="w-4 h-4 text-primary" />
             </div>
+            <ChevronRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
           </div>
           <p className="text-2xl font-display text-foreground">
             <CountingNumber value={workoutsThisWeek} />/6
           </p>
-          <p className="text-xs text-muted-foreground">Workouts</p>
+          <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">Workouts</p>
           <Progress value={Math.min(100, (workoutsThisWeek / 6) * 100)} className="h-1 mt-2" />
-        </div>
+        </Link>
         
-        {/* Discipline Compliance */}
-        <div className="bg-charcoal rounded-lg p-3 border border-border">
+        {/* Discipline Compliance - Clickable */}
+        <Link
+          to={getDisciplinePath()}
+          className="bg-charcoal rounded-lg p-3 border border-border hover:border-primary/50 transition-all group cursor-pointer"
+        >
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center">
               <Check className="w-4 h-4 text-success" />
             </div>
+            <ChevronRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
           </div>
           <p className="text-2xl font-display text-foreground">
             <CountingNumber value={compliance.percent} />%
           </p>
-          <p className="text-xs text-muted-foreground">Today's Tasks</p>
+          <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">Today's Tasks</p>
           <Progress value={compliance.percent} className="h-1 mt-2" />
-        </div>
+        </Link>
         
-        {/* Weight Trend */}
-        <div className="bg-charcoal rounded-lg p-3 border border-border">
+        {/* Weight Trend - Clickable */}
+        <Link
+          to="/dashboard/progress#metrics"
+          className="bg-charcoal rounded-lg p-3 border border-border hover:border-primary/50 transition-all group cursor-pointer"
+        >
           <div className="flex items-center gap-2 mb-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
               !weightTrend ? "bg-muted" : 
@@ -140,6 +169,7 @@ export function WeeklyProgressCard() {
                 <TrendingUp className="w-4 h-4 text-warning" />
               )}
             </div>
+            <ChevronRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
           </div>
           <p className="text-2xl font-display text-foreground">
             {weightTrend ? (
@@ -150,23 +180,27 @@ export function WeeklyProgressCard() {
               </>
             ) : "--"}
           </p>
-          <p className="text-xs text-muted-foreground">Weight Trend</p>
-        </div>
+          <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">Weight Trend</p>
+        </Link>
         
-        {/* Streak */}
-        <div className="bg-charcoal rounded-lg p-3 border border-border">
+        {/* Streak - Clickable */}
+        <Link
+          to="/dashboard/discipline"
+          className="bg-charcoal rounded-lg p-3 border border-border hover:border-primary/50 transition-all group cursor-pointer"
+        >
           <div className="flex items-center gap-2 mb-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
               streak > 0 ? "bg-primary/20" : "bg-muted"
             }`}>
               <Flame className={`w-4 h-4 ${streak > 0 ? "text-primary animate-flame" : "text-muted-foreground"}`} />
             </div>
+            <ChevronRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
           </div>
           <p className="text-2xl font-display text-foreground">
             <CountingNumber value={streak} />
           </p>
-          <p className="text-xs text-muted-foreground">Day Streak</p>
-        </div>
+          <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">Day Streak</p>
+        </Link>
       </div>
     </div>
   );

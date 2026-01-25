@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Send, Check, History, Camera, Loader2 } from "lucide-react";
+import { Send, Check, History, Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +12,7 @@ import { format } from "date-fns";
 import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
+import DashboardBackLink from "@/components/DashboardBackLink";
 
 const CheckIn = () => {
   const { checkIns, loading, submitCheckIn, getCurrentWeekNumber } = useCheckIns();
@@ -98,9 +98,7 @@ const CheckIn = () => {
     return (
       <div className="min-h-screen bg-background">
         <div className="section-container py-12">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </Link>
+          <DashboardBackLink className="mb-8" />
           <DashboardSkeleton variant="detail" />
         </div>
       </div>
@@ -110,9 +108,7 @@ const CheckIn = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
-        <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to {isCoaching ? "Dashboard" : "Cell Block"}
-        </Link>
+        <DashboardBackLink className="mb-8" />
 
         <div className="max-w-2xl">
           <div className="flex items-center justify-between mb-8">

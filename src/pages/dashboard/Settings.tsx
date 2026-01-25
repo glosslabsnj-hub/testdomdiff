@@ -39,6 +39,38 @@ export default function Settings() {
   const { profile, refreshProfile, subscription } = useAuth();
   const { milestones, loading: milestonesLoading, hasMilestone, getFeaturedBadge } = useMilestones();
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, permission: pushPermission, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePushNotifications();
+
+  // Tier-aware settings labels
+  const planType = subscription?.plan_type;
+  const isCoaching = planType === "coaching";
+  const isTransformation = planType === "transformation";
+  
+  const getSettingsLabels = () => {
+    if (isCoaching) {
+      return {
+        pageTitle: "Account Settings",
+        pageDescription: "Manage your Free World profile and security",
+        profileTitle: "Your Profile",
+        profileDescription: "Update your personal details below",
+      };
+    }
+    if (isTransformation) {
+      return {
+        pageTitle: "Member Settings",
+        pageDescription: "Manage your profile and security",
+        profileTitle: "Member Profile",
+        profileDescription: "Update your personal details below",
+      };
+    }
+    return {
+      pageTitle: "Inmate Settings",
+      pageDescription: "Manage your profile and security",
+      profileTitle: "Inmate Profile",
+      profileDescription: "Update your personal details below",
+    };
+  };
+  
+  const labels = getSettingsLabels();
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -287,8 +319,8 @@ export default function Settings() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="headline-card">Inmate Settings</h1>
-            <p className="text-muted-foreground text-sm">Manage your profile and security</p>
+            <h1 className="headline-card">{labels.pageTitle}</h1>
+            <p className="text-muted-foreground text-sm">{labels.pageDescription}</p>
           </div>
         </div>
 
@@ -313,10 +345,10 @@ export default function Settings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-foreground">
                 <User className="h-5 w-5 text-primary" />
-                Inmate Profile
+                {labels.profileTitle}
               </CardTitle>
               <CardDescription>
-                Update your personal details below
+                {labels.profileDescription}
               </CardDescription>
             </CardHeader>
             <CardContent>

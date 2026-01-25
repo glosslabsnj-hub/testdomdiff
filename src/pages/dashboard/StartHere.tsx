@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, Circle, Loader2, Trophy, Play, X, ChevronRight, Clock } from "lucide-react";
+import { Check, Circle, Loader2, Trophy, Play, X, ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserChecklist } from "@/hooks/useUserChecklist";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import DashboardBackLink from "@/components/DashboardBackLink";
 
 // Tier-specific checklist configurations with improved descriptions
 const SOLITARY_CHECKLIST = [
@@ -243,12 +244,7 @@ const StartHere = () => {
       {/* Hero Section */}
       <div className={cn("relative bg-gradient-to-b to-background pt-8 pb-12", tierConfig.bgClass)}>
         <div className="section-container">
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6"
-          >
-            <ArrowLeft className="w-4 h-4" /> {tierConfig.backLabel}
-          </Link>
+          <DashboardBackLink className="mb-6" />
 
           <div className="max-w-3xl">
             <div className={cn("inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 border", tierConfig.accentClass, tierConfig.borderClass, "bg-background/50")}>

@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Check, TrendingUp, TrendingDown, Camera, Calendar, Images, ExternalLink, Loader2 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Check, TrendingUp, TrendingDown, Camera, Calendar, Images, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +16,7 @@ import WorkoutHeatmap from "@/components/progress/WorkoutHeatmap";
 import { WardenTip } from "@/components/warden";
 import { cn } from "@/lib/utils";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
+import DashboardBackLink from "@/components/DashboardBackLink";
 
 const Progress = () => {
   const { entries, loading: entriesLoading, updateEntry } = useProgressEntries();
@@ -23,10 +24,14 @@ const Progress = () => {
   const { photos, loading: photosLoading, uploadPhoto, deletePhoto, getPhotosByType } = useProgressPhotos();
   const { subscription } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
   const [editingWeek, setEditingWeek] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Record<string, string>>({});
   const [savingWeek, setSavingWeek] = useState<number | null>(null);
   const [togglingHabit, setTogglingHabit] = useState<string | null>(null);
+  
+  // Handle #metrics hash for deep linking
+  const defaultTab = location.hash === "#metrics" ? "metrics" : "metrics";
 
   const isCoaching = subscription?.plan_type === "coaching";
   const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -117,9 +122,7 @@ const Progress = () => {
     return (
       <div className="min-h-screen bg-background">
         <div className="section-container py-12">
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </Link>
+          <DashboardBackLink className="mb-8" />
           <div className="space-y-6">
             <DashboardSkeleton variant="cards" count={4} />
             <DashboardSkeleton variant="table" count={6} />
@@ -132,9 +135,7 @@ const Progress = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
-        <Link to="/dashboard" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to {isCoaching ? "Dashboard" : "Cell Block"}
-        </Link>
+        <DashboardBackLink className="mb-8" />
 
         <h1 className="headline-section mb-2">
           {isCoaching ? "Progress" : "Time"} <span className="text-primary">{isCoaching ? "Report" : "Served"}</span>
