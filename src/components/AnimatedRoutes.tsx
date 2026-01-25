@@ -53,6 +53,7 @@ import OrderConfirmation from "@/pages/shop/OrderConfirmation";
 
 // Admin pages
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AuditReport from "@/pages/admin/AuditReport";
 import NotFound from "@/pages/NotFound";
 
 export function AnimatedRoutes() {
@@ -253,6 +254,14 @@ export function AnimatedRoutes() {
           element={
             <ProtectedRoute requireIntake={false}>
               <PageTransition><AdminDashboard /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/audit"
+          element={
+            <ProtectedRoute requireIntake={false}>
+              <PageTransition><AuditReport /></PageTransition>
             </ProtectedRoute>
           }
         />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Lock, CreditCard } from "lucide-react";
@@ -7,11 +7,13 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { TRANSFORMATION_DURATION_DAYS } from "@/lib/constants";
 
 type PlanType = "membership" | "transformation" | "coaching";
 
 const Checkout = () => {
+  const { trackCheckoutStart } = useAnalytics();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, profile, refreshSubscription } = useAuth();
@@ -46,6 +48,12 @@ const Checkout = () => {
   };
 
   const selectedPlan = plans[plan as keyof typeof plans] || plans.transformation;
+
+  // Track checkout initiation
+  useEffect(() => {
+    const priceValue = parseFloat(selectedPlan.price.replace("$", "").replace(",", ""));
+    trackCheckoutStart(selectedPlan.name, priceValue);
+  }, [plan, selectedPlan]);
 
   const createDevSubscription = async (userId: string, planType: PlanType) => {
     const now = new Date();
