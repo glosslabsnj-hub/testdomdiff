@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useMilestones } from "@/hooks/useMilestones";
 import { useRoutineTimeOverrides } from "@/hooks/useRoutineTimeOverrides";
+import { useRoutineDurations } from "@/hooks/useRoutineDurations";
 import { useCustomRoutines } from "@/hooks/useCustomRoutines";
 import { useRoutineSubSteps } from "@/hooks/useRoutineSubSteps";
 import { format } from "date-fns";
@@ -89,6 +90,9 @@ const Discipline = () => {
 
   // Time overrides hook
   const { getTime, saveTimeOverride } = useRoutineTimeOverrides(currentTemplateId);
+  
+  // Duration overrides hook
+  const { getDuration, saveDurationOverride } = useRoutineDurations(currentTemplateId);
 
   // Sub-steps hook
   const {
@@ -214,7 +218,7 @@ const Discipline = () => {
     }
   };
 
-  // Prepare routines for export with duration/description
+  // Prepare routines for export with duration/description (uses user overrides)
   const prepareRoutinesForExport = (
     routines: any[],
     customRoutines: any[],
@@ -224,8 +228,8 @@ const Discipline = () => {
       ...routines.map(r => ({
         id: r.id,
         action_text: r.action_text,
-        time_slot: r.time_slot,
-        duration_minutes: r.duration_minutes || 5,
+        time_slot: getTime(r.display_order, r.time_slot),
+        duration_minutes: getDuration(r.display_order, r.action_text),
         description: r.description || null,
         routine_type: routineType,
       })),
@@ -233,7 +237,7 @@ const Discipline = () => {
         id: r.id,
         action_text: r.action_text,
         time_slot: r.time_slot,
-        duration_minutes: r.duration_minutes || 5,
+        duration_minutes: r.duration_minutes || 15,
         description: r.description || null,
         routine_type: routineType,
       })),
@@ -400,6 +404,8 @@ const Discipline = () => {
                       onToggle={toggleRoutineCompletion}
                       getTime={getTime}
                       onSaveTime={saveTimeOverride}
+                      durationMinutes={getDuration(item.display_order, item.action_text)}
+                      onSaveDuration={saveDurationOverride}
                       subSteps={getSubSteps(item.display_order)}
                       onSubStepToggle={toggleSubStepComplete}
                       onSubStepEdit={editSubStep}
@@ -478,6 +484,8 @@ const Discipline = () => {
                       onToggle={toggleRoutineCompletion}
                       getTime={getTime}
                       onSaveTime={saveTimeOverride}
+                      durationMinutes={getDuration(item.display_order, item.action_text)}
+                      onSaveDuration={saveDurationOverride}
                       subSteps={getSubSteps(item.display_order)}
                       onSubStepToggle={toggleSubStepComplete}
                       onSubStepEdit={editSubStep}

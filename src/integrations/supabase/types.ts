@@ -490,6 +490,41 @@ export type Database = {
         }
         Relationships: []
       }
+      day_completions: {
+        Row: {
+          completed_at: string
+          created_at: string
+          day_workout_id: string
+          id: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          day_workout_id: string
+          id?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          day_workout_id?: string
+          id?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "day_completions_day_workout_id_fkey"
+            columns: ["day_workout_id"]
+            isOneToOne: false
+            referencedRelation: "program_day_workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       direct_messages: {
         Row: {
           content: string
@@ -1945,6 +1980,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_routine_durations: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          id: string
+          routine_index: number
+          template_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          routine_index: number
+          template_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          routine_index?: number
+          template_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_routine_durations_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "discipline_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_routine_substeps: {
         Row: {

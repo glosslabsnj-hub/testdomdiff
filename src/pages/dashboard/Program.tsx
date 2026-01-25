@@ -16,7 +16,7 @@ import {
   Clock,
   CheckCircle2,
   Moon,
-  Check,
+  Lock,
   Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,12 +25,15 @@ import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useProgramWeeks, type ProgramWeek } from "@/hooks/useWorkoutContent";
 import { useProgramTracks } from "@/hooks/useProgramTracks";
-import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
+import { useDayCompletions } from "@/hooks/useDayCompletions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import ExerciseDetailDialog from "@/components/workout/ExerciseDetailDialog";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import jailSounds from "@/lib/sounds";
 
 interface ProgramDayWorkout {
   id: string;
@@ -64,6 +67,7 @@ const DAYS_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "sat
 const Program = () => {
   const { tracks, loading: tracksLoading, getTrackByGoal } = useProgramTracks();
   const { subscription, profile } = useAuth();
+  const { toast } = useToast();
   
   // Get user's track based on their goal
   const userTrack = useMemo(() => {
@@ -92,13 +96,13 @@ const Program = () => {
     }
   }, [currentWeek, expandedWeek]);
   
-  // Completion tracking
+  // Day-level completion tracking
   const { 
-    isExerciseCompleted, 
-    toggleExerciseCompletion, 
-    getWorkoutProgress,
+    isDayCompleted, 
+    toggleDayCompletion, 
+    getWeekProgress,
     loading: completionsLoading 
-  } = useWorkoutCompletions(currentWeek);
+  } = useDayCompletions(currentWeek);
 
   // Fetch all day workouts and exercises
   useEffect(() => {
@@ -181,58 +185,28 @@ const Program = () => {
       .sort((a, b) => DAYS_ORDER.indexOf(a.day_of_week) - DAYS_ORDER.indexOf(b.day_of_week));
   };
 
+  // View-only exercise row (no checkbox)
   const ExerciseRow = ({ 
     exercise, 
-    isMain = false, 
-    dayOfWeek, 
-    weekNumber 
+    isMain = false
   }: { 
     exercise: ProgramDayExercise; 
     isMain?: boolean; 
-    dayOfWeek: string;
-    weekNumber: number;
   }) => {
-    const completed = isExerciseCompleted(exercise.id);
-    const [toggling, setToggling] = useState(false);
-
-    const handleToggle = async () => {
-      setToggling(true);
-      await toggleExerciseCompletion(exercise.id, dayOfWeek, weekNumber);
-      setToggling(false);
-    };
-
     return (
       <div 
-        className={`flex items-start gap-3 p-3 rounded transition-all cursor-pointer group ${
-          completed 
-            ? 'bg-green-500/10 border border-green-500/30 hover:bg-green-500/15' 
-            : isMain ? 'bg-charcoal hover:bg-charcoal/80' : 'bg-charcoal/50 hover:bg-charcoal/70'
-        }`}
+        className={cn(
+          "flex items-start gap-3 p-3 rounded transition-all cursor-pointer group",
+          isMain ? "bg-charcoal hover:bg-charcoal/80" : "bg-charcoal/50 hover:bg-charcoal/70"
+        )}
         onClick={() => setSelectedExercise(exercise)}
       >
-        {/* Completion Checkbox */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleToggle();
-          }}
-          disabled={toggling}
-          className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-            completed 
-              ? 'bg-green-500 border-green-500 text-white' 
-              : 'border-muted-foreground/50 hover:border-primary'
-          }`}
-        >
-          {toggling ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : completed ? (
-            <Check className="w-3 h-3" />
-          ) : null}
-        </button>
-
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className={`font-medium ${completed ? 'text-green-400 line-through' : isMain ? 'text-foreground' : 'text-muted-foreground'}`}>
+            <p className={cn(
+              "font-medium",
+              isMain ? "text-foreground" : "text-muted-foreground"
+            )}>
               {exercise.exercise_name}
             </p>
             <Info className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -262,8 +236,10 @@ const Program = () => {
 
   const WorkoutCard = ({ workout, weekNumber }: { workout: ProgramDayWorkout; weekNumber: number }) => {
     const exercises = exercisesByDay[workout.id] || [];
-    // Use parent state instead of local state to prevent reset on re-render
     const isOpen = expandedWorkouts.has(workout.id);
+    const isCompleted = isDayCompleted(workout.id);
+    const [completing, setCompleting] = useState(false);
+    
     const setIsOpen = (open: boolean) => {
       setExpandedWorkouts(prev => {
         const next = new Set(prev);
@@ -276,17 +252,27 @@ const Program = () => {
       });
     };
 
+    const handleMarkComplete = async () => {
+      setCompleting(true);
+      const success = await toggleDayCompletion(workout.id, weekNumber);
+      if (success) {
+        if (!isCompleted) {
+          jailSounds.complete({ enabled: true });
+          toast({
+            title: "Day Served",
+            description: `${workout.workout_name} locked in.`,
+          });
+        }
+      }
+      setCompleting(false);
+    };
+
     const dayLabel = workout.day_of_week.charAt(0).toUpperCase() + workout.day_of_week.slice(1);
 
     const mainExercises = exercises.filter(e => e.section_type === "main");
     const warmupExercises = exercises.filter(e => e.section_type === "warmup");
     const finisherExercises = exercises.filter(e => e.section_type === "finisher");
     const cooldownExercises = exercises.filter(e => e.section_type === "cooldown");
-    
-    // Calculate workout completion progress
-    const exerciseIds = exercises.map(e => e.id);
-    const progress = getWorkoutProgress(workout.id, exerciseIds);
-    const isWorkoutComplete = progress === 100;
 
     if (workout.is_rest_day) {
       return (
@@ -308,35 +294,45 @@ const Program = () => {
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="w-full">
-          <div className={`flex items-center justify-between p-4 rounded-lg border transition-all group ${
-            isWorkoutComplete 
-              ? 'bg-green-500/10 border-green-500/30' 
-              : 'bg-charcoal border-border hover:border-primary/50'
-          }`}>
+          <div className={cn(
+            "flex items-center justify-between p-4 rounded-lg border transition-all group",
+            isCompleted 
+              ? "bg-destructive/10 border-destructive/30" 
+              : "bg-charcoal border-border hover:border-primary/50"
+          )}>
             <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                isWorkoutComplete ? 'bg-green-500/20' : 'bg-primary/10'
-              }`}>
-                {isWorkoutComplete ? (
-                  <CheckCircle2 className="w-6 h-6 text-green-500" />
+              <div className={cn(
+                "w-12 h-12 rounded-lg flex items-center justify-center",
+                isCompleted ? "bg-destructive/20" : "bg-primary/10"
+              )}>
+                {isCompleted ? (
+                  <Lock className="w-6 h-6 text-destructive" />
                 ) : (
                   <Dumbbell className="w-6 h-6 text-primary" />
                 )}
               </div>
               <div className="text-left">
-                <p className="text-xs text-primary uppercase tracking-wider font-medium">{dayLabel}</p>
-                <h4 className="font-display text-lg">{workout.workout_name}</h4>
+                <p className={cn(
+                  "text-xs uppercase tracking-wider font-medium",
+                  isCompleted ? "text-destructive" : "text-primary"
+                )}>{dayLabel}</p>
+                <h4 className={cn(
+                  "font-display text-lg",
+                  isCompleted && "line-through text-muted-foreground"
+                )}>{workout.workout_name}</h4>
                 {workout.workout_description && (
-                  <p className="text-sm text-muted-foreground">{workout.workout_description}</p>
+                  <p className={cn(
+                    "text-sm",
+                    isCompleted ? "text-muted-foreground/50" : "text-muted-foreground"
+                  )}>{workout.workout_description}</p>
                 )}
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {progress > 0 && progress < 100 && (
-                <div className="hidden sm:flex items-center gap-2">
-                  <Progress value={progress} className="w-16 h-2" />
-                  <span className="text-xs text-muted-foreground">{progress}%</span>
-                </div>
+              {isCompleted && (
+                <Badge className="bg-destructive/20 text-destructive border-destructive/30">
+                  SERVED
+                </Badge>
               )}
               <Badge variant="outline" className="text-xs">
                 {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
@@ -358,7 +354,7 @@ const Program = () => {
                 </h5>
                 <div className="space-y-2">
                   {warmupExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
+                    <ExerciseRow key={ex.id} exercise={ex} />
                   ))}
                 </div>
               </div>
@@ -371,7 +367,7 @@ const Program = () => {
                 </h5>
                 <div className="space-y-2">
                   {mainExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} isMain dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
+                    <ExerciseRow key={ex.id} exercise={ex} isMain />
                   ))}
                 </div>
               </div>
@@ -384,7 +380,7 @@ const Program = () => {
                 </h5>
                 <div className="space-y-2">
                   {finisherExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
+                    <ExerciseRow key={ex.id} exercise={ex} />
                   ))}
                 </div>
               </div>
@@ -397,7 +393,7 @@ const Program = () => {
                 </h5>
                 <div className="space-y-2">
                   {cooldownExercises.map((ex) => (
-                    <ExerciseRow key={ex.id} exercise={ex} dayOfWeek={workout.day_of_week} weekNumber={weekNumber} />
+                    <ExerciseRow key={ex.id} exercise={ex} />
                   ))}
                 </div>
               </div>
@@ -408,6 +404,28 @@ const Program = () => {
                 Exercises to be added by your coach
               </p>
             )}
+
+            {/* Day Completion Button */}
+            <div className="pt-4 border-t border-border">
+              <Button
+                onClick={handleMarkComplete}
+                disabled={completing}
+                variant={isCompleted ? "outline" : "gold"}
+                className={cn(
+                  "w-full gap-2",
+                  isCompleted && "border-destructive/30 text-destructive hover:bg-destructive/10"
+                )}
+              >
+                {completing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : isCompleted ? (
+                  <Lock className="w-4 h-4" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4" />
+                )}
+                {isCompleted ? "UNDO COMPLETION" : "MARK DAY COMPLETE"}
+              </Button>
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -418,19 +436,24 @@ const Program = () => {
     const phaseInfo = getPhaseInfo(week.phase);
     const isExpanded = expandedWeek === week.week_number;
     const isCurrentWeek = currentWeek === week.week_number;
-    const isCompleted = week.week_number < currentWeek;
+    const isWeekCompleted = week.week_number < currentWeek;
 
     const weekWorkouts = getWorkoutsForWeek(week.id);
     const workoutCount = weekWorkouts.filter(w => !w.is_rest_day).length;
+    
+    // Calculate day completion progress for this week
+    const completedDays = weekWorkouts.filter(w => !w.is_rest_day && isDayCompleted(w.id)).length;
+    const weekProgress = workoutCount > 0 ? Math.round((completedDays / workoutCount) * 100) : 0;
 
     return (
-      <div className={`rounded-xl border transition-all ${
+      <div className={cn(
+        "rounded-xl border transition-all",
         isCurrentWeek 
-          ? 'border-primary shadow-[0_0_30px_-10px_hsl(43_74%_49%_/_0.3)] bg-charcoal' 
-          : isCompleted 
-            ? 'border-green-500/30 bg-green-500/5'
-            : 'border-border bg-card hover:border-primary/30'
-      }`}>
+          ? "border-primary shadow-[0_0_30px_-10px_hsl(43_74%_49%_/_0.3)] bg-charcoal" 
+          : isWeekCompleted 
+            ? "border-destructive/30 bg-destructive/5"
+            : "border-border bg-card hover:border-primary/30"
+      )}>
         {/* Week Header */}
         <button
           onClick={() => setExpandedWeek(isExpanded ? null : week.week_number)}
@@ -439,15 +462,16 @@ const Program = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
               {/* Week Number Circle */}
-              <div className={`relative w-14 h-14 rounded-full flex items-center justify-center font-display text-xl ${
+              <div className={cn(
+                "relative w-14 h-14 rounded-full flex items-center justify-center font-display text-xl",
                 isCurrentWeek 
-                  ? 'bg-primary text-primary-foreground' 
-                  : isCompleted
-                    ? 'bg-green-500/20 text-green-400 border-2 border-green-500'
+                  ? "bg-primary text-primary-foreground" 
+                  : isWeekCompleted
+                    ? "bg-destructive/20 text-destructive border-2 border-destructive"
                     : `${phaseInfo.bgColor} ${phaseInfo.textColor} border-2 ${phaseInfo.borderColor}`
-              }`}>
-                {isCompleted ? (
-                  <CheckCircle2 className="w-6 h-6" />
+              )}>
+                {isWeekCompleted ? (
+                  <Lock className="w-6 h-6" />
                 ) : (
                   week.week_number
                 )}
@@ -467,13 +491,21 @@ const Program = () => {
                       Current Week
                     </Badge>
                   )}
+                  {isWeekCompleted && (
+                    <Badge className="bg-destructive/20 text-destructive border-destructive/30 text-xs">
+                      Served
+                    </Badge>
+                  )}
                   {week.video_url && (
                     <Badge variant="outline" className="text-xs">
                       <PlayCircle className="w-3 h-3 mr-1" /> Video
                     </Badge>
                   )}
                 </div>
-                <h3 className="font-display text-xl">
+                <h3 className={cn(
+                  "font-display text-xl",
+                  isWeekCompleted && "text-muted-foreground"
+                )}>
                   Week {week.week_number}: {week.title || `${phaseInfo.name} Training`}
                 </h3>
                 {week.focus_description && (
@@ -487,6 +519,9 @@ const Program = () => {
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-sm text-muted-foreground">{workoutCount} workout{workoutCount !== 1 ? 's' : ''}</p>
+                {isCurrentWeek && weekProgress > 0 && (
+                  <p className="text-xs text-primary">{completedDays}/{workoutCount} days</p>
+                )}
               </div>
               {isExpanded ? (
                 <ChevronDown className="w-5 h-5 text-primary" />
@@ -640,25 +675,32 @@ const Program = () => {
                   const firstWeekOfPhase = phaseWeeks[0];
                   if (firstWeekOfPhase) setExpandedWeek(firstWeekOfPhase.week_number);
                 }}
-                className={`p-5 rounded-xl border transition-all text-left ${
+                className={cn(
+                  "p-5 rounded-xl border transition-all text-left",
                   isActive 
                     ? `${phase.bgColor} ${phase.borderColor} border-2` 
                     : isComplete
-                      ? 'bg-green-500/5 border-green-500/30'
-                      : 'bg-charcoal border-border hover:border-primary/30'
-                }`}
+                      ? "bg-destructive/5 border-destructive/30"
+                      : "bg-charcoal border-border hover:border-primary/30"
+                )}
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <phase.icon className={`w-6 h-6 ${isComplete ? 'text-green-400' : phase.textColor}`} />
+                  <phase.icon className={cn(
+                    "w-6 h-6",
+                    isComplete ? "text-destructive" : phase.textColor
+                  )} />
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">
                       Weeks {phase.weeks}
                     </p>
-                    <h3 className={`font-display text-lg ${isActive ? phase.textColor : ''}`}>
+                    <h3 className={cn(
+                      "font-display text-lg",
+                      isActive ? phase.textColor : ""
+                    )}>
                       {phase.name} Phase
                     </h3>
                   </div>
-                  {isComplete && <CheckCircle2 className="w-5 h-5 text-green-400 ml-auto" />}
+                  {isComplete && <Lock className="w-5 h-5 text-destructive ml-auto" />}
                 </div>
               </button>
             );
