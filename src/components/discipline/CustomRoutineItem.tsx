@@ -105,15 +105,20 @@ export default function CustomRoutineItem({
         </div>
       </div>
 
-      {/* Toggle button */}
+      {/* Toggle button with accessible touch target */}
       <button
         onClick={onToggle}
-        className={cn(
-          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
-          completed ? "bg-primary border-primary" : "border-muted-foreground/50 hover:border-primary"
-        )}
+        className="min-w-[44px] min-h-[44px] flex items-center justify-center -m-2 flex-shrink-0"
+        aria-label={completed ? "Mark task incomplete" : "Mark task complete"}
       >
-        {completed && <Check className="w-4 h-4 text-primary-foreground" />}
+        <div
+          className={cn(
+            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+            completed ? "bg-primary border-primary" : "border-muted-foreground/50 hover:border-primary"
+          )}
+        >
+          {completed && <Check className="w-4 h-4 text-primary-foreground" />}
+        </div>
       </button>
 
       {/* Content */}
@@ -149,16 +154,16 @@ export default function CustomRoutineItem({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setEditing(true)}
-            className="p-1.5 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
-            title="Edit"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -m-2 rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Edit task"
           >
             <Edit2 className="w-4 h-4" />
           </button>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-            title="Delete"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -m-2 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+            aria-label="Delete task"
           >
             {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
           </button>

@@ -13,6 +13,34 @@ import { useToast } from "@/hooks/use-toast";
 import { useProgressPhotos } from "@/hooks/useProgressPhotos";
 import { cn } from "@/lib/utils";
 import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
+import { z } from "zod";
+
+// Validation schemas for each step
+const step1Schema = z.object({
+  firstName: z.string().min(1, "First name is required").max(50, "First name must be less than 50 characters"),
+  lastName: z.string().min(1, "Last name is required").max(50, "Last name must be less than 50 characters"),
+  phone: z.string().min(7, "Please enter a valid phone number").max(20, "Phone number is too long"),
+  age: z.string().refine(val => {
+    const num = parseInt(val);
+    return !isNaN(num) && num >= 13 && num <= 120;
+  }, "Please enter a valid age (13-120)"),
+  height: z.string().min(1, "Height is required"),
+  weight: z.string().refine(val => {
+    const num = parseFloat(val);
+    return !isNaN(num) && num > 0 && num < 1000;
+  }, "Please enter a valid weight"),
+});
+
+const step2Schema = z.object({
+  goal: z.string().min(1, "Please select a goal"),
+  experience: z.string().min(1, "Please select your experience level"),
+});
+
+const step3Schema = z.object({
+  faithCommitment: z.literal(true, {
+    errorMap: () => ({ message: "Please acknowledge the faith commitment to continue" }),
+  }),
+});
 
 const Intake = () => {
   const navigate = useNavigate();
@@ -22,6 +50,7 @@ const Intake = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [skippedPhotos, setSkippedPhotos] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const totalSteps = 4;
   const isCoaching = subscription?.plan_type === "coaching";
   const [formData, setFormData] = useState({
@@ -59,6 +88,13 @@ const Intake = () => {
 
   const updateForm = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when field is edited
+    if (errors[field]) {
+      setErrors((prev) => {
+        const { [field]: _, ...rest } = prev;
+        return rest;
+      });
+    }
   };
 
   const getTierName = () => {
@@ -198,26 +234,40 @@ const Intake = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
+                <Label htmlFor="firstName" className="text-sm font-medium">First Name <span className="text-destructive">*</span></Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
                   onChange={(e) => updateForm("firstName", e.target.value)}
-                  className="h-12 bg-background border-border focus:border-primary"
+                  className={cn(
+                    "h-12 bg-background border-border focus:border-primary",
+                    errors.firstName && "border-destructive focus:border-destructive"
+                  )}
                   placeholder="John"
-                  required
+                  aria-invalid={!!errors.firstName}
+                  aria-describedby={errors.firstName ? "firstName-error" : undefined}
                 />
+                {errors.firstName && (
+                  <p id="firstName-error" className="text-sm text-destructive">{errors.firstName}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+                <Label htmlFor="lastName" className="text-sm font-medium">Last Name <span className="text-destructive">*</span></Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) => updateForm("lastName", e.target.value)}
-                  className="h-12 bg-background border-border focus:border-primary"
+                  className={cn(
+                    "h-12 bg-background border-border focus:border-primary",
+                    errors.lastName && "border-destructive focus:border-destructive"
+                  )}
                   placeholder="Doe"
-                  required
+                  aria-invalid={!!errors.lastName}
+                  aria-describedby={errors.lastName ? "lastName-error" : undefined}
                 />
+                {errors.lastName && (
+                  <p id="lastName-error" className="text-sm text-destructive">{errors.lastName}</p>
+                )}
               </div>
             </div>
 
@@ -235,53 +285,81 @@ const Intake = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
+              <Label htmlFor="phone" className="text-sm font-medium">Phone <span className="text-destructive">*</span></Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => updateForm("phone", e.target.value)}
-                className="h-12 bg-background border-border focus:border-primary"
+                className={cn(
+                  "h-12 bg-background border-border focus:border-primary",
+                  errors.phone && "border-destructive focus:border-destructive"
+                )}
                 placeholder="(555) 123-4567"
-                required
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
               />
+              {errors.phone && (
+                <p id="phone-error" className="text-sm text-destructive">{errors.phone}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="age" className="text-sm font-medium">Age</Label>
+                <Label htmlFor="age" className="text-sm font-medium">Age <span className="text-destructive">*</span></Label>
                 <Input
                   id="age"
                   type="number"
                   value={formData.age}
                   onChange={(e) => updateForm("age", e.target.value)}
-                  className="h-12 bg-background border-border focus:border-primary"
+                  className={cn(
+                    "h-12 bg-background border-border focus:border-primary",
+                    errors.age && "border-destructive focus:border-destructive"
+                  )}
                   placeholder="30"
-                  required
+                  aria-invalid={!!errors.age}
+                  aria-describedby={errors.age ? "age-error" : undefined}
                 />
+                {errors.age && (
+                  <p id="age-error" className="text-sm text-destructive">{errors.age}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="height" className="text-sm font-medium">Height</Label>
+                <Label htmlFor="height" className="text-sm font-medium">Height <span className="text-destructive">*</span></Label>
                 <Input
                   id="height"
                   placeholder="5'10"
                   value={formData.height}
                   onChange={(e) => updateForm("height", e.target.value)}
-                  className="h-12 bg-background border-border focus:border-primary"
-                  required
+                  className={cn(
+                    "h-12 bg-background border-border focus:border-primary",
+                    errors.height && "border-destructive focus:border-destructive"
+                  )}
+                  aria-invalid={!!errors.height}
+                  aria-describedby={errors.height ? "height-error" : undefined}
                 />
+                {errors.height && (
+                  <p id="height-error" className="text-sm text-destructive">{errors.height}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="weight" className="text-sm font-medium">Weight</Label>
+                <Label htmlFor="weight" className="text-sm font-medium">Weight <span className="text-destructive">*</span></Label>
                 <Input
                   id="weight"
                   type="number"
                   value={formData.weight}
                   onChange={(e) => updateForm("weight", e.target.value)}
-                  className="h-12 bg-background border-border focus:border-primary"
+                  className={cn(
+                    "h-12 bg-background border-border focus:border-primary",
+                    errors.weight && "border-destructive focus:border-destructive"
+                  )}
                   placeholder="180"
-                  required
+                  aria-invalid={!!errors.weight}
+                  aria-describedby={errors.weight ? "weight-error" : undefined}
                 />
+                {errors.weight && (
+                  <p id="weight-error" className="text-sm text-destructive">{errors.weight}</p>
+                )}
               </div>
             </div>
           </div>
@@ -394,18 +472,26 @@ const Intake = () => {
                 "I can do all things through Christ who strengthens me." — Philippians 4:13
               </blockquote>
 
-              <div className="flex items-start gap-4 p-4 rounded-lg bg-background/50">
+              <div className={cn(
+                "flex items-start gap-4 p-4 rounded-lg bg-background/50",
+                errors.faithCommitment && "ring-2 ring-destructive"
+              )}>
                 <Checkbox
                   id="faithCommitment"
                   checked={formData.faithCommitment}
                   onCheckedChange={(checked) => updateForm("faithCommitment", checked as boolean)}
-                  className="mt-1"
+                  className="mt-1 min-w-[20px] min-h-[20px]"
+                  aria-invalid={!!errors.faithCommitment}
+                  aria-describedby={errors.faithCommitment ? "faithCommitment-error" : undefined}
                 />
                 <Label htmlFor="faithCommitment" className="cursor-pointer leading-relaxed font-medium">
                   I understand and embrace that faith is the foundation of this program. 
                   I'm ready to integrate spiritual disciplines alongside physical training.
                 </Label>
               </div>
+              {errors.faithCommitment && (
+                <p id="faithCommitment-error" className="text-sm text-destructive mt-2">{errors.faithCommitment}</p>
+              )}
             </div>
 
             {formData.faithCommitment && (
@@ -478,6 +564,57 @@ const Intake = () => {
     }
   };
 
+  const validateStep = (stepNum: number): boolean => {
+    setErrors({});
+    
+    try {
+      switch (stepNum) {
+        case 1:
+          step1Schema.parse({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.phone,
+            age: formData.age,
+            height: formData.height,
+            weight: formData.weight,
+          });
+          return true;
+        case 2:
+          step2Schema.parse({
+            goal: formData.goal,
+            experience: formData.experience,
+          });
+          return true;
+        case 3:
+          step3Schema.parse({
+            faithCommitment: formData.faithCommitment,
+          });
+          return true;
+        case 4:
+          return true;
+        default:
+          return false;
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        
+        toast({
+          title: "Please fix the errors",
+          description: "Some required fields need attention",
+          variant: "destructive",
+        });
+      }
+      return false;
+    }
+  };
+
   const canProceed = () => {
     switch (step) {
       case 1:
@@ -491,6 +628,12 @@ const Intake = () => {
         return true;
       default:
         return false;
+    }
+  };
+
+  const handleNextStep = () => {
+    if (validateStep(step)) {
+      setStep(step + 1);
     }
   };
 
@@ -601,7 +744,7 @@ const Intake = () => {
                     )}
                     <Button
                       variant="gold"
-                      onClick={() => setStep((s) => Math.min(totalSteps, s + 1))}
+                      onClick={handleNextStep}
                       disabled={!canProceed()}
                       className="gap-2"
                     >

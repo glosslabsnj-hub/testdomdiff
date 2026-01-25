@@ -18,6 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFaithLessons } from "@/hooks/useFaithLessons";
+import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
@@ -36,6 +37,7 @@ const Faith = () => {
   const { subscription, isMembership } = useEffectiveSubscription();
   const { toast } = useToast();
   const tts = useTTS();
+  const { streak } = useDailyDiscipline();
   
   // Calculate current week from subscription start date
   const calculatedWeek = useMemo(() => {
@@ -49,7 +51,6 @@ const Faith = () => {
   const [completedActions, setCompletedActions] = useState<string[]>([]);
   const [memorizedScriptures, setMemorizedScriptures] = useState<number[]>([]);
   const [reflectionAnswers, setReflectionAnswers] = useState<Record<string, string>>({});
-  const [streak, setStreak] = useState(7); // Mock streak data
   
   // Initialize current week when calculated
   useEffect(() => {
