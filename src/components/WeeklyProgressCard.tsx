@@ -15,6 +15,7 @@ import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useProgressEntries } from "@/hooks/useProgressEntries";
 import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
+import CountingNumber from "@/components/CountingNumber";
 
 export function WeeklyProgressCard() {
   const { subscription, profile } = useAuth();
@@ -101,7 +102,9 @@ export function WeeklyProgressCard() {
               <Dumbbell className="w-4 h-4 text-primary" />
             </div>
           </div>
-          <p className="text-2xl font-display text-foreground">{workoutsThisWeek}/6</p>
+          <p className="text-2xl font-display text-foreground">
+            <CountingNumber value={workoutsThisWeek} />/6
+          </p>
           <p className="text-xs text-muted-foreground">Workouts</p>
           <Progress value={Math.min(100, (workoutsThisWeek / 6) * 100)} className="h-1 mt-2" />
         </div>
@@ -109,11 +112,13 @@ export function WeeklyProgressCard() {
         {/* Discipline Compliance */}
         <div className="bg-charcoal rounded-lg p-3 border border-border">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-              <Check className="w-4 h-4 text-green-400" />
+            <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center">
+              <Check className="w-4 h-4 text-success" />
             </div>
           </div>
-          <p className="text-2xl font-display text-foreground">{compliance.percent}%</p>
+          <p className="text-2xl font-display text-foreground">
+            <CountingNumber value={compliance.percent} />%
+          </p>
           <p className="text-xs text-muted-foreground">Today's Tasks</p>
           <Progress value={compliance.percent} className="h-1 mt-2" />
         </div>
@@ -123,23 +128,26 @@ export function WeeklyProgressCard() {
           <div className="flex items-center gap-2 mb-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
               !weightTrend ? "bg-muted" : 
-              weightTrend.direction === "down" ? "bg-green-500/20" : 
-              weightTrend.direction === "up" ? "bg-amber-500/20" : 
+              weightTrend.direction === "down" ? "bg-success/20" : 
+              weightTrend.direction === "up" ? "bg-warning/20" : 
               "bg-muted"
             }`}>
               {!weightTrend || weightTrend.direction === "stable" ? (
                 <Minus className="w-4 h-4 text-muted-foreground" />
               ) : weightTrend.direction === "down" ? (
-                <TrendingDown className="w-4 h-4 text-green-400" />
+                <TrendingDown className="w-4 h-4 text-success" />
               ) : (
-                <TrendingUp className="w-4 h-4 text-amber-400" />
+                <TrendingUp className="w-4 h-4 text-warning" />
               )}
             </div>
           </div>
           <p className="text-2xl font-display text-foreground">
             {weightTrend ? (
               weightTrend.direction === "stable" ? "Stable" : 
-              `${weightTrend.direction === "down" ? "-" : "+"}${weightTrend.value.toFixed(1)}`
+              <>
+                {weightTrend.direction === "down" ? "-" : "+"}
+                <CountingNumber value={weightTrend.value} decimals={1} />
+              </>
             ) : "--"}
           </p>
           <p className="text-xs text-muted-foreground">Weight Trend</p>
@@ -154,7 +162,9 @@ export function WeeklyProgressCard() {
               <Flame className={`w-4 h-4 ${streak > 0 ? "text-primary animate-flame" : "text-muted-foreground"}`} />
             </div>
           </div>
-          <p className="text-2xl font-display text-foreground">{streak}</p>
+          <p className="text-2xl font-display text-foreground">
+            <CountingNumber value={streak} />
+          </p>
           <p className="text-xs text-muted-foreground">Day Streak</p>
         </div>
       </div>
