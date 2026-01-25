@@ -11,7 +11,7 @@ import {
   Scale
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useProgressEntries } from "@/hooks/useProgressEntries";
 import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
@@ -19,7 +19,7 @@ import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import CountingNumber from "@/components/CountingNumber";
 
 export function WeeklyProgressCard() {
-  const { subscription, profile } = useAuth();
+  const { subscription, isCoaching, isMembership, isTransformation } = useEffectiveSubscription();
   const { streak, getTodayCompliance, loading: disciplineLoading } = useDailyDiscipline();
   const { entries, loading: progressLoading } = useProgressEntries();
   
@@ -31,10 +31,6 @@ export function WeeklyProgressCard() {
   
   const { completions, loading: workoutsLoading } = useWorkoutCompletions(currentWeek);
   
-  const planType = subscription?.plan_type;
-  const isCoaching = planType === "coaching";
-  const isMembership = planType === "membership";
-  const isTransformation = planType === "transformation";
   const compliance = getTodayCompliance();
   
   // Get tier-specific workout label

@@ -121,18 +121,13 @@ const DashboardHeader = () => {
                     <div className="flex items-center">
                       <Eye className={`w-4 h-4 mr-2 ${isPreviewMode ? 'text-primary' : 'text-muted-foreground'}`} />
                       <Select
-                        value={previewTier || "real"}
-                        onValueChange={(value) => setPreviewTier(value === "real" ? null : value as "membership" | "transformation" | "coaching")}
+                        value={previewTier || "coaching"}
+                        onValueChange={(value) => setPreviewTier(value as "membership" | "transformation" | "coaching")}
                       >
                         <SelectTrigger className="w-[140px] h-8 text-xs bg-muted/30 border-border">
                           <SelectValue placeholder="Preview as..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="real">
-                            <span className="flex items-center gap-2">
-                              ↩️ Real Account
-                            </span>
-                          </SelectItem>
                           <SelectItem value="coaching">
                             <span className="flex items-center gap-2">
                               <Crown className="w-3 h-3 text-primary" />

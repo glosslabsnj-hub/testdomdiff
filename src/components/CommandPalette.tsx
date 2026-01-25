@@ -21,7 +21,7 @@ export function CommandPalette() {
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput
-        placeholder="Where do you want to go?"
+        placeholder="Search navigation..."
         value={search}
         onValueChange={setSearch}
       />

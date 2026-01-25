@@ -2,7 +2,7 @@ import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown, Volume2, Volum
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWarden } from "@/hooks/useWarden";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useRef, useCallback, useEffect } from "react";
@@ -42,7 +42,7 @@ function getTierLabels(planType: string) {
 
 export function WardenBrief() {
   const { weeklyBrief, briefLoading, briefError, refreshBrief } = useWarden();
-  const { subscription } = useAuth();
+  const { subscription } = useEffectiveSubscription();
   const planType = subscription?.plan_type || "membership";
   const labels = getTierLabels(planType);
   const TitleIcon = labels.Icon;

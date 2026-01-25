@@ -34,7 +34,8 @@ export function AdminPreviewProvider({ children }: { children: ReactNode }) {
     if (stored && ["membership", "transformation", "coaching"].includes(stored)) {
       return stored as PlanType;
     }
-    return null;
+    // Default to coaching (Free World) if no stored preference
+    return "coaching";
   });
 
   // Persist preview tier to localStorage
