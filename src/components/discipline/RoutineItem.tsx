@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import RoutineTimeEditor from "./RoutineTimeEditor";
+import RoutineDurationEditor from "./RoutineDurationEditor";
 import SubStepsList from "./SubStepsList";
 import { SubStep } from "@/hooks/useRoutineSubSteps";
 import jailSounds from "@/lib/sounds";
@@ -19,6 +20,9 @@ interface RoutineItemProps {
   onToggle: (id: string) => void;
   getTime: (displayOrder: number, defaultTime: string) => string;
   onSaveTime: (displayOrder: number, newTime: string) => Promise<void>;
+  // Duration props
+  durationMinutes: number;
+  onSaveDuration: (displayOrder: number, durationMinutes: number) => Promise<void>;
   // Sub-steps props
   subSteps?: SubStep[];
   onSubStepToggle?: (subStepId: string, isUserCreated: boolean) => void;
@@ -40,6 +44,8 @@ export default function RoutineItem({
   onToggle,
   getTime,
   onSaveTime,
+  durationMinutes,
+  onSaveDuration,
   subSteps = [],
   onSubStepToggle,
   onSubStepEdit,
@@ -115,10 +121,16 @@ export default function RoutineItem({
                 )}>
                   {actionText}
                 </p>
-                <RoutineTimeEditor
-                  currentTime={getTime(displayOrder, timeSlot)}
-                  onSave={(newTime) => onSaveTime(displayOrder, newTime)}
-                />
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <RoutineTimeEditor
+                    currentTime={getTime(displayOrder, timeSlot)}
+                    onSave={(newTime) => onSaveTime(displayOrder, newTime)}
+                  />
+                  <RoutineDurationEditor
+                    currentDuration={durationMinutes}
+                    onSave={(mins) => onSaveDuration(displayOrder, mins)}
+                  />
+                </div>
               </div>
               {isExpandable && (
                 <ChevronDown 
