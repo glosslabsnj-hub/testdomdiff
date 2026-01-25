@@ -29,6 +29,7 @@ const CONTENT_SECTIONS: ContentSection[] = [
   { id: "discipline", label: "Discipline Routines", icon: Clock, group: "lifestyle" },
   { id: "skills", label: "Skill Lessons", icon: Briefcase, group: "growth" },
   { id: "welcome-videos", label: "Welcome Videos", icon: Video, group: "growth" },
+  { id: "tier-onboarding", label: "Tier Walkthroughs", icon: Video, group: "growth" },
 ];
 
 const GROUP_LABELS: Record<string, { label: string; color: string }> = {

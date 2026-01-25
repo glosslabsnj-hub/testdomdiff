@@ -1228,8 +1228,12 @@ export type Database = {
           onboarding_video_watched: boolean | null
           orientation_dismissed: boolean | null
           phone: string | null
+          setup_wizard_completed: boolean | null
+          setup_wizard_step: number | null
+          sleep_time: string | null
           updated_at: string
           user_id: string
+          wake_time: string | null
           weight: string | null
         }
         Insert: {
@@ -1253,8 +1257,12 @@ export type Database = {
           onboarding_video_watched?: boolean | null
           orientation_dismissed?: boolean | null
           phone?: string | null
+          setup_wizard_completed?: boolean | null
+          setup_wizard_step?: number | null
+          sleep_time?: string | null
           updated_at?: string
           user_id: string
+          wake_time?: string | null
           weight?: string | null
         }
         Update: {
@@ -1278,8 +1286,12 @@ export type Database = {
           onboarding_video_watched?: boolean | null
           orientation_dismissed?: boolean | null
           phone?: string | null
+          setup_wizard_completed?: boolean | null
+          setup_wizard_step?: number | null
+          sleep_time?: string | null
           updated_at?: string
           user_id?: string
+          wake_time?: string | null
           weight?: string | null
         }
         Relationships: [
@@ -1885,6 +1897,57 @@ export type Database = {
           stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      tier_onboarding_videos: {
+        Row: {
+          audio_url: string | null
+          caption_lines: Json | null
+          captions_srt_url: string | null
+          created_at: string
+          duration_seconds: number | null
+          error: string | null
+          id: string
+          script_text: string | null
+          status: string
+          thumbnail_url: string | null
+          tier_config_version: number
+          tier_key: string
+          updated_at: string
+          voice_id: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          caption_lines?: Json | null
+          captions_srt_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error?: string | null
+          id?: string
+          script_text?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          tier_config_version?: number
+          tier_key: string
+          updated_at?: string
+          voice_id?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          caption_lines?: Json | null
+          captions_srt_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error?: string | null
+          id?: string
+          script_text?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          tier_config_version?: number
+          tier_key?: string
+          updated_at?: string
+          voice_id?: string | null
         }
         Relationships: []
       }
