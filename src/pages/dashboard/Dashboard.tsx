@@ -76,6 +76,56 @@ const lockedBenefits: Record<string, string> = {
   "The Yard (Community)": "Connect with your brothers on this journey",
 };
 
+// Week-specific greeting messages for inmates
+function getWeekSpecificGreeting(week: number): string {
+  if (week === 1) return "Welcome to the block.";
+  if (week === 12) return "Final week. Finish strong.";
+  return `Week ${week} of your sentence.`;
+}
+
+// Week-specific body message
+function getWeekSpecificMessage(week: number, isCoaching: boolean, isMembership: boolean): React.ReactNode {
+  if (isCoaching) {
+    return (
+      <>
+        Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Orientation</Link> to get set up, 
+        then head to <Link to="/dashboard/program" className="text-primary hover:underline font-medium">your custom workout plan</Link> to see your personalized programming.
+      </>
+    );
+  }
+  
+  if (isMembership) {
+    return (
+      <>
+        Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Intake Processing</Link> to get oriented, 
+        then head to <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">Yard Time</Link> to start your first workout.
+      </>
+    );
+  }
+  
+  // Gen Pop / Transformation
+  if (week === 1) {
+    return (
+      <>
+        Complete your <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Intake Processing</Link>, 
+        then start <Link to="/dashboard/program" className="text-primary hover:underline font-medium">The Sentence</Link> to begin your 12-week transformation.
+      </>
+    );
+  }
+  if (week === 12) {
+    return (
+      <>
+        This is it. <Link to="/dashboard/program" className="text-primary hover:underline font-medium">Finish The Sentence</Link> and complete your transformation.
+      </>
+    );
+  }
+  return (
+    <>
+      Week {week} is waiting. Continue <Link to="/dashboard/program" className="text-primary hover:underline font-medium">The Sentence</Link> and keep building momentum.
+    </>
+  );
+}
+
 const Dashboard = () => {
   const { profile } = useAuth();
   const { subscription, isCoaching, isTransformation, isMembership } = useEffectiveSubscription();
@@ -83,6 +133,17 @@ const Dashboard = () => {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+
+  // Calculate current week based on subscription start date
+  const currentWeek = (() => {
+    if (subscription?.started_at) {
+      const startDate = new Date(subscription.started_at);
+      const now = new Date();
+      const diffDays = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      return Math.min(12, Math.max(1, Math.floor(diffDays / 7) + 1));
+    }
+    return 1;
+  })();
 
   // Show welcome banner for new users (within 7 days of intake)
   useEffect(() => {
@@ -361,15 +422,10 @@ const Dashboard = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-1">
-                  {isCoaching ? "Welcome aboard." : "Welcome to the block."}
+                  {isCoaching ? "Welcome aboard." : getWeekSpecificGreeting(currentWeek)}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">
-                    {isCoaching ? "Orientation" : "Intake Processing"}
-                  </Link> to get {isCoaching ? "set up" : "oriented"}, 
-                  then head to <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"} className="text-primary hover:underline font-medium">
-                    {isCoaching ? "your custom workout plan" : (isMembership ? "Yard Time" : "The Sentence")}
-                  </Link> to {isCoaching ? "see your personalized programming" : (isMembership ? "start your first workout" : "begin your 12-week journey")}.
+                  {getWeekSpecificMessage(currentWeek, isCoaching, isMembership)}
                 </p>
               </div>
             </div>

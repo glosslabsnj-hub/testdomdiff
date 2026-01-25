@@ -65,8 +65,16 @@ function sanitizeMessageForTier(message: string, planType: string): string {
   let sanitized = message;
 
   if (planType === "transformation") {
-    // Gen Pop: Replace "yard time" with "The Sentence"
-    sanitized = sanitized.replace(/yard time/gi, "The Sentence");
+    // Gen Pop: Aggressive replacement of ANY workout-related terms with "The Sentence"
+    // Replace any variations of "yard time" 
+    sanitized = sanitized.replace(/yard\s*time/gi, "The Sentence");
+    sanitized = sanitized.replace(/yardtime/gi, "The Sentence");
+    
+    // Replace generic "workout" or "workouts" with "The Sentence"
+    sanitized = sanitized.replace(/your\s+workouts?/gi, "The Sentence");
+    sanitized = sanitized.replace(/the\s+workouts?/gi, "The Sentence");
+    sanitized = sanitized.replace(/for\s+workouts?/gi, "for The Sentence");
+    sanitized = sanitized.replace(/to\s+workouts?/gi, "to The Sentence");
     
     // Replace markdown links pointing to workouts with program links
     sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[The Sentence](/dashboard/program)");
@@ -75,9 +83,16 @@ function sanitizeMessageForTier(message: string, planType: string): string {
     // Replace standalone paths (with or without leading slash)
     sanitized = sanitized.replace(/\/dashboard\/workouts/g, "/dashboard/program");
     sanitized = sanitized.replace(/dashboard\/workouts/g, "/dashboard/program");
+    
+    // Ensure proper markdown link formatting for The Sentence
+    if (!sanitized.includes("[The Sentence]") && sanitized.includes("The Sentence")) {
+      sanitized = sanitized.replace(/The Sentence(?!\])/g, "[The Sentence](/dashboard/program)");
+      // Clean up any double-linking
+      sanitized = sanitized.replace(/\[The Sentence\]\(\/dashboard\/program\)\]\(\/dashboard\/program\)/g, "[The Sentence](/dashboard/program)");
+    }
   } else if (planType === "coaching") {
     // Coaching: Replace prison terminology with professional terms
-    sanitized = sanitized.replace(/yard time/gi, "your training sessions");
+    sanitized = sanitized.replace(/yard\s*time/gi, "your training sessions");
     sanitized = sanitized.replace(/the yard/gi, "The Network");
     sanitized = sanitized.replace(/warden/gi, "P.O.");
     sanitized = sanitized.replace(/inmate/gi, "client");
@@ -93,6 +108,21 @@ function sanitizeMessageForTier(message: string, planType: string): string {
   // Solitary (membership) keeps "yard time" - no changes needed
 
   return sanitized;
+}
+
+// Get week-aware action phrase for Gen Pop
+function getWeekActionPhrase(week: number, compliancePercent: number): string {
+  if (compliancePercent < 50) {
+    // Low compliance - stricter tone
+    if (week === 1) return "You're falling behind on Day One. Get to The Sentence.";
+    if (week === 12) return "Final week. No excuses. Finish The Sentence.";
+    return `Week ${week}. You're slipping. Get back to The Sentence.`;
+  }
+  
+  // Normal/high compliance
+  if (week === 1) return "Start The Sentence today.";
+  if (week === 12) return "Final week. Finish The Sentence strong.";
+  return `Continue The Sentence. Week ${week} is waiting.`;
 }
 
 function buildSystemPrompt(planType: string): string {
@@ -210,6 +240,18 @@ async function generateWardenBrief(context: UserContext): Promise<{
 }> {
   const terms = getTierTerms(context.planType);
   
+  // Get week-aware action phrase for Gen Pop users
+  const weekAction = context.planType === "transformation" 
+    ? getWeekActionPhrase(context.currentWeek, context.compliancePercent)
+    : null;
+  
+  // Determine compliance tone
+  const complianceTone = context.compliancePercent < 50 
+    ? "STRICT - Call out their lack of commitment directly. They're falling behind and need to hear it."
+    : context.compliancePercent >= 80 
+      ? "ENCOURAGING - Acknowledge their discipline but push for more."
+      : "DIRECT - Standard coaching tone, balanced challenge.";
+  
   const contextPrompt = `
 USER CONTEXT:
 - Name: ${context.firstName || "Brother"}
@@ -224,20 +266,24 @@ USER CONTEXT:
 - Recent Struggles: ${context.recentStruggles || "None reported"}
 - Recent Wins: ${context.recentWins || "None reported"}
 
+TONE INSTRUCTION: ${complianceTone}
+
+${weekAction ? `REQUIRED ACTION PHRASE: Your message MUST include this exact call-to-action: "${weekAction}"` : ""}
+
 Generate a weekly brief for this user. The brief should:
 1. Be 2-4 sentences max
 2. Reference their specific data (compliance, week, struggles, wins)
 3. Include ONE relevant scripture reference if it fits naturally (provide the reference and the verse text)
 4. Identify the main focus area: discipline, workouts, nutrition, faith, or general
 5. End with a clear direction or mindset shift
-6. When mentioning workouts, you MUST use the exact phrase "${terms.workouts}" - do NOT substitute other terms
-7. Link to workouts using: [${terms.workouts}](${terms.primaryWorkoutPath})
+6. ${context.planType === "transformation" ? `CRITICAL: ALWAYS use "[The Sentence](/dashboard/program)" when referring to their workout program. NEVER use "yard time", "workout", "workouts", or "/dashboard/workouts".` : `When mentioning workouts, use the exact phrase "${terms.workouts}"`}
+7. ${weekAction ? `Include this action phrase: "${weekAction}"` : `Link to workouts using: [${terms.workouts}](${terms.primaryWorkoutPath})`}
 
-${terms.forbiddenTerms.length > 0 ? `FORBIDDEN TERMS - DO NOT USE: ${terms.forbiddenTerms.join(', ')}` : ''}
+${terms.forbiddenTerms.length > 0 ? `ABSOLUTELY FORBIDDEN TERMS - NEVER USE THESE: ${terms.forbiddenTerms.join(', ')}` : ''}
 
 Respond in this exact JSON format:
 {
-  "message": "Your personalized message here with [${terms.workouts}](${terms.primaryWorkoutPath}) link",
+  "message": "Your personalized message here with [The Sentence](/dashboard/program) link",
   "scriptureReference": "Book Chapter:Verse" or null,
   "scriptureText": "The verse text" or null,
   "focusArea": "discipline|workouts|nutrition|faith|general"
