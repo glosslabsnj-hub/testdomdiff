@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Dumbbell, Clock, TrendingUp, Shield } from "lucide-react";
+import { Home, Dumbbell, Clock, TrendingUp, Shield, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,13 +9,34 @@ export function MobileBottomNav() {
   const isMobile = useIsMobile();
   const { subscription } = useAuth();
   
-  const isCoaching = subscription?.plan_type === "coaching";
+  const planType = subscription?.plan_type;
+  const isCoaching = planType === "coaching";
+  const isTransformation = planType === "transformation";
+  const isMembership = planType === "membership";
 
   if (!isMobile) return null;
 
+  // Tier-aware workout destination
+  const getWorkoutDestination = () => {
+    if (isMembership) {
+      // Solitary: bodyweight templates only
+      return { href: "/dashboard/workouts", label: "Yard Time", icon: Dumbbell };
+    } else if (isTransformation) {
+      // Gen Pop: 12-week program is primary
+      return { href: "/dashboard/program", label: "The Sentence", icon: Calendar };
+    } else if (isCoaching) {
+      // Coaching: personalized program
+      return { href: "/dashboard/program", label: "Training", icon: Calendar };
+    }
+    // Default fallback
+    return { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell };
+  };
+
+  const workoutNav = getWorkoutDestination();
+
   const navItems = [
     { icon: Home, label: "Home", href: "/dashboard" },
-    { icon: Dumbbell, label: isCoaching ? "Training" : "Workouts", href: "/dashboard/workouts" },
+    { icon: workoutNav.icon, label: workoutNav.label, href: workoutNav.href },
     { icon: Clock, label: isCoaching ? "Structure" : "Discipline", href: "/dashboard/discipline" },
     { icon: TrendingUp, label: "Progress", href: "/dashboard/progress" },
     { icon: Shield, label: "Warden", href: "#warden", isAction: true },

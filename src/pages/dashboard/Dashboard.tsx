@@ -461,16 +461,25 @@ const Dashboard = () => {
           feature={lockedFeature}
         />
 
-        {/* Quick Actions */}
+        {/* Quick Actions - Tier-aware routing */}
         <div className="mt-12 steel-plate p-8 border border-steel-light/20">
           <h3 className="headline-card mb-4">Quick Actions</h3>
           <div className="flex flex-wrap gap-4">
-            <Button variant="gold" asChild>
-              <Link to="/dashboard/check-in">Submit Weekly Check-In</Link>
+            {/* Primary workout action - tier-aware */}
+            <Button variant="gold" size="lg" asChild>
+              <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"}>
+                <Dumbbell className="w-5 h-5 mr-2" />
+                {isCoaching 
+                  ? "Start Today's Training" 
+                  : isTransformation 
+                    ? "Continue The Sentence" 
+                    : "Hit Yard Time"}
+              </Link>
             </Button>
             <Button variant="goldOutline" asChild>
-              <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"}>
-                {isMembership ? "Start Your Workout" : "Start Today's Workout"}
+              <Link to="/dashboard/check-in">
+                <ClipboardCheck className="w-4 h-4 mr-2" />
+                {isCoaching ? "Submit Weekly Report" : "Submit Roll Call"}
               </Link>
             </Button>
             <Button variant="steel" asChild>

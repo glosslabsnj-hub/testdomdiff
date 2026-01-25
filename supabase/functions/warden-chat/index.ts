@@ -9,33 +9,66 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+// Three-tier navigation mapping
+function getTierNavigation(planType: string) {
+  if (planType === "coaching") {
+    return {
+      workouts: "Training Sessions",
+      workoutsPath: "/dashboard/program", // Coaching goes to program
+      discipline: "Daily Structure",
+      nutrition: "Meal Planning",
+      faith: "Faith & Growth",
+      checkIn: "Weekly Report",
+      progress: "Progress Report",
+      skills: "Advanced Skills",
+      community: "The Network",
+      dashboard: "Dashboard",
+      program: "Your Program",
+      programPath: "/dashboard/program",
+      tierName: "Free World",
+      primaryAction: "[Your Program](/dashboard/program)",
+    };
+  } else if (planType === "transformation") {
+    // Gen Pop - 12-week program is their primary workout destination
+    return {
+      workouts: "The Sentence", // Key fix: Gen Pop's primary is the 12-week
+      workoutsPath: "/dashboard/program", // Gen Pop goes to program
+      discipline: "Lights On/Out",
+      nutrition: "Chow Hall",
+      faith: "Chapel",
+      checkIn: "Roll Call",
+      progress: "Time Served",
+      skills: "Work Release",
+      community: "The Yard",
+      dashboard: "Cell Block",
+      program: "The Sentence",
+      programPath: "/dashboard/program",
+      tierName: "General Population",
+      primaryAction: "[The Sentence](/dashboard/program)",
+    };
+  } else {
+    // membership (Solitary) - bodyweight templates only
+    return {
+      workouts: "Yard Time",
+      workoutsPath: "/dashboard/workouts", // Solitary goes to basic workouts
+      discipline: "Lights On/Out",
+      nutrition: "Chow Hall",
+      faith: "Chapel",
+      checkIn: "Roll Call",
+      progress: "Time Served",
+      skills: "Work Release",
+      community: "The Yard",
+      dashboard: "Cell Block",
+      program: "Yard Time", // Solitary doesn't have the 12-week program
+      programPath: "/dashboard/workouts",
+      tierName: "Solitary Confinement",
+      primaryAction: "[Yard Time](/dashboard/workouts)",
+    };
+  }
+}
+
 function buildSystemPrompt(context: any): string {
-  const isCoaching = context.planType === "coaching";
-  
-  // Tier-specific terminology
-  const nav = isCoaching ? {
-    workouts: "Training Sessions",
-    discipline: "Daily Structure",
-    nutrition: "Meal Planning",
-    faith: "Faith & Growth",
-    checkIn: "Weekly Report",
-    progress: "Progress Report",
-    skills: "Advanced Skills",
-    community: "The Network",
-    dashboard: "Dashboard",
-    program: "Your Program",
-  } : {
-    workouts: "Yard Time",
-    discipline: "Lights On/Out",
-    nutrition: "Chow Hall",
-    faith: "Chapel",
-    checkIn: "Roll Call",
-    progress: "Time Served",
-    skills: "Work Release",
-    community: "The Yard",
-    dashboard: "Cell Block",
-    program: "The Sentence",
-  };
+  const nav = getTierNavigation(context.planType);
 
   return `You are The Warden—a battle-tested coach who guides men through transformation. You speak with the authority of someone who has been through the fire. You know this user personally through their data.
 
@@ -43,7 +76,7 @@ USER CONTEXT:
 - Name: ${context.firstName || "Brother"}
 - Current Week: ${context.currentWeek} of 12
 - Goal: ${context.goal || "transformation"}
-- Plan Type: ${context.planType}${isCoaching ? " (Coaching - use professional terminology)" : ""}
+- Plan Type: ${context.planType} (${nav.tierName})
 - Discipline Compliance: ${context.compliancePercent}%
 - Current Streak: ${context.streak} days
 - Recent Struggles: ${context.recentStruggles || "None reported"}
@@ -61,7 +94,7 @@ YOUR VOICE:
 WHAT YOU CAN HELP WITH:
 1. MOTIVATION & MINDSET - When they're struggling, meet them where they are
 2. NAVIGATION - Help them find things in their dashboard using CLICKABLE LINKS:
-   - Workouts: [${nav.workouts}](/dashboard/workouts)
+   - Primary Workouts: [${nav.workouts}](${nav.workoutsPath}) ← USE THIS FOR WORKOUT QUESTIONS
    - Discipline routines: [${nav.discipline}](/dashboard/discipline)
    - Nutrition: [${nav.nutrition}](/dashboard/nutrition)
    - Faith content: [${nav.faith}](/dashboard/faith)
@@ -70,14 +103,23 @@ WHAT YOU CAN HELP WITH:
    - Skills: [${nav.skills}](/dashboard/skills)
    - Community: [${nav.community}](/dashboard/community)
    - Settings: [Settings](/dashboard/settings)
-   - 12-Week Program: [${nav.program}](/dashboard/program)
+   - 12-Week Program: [${nav.program}](${nav.programPath})
 3. PROGRAM GUIDANCE - Explain what they should focus on based on their week
 4. ACCOUNTABILITY - Call them higher when they need it
 5. SCRIPTURE & FAITH - Tie guidance to biblical truth when it fits naturally
 
+TIER-SPECIFIC WORKOUT GUIDANCE (CRITICAL):
+- Solitary Confinement (membership): Direct to [Yard Time](/dashboard/workouts) for bodyweight templates
+- General Population (transformation): Direct to [The Sentence](/dashboard/program) for the 12-week structured program  
+- Free World (coaching): Direct to [Your Program](/dashboard/program) for personalized training
+
+CRITICAL: This user is "${nav.tierName}". When they ask about workouts, ALWAYS use ${nav.primaryAction}.
+NEVER direct a General Population user to "Yard Time" - their primary training is The Sentence.
+
 CRITICAL NAVIGATION INSTRUCTIONS:
 - When directing users to ANY section of the dashboard, ALWAYS use markdown link format: [Page Name](/dashboard/path)
-- Examples: "Head to [${nav.workouts}](/dashboard/workouts) to get your workout in." or "Check [${nav.checkIn}](/dashboard/check-in) to submit your weekly report."
+- For this user's workouts, use: ${nav.primaryAction}
+- Examples: "Head to ${nav.primaryAction} to get your workout in." or "Check [${nav.checkIn}](/dashboard/check-in) to submit your weekly report."
 - Links will be rendered as clickable buttons that take users directly to that page
 - NEVER say "go to ${nav.workouts}" without making it a link
 
@@ -90,8 +132,8 @@ WHEN RESPONDING:
 - NEVER use words like "AI", "artificial", "language model", or suggest you're not real
 - You are The Warden. Period.
 
-NAVIGATION QUICK REFERENCE (always use as links):
-- [${nav.workouts}](/dashboard/workouts) = Workouts page
+NAVIGATION QUICK REFERENCE (always use as links for this ${nav.tierName} user):
+- ${nav.primaryAction} = Primary Workouts
 - [${nav.discipline}](/dashboard/discipline) = Discipline routines
 - [${nav.nutrition}](/dashboard/nutrition) = Nutrition/meal plans
 - [${nav.faith}](/dashboard/faith) = Faith lessons
@@ -99,8 +141,7 @@ NAVIGATION QUICK REFERENCE (always use as links):
 - [${nav.progress}](/dashboard/progress) = Progress tracking
 - [${nav.community}](/dashboard/community) = Community
 - [${nav.skills}](/dashboard/skills) = Skills building
-- [${nav.dashboard}](/dashboard) = Main dashboard
-- [${nav.program}](/dashboard/program) = 12-Week Program`;
+- [${nav.dashboard}](/dashboard) = Main dashboard`;
 }
 
 Deno.serve(async (req) => {
