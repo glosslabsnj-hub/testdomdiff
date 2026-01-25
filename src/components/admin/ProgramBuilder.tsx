@@ -91,6 +91,9 @@ export default function ProgramBuilder() {
     reps_or_time: "",
     rest: "",
     notes: "",
+    instructions: "",
+    form_tips: "",
+    muscles_targeted: "",
   });
   
   // For picking from template exercises
@@ -286,6 +289,9 @@ export default function ProgramBuilder() {
         reps_or_time: exercise.reps_or_time || "",
         rest: exercise.rest || "",
         notes: exercise.notes || "",
+        instructions: exercise.instructions || "",
+        form_tips: exercise.form_tips || "",
+        muscles_targeted: exercise.muscles_targeted || "",
       });
     } else {
       setEditingExercise(null);
@@ -296,6 +302,9 @@ export default function ProgramBuilder() {
         reps_or_time: "",
         rest: "",
         notes: "",
+        instructions: "",
+        form_tips: "",
+        muscles_targeted: "",
       });
     }
     setExerciseDialogOpen(true);
@@ -328,6 +337,9 @@ export default function ProgramBuilder() {
       reps_or_time: ex.reps_or_time || "",
       rest: ex.rest || "",
       notes: ex.notes || "",
+      instructions: "",
+      form_tips: "",
+      muscles_targeted: "",
     });
     setPickFromTemplate(false);
   };
@@ -337,18 +349,27 @@ export default function ProgramBuilder() {
     
     const currentExercises = exercisesMap[selectedDayWorkout.id] || [];
     
+    const exerciseData = {
+      section_type: exerciseForm.section_type,
+      exercise_name: exerciseForm.exercise_name,
+      sets: exerciseForm.sets || null,
+      reps_or_time: exerciseForm.reps_or_time || null,
+      rest: exerciseForm.rest || null,
+      notes: exerciseForm.notes || null,
+      instructions: exerciseForm.instructions || null,
+      form_tips: exerciseForm.form_tips || null,
+      muscles_targeted: exerciseForm.muscles_targeted || null,
+    };
+    
     if (editingExercise) {
-      await updateExercise(editingExercise.id, exerciseForm);
+      await updateExercise(editingExercise.id, exerciseData);
     } else {
       await createExercise({
-        ...exerciseForm,
+        ...exerciseData,
         day_workout_id: selectedDayWorkout.id,
         display_order: currentExercises.length,
         scaling_options: null,
         demo_url: null,
-        instructions: null,
-        form_tips: null,
-        muscles_targeted: null,
       });
     }
     await fetchAllExercises();
@@ -809,7 +830,53 @@ export default function ProgramBuilder() {
                   onChange={(e) => setExerciseForm({ ...exerciseForm, notes: e.target.value })} 
                   className="bg-charcoal border-border mt-1" 
                   placeholder="e.g., Keep core tight, focus on form" 
+                  rows={2}
                 />
+              </div>
+              
+              {/* Rich Content Fields */}
+              <div className="pt-4 border-t border-border">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-primary">Exercise Guide Content</span>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label>Step-by-Step Instructions</Label>
+                    <p className="text-xs text-muted-foreground mb-1">One step per line - shown in the How To tab</p>
+                    <Textarea 
+                      value={exerciseForm.instructions} 
+                      onChange={(e) => setExerciseForm({ ...exerciseForm, instructions: e.target.value })} 
+                      className="bg-charcoal border-border mt-1" 
+                      placeholder="Start in a push-up position&#10;Lower your chest to the floor&#10;Push back up explosively&#10;Keep core engaged throughout"
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label>Form Tips</Label>
+                    <p className="text-xs text-muted-foreground mb-1">One tip per line - safety and technique notes</p>
+                    <Textarea 
+                      value={exerciseForm.form_tips} 
+                      onChange={(e) => setExerciseForm({ ...exerciseForm, form_tips: e.target.value })} 
+                      className="bg-charcoal border-border mt-1" 
+                      placeholder="Don't let hips sag&#10;Keep elbows at 45 degrees&#10;Full range of motion"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label>Muscles Targeted</Label>
+                    <p className="text-xs text-muted-foreground mb-1">Comma-separated list of muscle groups</p>
+                    <Input 
+                      value={exerciseForm.muscles_targeted} 
+                      onChange={(e) => setExerciseForm({ ...exerciseForm, muscles_targeted: e.target.value })} 
+                      className="bg-charcoal border-border mt-1" 
+                      placeholder="Chest, Triceps, Shoulders, Core"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <DialogFooter>

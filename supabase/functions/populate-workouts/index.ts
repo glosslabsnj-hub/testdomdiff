@@ -21,263 +21,349 @@ interface WorkoutTemplates {
   sunday: WorkoutTemplate;
 }
 
-// Prison-style workout templates by track type
+// Prison-style workout templates by track type - ADVANCED WORKOUTS
 const FAT_LOSS_WORKOUTS: WorkoutTemplates = {
-  monday: { name: "Metabolic Push", desc: "High-rep push movements with cardio bursts" },
-  tuesday: { name: "Cardio Pull", desc: "Back and biceps with conditioning intervals" },
-  wednesday: { name: "Leg Burner", desc: "Lower body circuit for maximum calorie burn" },
-  thursday: { name: "Upper Body HIIT", desc: "Upper body movements with HIIT protocol" },
-  friday: { name: "Lower Body Blast", desc: "Leg-focused conditioning" },
-  saturday: { name: "Full Body Inferno", desc: "Total body circuit - no rest for the wicked" },
+  monday: { name: "Metabolic Inferno", desc: "High-volume push circuits with cardio destruction" },
+  tuesday: { name: "Shred Pull", desc: "Back and biceps with metabolic conditioning" },
+  wednesday: { name: "Leg Annihilation", desc: "Lower body assault for maximum calorie burn" },
+  thursday: { name: "Upper Body War", desc: "Chest, shoulders, triceps with HIIT intervals" },
+  friday: { name: "Conditioning Hell", desc: "Full body metabolic overload" },
+  saturday: { name: "Total Destruction", desc: "No mercy circuit - everything burns" },
   sunday: { name: "Active Recovery", desc: "Light movement and stretching", isRest: true },
 };
 
 const MUSCLE_WORKOUTS: WorkoutTemplates = {
-  monday: { name: "Cell Block Chest", desc: "Push day - chest, shoulders, triceps" },
-  tuesday: { name: "Yard Back", desc: "Pull day - back and biceps" },
-  wednesday: { name: "Prison Legs", desc: "Leg day - quads, hams, glutes" },
-  thursday: { name: "Iron Shoulders", desc: "Shoulder and arm focus" },
-  friday: { name: "Power Day", desc: "Compound movements for strength" },
-  saturday: { name: "Pump Session", desc: "High-volume accessory work" },
+  monday: { name: "Cell Block Chest", desc: "Heavy push day - chest, shoulders, triceps" },
+  tuesday: { name: "Yard Back Attack", desc: "Pull day - back and biceps volume" },
+  wednesday: { name: "Prison Leg Day", desc: "Leg day - quads, hams, glutes destruction" },
+  thursday: { name: "Iron Shoulders", desc: "Boulder shoulders and arm pump" },
+  friday: { name: "Power Compound Day", desc: "Heavy compound movements for strength" },
+  saturday: { name: "Hypertrophy Pump", desc: "High-volume accessory work" },
   sunday: { name: "Rest & Recover", desc: "Complete rest - let the muscle grow", isRest: true },
 };
 
 const RECOMP_WORKOUTS: WorkoutTemplates = {
   monday: { name: "Strength Push", desc: "Heavy push with metabolic finisher" },
-  tuesday: { name: "Cardio Conditioning", desc: "Pure conditioning and core" },
+  tuesday: { name: "Cardio Warfare", desc: "Pure conditioning and core assault" },
   wednesday: { name: "Strength Pull", desc: "Heavy pull with explosive work" },
-  thursday: { name: "HIIT Circuit", desc: "Full body interval training" },
+  thursday: { name: "HIIT Destruction", desc: "Full body interval annihilation" },
   friday: { name: "Strength Legs", desc: "Lower body strength with conditioning" },
-  saturday: { name: "Hybrid Burner", desc: "Strength and cardio complex" },
+  saturday: { name: "Hybrid Destroyer", desc: "Strength and cardio complex" },
   sunday: { name: "Active Recovery", desc: "Mobility and light movement", isRest: true },
 };
 
-// Exercise templates by section type and phase
-const getExercises = (trackType: string, dayType: string, phase: string) => {
-  const reps = phase === "foundation" ? "15-20" : phase === "build" ? "10-15" : "8-12 or AMRAP";
-  const rest = phase === "foundation" ? "45-60 sec" : phase === "build" ? "30-45 sec" : "20-30 sec";
+// Progressive sets/reps based on week number - Dom's high-volume style
+const getProgressiveVolume = (weekNumber: number, phase: string) => {
+  // Week 1-4 (Foundation): Start moderate, build base
+  // Week 5-8 (Build): Increase volume significantly  
+  // Week 9-12 (Peak): Maximum intensity
+  
+  let baseSets: number;
+  let baseReps: string;
+  let finisherIntensity: string;
+  let restTime: string;
+  
+  if (phase === "foundation") {
+    // Foundation phase: Build the base (weeks 1-4)
+    baseSets = 4 + Math.floor((weekNumber - 1) / 2); // 4-5 sets
+    baseReps = weekNumber <= 2 ? "15-20" : "18-25";
+    finisherIntensity = "moderate";
+    restTime = "45-60 sec";
+  } else if (phase === "build") {
+    // Build phase: Increase volume (weeks 5-8)
+    baseSets = 5 + Math.floor((weekNumber - 5) / 2); // 5-6 sets
+    baseReps = weekNumber <= 6 ? "20-25" : "25-30";
+    finisherIntensity = "high";
+    restTime = "30-45 sec";
+  } else {
+    // Peak phase: Maximum intensity (weeks 9-12)
+    baseSets = 6 + Math.floor((weekNumber - 9) / 2); // 6-7 sets
+    baseReps = weekNumber <= 10 ? "25-30" : "30-40";
+    finisherIntensity = "extreme";
+    restTime = "20-30 sec";
+  }
+  
+  return { baseSets, baseReps, finisherIntensity, restTime };
+};
 
-  // Universal warmup
+// Exercise templates by section type, phase, and week
+const getExercises = (trackType: string, dayType: string, phase: string, weekNumber: number = 1) => {
+  const { baseSets, baseReps, finisherIntensity, restTime } = getProgressiveVolume(weekNumber, phase);
+  const sets = baseSets.toString();
+  const reps = baseReps;
+  const rest = restTime;
+
+  // Universal warmup - increases with phase
+  const warmupReps = phase === "foundation" ? "30 sec" : phase === "build" ? "45 sec" : "60 sec";
   const warmup = [
-    { name: "Jumping Jacks", sets: "1", reps: "30 sec", rest: "0", notes: "Get the blood flowing" },
-    { name: "Arm Circles", sets: "1", reps: "20 each direction", rest: "0", notes: "Loosen up shoulders" },
-    { name: "Bodyweight Squats", sets: "1", reps: "15", rest: "0", notes: "Warm up the legs" },
-    { name: "Push-up to Downward Dog", sets: "1", reps: "10", rest: "30 sec", notes: "Full body activation" },
+    { name: "Jumping Jacks", sets: "2", reps: warmupReps, rest: "0", notes: "Get the blood flowing" },
+    { name: "Arm Circles", sets: "2", reps: "20 each direction", rest: "0", notes: "Loosen up shoulders" },
+    { name: "Bodyweight Squats", sets: "2", reps: "20", rest: "0", notes: "Warm up the legs" },
+    { name: "Push-up to Downward Dog", sets: "2", reps: "15", rest: "30 sec", notes: "Full body activation" },
   ];
 
   // Universal cooldown
   const cooldown = [
-    { name: "Standing Quad Stretch", sets: "1", reps: "30 sec each", rest: "0", notes: "Hold steady" },
-    { name: "Shoulder Stretch", sets: "1", reps: "30 sec each", rest: "0", notes: "Arm across body" },
-    { name: "Deep Breathing", sets: "1", reps: "10 breaths", rest: "0", notes: "Calm the nervous system" },
+    { name: "Standing Quad Stretch", sets: "1", reps: "45 sec each", rest: "0", notes: "Hold steady" },
+    { name: "Shoulder Stretch", sets: "1", reps: "45 sec each", rest: "0", notes: "Arm across body" },
+    { name: "Hip Flexor Stretch", sets: "1", reps: "45 sec each", rest: "0", notes: "Deep lunge stretch" },
+    { name: "Deep Breathing", sets: "1", reps: "15 breaths", rest: "0", notes: "Calm the nervous system" },
   ];
 
   let main: any[] = [];
   let finisher: any[] = [];
 
-  // Fat Loss exercises
+  // Fat Loss exercises - HIGH VOLUME
   if (trackType === "fat_loss") {
-    if (dayType.includes("push") || dayType.includes("chest")) {
+    if (dayType.includes("push") || dayType.includes("inferno")) {
       main = [
-        { name: "Burpees", sets: "4", reps: reps, rest, notes: "Explosive! Full extension at top" },
-        { name: "Push-ups", sets: "4", reps: reps, rest, notes: "Chest to floor, full lockout" },
-        { name: "Mountain Climbers", sets: "3", reps: "30 sec", rest: "20 sec", notes: "Fast pace, drive those knees" },
-        { name: "Diamond Push-ups", sets: "3", reps: reps, rest, notes: "Hands together, elbows tight" },
-        { name: "Plank Shoulder Taps", sets: "3", reps: "20 total", rest, notes: "Keep hips stable" },
+        { name: "Burpees", sets, reps, rest, notes: "Explosive! Full extension at top - no shortcuts" },
+        { name: "Push-ups", sets, reps, rest, notes: "Chest to floor, full lockout - every rep" },
+        { name: "Mountain Climbers", sets, reps: "45 sec", rest: "20 sec", notes: "Sprint pace, drive those knees hard" },
+        { name: "Diamond Push-ups", sets, reps, rest, notes: "Hands together, elbows tight to body" },
+        { name: "Plank Shoulder Taps", sets, reps: "30 total", rest, notes: "Keep hips rock solid" },
+        { name: "Pike Push-ups", sets, reps, rest, notes: "Shoulders on fire - embrace it" },
+        { name: "Explosive Push-ups", sets: String(baseSets - 1), reps: "12-15", rest, notes: "Push hard enough to leave the ground" },
       ];
-      finisher = [
-        { name: "Burpee Ladder", sets: "1", reps: "10-1 countdown", rest: "0", notes: "Start with 10, then 9, 8... no rest!" },
-      ];
-    } else if (dayType.includes("pull") || dayType.includes("back")) {
+      finisher = finisherIntensity === "extreme" 
+        ? [{ name: "100 Burpee Challenge", sets: "1", reps: "For time - no excuses", rest: "0", notes: "Break as needed, just FINISH. This is where champions are made." }]
+        : finisherIntensity === "high"
+        ? [{ name: "Burpee Ladder", sets: "1", reps: "10-1 countdown", rest: "0", notes: "Start with 10, then 9, 8... no rest between!" }]
+        : [{ name: "Push-up Burnout", sets: "3", reps: "To failure", rest: "30 sec", notes: "Go until you physically cannot" }];
+    } else if (dayType.includes("pull") || dayType.includes("shred")) {
       main = [
-        { name: "Inverted Rows", sets: "4", reps: reps, rest, notes: "Use a sturdy bar or table" },
-        { name: "Superman Holds", sets: "3", reps: "30 sec", rest, notes: "Squeeze glutes and back" },
-        { name: "Towel Rows", sets: "3", reps: reps, rest, notes: "Wrap towel around pole, pull hard" },
-        { name: "Reverse Snow Angels", sets: "3", reps: "15", rest, notes: "Face down, arms sweep wide" },
-        { name: "High Knees", sets: "3", reps: "30 sec", rest: "15 sec", notes: "Keep the pace up!" },
+        { name: "Inverted Rows", sets, reps, rest, notes: "Pull your chest to the bar, squeeze hard" },
+        { name: "Superman Holds", sets, reps: "45 sec", rest, notes: "Squeeze glutes and back - feel it burn" },
+        { name: "Towel Rows", sets, reps, rest, notes: "Wrap towel around pole, pull like your life depends on it" },
+        { name: "Reverse Snow Angels", sets, reps: "20", rest, notes: "Face down, arms sweep wide - back activation" },
+        { name: "High Knees", sets, reps: "45 sec", rest: "15 sec", notes: "Sprint in place - maximum intensity!" },
+        { name: "Plank Rows", sets, reps: "15 each side", rest, notes: "Row in plank position - core stays locked" },
+        { name: "Bicep Curl Hold", sets, reps: "30 sec hold at 90 degrees", rest, notes: "The burn is the growth" },
       ];
-      finisher = [
-        { name: "Row Hold + High Knees", sets: "3", reps: "20 sec hold + 20 knees", rest: "30 sec", notes: "Superset - no break between" },
-      ];
-    } else if (dayType.includes("leg")) {
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Row + Burpee Complex", sets: "5", reps: "10 rows + 10 burpees", rest: "30 sec", notes: "No breaks between exercises" }]
+        : [{ name: "Row Hold + High Knees", sets: "4", reps: "25 sec hold + 25 knees", rest: "30 sec", notes: "Superset - no break between" }];
+    } else if (dayType.includes("leg") || dayType.includes("annihilation")) {
       main = [
-        { name: "Jump Squats", sets: "4", reps: reps, rest, notes: "Explode up, soft landing" },
-        { name: "Reverse Lunges", sets: "3", reps: "12 each leg", rest, notes: "Step back, knee kisses floor" },
-        { name: "Prisoner Squats", sets: "4", reps: reps, rest, notes: "Hands behind head, chest up" },
-        { name: "Glute Bridges", sets: "3", reps: reps, rest, notes: "Squeeze hard at top" },
-        { name: "Calf Raises", sets: "3", reps: "20", rest: "20 sec", notes: "Full range of motion" },
+        { name: "Jump Squats", sets, reps, rest, notes: "Explode up like a rocket, soft landing" },
+        { name: "Reverse Lunges", sets, reps: "15 each leg", rest, notes: "Step back, knee kisses floor" },
+        { name: "Prisoner Squats", sets, reps, rest, notes: "Hands behind head, chest up, deep squat" },
+        { name: "Glute Bridges", sets, reps, rest, notes: "Squeeze glutes so hard they cramp" },
+        { name: "Calf Raises", sets, reps: "30", rest: "20 sec", notes: "Full range of motion, pause at top" },
+        { name: "Wall Sit", sets, reps: "60 sec", rest, notes: "Thighs parallel - your legs will shake" },
+        { name: "Lateral Lunges", sets, reps: "12 each side", rest, notes: "Push hips back, feel the stretch" },
       ];
-      finisher = [
-        { name: "Squat Jump Tabata", sets: "8", reps: "20 sec on, 10 sec off", rest: "0", notes: "4 minutes of pain, pure results" },
-      ];
-    } else if (dayType.includes("upper") || dayType.includes("hiit")) {
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "200 Air Squat Challenge", sets: "1", reps: "For time", rest: "0", notes: "Break if needed, but FINISH. Mental warfare." }]
+        : [{ name: "Squat Jump Tabata", sets: "8", reps: "20 sec on, 10 sec off", rest: "0", notes: "4 minutes of pure pain = pure results" }];
+    } else if (dayType.includes("upper") || dayType.includes("war")) {
       main = [
-        { name: "Push-up to Renegade Row", sets: "4", reps: "10", rest, notes: "Push-up, row left, row right = 1 rep" },
-        { name: "Pike Push-ups", sets: "3", reps: reps, rest, notes: "Hips high, head toward floor" },
-        { name: "Dips (chair or bench)", sets: "3", reps: reps, rest, notes: "90 degree elbow bend" },
-        { name: "Plank Up-Downs", sets: "3", reps: "10 each arm", rest, notes: "Forearm to hand, stay tight" },
-        { name: "Shadow Boxing", sets: "3", reps: "60 sec", rest: "30 sec", notes: "Throw real punches, move your feet" },
+        { name: "Push-up to Renegade Row", sets, reps: "12", rest, notes: "Push-up, row left, row right = 1 rep" },
+        { name: "Pike Push-ups", sets, reps, rest, notes: "Hips high, head toward floor - shoulders burning" },
+        { name: "Dips (chair or bench)", sets, reps, rest, notes: "90 degree elbow bend minimum" },
+        { name: "Plank Up-Downs", sets, reps: "12 each arm", rest, notes: "Forearm to hand, core stays tight" },
+        { name: "Shadow Boxing", sets, reps: "90 sec", rest: "30 sec", notes: "Throw REAL punches, move your feet" },
+        { name: "Diamond Push-ups", sets, reps, rest, notes: "Tricep destruction" },
+        { name: "Shoulder Tap Plank", sets, reps: "40 total", rest, notes: "Hips don't move, core braced" },
       ];
-      finisher = [
-        { name: "100 Burpee Challenge", sets: "1", reps: "For time", rest: "0", notes: "Break as needed, just finish" },
-      ];
-    } else { // full body
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Push-up Death Ladder", sets: "1", reps: "1-10-1 pyramid", rest: "0", notes: "1 push-up, 2, 3...10...9, 8...1. No rest." }]
+        : [{ name: "Push-up EMOM", sets: "10", reps: "10 push-ups per minute", rest: "remaining", notes: "10 minutes, start of every minute" }];
+    } else if (dayType.includes("conditioning") || dayType.includes("hell")) {
       main = [
-        { name: "Burpee Box Jump", sets: "4", reps: "10", rest, notes: "Burpee into jump onto step/box" },
-        { name: "Walkout Push-ups", sets: "3", reps: "10", rest, notes: "Walk hands out, push-up, walk back" },
-        { name: "Squat Thrusters", sets: "4", reps: reps, rest, notes: "Squat, explode up with arms overhead" },
-        { name: "Plank Jacks", sets: "3", reps: "20", rest, notes: "Jumping jacks in plank position" },
-        { name: "Broad Jumps", sets: "3", reps: "10", rest, notes: "Maximum distance each jump" },
-        { name: "V-Ups", sets: "3", reps: "15", rest, notes: "Touch toes at top" },
+        { name: "Burpees", sets, reps: "15", rest: "30 sec", notes: "Full extension, full push-up, no cheating" },
+        { name: "Mountain Climbers", sets, reps: "60 sec", rest: "20 sec", notes: "Sprint pace or go home" },
+        { name: "Jump Squats", sets, reps, rest: "30 sec", notes: "Max height every rep" },
+        { name: "High Knees", sets, reps: "60 sec", rest: "20 sec", notes: "Drive those knees to your chest" },
+        { name: "Plank Jacks", sets, reps: "30", rest, notes: "Core stays locked, legs move fast" },
+        { name: "Tuck Jumps", sets, reps: "15", rest, notes: "Knees to chest every jump" },
+        { name: "Box Jumps or Step-ups", sets, reps: "20", rest, notes: "Use stairs if no box - explosive" },
       ];
-      finisher = [
-        { name: "Death by Burpees", sets: "1", reps: "EMOM - add 1 each minute", rest: "0", notes: "Minute 1 = 1 burpee, minute 2 = 2... until failure" },
+      finisher = [{ name: "Tabata Hell", sets: "8", reps: "20 sec burpees, 10 sec rest", rest: "0", notes: "4 minutes that will define you" }];
+    } else { // full body / destruction
+      main = [
+        { name: "Burpee Box Jump", sets, reps: "12", rest, notes: "Burpee into jump onto step/box" },
+        { name: "Walkout Push-ups", sets, reps: "12", rest, notes: "Walk hands out, push-up, walk back" },
+        { name: "Squat Thrusters", sets, reps, rest, notes: "Squat, explode up with arms overhead" },
+        { name: "Plank Jacks", sets, reps: "25", rest, notes: "Jumping jacks in plank position" },
+        { name: "Broad Jumps", sets, reps: "12", rest, notes: "Maximum distance each jump" },
+        { name: "V-Ups", sets, reps: "20", rest, notes: "Touch toes at top, control the negative" },
+        { name: "Bear Crawls", sets, reps: "40 yards", rest, notes: "Forward and backward" },
+        { name: "Burpee Pull-ups", sets: String(baseSets - 1), reps: "10", rest, notes: "Burpee into pull-up if available" },
       ];
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "The Chipper", sets: "1", reps: "100 squats, 80 lunges, 60 push-ups, 40 burpees, 20 pull-ups", rest: "0", notes: "For time. Welcome to the yard." }]
+        : [{ name: "Death by Burpees", sets: "1", reps: "EMOM - add 1 each minute", rest: "0", notes: "Minute 1 = 1 burpee, minute 2 = 2... until failure" }];
     }
   }
-  // Muscle Building exercises
+  // Muscle Building exercises - HIGH VOLUME
   else if (trackType === "muscle") {
     if (dayType.includes("chest") || dayType.includes("push")) {
       main = [
-        { name: "Wide Push-ups", sets: "4", reps: reps, rest, notes: "Hands wider than shoulders, squeeze chest" },
-        { name: "Close-Grip Push-ups", sets: "4", reps: reps, rest, notes: "Hands under chest, tricep focus" },
-        { name: "Decline Push-ups", sets: "3", reps: reps, rest, notes: "Feet elevated, more chest activation" },
-        { name: "Dumbbell Floor Press", sets: "4", reps: reps, rest, notes: "Control the weight, squeeze at top" },
-        { name: "Pike Push-ups", sets: "3", reps: reps, rest, notes: "Shoulder builder" },
-        { name: "Tricep Dips", sets: "3", reps: reps, rest, notes: "Deep stretch, full lockout" },
+        { name: "Wide Push-ups", sets, reps, rest, notes: "Hands wider than shoulders, squeeze chest hard" },
+        { name: "Close-Grip Push-ups", sets, reps, rest, notes: "Hands under chest, tricep focus" },
+        { name: "Decline Push-ups", sets, reps, rest, notes: "Feet elevated, more chest activation" },
+        { name: "Dumbbell Floor Press", sets, reps, rest, notes: "Control the weight, squeeze at top" },
+        { name: "Pike Push-ups", sets, reps, rest, notes: "Shoulder builder - feel the burn" },
+        { name: "Tricep Dips", sets, reps, rest, notes: "Deep stretch, full lockout" },
+        { name: "Archer Push-ups", sets: String(baseSets - 1), reps: "10 each side", rest, notes: "One arm does the work" },
+        { name: "Push-up Hold", sets: "3", reps: "30 sec at bottom position", rest, notes: "Time under tension" },
       ];
-      finisher = [
-        { name: "Push-up Drop Set", sets: "1", reps: "Wide to close to knees", rest: "0", notes: "No rest - go to failure on each variation" },
-      ];
-    } else if (dayType.includes("back") || dayType.includes("pull")) {
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "200 Push-up Challenge", sets: "1", reps: "For time", rest: "0", notes: "Any variation, just finish. Chest will be destroyed." }]
+        : [{ name: "Push-up Drop Set", sets: "1", reps: "Wide to close to knees - failure each", rest: "0", notes: "No rest - go to failure on each variation" }];
+    } else if (dayType.includes("back") || dayType.includes("pull") || dayType.includes("yard")) {
       main = [
-        { name: "Pull-ups or Inverted Rows", sets: "4", reps: reps, rest, notes: "Full stretch, squeeze at top" },
-        { name: "Dumbbell Rows", sets: "4", reps: "12 each", rest, notes: "Pull to hip, squeeze lats" },
-        { name: "Face Pulls (band or towel)", sets: "3", reps: reps, rest, notes: "Pull to face, external rotation" },
-        { name: "Superman Pulses", sets: "3", reps: "20", rest, notes: "Small pulses, constant tension" },
-        { name: "Bicep Curls", sets: "3", reps: reps, rest, notes: "Slow negative, squeeze at top" },
-        { name: "Hammer Curls", sets: "3", reps: reps, rest, notes: "Neutral grip, brachialis focus" },
+        { name: "Pull-ups or Inverted Rows", sets, reps, rest, notes: "Full stretch, squeeze lats at top" },
+        { name: "Dumbbell Rows", sets, reps: "15 each", rest, notes: "Pull to hip, squeeze lats hard" },
+        { name: "Face Pulls (band or towel)", sets, reps, rest, notes: "Pull to face, external rotation" },
+        { name: "Superman Pulses", sets, reps: "25", rest, notes: "Small pulses, constant tension" },
+        { name: "Bicep Curls", sets, reps, rest, notes: "Slow negative, squeeze at top" },
+        { name: "Hammer Curls", sets, reps, rest, notes: "Neutral grip, brachialis focus" },
+        { name: "Reverse Grip Rows", sets, reps: "12", rest, notes: "Underhand grip, bicep emphasis" },
+        { name: "Isometric Row Hold", sets: "3", reps: "30 sec at top", rest, notes: "Hold the squeeze" },
       ];
-      finisher = [
-        { name: "21s Curl Finisher", sets: "2", reps: "7+7+7", rest: "60 sec", notes: "7 bottom half, 7 top half, 7 full" },
-      ];
-    } else if (dayType.includes("leg")) {
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Pull-up Ladder", sets: "1", reps: "1-10-1 pyramid", rest: "0", notes: "1, 2, 3...10...9, 8...1. No rest between." }]
+        : [{ name: "21s Curl Finisher", sets: "3", reps: "7+7+7", rest: "45 sec", notes: "7 bottom half, 7 top half, 7 full" }];
+    } else if (dayType.includes("leg") || dayType.includes("prison")) {
       main = [
-        { name: "Goblet Squats", sets: "4", reps: reps, rest, notes: "Hold weight at chest, deep squat" },
-        { name: "Bulgarian Split Squats", sets: "3", reps: "10 each", rest, notes: "Rear foot elevated, control descent" },
-        { name: "Romanian Deadlifts", sets: "4", reps: reps, rest, notes: "Hinge at hips, feel hamstrings stretch" },
-        { name: "Walking Lunges", sets: "3", reps: "12 each", rest, notes: "Big steps, knee kisses floor" },
-        { name: "Calf Raises", sets: "4", reps: "20", rest: "30 sec", notes: "Pause at top, full stretch at bottom" },
-        { name: "Glute Bridges", sets: "3", reps: reps, rest, notes: "Pause and squeeze 2 sec at top" },
+        { name: "Goblet Squats", sets, reps, rest, notes: "Hold weight at chest, deep squat" },
+        { name: "Bulgarian Split Squats", sets, reps: "12 each", rest, notes: "Rear foot elevated, control descent" },
+        { name: "Romanian Deadlifts", sets, reps, rest, notes: "Hinge at hips, feel hamstrings stretch deep" },
+        { name: "Walking Lunges", sets, reps: "15 each", rest, notes: "Big steps, knee kisses floor" },
+        { name: "Calf Raises", sets, reps: "30", rest: "30 sec", notes: "Pause at top, full stretch at bottom" },
+        { name: "Glute Bridges", sets, reps, rest, notes: "Pause and squeeze 3 sec at top" },
+        { name: "Single Leg RDL", sets, reps: "10 each", rest, notes: "Balance and hamstring stretch" },
+        { name: "Squat Hold", sets: "3", reps: "45 sec at parallel", rest, notes: "Thighs burning = growth" },
       ];
-      finisher = [
-        { name: "Wall Sit Challenge", sets: "3", reps: "45 sec hold", rest: "30 sec", notes: "Thighs parallel, back flat on wall" },
-      ];
-    } else if (dayType.includes("shoulder") || dayType.includes("arm")) {
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "300 Rep Leg Destroyer", sets: "1", reps: "100 squats, 100 lunges, 100 calf raises", rest: "0", notes: "For time. You will walk funny tomorrow." }]
+        : [{ name: "Wall Sit Challenge", sets: "4", reps: "60 sec hold", rest: "30 sec", notes: "Thighs parallel, back flat on wall" }];
+    } else if (dayType.includes("shoulder") || dayType.includes("arm") || dayType.includes("iron")) {
       main = [
-        { name: "Pike Push-ups", sets: "4", reps: reps, rest, notes: "Feet elevated for more challenge" },
-        { name: "Lateral Raises", sets: "3", reps: reps, rest, notes: "Control the weight, slight bend in elbow" },
-        { name: "Front Raises", sets: "3", reps: reps, rest, notes: "Alternate arms, core tight" },
-        { name: "Arnold Press", sets: "3", reps: reps, rest, notes: "Rotate from curl to press" },
-        { name: "Skull Crushers", sets: "3", reps: reps, rest, notes: "Keep elbows fixed, extend fully" },
-        { name: "Diamond Push-ups", sets: "3", reps: reps, rest, notes: "Tricep finisher" },
+        { name: "Pike Push-ups", sets, reps, rest, notes: "Feet elevated for more challenge" },
+        { name: "Lateral Raises", sets, reps, rest, notes: "Control the weight, slight bend in elbow" },
+        { name: "Front Raises", sets, reps, rest, notes: "Alternate arms, core tight" },
+        { name: "Arnold Press", sets, reps, rest, notes: "Rotate from curl to press" },
+        { name: "Skull Crushers", sets, reps, rest, notes: "Keep elbows fixed, extend fully" },
+        { name: "Diamond Push-ups", sets, reps, rest, notes: "Tricep finisher" },
+        { name: "Rear Delt Flyes", sets, reps, rest, notes: "Bent over, squeeze shoulder blades" },
+        { name: "Tricep Dip Hold", sets: "3", reps: "30 sec at bottom", rest, notes: "Deep stretch, feel it" },
       ];
-      finisher = [
-        { name: "Shoulder Burnout", sets: "1", reps: "10 each direction lateral raise", rest: "0", notes: "Front, side, rear - no rest" },
-      ];
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Shoulder Annihilator", sets: "1", reps: "50 pike push-ups + 50 lateral raises", rest: "0", notes: "For time. Shoulders will be on fire." }]
+        : [{ name: "Shoulder Burnout", sets: "1", reps: "15 each direction lateral raise", rest: "0", notes: "Front, side, rear - no rest" }];
     } else if (dayType.includes("power") || dayType.includes("compound")) {
       main = [
-        { name: "Dumbbell Thrusters", sets: "4", reps: "10", rest: "60 sec", notes: "Squat to press - one fluid motion" },
-        { name: "Renegade Rows", sets: "4", reps: "8 each", rest, notes: "Push-up position, row each side" },
-        { name: "Devil Press", sets: "3", reps: "10", rest: "60 sec", notes: "Burpee with dumbbell snatch" },
-        { name: "Goblet Squats", sets: "4", reps: reps, rest, notes: "Heavy and controlled" },
-        { name: "Floor Press", sets: "4", reps: reps, rest, notes: "Pause at bottom" },
+        { name: "Dumbbell Thrusters", sets, reps: "12", rest: "60 sec", notes: "Squat to press - one fluid motion" },
+        { name: "Renegade Rows", sets, reps: "10 each", rest, notes: "Push-up position, row each side" },
+        { name: "Devil Press", sets, reps: "10", rest: "60 sec", notes: "Burpee with dumbbell snatch" },
+        { name: "Goblet Squats", sets, reps, rest, notes: "Heavy and controlled" },
+        { name: "Floor Press", sets, reps, rest, notes: "Pause at bottom, explode up" },
+        { name: "Man Makers", sets: String(baseSets - 1), reps: "8", rest: "60 sec", notes: "Row, push-up, squat, press = 1 rep" },
+        { name: "Dumbbell Cleans", sets, reps: "12", rest, notes: "Explosive hip drive" },
       ];
-      finisher = [
-        { name: "Farmer Carry", sets: "3", reps: "40 yard walk", rest: "45 sec", notes: "Heavy as possible, grip tight" },
-      ];
-    } else { // pump session
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Complex of Death", sets: "5", reps: "5 cleans, 5 presses, 5 squats, 5 rows", rest: "60 sec", notes: "Don't put the weights down" }]
+        : [{ name: "Farmer Carry", sets: "4", reps: "60 yard walk", rest: "45 sec", notes: "Heavy as possible, grip tight" }];
+    } else { // pump session / hypertrophy
       main = [
-        { name: "Push-up Variations", sets: "3", reps: "10 each type", rest, notes: "Wide, regular, diamond" },
-        { name: "Curl 21s", sets: "3", reps: "21 total", rest, notes: "7 bottom, 7 top, 7 full" },
-        { name: "Tricep Extensions", sets: "3", reps: "15", rest, notes: "Squeeze at full extension" },
-        { name: "Lateral Raise Drop Set", sets: "3", reps: "10+10+10", rest, notes: "Drop weight twice, no rest" },
-        { name: "Plank Hold", sets: "3", reps: "45 sec", rest, notes: "Tight core, don't sag" },
+        { name: "Push-up Variations", sets, reps: "12 each type", rest, notes: "Wide, regular, diamond, pike" },
+        { name: "Curl 21s", sets, reps: "21 total", rest, notes: "7 bottom, 7 top, 7 full" },
+        { name: "Tricep Extensions", sets, reps: "20", rest, notes: "Squeeze at full extension" },
+        { name: "Lateral Raise Drop Set", sets, reps: "12+12+12", rest, notes: "Drop weight twice, no rest" },
+        { name: "Plank Hold", sets, reps: "60 sec", rest, notes: "Tight core, don't sag" },
+        { name: "Bicep Curl Hold", sets: "3", reps: "30 sec at 90 degrees", rest, notes: "The burn is the growth" },
+        { name: "Tricep Dips", sets, reps, rest, notes: "Full depth, full lockout" },
+        { name: "Face Pulls", sets, reps, rest, notes: "External rotation at top" },
       ];
-      finisher = [
-        { name: "100 Push-up Challenge", sets: "1", reps: "For time", rest: "0", notes: "Any variation, just finish" },
-      ];
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "The Pump Destroyer", sets: "1", reps: "100 push-ups, 100 curls, 100 dips", rest: "0", notes: "For time. This is where champions are forged." }]
+        : [{ name: "100 Push-up Challenge", sets: "1", reps: "For time", rest: "0", notes: "Any variation, just finish" }];
     }
   }
-  // Recomposition exercises
+  // Recomposition exercises - HIGH VOLUME
   else {
     if (dayType.includes("push")) {
       main = [
-        { name: "Push-ups", sets: "4", reps: "12", rest: "45 sec", notes: "Controlled tempo" },
-        { name: "Dumbbell Floor Press", sets: "4", reps: reps, rest, notes: "Heavy, pause at bottom" },
-        { name: "Pike Push-ups", sets: "3", reps: reps, rest, notes: "Shoulder focus" },
-        { name: "Burpees", sets: "3", reps: "10", rest, notes: "Explosive finish" },
-        { name: "Dips", sets: "3", reps: reps, rest, notes: "Full depth" },
+        { name: "Push-ups", sets, reps: "15", rest: "45 sec", notes: "Controlled tempo, feel every rep" },
+        { name: "Dumbbell Floor Press", sets, reps, rest, notes: "Heavy, pause at bottom" },
+        { name: "Pike Push-ups", sets, reps, rest, notes: "Shoulder focus, deep stretch" },
+        { name: "Burpees", sets, reps: "12", rest, notes: "Explosive power meets endurance" },
+        { name: "Dips", sets, reps, rest, notes: "Full depth, no shortcuts" },
+        { name: "Diamond Push-ups", sets, reps, rest, notes: "Tricep destruction" },
+        { name: "Explosive Push-ups", sets: String(baseSets - 1), reps: "10", rest, notes: "Leave the ground" },
       ];
-      finisher = [
-        { name: "Push-up AMRAP", sets: "2", reps: "60 sec max reps", rest: "60 sec", notes: "Go until failure" },
-      ];
-    } else if (dayType.includes("conditioning") || dayType.includes("cardio")) {
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Push-up + Burpee Complex", sets: "5", reps: "20 push-ups + 10 burpees", rest: "45 sec", notes: "No rest between exercises" }]
+        : [{ name: "Push-up AMRAP", sets: "3", reps: "60 sec max reps", rest: "60 sec", notes: "Go until failure, count your reps" }];
+    } else if (dayType.includes("conditioning") || dayType.includes("cardio") || dayType.includes("warfare")) {
       main = [
-        { name: "Burpees", sets: "4", reps: "12", rest: "30 sec", notes: "Full extension every rep" },
-        { name: "Mountain Climbers", sets: "4", reps: "40 sec", rest: "20 sec", notes: "Sprint pace" },
-        { name: "Jump Squats", sets: "3", reps: "15", rest: "30 sec", notes: "Explode up" },
-        { name: "High Knees", sets: "3", reps: "40 sec", rest: "20 sec", notes: "Drive those knees" },
-        { name: "Plank Jacks", sets: "3", reps: "20", rest: "30 sec", notes: "Keep core tight" },
-        { name: "Box Jumps or Step-ups", sets: "3", reps: "15", rest, notes: "Use stairs if no box" },
+        { name: "Burpees", sets, reps: "15", rest: "30 sec", notes: "Full extension every rep - no cheating" },
+        { name: "Mountain Climbers", sets, reps: "60 sec", rest: "20 sec", notes: "Sprint pace, not jog pace" },
+        { name: "Jump Squats", sets, reps: "18", rest: "30 sec", notes: "Explode up, soft landing" },
+        { name: "High Knees", sets, reps: "60 sec", rest: "20 sec", notes: "Drive those knees to your chest" },
+        { name: "Plank Jacks", sets, reps: "30", rest: "30 sec", notes: "Core stays locked" },
+        { name: "Box Jumps or Step-ups", sets, reps: "20", rest, notes: "Use stairs if no box - be explosive" },
+        { name: "Bear Crawls", sets, reps: "40 yards", rest, notes: "Forward and backward" },
+        { name: "Tuck Jumps", sets, reps: "15", rest, notes: "Knees to chest every jump" },
       ];
-      finisher = [
-        { name: "Tabata Burpees", sets: "8", reps: "20 sec on, 10 off", rest: "0", notes: "4 minutes of pure conditioning" },
-      ];
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "The Destroyer", sets: "1", reps: "50 burpees for time", rest: "0", notes: "Break if needed. Just finish. This is war." }]
+        : [{ name: "Tabata Burpees", sets: "8", reps: "20 sec on, 10 off", rest: "0", notes: "4 minutes of pure conditioning" }];
     } else if (dayType.includes("pull")) {
       main = [
-        { name: "Pull-ups or Inverted Rows", sets: "4", reps: reps, rest, notes: "Full range" },
-        { name: "Dumbbell Rows", sets: "4", reps: "10 each", rest, notes: "Heavy, squeeze lats" },
-        { name: "Superman Holds", sets: "3", reps: "30 sec", rest, notes: "Constant tension" },
-        { name: "Explosive Rows", sets: "3", reps: "8", rest, notes: "Fast pull, slow lower" },
-        { name: "Bicep Curls", sets: "3", reps: reps, rest, notes: "Strict form" },
+        { name: "Pull-ups or Inverted Rows", sets, reps, rest, notes: "Full range, squeeze at top" },
+        { name: "Dumbbell Rows", sets, reps: "12 each", rest, notes: "Heavy, squeeze lats" },
+        { name: "Superman Holds", sets, reps: "45 sec", rest, notes: "Constant tension, feel the back" },
+        { name: "Explosive Rows", sets, reps: "10", rest, notes: "Fast pull, slow lower" },
+        { name: "Bicep Curls", sets, reps, rest, notes: "Strict form, slow negatives" },
+        { name: "Reverse Grip Rows", sets, reps: "12", rest, notes: "Underhand grip, bicep emphasis" },
+        { name: "Face Pulls", sets, reps, rest, notes: "External rotation at top" },
       ];
-      finisher = [
-        { name: "Row + Jump Complex", sets: "3", reps: "10 rows + 10 jumps", rest: "45 sec", notes: "Strength meets power" },
-      ];
-    } else if (dayType.includes("hiit") || dayType.includes("circuit")) {
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Row + Jump Complex", sets: "5", reps: "15 rows + 15 jumps", rest: "45 sec", notes: "No rest between exercises" }]
+        : [{ name: "Row + Jump Complex", sets: "4", reps: "12 rows + 12 jumps", rest: "45 sec", notes: "Strength meets power" }];
+    } else if (dayType.includes("hiit") || dayType.includes("circuit") || dayType.includes("destruction")) {
       main = [
-        { name: "Devil Press", sets: "4", reps: "8", rest, notes: "Burpee + dumbbell snatch" },
-        { name: "Thrusters", sets: "4", reps: "10", rest, notes: "Squat to press" },
-        { name: "Renegade Rows", sets: "3", reps: "8 each", rest, notes: "Plank row" },
-        { name: "Jump Lunges", sets: "3", reps: "10 each", rest, notes: "Explosive" },
-        { name: "Plank Up-Downs", sets: "3", reps: "10 each arm", rest, notes: "Stay tight" },
+        { name: "Devil Press", sets, reps: "10", rest, notes: "Burpee + dumbbell snatch - brutal" },
+        { name: "Thrusters", sets, reps: "12", rest, notes: "Squat to press, one motion" },
+        { name: "Renegade Rows", sets, reps: "10 each", rest, notes: "Plank row, core locked" },
+        { name: "Jump Lunges", sets, reps: "12 each", rest, notes: "Explosive switch" },
+        { name: "Plank Up-Downs", sets, reps: "12 each arm", rest, notes: "Stay tight" },
+        { name: "Mountain Climbers", sets, reps: "45 sec", rest: "20 sec", notes: "Sprint pace" },
+        { name: "Burpee Pull-ups", sets: String(baseSets - 1), reps: "8", rest, notes: "Burpee into pull-up" },
       ];
-      finisher = [
-        { name: "EMOM Burpees", sets: "10", reps: "5 burpees per minute", rest: "remaining time", notes: "10 minute challenge" },
-      ];
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "The Crucible", sets: "1", reps: "21-15-9 of burpees, thrusters, pull-ups", rest: "0", notes: "For time. You will earn this." }]
+        : [{ name: "EMOM Burpees", sets: "10", reps: "6 burpees per minute", rest: "remaining time", notes: "10 minute challenge" }];
     } else if (dayType.includes("leg")) {
       main = [
-        { name: "Goblet Squats", sets: "4", reps: reps, rest, notes: "Deep, controlled" },
-        { name: "Romanian Deadlifts", sets: "4", reps: "10", rest, notes: "Feel the stretch" },
-        { name: "Jump Squats", sets: "3", reps: "12", rest, notes: "Explosive power" },
-        { name: "Bulgarian Split Squats", sets: "3", reps: "10 each", rest, notes: "Balance and strength" },
-        { name: "Calf Raises", sets: "3", reps: "20", rest: "20 sec", notes: "Full ROM" },
+        { name: "Goblet Squats", sets, reps, rest, notes: "Deep, controlled, feel every rep" },
+        { name: "Romanian Deadlifts", sets, reps: "12", rest, notes: "Feel the hamstring stretch" },
+        { name: "Jump Squats", sets, reps: "15", rest, notes: "Explosive power" },
+        { name: "Bulgarian Split Squats", sets, reps: "12 each", rest, notes: "Balance and strength" },
+        { name: "Calf Raises", sets, reps: "25", rest: "20 sec", notes: "Full ROM, pause at top" },
+        { name: "Walking Lunges", sets, reps: "15 each", rest, notes: "Big steps" },
+        { name: "Wall Sit", sets, reps: "60 sec", rest, notes: "Thighs parallel, embrace the burn" },
       ];
-      finisher = [
-        { name: "Squat Hold + Jumps", sets: "3", reps: "30 sec hold + 10 jumps", rest: "45 sec", notes: "Burn then explode" },
-      ];
-    } else { // hybrid
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "Leg Destruction", sets: "1", reps: "50 squats, 50 lunges, 50 jump squats", rest: "0", notes: "For time. Legs will be jelly." }]
+        : [{ name: "Squat Hold + Jumps", sets: "4", reps: "40 sec hold + 15 jumps", rest: "45 sec", notes: "Burn then explode" }];
+    } else { // hybrid / destroyer
       main = [
-        { name: "Thrusters", sets: "4", reps: "10", rest, notes: "Full body power" },
-        { name: "Burpee Pull-ups", sets: "3", reps: "8", rest: "60 sec", notes: "Burpee into pull-up if possible" },
-        { name: "Dumbbell Complex", sets: "3", reps: "5 each movement", rest: "60 sec", notes: "Row, clean, press, squat - no drop" },
-        { name: "Mountain Climbers", sets: "3", reps: "30 sec", rest: "30 sec", notes: "Sprint pace" },
-        { name: "Plank Hold", sets: "3", reps: "45 sec", rest: "30 sec", notes: "Core control" },
+        { name: "Thrusters", sets, reps: "12", rest, notes: "Full body power" },
+        { name: "Burpee Pull-ups", sets, reps: "10", rest: "60 sec", notes: "Burpee into pull-up if possible" },
+        { name: "Dumbbell Complex", sets, reps: "6 each movement", rest: "60 sec", notes: "Row, clean, press, squat - no drop" },
+        { name: "Mountain Climbers", sets, reps: "45 sec", rest: "30 sec", notes: "Sprint pace" },
+        { name: "Plank Hold", sets, reps: "60 sec", rest: "30 sec", notes: "Core control" },
+        { name: "Devil Press", sets, reps: "10", rest, notes: "The ultimate hybrid exercise" },
+        { name: "Jump Lunges", sets, reps: "12 each", rest, notes: "Explosive power" },
       ];
-      finisher = [
-        { name: "Chipper", sets: "1", reps: "50 squats, 40 push-ups, 30 lunges, 20 burpees, 10 pull-ups", rest: "0", notes: "For time - no stopping" },
-      ];
+      finisher = finisherIntensity === "extreme"
+        ? [{ name: "The Chipper", sets: "1", reps: "75 squats, 50 push-ups, 40 lunges, 30 burpees, 20 pull-ups", rest: "0", notes: "For time - no stopping. This is your test." }]
+        : [{ name: "Mini Chipper", sets: "1", reps: "50 squats, 40 push-ups, 30 lunges, 20 burpees, 10 pull-ups", rest: "0", notes: "For time - no stopping" }];
     }
   }
 
@@ -376,8 +462,8 @@ Deno.serve(async (req) => {
 
         if (count && count > 0) continue; // Already has exercises
 
-        // Get exercises for this day
-        const exercises = getExercises(trackType, template.name.toLowerCase(), week.phase);
+        // Get exercises for this day - pass week number for progressive volume
+        const exercises = getExercises(trackType, template.name.toLowerCase(), week.phase, week.week_number);
         const allExercises: any[] = [];
         let order = 0;
 
@@ -450,7 +536,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Created ${totalDayWorkouts} day workouts and ${totalExercises} exercises`,
+        message: `Created ${totalDayWorkouts} day workouts and ${totalExercises} exercises with progressive volume`,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
