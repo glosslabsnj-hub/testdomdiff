@@ -60,50 +60,68 @@ function getTierTerms(planType: string) {
   }
 }
 
-// Post-processing sanitization to catch any AI slip-ups
+// Post-processing sanitization to catch any AI slip-ups - NUCLEAR OPTION
 function sanitizeMessageForTier(message: string, planType: string): string {
   let sanitized = message;
 
   if (planType === "transformation") {
-    // Gen Pop: Aggressive replacement of ANY workout-related terms with "The Sentence"
-    // Replace any variations of "yard time" 
-    sanitized = sanitized.replace(/yard\s*time/gi, "The Sentence");
-    sanitized = sanitized.replace(/yardtime/gi, "The Sentence");
+    // Gen Pop: NUCLEAR replacement - catch EVERY possible variant
     
-    // Replace generic "workout" or "workouts" with "The Sentence"
-    sanitized = sanitized.replace(/your\s+workouts?/gi, "The Sentence");
-    sanitized = sanitized.replace(/the\s+workouts?/gi, "The Sentence");
-    sanitized = sanitized.replace(/for\s+workouts?/gi, "for The Sentence");
-    sanitized = sanitized.replace(/to\s+workouts?/gi, "to The Sentence");
+    // 1. Replace action phrases containing "yard"
+    sanitized = sanitized.replace(/hit\s+the\s+yard/gi, "get to [The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/get\s+to\s+(?:the\s+)?yard\s*time/gi, "get to [The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/get\s+your\s+yard\s*time/gi, "get to [The Sentence](/dashboard/program)");
     
-    // Replace markdown links pointing to workouts with program links
+    // 2. Replace any variations of "yard time" (with/without spaces)
+    sanitized = sanitized.replace(/yard\s*time/gi, "[The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/yardtime/gi, "[The Sentence](/dashboard/program)");
+    
+    // 3. Replace "the yard" when it means workouts (not community)
+    sanitized = sanitized.replace(/to\s+the\s+yard(?!\s+is|\s+community)/gi, "to [The Sentence](/dashboard/program)");
+    
+    // 4. Replace generic "workout(s)" terms
+    sanitized = sanitized.replace(/your\s+workouts?(?!\s*completed)/gi, "[The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/the\s+workouts?(?!\s*completed)/gi, "[The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/get\s+(?:to\s+)?(?:your\s+)?workouts?/gi, "get to [The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/for\s+workouts?/gi, "for [The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/to\s+workouts?/gi, "to [The Sentence](/dashboard/program)");
+    
+    // 5. Replace ANY markdown link containing "workout" or "yard" in the text or URL
+    sanitized = sanitized.replace(/\[([^\]]*(?:yard|workout)[^\]]*)\]\([^)]*\)/gi, "[The Sentence](/dashboard/program)");
+    
+    // 6. Replace markdown links pointing to /dashboard/workouts
     sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[The Sentence](/dashboard/program)");
     sanitized = sanitized.replace(/\[([^\]]*)\]\(dashboard\/workouts\)/gi, "[The Sentence](/dashboard/program)");
     
-    // Replace standalone paths (with or without leading slash)
-    sanitized = sanitized.replace(/\/dashboard\/workouts/g, "/dashboard/program");
-    sanitized = sanitized.replace(/dashboard\/workouts/g, "/dashboard/program");
+    // 7. Replace standalone paths
+    sanitized = sanitized.replace(/\/dashboard\/workouts\b/g, "/dashboard/program");
+    sanitized = sanitized.replace(/\bdashboard\/workouts\b/g, "/dashboard/program");
     
-    // Ensure proper markdown link formatting for The Sentence
-    if (!sanitized.includes("[The Sentence]") && sanitized.includes("The Sentence")) {
-      sanitized = sanitized.replace(/The Sentence(?!\])/g, "[The Sentence](/dashboard/program)");
-      // Clean up any double-linking
-      sanitized = sanitized.replace(/\[The Sentence\]\(\/dashboard\/program\)\]\(\/dashboard\/program\)/g, "[The Sentence](/dashboard/program)");
-    }
+    // 8. Remove weird parenthetical paths like "(dashboard/program)" or "(/dashboard/program)"
+    sanitized = sanitized.replace(/\s*\(?\/?dashboard\/program\)?(?!\))/g, "");
+    
+    // 9. Clean up double brackets and malformed links
+    sanitized = sanitized.replace(/\[\[The Sentence\][^\]]*\]/g, "[The Sentence]");
+    sanitized = sanitized.replace(/\[The Sentence\]\([^)]+\)\]\([^)]+\)/g, "[The Sentence](/dashboard/program)");
+    
+    // 10. Final cleanup: ensure "The Sentence" is properly linked (only if not already)
+    sanitized = sanitized.replace(/(?<!\[)The Sentence(?!\]|\()/g, "[The Sentence](/dashboard/program)");
+    
+    // 11. Remove any duplicate links that may have formed
+    sanitized = sanitized.replace(/(\[The Sentence\]\(\/dashboard\/program\))(\s*\[The Sentence\]\(\/dashboard\/program\))+/g, "$1");
+    
   } else if (planType === "coaching") {
     // Coaching: Replace prison terminology with professional terms
-    sanitized = sanitized.replace(/yard\s*time/gi, "your training sessions");
-    sanitized = sanitized.replace(/the yard/gi, "The Network");
+    sanitized = sanitized.replace(/hit\s+the\s+yard/gi, "get to [your training plan](/dashboard/program)");
+    sanitized = sanitized.replace(/yard\s*time/gi, "[your training sessions](/dashboard/program)");
+    sanitized = sanitized.replace(/the yard(?!\s+is)/gi, "The Network");
     sanitized = sanitized.replace(/warden/gi, "P.O.");
     sanitized = sanitized.replace(/inmate/gi, "client");
     
-    // Replace markdown links pointing to workouts with program links
-    sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[Your Program](/dashboard/program)");
-    sanitized = sanitized.replace(/\[([^\]]*)\]\(dashboard\/workouts\)/gi, "[Your Program](/dashboard/program)");
-    
-    // Replace standalone paths
-    sanitized = sanitized.replace(/\/dashboard\/workouts/g, "/dashboard/program");
-    sanitized = sanitized.replace(/dashboard\/workouts/g, "/dashboard/program");
+    // Replace workout-related links
+    sanitized = sanitized.replace(/\[([^\]]*(?:yard|workout)[^\]]*)\]\([^)]*\)/gi, "[your training plan](/dashboard/program)");
+    sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[your training plan](/dashboard/program)");
+    sanitized = sanitized.replace(/\/dashboard\/workouts\b/g, "/dashboard/program");
   }
   // Solitary (membership) keeps "yard time" - no changes needed
 
@@ -252,38 +270,91 @@ async function generateWardenBrief(context: UserContext): Promise<{
       ? "ENCOURAGING - Acknowledge their discipline but push for more."
       : "DIRECT - Standard coaching tone, balanced challenge.";
   
+  // Build tier-specific instruction block
+  const tierInstructions = (() => {
+    if (context.planType === "transformation") {
+      return `
+=== CRITICAL: GEN POP (TRANSFORMATION) TIER RULES ===
+
+YOU ARE WRITING FOR A GENERAL POPULATION USER.
+
+ABSOLUTELY FORBIDDEN - DO NOT USE UNDER ANY CIRCUMSTANCES:
+- "yard time" (this is ONLY for Solitary tier members)
+- "hit the yard" (wrong tier)
+- "get to the yard" (wrong tier)
+- "workouts" or "workout" as a standalone term
+- Any path containing "/dashboard/workouts"
+- Any parenthetical paths like "(dashboard/program)"
+
+REQUIRED TERMINOLOGY:
+- ALWAYS call their training program: "The Sentence"
+- ALWAYS format as a markdown link: [The Sentence](/dashboard/program)
+- When telling them to train, say: "Get to [The Sentence](/dashboard/program)"
+
+CORRECT EXAMPLES:
+✅ "Get to [The Sentence](/dashboard/program) today."
+✅ "Week 4 of [The Sentence](/dashboard/program) is waiting."
+✅ "You're falling behind on [The Sentence](/dashboard/program)."
+
+WRONG EXAMPLES (NEVER USE):
+❌ "Get your yard time in"
+❌ "Hit the yard"
+❌ "Get to your workouts"
+❌ "/dashboard/workouts"
+❌ "(dashboard/program)"`;
+    } else if (context.planType === "coaching") {
+      return `
+=== FREE WORLD (COACHING) TIER RULES ===
+
+YOU ARE WRITING FOR A PREMIUM COACHING CLIENT.
+
+FORBIDDEN TERMS:
+- "yard time", "the yard", "warden", "inmate", "cell block"
+
+REQUIRED TERMINOLOGY:
+- Call training: "your training plan" or "your custom program"
+- Link to: [your training plan](/dashboard/program)
+- You are their "P.O." (Parole Officer/mentor)`;
+    } else {
+      return `
+=== SOLITARY (MEMBERSHIP) TIER RULES ===
+
+CORRECT TERMINOLOGY:
+- Call training: "yard time"
+- Link to: [yard time](/dashboard/workouts)`;
+    }
+  })();
+
   const contextPrompt = `
 USER CONTEXT:
 - Name: ${context.firstName || "Brother"}
 - Current Week: ${context.currentWeek} of 12
 - Goal: ${context.goal || "transformation"}
 - Plan: ${context.planType} (${terms.tierName})
-- Primary Workout Location: ${terms.workouts} at ${terms.primaryWorkoutPath}
 - Discipline Compliance: ${context.compliancePercent}%
 - Current Streak: ${context.streak} days
-- Workouts This Week: ${context.workoutsCompleted}/${context.totalWorkouts}
+- Training Sessions This Week: ${context.workoutsCompleted}/${context.totalWorkouts}
 - Weight Trend: ${context.weightTrend}
 - Recent Struggles: ${context.recentStruggles || "None reported"}
 - Recent Wins: ${context.recentWins || "None reported"}
 
-TONE INSTRUCTION: ${complianceTone}
+TONE: ${complianceTone}
 
-${weekAction ? `REQUIRED ACTION PHRASE: Your message MUST include this exact call-to-action: "${weekAction}"` : ""}
+${tierInstructions}
 
-Generate a weekly brief for this user. The brief should:
-1. Be 2-4 sentences max
-2. Reference their specific data (compliance, week, struggles, wins)
-3. Include ONE relevant scripture reference if it fits naturally (provide the reference and the verse text)
-4. Identify the main focus area: discipline, workouts, nutrition, faith, or general
-5. End with a clear direction or mindset shift
-6. ${context.planType === "transformation" ? `CRITICAL: ALWAYS use "[The Sentence](/dashboard/program)" when referring to their workout program. NEVER use "yard time", "workout", "workouts", or "/dashboard/workouts".` : `When mentioning workouts, use the exact phrase "${terms.workouts}"`}
-7. ${weekAction ? `Include this action phrase: "${weekAction}"` : `Link to workouts using: [${terms.workouts}](${terms.primaryWorkoutPath})`}
+${weekAction ? `MANDATORY ACTION PHRASE - Your message MUST end with: "${weekAction}"` : ""}
 
-${terms.forbiddenTerms.length > 0 ? `ABSOLUTELY FORBIDDEN TERMS - NEVER USE THESE: ${terms.forbiddenTerms.join(', ')}` : ''}
+Generate a weekly brief that:
+1. Is 2-4 sentences max
+2. References their specific data
+3. Optionally includes ONE scripture reference
+4. Identifies focus area: discipline, workouts, nutrition, faith, or general
+5. Uses ONLY the tier-correct terminology above
+6. Contains proper markdown links (not parenthetical paths)
 
-Respond in this exact JSON format:
+Respond in JSON format:
 {
-  "message": "Your personalized message here with [The Sentence](/dashboard/program) link",
+  "message": "Your message with proper tier terminology",
   "scriptureReference": "Book Chapter:Verse" or null,
   "scriptureText": "The verse text" or null,
   "focusArea": "discipline|workouts|nutrition|faith|general"
@@ -377,13 +448,15 @@ Deno.serve(async (req) => {
       .eq("user_id", userId)
       .single();
 
-    // Get subscription
+    // Get subscription - order by created_at DESC to get the most recent active subscription
     const { data: subscription } = await supabase
       .from("subscriptions")
       .select("*")
       .eq("user_id", userId)
       .eq("status", "active")
-      .single();
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     // Calculate current week
     let currentWeek = 1;
@@ -457,13 +530,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get workout completions
+    // Get workout completions from day_completions (actual training progress)
     const { data: workoutCompletions } = await supabase
-      .from("habit_logs")
+      .from("day_completions")
       .select("*")
       .eq("user_id", userId)
-      .like("habit_name", "workout_%")
-      .gte("log_date", sevenDaysAgo.toISOString().split("T")[0]);
+      .gte("completed_at", sevenDaysAgo.toISOString());
 
     // Get weight trend
     const { data: progressEntries } = await supabase
