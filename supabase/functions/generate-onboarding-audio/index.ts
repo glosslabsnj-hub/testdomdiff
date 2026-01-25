@@ -7,8 +7,40 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// The Warden's voice (Dom's voice for coaching)
-const VOICE_ID = "whW3u9nCRzIXd1EfN1YN";
+// Tier-based voice selection
+// - Onboarding Voice: For Solitary & Gen Pop tier walkthroughs
+// - P.O. Voice: For Free World / Coaching tier (professional mentor)
+// - Warden Voice: For weekly briefs, tips (unchanged)
+const VOICE_MAP = {
+  membership: "YtCzf4XXIC5vu5YfIjoP",     // Onboarding voice for Solitary
+  transformation: "YtCzf4XXIC5vu5YfIjoP", // Onboarding voice for Gen Pop
+  coaching: "4bOoBAdJb8z9qH6OY0IA",       // P.O. voice for Free World
+};
+
+// Voice settings per persona
+const VOICE_SETTINGS = {
+  membership: { 
+    stability: 0.7, 
+    similarity_boost: 0.75, 
+    style: 0.4, 
+    use_speaker_boost: true, 
+    speed: 0.95 
+  },
+  transformation: { 
+    stability: 0.7, 
+    similarity_boost: 0.75, 
+    style: 0.4, 
+    use_speaker_boost: true, 
+    speed: 0.95 
+  },
+  coaching: { 
+    stability: 0.65, 
+    similarity_boost: 0.8, 
+    style: 0.3, 
+    use_speaker_boost: true, 
+    speed: 1.0 
+  },
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -38,11 +70,15 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log("Generating audio for video:", video_id, "script length:", script_text.length);
+    // Select voice based on tier
+    const voiceId = VOICE_MAP[tier_key as keyof typeof VOICE_MAP] || VOICE_MAP.membership;
+    const voiceSettings = VOICE_SETTINGS[tier_key as keyof typeof VOICE_SETTINGS] || VOICE_SETTINGS.membership;
+
+    console.log(`Generating audio for tier: ${tier_key}, voice: ${voiceId}, script length: ${script_text.length}`);
 
     // Call ElevenLabs TTS API
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}?output_format=mp3_44100_128`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
       {
         method: "POST",
         headers: {
@@ -52,13 +88,7 @@ serve(async (req) => {
         body: JSON.stringify({
           text: script_text,
           model_id: "eleven_turbo_v2_5",
-          voice_settings: {
-            stability: 0.7,
-            similarity_boost: 0.75,
-            style: 0.4,
-            use_speaker_boost: true,
-            speed: 0.95,
-          },
+          voice_settings: voiceSettings,
         }),
       }
     );
@@ -127,17 +157,18 @@ serve(async (req) => {
     const audioUrl = urlData.publicUrl;
     console.log("Audio uploaded to:", audioUrl);
 
-    // Update the video record
+    // Update the video record with voice_id
     await supabase
       .from("tier_onboarding_videos")
       .update({
         audio_url: audioUrl,
+        voice_id: voiceId,
         status: "generating_captions",
       })
       .eq("id", video_id);
 
     return new Response(
-      JSON.stringify({ audio_url: audioUrl }),
+      JSON.stringify({ audio_url: audioUrl, voice_id: voiceId }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

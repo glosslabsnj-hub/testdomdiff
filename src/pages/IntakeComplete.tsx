@@ -16,6 +16,20 @@ const IntakeComplete = () => {
     trackIntakeComplete();
   }, []);
 
+  // Pre-generate onboarding video for this tier (fire and forget)
+  useEffect(() => {
+    const tierKey = isCoaching ? "coaching" : isTransformation ? "transformation" : "membership";
+    
+    fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tier-onboarding-generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ tier_key: tierKey }),
+    }).catch((err) => console.error("Video pre-generation error:", err));
+  }, [isCoaching, isTransformation]);
+
   // Tier-specific content
   const getTierContent = () => {
     if (isCoaching) {

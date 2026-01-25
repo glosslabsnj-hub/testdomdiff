@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Check, Circle, Loader2, Trophy, Play, X, ChevronRight, Clock } from "lucide-react";
+import { Check, Circle, Loader2, Trophy, Play, X, ChevronRight, Clock, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserChecklist } from "@/hooks/useUserChecklist";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import DashboardBackLink from "@/components/DashboardBackLink";
 import { OnboardingVideoPlayer } from "@/components/OnboardingVideoPlayer";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useOnboardingVideo } from "@/hooks/useOnboardingVideo";
 
 // Tier-specific checklist configurations with improved descriptions
 const SOLITARY_CHECKLIST = [
@@ -116,8 +118,12 @@ const StartHere = () => {
   const [videoLoading, setVideoLoading] = useState(true);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [videoWatched, setVideoWatched] = useState(false);
+  const [walkthroughExpanded, setWalkthroughExpanded] = useState(false);
 
   const planType = subscription?.plan_type || "membership";
+  
+  // Get onboarding video status
+  const { video: onboardingVideo, isReady: onboardingVideoReady } = useOnboardingVideo(planType);
 
   // Get tier-specific content
   const getTierConfig = () => {
@@ -263,14 +269,58 @@ const StartHere = () => {
 
       <div className="section-container py-8">
         <div className="max-w-3xl">
-          {/* AI-Generated Tier Walkthrough */}
-          <OnboardingVideoPlayer
-            tierKey={planType}
-            tierName={tierConfig.name}
-            accentClass={tierConfig.accentClass}
-            borderClass={tierConfig.borderClass}
-            onVideoWatched={markVideoWatched}
-          />
+          {/* Collapsible AI-Generated Tier Walkthrough */}
+          {onboardingVideoReady && onboardingVideo?.audio_url && (
+            <Collapsible 
+              open={walkthroughExpanded} 
+              onOpenChange={setWalkthroughExpanded}
+              className="mb-8"
+            >
+              <div className={cn("rounded-xl border bg-card", tierConfig.borderClass)}>
+                <CollapsibleTrigger asChild>
+                  <button className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", tierConfig.bgClass)}>
+                        <Play className={cn("w-5 h-5", tierConfig.accentClass)} />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium">{tierConfig.name} Walkthrough</p>
+                        <p className="text-sm text-muted-foreground">
+                          {videoWatched ? "Watched • Tap to rewatch" : "Your personalized program guide"}
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronDown className={cn(
+                      "w-5 h-5 text-muted-foreground transition-transform",
+                      walkthroughExpanded && "rotate-180"
+                    )} />
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="px-4 pb-4">
+                    <OnboardingVideoPlayer
+                      tierKey={planType}
+                      tierName={tierConfig.name}
+                      accentClass={tierConfig.accentClass}
+                      borderClass={tierConfig.borderClass}
+                      onVideoWatched={markVideoWatched}
+                    />
+                  </div>
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
+          )}
+
+          {/* Non-collapsible version when video isn't ready yet */}
+          {!onboardingVideoReady && (
+            <OnboardingVideoPlayer
+              tierKey={planType}
+              tierName={tierConfig.name}
+              accentClass={tierConfig.accentClass}
+              borderClass={tierConfig.borderClass}
+              onVideoWatched={markVideoWatched}
+            />
+          )}
 
           {/* Welcome Video Card (legacy - from admin uploads) */}
           {welcomeVideo?.video_url && (

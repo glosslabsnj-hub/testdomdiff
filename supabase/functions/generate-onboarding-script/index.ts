@@ -6,12 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Tier configurations matching the frontend
+// Tier configurations with screen slides for visual sync
 const TIER_CONFIGS = {
   membership: {
     name: "Solitary Confinement",
     subtitle: "Essential Orientation",
     description: "Master the basics with bodyweight training and daily routines.",
+    persona: "warden", // Uses authoritative prison-themed voice
     features: [
       "Bodyweight workout library (4 templates)",
       "Morning and evening discipline routines",
@@ -31,6 +32,13 @@ const TIER_CONFIGS = {
       { name: "Roll Call", purpose: "Weekly check-ins" },
       { name: "Time Served", purpose: "Progress photos" },
     ],
+    screenSlides: [
+      { id: "welcome", screen: "dashboard-overview", highlight_areas: ["start-here-tile"], duration: 15, zoom_level: 1.0 },
+      { id: "workouts", screen: "workouts-library", highlight_areas: ["workout-cards"], duration: 20, zoom_level: 1.1 },
+      { id: "discipline", screen: "discipline-routines", highlight_areas: ["morning-routine"], duration: 15, zoom_level: 1.1 },
+      { id: "progress", screen: "progress-tracker", highlight_areas: ["photo-upload"], duration: 15, zoom_level: 1.0 },
+      { id: "checkin", screen: "checkin-form", highlight_areas: ["submit-button"], duration: 10, zoom_level: 1.0 },
+    ],
     specialFeatures: null,
     ctaText: "Start with your first workout in Yard Time",
   },
@@ -38,6 +46,7 @@ const TIER_CONFIGS = {
     name: "General Population",
     subtitle: "12-Week Intake Processing",
     description: "The full 12-week sentence with structured workouts, nutrition, and community.",
+    persona: "warden", // Uses authoritative prison-themed voice
     features: [
       "12-week structured program with 3 phases",
       "Daily workout videos and instructions",
@@ -60,6 +69,14 @@ const TIER_CONFIGS = {
       { name: "The Yard", purpose: "Community and accountability" },
       { name: "Discipline", purpose: "Daily routines" },
     ],
+    screenSlides: [
+      { id: "welcome", screen: "dashboard-overview", highlight_areas: ["start-here-tile"], duration: 12, zoom_level: 1.0 },
+      { id: "program", screen: "program-week1", highlight_areas: ["week-1-card", "day-1"], duration: 20, zoom_level: 1.15 },
+      { id: "workouts", screen: "workout-detail", highlight_areas: ["exercise-list"], duration: 15, zoom_level: 1.1 },
+      { id: "nutrition", screen: "nutrition-plan", highlight_areas: ["meal-cards"], duration: 15, zoom_level: 1.1 },
+      { id: "faith", screen: "faith-lesson", highlight_areas: ["scripture"], duration: 12, zoom_level: 1.0 },
+      { id: "community", screen: "community-yard", highlight_areas: ["post-button"], duration: 12, zoom_level: 1.0 },
+    ],
     specialFeatures: "Weekly Group Call: Join the live accountability call every week. Check The Yard for the schedule and meeting link.",
     ctaText: "Start Week 1, Day 1 in The Sentence",
   },
@@ -67,6 +84,7 @@ const TIER_CONFIGS = {
     name: "Free World",
     subtitle: "Welcome to Probation",
     description: "Premium coaching with direct access to Dom, personalized programming, and 1:1 support.",
+    persona: "po", // Uses P.O. (Parole Officer) professional mentor voice
     features: [
       "Personalized training program",
       "1:1 coaching calls with Dom",
@@ -76,17 +94,24 @@ const TIER_CONFIGS = {
       "Advanced entrepreneur training",
     ],
     firstSteps: [
-      { step: "Review personalized program", location: "The Sentence", time: "5 min" },
+      { step: "Review personalized program", location: "Your Program", time: "5 min" },
       { step: "Schedule first coaching call", location: "Coaching Portal", time: "2 min" },
       { step: "Send intro message to Dom", location: "Direct Line (Messages)", time: "3 min" },
-      { step: "Complete first workout", location: "The Sentence", time: "45 min" },
+      { step: "Complete first workout", location: "Your Program", time: "45 min" },
       { step: "Explore Entrepreneur Track", location: "Advanced Skills", time: "10 min" },
     ],
     navigation: [
-      { name: "The Sentence", purpose: "Your custom program" },
+      { name: "Your Program", purpose: "Your custom workout plan" },
       { name: "Coaching Portal", purpose: "Book 1:1 calls" },
       { name: "Direct Line", purpose: "Message Dom directly" },
       { name: "Advanced Skills", purpose: "Business and income strategies" },
+    ],
+    screenSlides: [
+      { id: "welcome", screen: "dashboard-overview", highlight_areas: ["welcome-home-tile"], duration: 12, zoom_level: 1.0 },
+      { id: "coaching", screen: "coaching-portal", highlight_areas: ["book-call-button"], duration: 18, zoom_level: 1.15 },
+      { id: "messages", screen: "messages-direct", highlight_areas: ["message-input"], duration: 15, zoom_level: 1.1 },
+      { id: "program", screen: "program-custom", highlight_areas: ["week-overview"], duration: 15, zoom_level: 1.1 },
+      { id: "skills", screen: "advanced-skills", highlight_areas: ["entrepreneur-track"], duration: 15, zoom_level: 1.0 },
     ],
     specialFeatures: "1:1 Coaching: You have direct access to Dom. Book your calls through the Coaching Portal and message him anytime through Direct Line. He reviews your check-ins personally and adjusts your program based on your progress.",
     ctaText: "Schedule your first coaching call in the Coaching Portal",
@@ -118,8 +143,23 @@ serve(async (req) => {
       );
     }
 
+    // Build persona-aware prompt
+    const personaInstructions = config.persona === "po" 
+      ? `You are a Parole Officer (P.O.) welcoming someone back to society after serving time.
+Tone: Professional mentor, supportive but structured. You're their advocate who wants them to succeed on the outside.
+Address them as a free man rejoining society. Use encouraging but direct language.
+Avoid prison metaphors - they're past that now. Focus on building a new life.
+Example phrases: "Welcome home", "You've got this", "I'm here to help you succeed", "Let's build something real"`
+      : `You are the Warden of a prison-style fitness program.
+Tone: Authoritative but caring, like a drill sergeant who genuinely wants inmates to transform.
+Use prison metaphors naturally: "cell block", "yard time", "the sentence", "time served".
+Be tough but motivating. Short, punchy sentences.
+Example phrases: "Welcome to the block", "Time to get to work", "No excuses in here", "Earn your freedom"`;
+
     // Build the prompt for script generation
-    const prompt = `You are writing a voiceover script for a fitness coaching app onboarding video. Write in Dom's voice - tough but caring, like a drill sergeant who wants you to succeed.
+    const prompt = `${personaInstructions}
+
+You're writing a voiceover script for an onboarding video in a fitness coaching app.
 
 TIER: ${config.name}
 SUBTITLE: ${config.subtitle}
@@ -138,15 +178,19 @@ ${config.specialFeatures ? `SPECIAL FEATURES:\n${config.specialFeatures}` : ""}
 
 CALL TO ACTION: ${config.ctaText}
 
+SCREEN SLIDES (match your script to these visual sections):
+${config.screenSlides.map((s, i) => `${i + 1}. ${s.id} - ${s.screen} (${s.duration}s)`).join("\n")}
+
 RULES:
 - Use simple, direct language (no fluff, no corporate speak)
-- Short sentences (max 12 words)
+- Short sentences (max 12 words each)
 - Structure: Welcome → What's included → Your first steps → Navigation → How to get help → Call to action
 - Include time estimates for each step
 - Total duration: 90-120 seconds of speech
 - End with a clear, motivating call-to-action
 - Use "you" and "your" - make it personal
-- Sound like a coach, not a tutorial
+- Sound like a ${config.persona === "po" ? "supportive mentor" : "coach who's been through it"}
+- CRITICAL: The caption_lines timing must sync with the screen_slides durations
 
 OUTPUT FORMAT (JSON):
 {
@@ -155,16 +199,16 @@ OUTPUT FORMAT (JSON):
     {"text": "First caption sentence.", "start": 0, "end": 2.5},
     {"text": "Second caption sentence.", "start": 2.5, "end": 5.0}
   ],
-  "scenes": [
-    {"id": "welcome", "title": "Welcome", "text": "Scene narration", "duration": 10},
-    {"id": "features", "title": "What's Included", "text": "Scene narration", "duration": 15}
+  "screen_slides": [
+    {"id": "welcome", "screen": "dashboard-overview", "highlight_areas": ["start-here-tile"], "start": 0, "end": 15, "zoom_level": 1.0},
+    {"id": "features", "screen": "workouts-library", "highlight_areas": ["workout-cards"], "start": 15, "end": 35, "zoom_level": 1.1}
   ],
   "estimated_duration_seconds": 90
 }
 
-Generate the script now.`;
+Generate the script now, ensuring caption timing aligns with the screen slides.`;
 
-    console.log("Generating script for tier:", tier_key);
+    console.log("Generating script for tier:", tier_key, "persona:", config.persona);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -227,6 +271,7 @@ Generate the script now.`;
         .update({
           script_text: scriptData.script_text,
           caption_lines: scriptData.caption_lines,
+          screen_slides: scriptData.screen_slides || null,
           duration_seconds: scriptData.estimated_duration_seconds,
           status: "generating_audio",
         })

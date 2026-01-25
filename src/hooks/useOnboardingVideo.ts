@@ -1,6 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
+
+interface CaptionLine {
+  text: string;
+  start: number;
+  end: number;
+}
+
+interface ScreenSlide {
+  id: string;
+  screen: string;
+  highlight_areas?: string[];
+  start: number;
+  end: number;
+  zoom_level?: number;
+}
 
 interface OnboardingVideo {
   id: string;
@@ -8,8 +24,9 @@ interface OnboardingVideo {
   tier_config_version: number;
   status: "queued" | "generating_script" | "generating_audio" | "generating_captions" | "ready" | "failed";
   script_text: string | null;
-  caption_lines: Array<{ text: string; start: number; end: number }> | null;
-  voice_id: string;
+  caption_lines: CaptionLine[] | null;
+  screen_slides: ScreenSlide[] | null;
+  voice_id: string | null;
   audio_url: string | null;
   captions_srt_url: string | null;
   thumbnail_url: string | null;
@@ -17,6 +34,26 @@ interface OnboardingVideo {
   error: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// Helper to convert Json to typed arrays
+function parseCaptionLines(data: Json | null): CaptionLine[] | null {
+  if (!data || !Array.isArray(data)) return null;
+  return data as unknown as CaptionLine[];
+}
+
+function parseScreenSlides(data: Json | null): ScreenSlide[] | null {
+  if (!data || !Array.isArray(data)) return null;
+  return data as unknown as ScreenSlide[];
+}
+
+function transformVideoData(data: any): OnboardingVideo | null {
+  if (!data) return null;
+  return {
+    ...data,
+    caption_lines: parseCaptionLines(data.caption_lines),
+    screen_slides: parseScreenSlides(data.screen_slides),
+  } as OnboardingVideo;
 }
 
 export function useOnboardingVideo(tierKey: string) {
@@ -52,7 +89,7 @@ export function useOnboardingVideo(tierKey: string) {
         .maybeSingle();
 
       if (error) throw error;
-      return data as OnboardingVideo | null;
+      return transformVideoData(data);
     },
     enabled: !!tierKey && !!configVersion,
     refetchInterval: (query) => {
@@ -151,7 +188,7 @@ export function useTierOnboardingVideos() {
         .order("tier_key");
 
       if (error) throw error;
-      return data as OnboardingVideo[];
+      return (data || []).map(transformVideoData).filter(Boolean) as OnboardingVideo[];
     },
     refetchInterval: (query) => {
       // Poll while any video is generating
