@@ -60,6 +60,30 @@ function getTierTerms(planType: string) {
   }
 }
 
+// Post-processing sanitization to catch any AI slip-ups
+function sanitizeMessageForTier(message: string, planType: string): string {
+  let sanitized = message;
+
+  if (planType === "transformation") {
+    // Gen Pop: Replace "yard time" with "The Sentence"
+    sanitized = sanitized.replace(/yard time/gi, "The Sentence");
+    sanitized = sanitized.replace(/Yard Time/g, "The Sentence");
+    sanitized = sanitized.replace(/\/dashboard\/workouts/g, "/dashboard/program");
+  } else if (planType === "coaching") {
+    // Coaching: Replace prison terminology with professional terms
+    sanitized = sanitized.replace(/yard time/gi, "your training sessions");
+    sanitized = sanitized.replace(/Yard Time/g, "Your Training Sessions");
+    sanitized = sanitized.replace(/the yard/gi, "The Network");
+    sanitized = sanitized.replace(/warden/gi, "P.O.");
+    sanitized = sanitized.replace(/Warden/g, "P.O.");
+    sanitized = sanitized.replace(/inmate/gi, "client");
+    sanitized = sanitized.replace(/\/dashboard\/workouts/g, "/dashboard/program");
+  }
+  // Solitary (membership) keeps "yard time" - no changes needed
+
+  return sanitized;
+}
+
 function buildSystemPrompt(planType: string): string {
   const terms = getTierTerms(planType);
   
@@ -419,6 +443,9 @@ Deno.serve(async (req) => {
 
     // Generate the brief
     const brief = await generateWardenBrief(context);
+
+    // Sanitize terminology to ensure tier-correctness (catch any AI slip-ups)
+    brief.message = sanitizeMessageForTier(brief.message, context.planType);
 
     // Save to database
     const { data: savedMessage, error: saveError } = await supabase
