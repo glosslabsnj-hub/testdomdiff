@@ -30,7 +30,6 @@ import { WardenBrief } from "@/components/warden";
 import { TransformationWidget } from "@/components/TransformationWidget";
 import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
-import { DashboardHero } from "@/components/DashboardHero";
 import {
   Tooltip,
   TooltipContent,
@@ -329,9 +328,6 @@ const Dashboard = () => {
       <div className="section-container py-8">
         {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
         <StreakWarningBanner />
-
-        {/* Personalized Hero with Daily Scripture */}
-        <DashboardHero />
 
         {/* Welcome Banner for New Users */}
         {showWelcomeBanner && (
