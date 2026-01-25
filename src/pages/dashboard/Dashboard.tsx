@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
 import OrientationModal from "@/components/OrientationModal";
@@ -76,11 +77,8 @@ const lockedBenefits: Record<string, string> = {
 };
 
 const Dashboard = () => {
-  const { subscription, profile } = useAuth();
-  const planType = subscription?.plan_type;
-  const isCoaching = planType === "coaching";
-  const isTransformation = planType === "transformation";
-  const isMembership = planType === "membership";
+  const { profile } = useAuth();
+  const { subscription, isCoaching, isTransformation, isMembership } = useEffectiveSubscription();
   
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
@@ -264,7 +262,7 @@ const Dashboard = () => {
     },
   };
 
-  // Define locked tiles for Solitary users
+  // Define locked tiles for Solitary users (Gen Pop features)
   const lockedTilesForMembership = [
     { ...allTiles.program, locked: true, featureName: "The Sentence (12-Week Program)" },
     { ...allTiles.faith, locked: true, featureName: "Chapel (Faith & Mindset)" },
@@ -272,7 +270,14 @@ const Dashboard = () => {
     { ...allTiles.community, locked: true, featureName: "The Yard (Community)" },
   ];
   
-  type TileType = typeof allTiles.startHere & { locked?: boolean; featureName?: string };
+  // Define locked tiles for Gen Pop users (Free World features)
+  const lockedTilesForTransformation = [
+    { ...allTiles.advancedSkills, locked: true, featureName: "Entrepreneur Track (Advanced Business)", isCoachingOnly: true },
+    { ...allTiles.messages, locked: true, featureName: "Direct Line (Message Dom)", isCoachingOnly: true },
+    { ...allTiles.coaching, locked: true, featureName: "Coaching Portal (1:1 Access)", isCoachingOnly: true },
+  ];
+  
+  type TileType = typeof allTiles.startHere & { locked?: boolean; featureName?: string; isCoachingOnly?: boolean };
   const tiles: TileType[] = [];
   
   tiles.push(allTiles.startHere);
@@ -310,10 +315,21 @@ const Dashboard = () => {
   // Photo Gallery for all users
   tiles.push(allTiles.photoGallery);
   
+  // Free World only features - show as locked for Solitary and Gen Pop
   if (isCoaching) {
     tiles.push(allTiles.advancedSkills);
     tiles.push(allTiles.messages);
     tiles.push(allTiles.coaching);
+  } else if (isTransformation) {
+    // Gen Pop sees these as locked with red styling
+    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!);
+    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!);
+    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!);
+  } else if (isMembership) {
+    // Solitary also sees these as locked with red styling
+    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!);
+    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!);
+    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!);
   }
 
   const handleTileClick = (tile: TileType, e: React.MouseEvent) => {
@@ -393,7 +409,9 @@ const Dashboard = () => {
               onClick={(e) => handleTileClick(tile, e)}
               className={`block transition-all duration-300 relative group ${
                 tile.locked 
-                  ? "tile-locked opacity-80 hover:opacity-90 frosted-lock" 
+                  ? tile.isCoachingOnly 
+                    ? "tile-locked opacity-80 hover:opacity-90 frosted-lock border-crimson/40 bg-gradient-to-br from-crimson/10 to-transparent" 
+                    : "tile-locked opacity-80 hover:opacity-90 frosted-lock" 
                   : `${tile.color} hover-lift`
               }`}
               style={{ animationDelay: `${index * 50}ms` }}
@@ -407,7 +425,10 @@ const Dashboard = () => {
               
               {tile.locked && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
-                  <Lock className="w-4 h-4 text-crimson lock-shake" />
+                  <Lock className={`w-4 h-4 lock-shake ${tile.isCoachingOnly ? "text-crimson" : "text-crimson"}`} />
+                  {tile.isCoachingOnly && (
+                    <span className="text-[10px] text-crimson font-medium uppercase tracking-wide">Free World</span>
+                  )}
                 </div>
               )}
               

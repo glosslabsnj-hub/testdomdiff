@@ -11,20 +11,17 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useCheckIns } from "@/hooks/useCheckIns";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import { useMemo } from "react";
 
 export function TodaysFocus() {
-  const { subscription, profile } = useAuth();
+  const { subscription, isCoaching, isMembership } = useEffectiveSubscription();
   const { checkIns, getCurrentWeekNumber } = useCheckIns();
   const { getTodayCompliance, streak, loading: disciplineLoading } = useDailyDiscipline();
-  
-  const planType = subscription?.plan_type;
-  const isCoaching = planType === "coaching";
-  const isMembership = planType === "membership";
+  const firstName = "Warrior"; // Simplified - could add profile context if needed
   
   // Calculate current week
   const currentWeek = useMemo(() => {
@@ -64,7 +61,7 @@ export function TodaysFocus() {
     return "Good evening";
   };
 
-  const firstName = profile?.first_name || "Warrior";
+  
 
   return (
     <div className="cell-block p-6 mb-8">

@@ -2,12 +2,11 @@ import { Camera, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useProgressPhotos } from "@/hooks/useProgressPhotos";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 
 export function TransformationWidget() {
   const { photos, loading, getPhotosByType } = useProgressPhotos();
-  const { subscription } = useAuth();
-  const isCoaching = subscription?.plan_type === "coaching";
+  const { isCoaching } = useEffectiveSubscription();
 
   if (loading) {
     return (
