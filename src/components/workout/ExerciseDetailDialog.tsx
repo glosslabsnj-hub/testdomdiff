@@ -28,6 +28,9 @@ interface Exercise {
   notes: string | null;
   demo_url: string | null;
   scaling_options?: string | null;
+  instructions?: string | null;
+  form_tips?: string | null;
+  muscles_targeted?: string | null;
 }
 
 interface ExerciseDetailDialogProps {
@@ -36,8 +39,31 @@ interface ExerciseDetailDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Exercise instruction database - expandable by admin in future
-const getExerciseInstructions = (exerciseName: string): { 
+// Get exercise instructions - prefer database content, fall back to hardcoded
+const getExerciseInstructions = (exercise: Exercise): { 
+  instructions: string[];
+  formTips: string[];
+  musclesWorked: string[];
+  breathingCue: string;
+  commonMistakes: string[];
+} => {
+  // Check if we have database content
+  if (exercise.instructions || exercise.form_tips || exercise.muscles_targeted) {
+    return {
+      instructions: exercise.instructions?.split('\n').filter(Boolean) || ["Follow proper form as instructed by your coach"],
+      formTips: exercise.form_tips?.split('\n').filter(Boolean) || ["Focus on controlled movement"],
+      musclesWorked: exercise.muscles_targeted?.split(',').map(m => m.trim()).filter(Boolean) || ["Multiple muscle groups"],
+      breathingCue: "Exhale on exertion, inhale on the return",
+      commonMistakes: []
+    };
+  }
+  
+  // Fall back to hardcoded database
+  return getHardcodedInstructions(exercise.exercise_name);
+};
+
+// Hardcoded instruction database for common exercises
+const getHardcodedInstructions = (exerciseName: string): { 
   instructions: string[];
   formTips: string[];
   musclesWorked: string[];
@@ -246,7 +272,7 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
   
   if (!exercise) return null;
   
-  const exerciseData = getExerciseInstructions(exercise.exercise_name);
+  const exerciseData = getExerciseInstructions(exercise);
   const sectionInfo = getSectionInfo(exercise.section_type);
   const SectionIcon = sectionInfo.icon;
 
