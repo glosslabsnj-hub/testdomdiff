@@ -1,0 +1,155 @@
+import { useState } from "react";
+import { format } from "date-fns";
+import {
+  Crown,
+  MessageSquare,
+  Calendar,
+  Target,
+  ClipboardList,
+  Camera,
+  TrendingUp,
+  Mail,
+  Phone,
+  Loader2,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { ClientWithSubscription } from "@/hooks/useClientAnalytics";
+import { useClientProgress } from "@/hooks/useClientProgress";
+import ClientOverviewTab from "./ClientOverviewTab";
+import ClientSessionsTab from "./ClientSessionsTab";
+import ClientGoalsTab from "./ClientGoalsTab";
+import ClientMessagesTab from "./ClientMessagesTab";
+
+interface ClientProgressPanelProps {
+  client: ClientWithSubscription;
+  onUpdate: () => void;
+}
+
+export default function ClientProgressPanel({ client, onUpdate }: ClientProgressPanelProps) {
+  const [activeTab, setActiveTab] = useState("overview");
+  const { data: progress, loading } = useClientProgress(client.user_id);
+
+  const fullName = `${client.first_name || ""} ${client.last_name || ""}`.trim() || "Client";
+  const initials = fullName.slice(0, 2).toUpperCase();
+  const startDate = client.activeSubscription?.started_at
+    ? format(new Date(client.activeSubscription.started_at), "MMMM d, yyyy")
+    : "—";
+
+  return (
+    <div className="h-full flex flex-col bg-charcoal rounded-lg border border-border overflow-hidden">
+      {/* Client Header */}
+      <div className="p-4 border-b border-border bg-gradient-to-r from-purple-500/10 to-transparent">
+        <div className="flex items-start gap-4">
+          <Avatar className="w-14 h-14">
+            <AvatarImage src={client.avatar_url || undefined} />
+            <AvatarFallback className="bg-purple-500/20 text-purple-400 text-lg">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-lg font-bold truncate">{fullName}</h2>
+              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                <Crown className="w-3 h-3 mr-1" />
+                Free World
+              </Badge>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Mail className="w-3.5 h-3.5" />
+                {client.email}
+              </span>
+              {client.phone && (
+                <span className="flex items-center gap-1">
+                  <Phone className="w-3.5 h-3.5" />
+                  {client.phone}
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                Started {startDate}
+              </span>
+            </div>
+
+            {client.goal && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                <Target className="w-3.5 h-3.5 inline mr-1" />
+                {client.goal}
+              </p>
+            )}
+          </div>
+
+          <Button variant="goldOutline" size="sm" className="flex-shrink-0">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Message
+          </Button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0">
+          <TabsTrigger
+            value="overview"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="sessions"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Sessions
+          </TabsTrigger>
+          <TabsTrigger
+            value="goals"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <Target className="w-4 h-4 mr-2" />
+            Goals & Actions
+          </TabsTrigger>
+          <TabsTrigger
+            value="messages"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Messages
+          </TabsTrigger>
+        </TabsList>
+
+        <div className="flex-1 overflow-auto">
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
+              <TabsContent value="overview" className="m-0 p-4">
+                <ClientOverviewTab client={client} progress={progress} />
+              </TabsContent>
+
+              <TabsContent value="sessions" className="m-0 p-4">
+                <ClientSessionsTab clientId={client.user_id} />
+              </TabsContent>
+
+              <TabsContent value="goals" className="m-0 p-4">
+                <ClientGoalsTab clientId={client.user_id} />
+              </TabsContent>
+
+              <TabsContent value="messages" className="m-0 p-4">
+                <ClientMessagesTab clientId={client.user_id} />
+              </TabsContent>
+            </>
+          )}
+        </div>
+      </Tabs>
+    </div>
+  );
+}

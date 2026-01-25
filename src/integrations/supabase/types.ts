@@ -122,6 +122,128 @@ export type Database = {
         }
         Relationships: []
       }
+      coaching_action_items: {
+        Row: {
+          client_id: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          session_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          session_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          session_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coaching_action_items_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "coaching_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coaching_goals: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          id: string
+          progress_pct: number | null
+          status: string
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          progress_pct?: number | null
+          status?: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          progress_pct?: number | null
+          status?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      coaching_sessions: {
+        Row: {
+          client_id: string
+          coach_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          notes_visible_to_client: boolean | null
+          scheduled_at: string
+          session_type: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          coach_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          notes_visible_to_client?: boolean | null
+          scheduled_at: string
+          session_type?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          coach_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          notes_visible_to_client?: boolean | null
+          scheduled_at?: string
+          session_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       community_channels: {
         Row: {
           category: string
