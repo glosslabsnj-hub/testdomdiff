@@ -75,12 +75,28 @@ const AdvancedSkills = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-charcoal">
-            <TabsTrigger value="empire" className="gap-2">
-              <Crown className="w-4 h-4" /> Empire Building
+          <TabsList className="flex flex-wrap h-auto gap-2 p-2 bg-charcoal/80 border border-border rounded-xl">
+            <TabsTrigger 
+              value="empire" 
+              className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10
+                data-[state=active]:border data-[state=active]:border-primary/40 data-[state=active]:text-primary 
+                data-[state=active]:shadow-[0_0_20px_-5px_hsl(43_74%_49%_/_0.5)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Crown className="w-5 h-5" /> 
+              <span>Empire Building</span>
             </TabsTrigger>
-            <TabsTrigger value="lessons" className="gap-2">
-              <BookOpen className="w-4 h-4" /> Coach's Lessons
+            <TabsTrigger 
+              value="lessons" 
+              className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/20 data-[state=active]:to-blue-500/5
+                data-[state=active]:border data-[state=active]:border-blue-500/40 data-[state=active]:text-blue-400 
+                data-[state=active]:shadow-[0_0_20px_-5px_hsl(210_100%_50%_/_0.4)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <BookOpen className="w-5 h-5" /> 
+              <span>Coach's Lessons</span>
             </TabsTrigger>
           </TabsList>
 

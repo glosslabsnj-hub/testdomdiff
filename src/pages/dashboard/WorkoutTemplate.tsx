@@ -1,11 +1,26 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Clock, Dumbbell, Flame, Wind, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock, Dumbbell, Flame, Wind, Loader2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWorkoutTemplates, useWorkoutExercises } from "@/hooks/useWorkoutContent";
+import ExerciseDetailDialog from "@/components/workout/ExerciseDetailDialog";
+
+interface WorkoutExerciseDisplay {
+  id: string;
+  exercise_name: string;
+  section_type: string;
+  sets: string | null;
+  reps_or_time: string | null;
+  rest: string | null;
+  notes: string | null;
+  demo_url: string | null;
+  scaling_options?: string | null;
+}
 
 const WorkoutTemplate = () => {
   const { templateId } = useParams();
   const { templates, loading: templatesLoading } = useWorkoutTemplates();
+  const [selectedExercise, setSelectedExercise] = useState<WorkoutExerciseDisplay | null>(null);
   
   // Find the template by slug
   const template = templates.find(t => t.template_slug === templateId);
@@ -88,9 +103,26 @@ const WorkoutTemplate = () => {
             </thead>
             <tbody>
               {sectionExercises.map((exercise) => (
-                <tr key={exercise.id} className="border-b border-border/50">
+                <tr 
+                  key={exercise.id} 
+                  className="border-b border-border/50 cursor-pointer hover:bg-charcoal/50 transition-colors group"
+                  onClick={() => setSelectedExercise({
+                    id: exercise.id,
+                    exercise_name: exercise.exercise_name,
+                    section_type: exercise.section_type,
+                    sets: exercise.sets || null,
+                    reps_or_time: exercise.reps_or_time || null,
+                    rest: exercise.rest || null,
+                    notes: exercise.notes || null,
+                    demo_url: null,
+                    scaling_options: null
+                  })}
+                >
                   <td className="p-3">
-                    <span className="font-medium">{exercise.exercise_name}</span>
+                    <span className="font-medium flex items-center gap-2">
+                      {exercise.exercise_name}
+                      <Info className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </span>
                   </td>
                   <td className="p-3 text-center text-primary font-semibold">
                     {exercise.sets || "-"}
@@ -102,7 +134,9 @@ const WorkoutTemplate = () => {
                     {exercise.rest || "-"}
                   </td>
                   <td className="p-3 text-sm text-muted-foreground">
-                    {exercise.notes || "-"}
+                    {exercise.notes ? (
+                      <span className="line-clamp-1">{exercise.notes}</span>
+                    ) : "-"}
                   </td>
                 </tr>
               ))}
@@ -175,6 +209,13 @@ const WorkoutTemplate = () => {
           </Button>
         </div>
       </div>
+
+      {/* Exercise Detail Dialog */}
+      <ExerciseDetailDialog 
+        exercise={selectedExercise}
+        open={!!selectedExercise}
+        onOpenChange={(open) => !open && setSelectedExercise(null)}
+      />
     </div>
   );
 };
