@@ -35,6 +35,8 @@ export default function DisciplineManager() {
     action_text: "",
     display_order: 0,
     is_active: true,
+    duration_minutes: 5,
+    description: "" as string | null,
   });
 
   // Fetch compliance stats
@@ -101,6 +103,8 @@ export default function DisciplineManager() {
         action_text: routine.action_text,
         display_order: routine.display_order,
         is_active: routine.is_active,
+        duration_minutes: routine.duration_minutes || 5,
+        description: routine.description || "",
       });
     } else {
       setEditingRoutine(null);
@@ -111,6 +115,8 @@ export default function DisciplineManager() {
         action_text: "",
         display_order: morningCount,
         is_active: true,
+        duration_minutes: 5,
+        description: "",
       });
     }
     setDialogOpen(true);
@@ -119,10 +125,15 @@ export default function DisciplineManager() {
   const handleSave = async () => {
     if (!form.time_slot.trim() || !form.action_text.trim()) return;
 
+    const routineData = {
+      ...form,
+      description: form.description?.trim() || null,
+    };
+
     if (editingRoutine) {
-      await updateRoutine(editingRoutine.id, form);
+      await updateRoutine(editingRoutine.id, routineData);
     } else {
-      await createRoutine(form);
+      await createRoutine(routineData);
     }
     setDialogOpen(false);
   };
@@ -151,6 +162,8 @@ export default function DisciplineManager() {
         action_text: item.action_text,
         display_order: existingEveningCount + i,
         is_active: item.is_active,
+        duration_minutes: item.duration_minutes || 5,
+        description: item.description || null,
       });
     }
   };
@@ -279,6 +292,8 @@ export default function DisciplineManager() {
                   action_text: item.action_text,
                   display_order: item.display_order,
                   is_active: true,
+                  duration_minutes: 5,
+                  description: null,
                 });
               }
             }}
@@ -524,14 +539,28 @@ export default function DisciplineManager() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Time</label>
-              <Input 
-                value={form.time_slot} 
-                onChange={(e) => setForm({ ...form, time_slot: e.target.value })} 
-                className="bg-charcoal border-border" 
-                placeholder="e.g., 5:00 AM" 
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Time</label>
+                <Input 
+                  value={form.time_slot} 
+                  onChange={(e) => setForm({ ...form, time_slot: e.target.value })} 
+                  className="bg-charcoal border-border" 
+                  placeholder="e.g., 5:00 AM" 
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Duration (min)</label>
+                <Input 
+                  type="number"
+                  min={1}
+                  max={120}
+                  value={form.duration_minutes} 
+                  onChange={(e) => setForm({ ...form, duration_minutes: parseInt(e.target.value) || 5 })} 
+                  className="bg-charcoal border-border" 
+                  placeholder="5" 
+                />
+              </div>
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Action</label>
@@ -540,6 +569,15 @@ export default function DisciplineManager() {
                 onChange={(e) => setForm({ ...form, action_text: e.target.value })} 
                 className="bg-charcoal border-border" 
                 placeholder="e.g., Wake up — no snooze" 
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Description (optional)</label>
+              <Input 
+                value={form.description || ""} 
+                onChange={(e) => setForm({ ...form, description: e.target.value })} 
+                className="bg-charcoal border-border" 
+                placeholder="Add notes for calendar export" 
               />
             </div>
             <div className="flex items-center justify-between">

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, Sun, Moon, Droplet, BookOpen, Check, Loader2, 
-  Flame, Clock, History, ChevronRight, Save, Settings2
+  Flame, Clock, History, ChevronRight, Save, Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
@@ -20,14 +20,15 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import TemplateSelector from "@/components/discipline/TemplateSelector";
 import RoutineTimeEditor from "@/components/discipline/RoutineTimeEditor";
 import AddCustomRoutineDialog from "@/components/discipline/AddCustomRoutineDialog";
 import CustomRoutineItem from "@/components/discipline/CustomRoutineItem";
 import DraggableRoutineList from "@/components/discipline/DraggableRoutineList";
+import ExportScheduleDialog from "@/components/discipline/ExportScheduleDialog";
 import { MorningBriefing, WardenTip } from "@/components/warden";
-import AddToCalendarButton from "@/components/AddToCalendarButton";
-import { createTodayAtTime, addMinutes } from "@/lib/calendarUtils";
+import { RoutineWithDuration } from "@/lib/calendarUtils";
 
 const JOURNAL_PROMPTS = [
   "What were my 3 wins today?",
@@ -39,6 +40,10 @@ const JOURNAL_PROMPTS = [
 
 const Discipline = () => {
   const { user, profile, refreshProfile } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
   const {
     loading,
     morningRoutines,
@@ -86,6 +91,37 @@ const Discipline = () => {
   const today = format(new Date(), "EEEE, MMMM d, yyyy");
   const compliance = getTodayCompliance();
 
+  // Handle deep link completion from calendar
+  const completeId = searchParams.get("complete");
+  const completeType = searchParams.get("type") as "morning" | "evening" | null;
+
+  useEffect(() => {
+    if (completeId && completeType && !loading) {
+      // Find if this is a valid routine
+      const allRoutines = completeType === "morning" 
+        ? [...morningRoutines, ...morningCustomRoutines]
+        : [...eveningRoutines, ...eveningCustomRoutines];
+      
+      const routine = allRoutines.find(r => r.id === completeId);
+      
+      if (routine && !isRoutineCompleted(completeId)) {
+        toggleRoutineCompletion(completeId);
+        toast({
+          title: "Task completed!",
+          description: "Marked from your calendar",
+        });
+      } else if (routine && isRoutineCompleted(completeId)) {
+        toast({
+          title: "Already complete",
+          description: "This task was already marked done",
+        });
+      }
+      
+      // Clear URL params
+      navigate("/dashboard/discipline", { replace: true });
+    }
+  }, [completeId, completeType, loading, morningRoutines, eveningRoutines, morningCustomRoutines, eveningCustomRoutines]);
+
   // Sync currentTemplateId with profile when profile updates
   useEffect(() => {
     const profileTemplateId = (profile as any)?.discipline_template_id || null;
@@ -113,7 +149,6 @@ const Discipline = () => {
   // Handler for when template changes - refetch routines
   const handleTemplateChange = async (templateId: string) => {
     setCurrentTemplateId(templateId);
-    // Refetch routines after profile is updated
     await refetch();
   };
 
@@ -149,7 +184,6 @@ const Discipline = () => {
 
       if (error) throw error;
 
-      // Group by date
       const grouped = (data || []).reduce((acc: any, entry: any) => {
         const date = entry.journal_date;
         if (!acc[date]) acc[date] = [];
@@ -168,6 +202,33 @@ const Discipline = () => {
     }
   };
 
+  // Prepare routines for export with duration/description
+  const prepareRoutinesForExport = (
+    routines: any[],
+    customRoutines: any[],
+    routineType: "morning" | "evening"
+  ): RoutineWithDuration[] => {
+    const combined = [
+      ...routines.map(r => ({
+        id: r.id,
+        action_text: r.action_text,
+        time_slot: r.time_slot,
+        duration_minutes: r.duration_minutes || 5,
+        description: r.description || null,
+        routine_type: routineType,
+      })),
+      ...customRoutines.map(r => ({
+        id: r.id,
+        action_text: r.action_text,
+        time_slot: r.time_slot,
+        duration_minutes: r.duration_minutes || 5,
+        description: r.description || null,
+        routine_type: routineType,
+      })),
+    ];
+    return combined;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -177,6 +238,9 @@ const Discipline = () => {
   }
 
   const hasRoutines = morningRoutines.length > 0 || eveningRoutines.length > 0;
+  
+  const morningExportRoutines = prepareRoutinesForExport(morningRoutines, morningCustomRoutines, "morning");
+  const eveningExportRoutines = prepareRoutinesForExport(eveningRoutines, eveningCustomRoutines, "evening");
 
   return (
     <div className="min-h-screen bg-background">
@@ -292,14 +356,17 @@ const Discipline = () => {
                     <h2 className="font-display text-xl">Reveille → Word → Work</h2>
                   </div>
                 </div>
-                {morningRoutines.length > 0 && (
-                  <AddToCalendarButton
-                    title="Morning Discipline Routine"
-                    description={morningRoutines.map(r => `• ${r.action_text}`).join("\n")}
-                    startTime={createTodayAtTime(morningRoutines[0]?.time_slot || "5:30 AM")}
-                    endTime={addMinutes(createTodayAtTime(morningRoutines[0]?.time_slot || "5:30 AM"), 60)}
-                    size="sm"
-                    variant="ghost"
+                {morningExportRoutines.length > 0 && (
+                  <ExportScheduleDialog
+                    routineType="morning"
+                    routines={morningExportRoutines}
+                    baseTime={morningRoutines[0]?.time_slot || "5:30 AM"}
+                    trigger={
+                      <Button variant="ghost" size="sm" className="gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Export
+                      </Button>
+                    }
                   />
                 )}
               </div>
@@ -390,14 +457,17 @@ const Discipline = () => {
                     <h2 className="font-display text-xl">Lockdown → Reflect → Rest</h2>
                   </div>
                 </div>
-                {eveningRoutines.length > 0 && (
-                  <AddToCalendarButton
-                    title="Evening Discipline Routine"
-                    description={eveningRoutines.map(r => `• ${r.action_text}`).join("\n")}
-                    startTime={createTodayAtTime(eveningRoutines[0]?.time_slot || "8:00 PM")}
-                    endTime={addMinutes(createTodayAtTime(eveningRoutines[0]?.time_slot || "8:00 PM"), 45)}
-                    size="sm"
-                    variant="ghost"
+                {eveningExportRoutines.length > 0 && (
+                  <ExportScheduleDialog
+                    routineType="evening"
+                    routines={eveningExportRoutines}
+                    baseTime={eveningRoutines[0]?.time_slot || "8:00 PM"}
+                    trigger={
+                      <Button variant="ghost" size="sm" className="gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Export
+                      </Button>
+                    }
                   />
                 )}
               </div>

@@ -9,6 +9,8 @@ export interface DisciplineRoutine {
   action_text: string;
   display_order: number;
   is_active: boolean;
+  duration_minutes: number;
+  description: string | null;
   created_at: string;
   updated_at: string;
 }

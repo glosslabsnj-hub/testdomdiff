@@ -429,7 +429,9 @@ export type Database = {
         Row: {
           action_text: string
           created_at: string | null
+          description: string | null
           display_order: number | null
+          duration_minutes: number | null
           id: string
           is_active: boolean | null
           routine_type: string
@@ -439,7 +441,9 @@ export type Database = {
         Insert: {
           action_text: string
           created_at?: string | null
+          description?: string | null
           display_order?: number | null
+          duration_minutes?: number | null
           id?: string
           is_active?: boolean | null
           routine_type: string
@@ -449,7 +453,9 @@ export type Database = {
         Update: {
           action_text?: string
           created_at?: string | null
+          description?: string | null
           display_order?: number | null
+          duration_minutes?: number | null
           id?: string
           is_active?: boolean | null
           routine_type?: string
@@ -1628,7 +1634,9 @@ export type Database = {
         Row: {
           action_text: string
           created_at: string
+          description: string | null
           display_order: number | null
+          duration_minutes: number | null
           id: string
           is_active: boolean | null
           routine_type: string
@@ -1639,7 +1647,9 @@ export type Database = {
         Insert: {
           action_text: string
           created_at?: string
+          description?: string | null
           display_order?: number | null
+          duration_minutes?: number | null
           id?: string
           is_active?: boolean | null
           routine_type: string
@@ -1650,7 +1660,9 @@ export type Database = {
         Update: {
           action_text?: string
           created_at?: string
+          description?: string | null
           display_order?: number | null
+          duration_minutes?: number | null
           id?: string
           is_active?: boolean | null
           routine_type?: string

@@ -53,15 +53,15 @@ const prisonTooltips: Record<string, string> = {
 
 // Tooltip explanations for coaching/Free World tier
 const coachingTooltips: Record<string, string> = {
-  "Orientation": "Complete your setup and get started",
+  "Welcome Home": "Your probation orientation - complete your checklist",
   "Your Program": "Your personalized 12-week journey",
   "Training Sessions": "Your complete workout library",
   "Daily Structure": "Morning and evening habit routines",
   "Meal Planning": "Nutrition guidance and meal templates",
   "Faith & Mindset": "Weekly growth lessons",
-  "Weekly Report": "Submit your accountability check-in",
+  "Weekly Report": "Report to your P.O. for accountability",
   "Progress Report": "Track your transformation journey",
-  "Career Building": "Build income-generating skills",
+  "Career Building": "Build legitimate income streams",
   "The Network": "Connect with your brotherhood",
   "Photo Gallery": "View and compare your progress photos",
 };
@@ -113,10 +113,10 @@ const Dashboard = () => {
   const allTiles = {
     startHere: {
       icon: Play,
-      title: isCoaching ? "Orientation" : "Intake Processing",
-      subtitle: isCoaching ? "Getting Started" : "Week 0 Orientation",
+      title: isCoaching ? "Welcome Home" : "Intake Processing",
+      subtitle: isCoaching ? "You're on Probation" : "Week 0 Orientation",
       description: isCoaching 
-        ? "Complete your orientation. Get set up for success on the outside."
+        ? "Dom is your P.O. He's got your back and will help you succeed on the outside."
         : "Complete your intake processing. Get oriented with the program.",
       href: "/dashboard/start-here",
       color: "dashboard-tile border-primary/30",

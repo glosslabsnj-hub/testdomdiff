@@ -62,19 +62,19 @@ const prisonSteps: OrientationStep[] = [
 
 const coachingSteps: OrientationStep[] = [
   {
-    title: "Welcome to Your Dashboard",
-    description: "Here's how to navigate your coaching portal",
+    title: "Welcome Home, You're on Probation",
+    description: "Dom is your parole officer. He's got your back and will help you succeed in your reintroduction to society.",
     icon: Play,
     items: [
-      { label: "Orientation", description: "Your getting-started hub with checklist" },
-      { label: "Your Program", description: "Your personalized 12-week journey" },
+      { label: "Welcome Home", description: "Your getting-started hub with orientation checklist" },
+      { label: "Your Program", description: "Your personalized transformation journey" },
       { label: "Training Sessions", description: "Access your complete workout library" },
-      { label: "Weekly Report", description: "Submit your progress each week" },
+      { label: "Weekly Report", description: "Report to your P.O. each week" },
     ],
   },
   {
     title: "Daily Structure",
-    description: "Consistency builds results",
+    description: "Probation means accountability. Build the habits that keep you free.",
     icon: Clock,
     items: [
       { label: "Daily Structure", description: "Morning and evening habit routines" },
@@ -85,13 +85,13 @@ const coachingSteps: OrientationStep[] = [
   },
   {
     title: "Your Support System",
-    description: "Elite coaching means elite support",
+    description: "You've got a team now. Dom and your brothers have your back.",
     icon: Users,
     items: [
-      { label: "The Network", description: "Connect with your high-performance community" },
-      { label: "Your Coach", description: "Tap the shield icon for AI-assisted guidance" },
-      { label: "Photo Gallery", description: "Private transformation photo timeline" },
-      { label: "Career Building", description: "Skill development for professional growth" },
+      { label: "The Network", description: "Connect with others on probation" },
+      { label: "Your P.O. (Dom)", description: "Direct access to your parole officer" },
+      { label: "Photo Gallery", description: "Document your new life" },
+      { label: "Career Building", description: "Build legitimate income streams" },
     ],
   },
 ];
