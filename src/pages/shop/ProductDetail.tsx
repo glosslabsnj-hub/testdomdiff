@@ -9,19 +9,72 @@ import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 
-// Import product images
-import hoodieImage from "@/assets/products/hoodie.jpg";
-import teeImage from "@/assets/products/tee.jpg";
-import joggersImage from "@/assets/products/joggers.jpg";
-import beanieImage from "@/assets/products/beanie.jpg";
+// Import product images - Yard Gear
+import redeemedTee from "@/assets/products/redeemed-tee.jpg";
+import lockdownHoodie from "@/assets/products/lockdown-hoodie.jpg";
+import yardJoggers from "@/assets/products/yard-joggers.jpg";
+import resistanceBands from "@/assets/products/resistance-bands.jpg";
+import speedRope from "@/assets/products/speed-rope.jpg";
+import gripTrainer from "@/assets/products/grip-trainer.jpg";
+import workoutTimer from "@/assets/products/workout-timer.jpg";
+
+// Import product images - Cell Block Essentials
+import faithBeanie from "@/assets/products/faith-beanie.jpg";
+import redeemedBottle from "@/assets/products/redeemed-bottle.jpg";
+
+// Import product images - Chapel Store
+import warriorBible from "@/assets/products/warrior-bible.jpg";
+import warriorRosary from "@/assets/products/warrior-rosary.jpg";
+import scriptureCards from "@/assets/products/scripture-cards.jpg";
+import prayerJournal from "@/assets/products/prayer-journal.jpg";
+import devotional90 from "@/assets/products/devotional-90.jpg";
+
+// Import product images - Release Day Fits
+import releasePolo from "@/assets/products/release-polo.jpg";
+import releaseChinos from "@/assets/products/release-chinos.jpg";
+
+// Image map for products (synced with Shop.tsx)
+const productImageMap: Record<string, string> = {
+  // Yard Gear
+  "disciple tee": redeemedTee,
+  "iron mind heavyweight hoodie": lockdownHoodie,
+  "prison discipline joggers": yardJoggers,
+  "resistance band set": resistanceBands,
+  "speed jump rope": speedRope,
+  "grip strengthener set": gripTrainer,
+  "workout timer": workoutTimer,
+  // Cell Block Essentials
+  "remnant beanie": faithBeanie,
+  "dom different water bottle": redeemedBottle,
+  // Chapel Store
+  "prison bible (esv)": warriorBible,
+  "warrior's rosary": warriorRosary,
+  "scripture memory cards": scriptureCards,
+  "prayer journal": prayerJournal,
+  "90-day faith devotional": devotional90,
+  // Release Day Fits
+  "release day polo": releasePolo,
+  "release day chinos": releaseChinos,
+};
 
 const getProductImage = (productName: string, dbImageUrl: string | null): string => {
+  // First check if we have a mapped image
+  const mappedImage = productImageMap[productName.toLowerCase()];
+  if (mappedImage) return mappedImage;
+  
+  // Then check DB URL
   if (dbImageUrl) return dbImageUrl;
+  
+  // Fallback based on name patterns
   const nameLower = productName.toLowerCase();
-  if (nameLower.includes("hoodie") || nameLower.includes("sweatshirt")) return hoodieImage;
-  if (nameLower.includes("tee") || nameLower.includes("t-shirt")) return teeImage;
-  if (nameLower.includes("jogger") || nameLower.includes("sweatpants")) return joggersImage;
-  if (nameLower.includes("beanie") || nameLower.includes("hat")) return beanieImage;
+  if (nameLower.includes("hoodie") || nameLower.includes("sweatshirt")) return lockdownHoodie;
+  if (nameLower.includes("tee") || nameLower.includes("t-shirt")) return redeemedTee;
+  if (nameLower.includes("jogger") || nameLower.includes("sweatpants")) return yardJoggers;
+  if (nameLower.includes("beanie") || nameLower.includes("hat")) return faithBeanie;
+  if (nameLower.includes("bible")) return warriorBible;
+  if (nameLower.includes("rosary")) return warriorRosary;
+  if (nameLower.includes("journal") || nameLower.includes("prayer")) return prayerJournal;
+  
   return "";
 };
 
@@ -192,7 +245,7 @@ const ProductDetail = () => {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-primary" />
-                <span>Exclusive Dom Different design</span>
+                <span>Exclusive Redeemed Strength design</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-primary" />
