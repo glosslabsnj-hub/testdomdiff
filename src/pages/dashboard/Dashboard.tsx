@@ -32,6 +32,7 @@ import { TransformationWidget } from "@/components/TransformationWidget";
 import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
+import { DashboardOnboardingVideo } from "@/components/DashboardOnboardingVideo";
 import {
   Tooltip,
   TooltipContent,
@@ -406,6 +407,14 @@ const Dashboard = () => {
       <div className="section-container py-8">
         {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
         <StreakWarningBanner />
+
+        {/* Onboarding Video - First thing for new users */}
+        {isNewUser && (
+          <DashboardOnboardingVideo 
+            tierKey={subscription?.plan_type || "membership"}
+            tierName={isCoaching ? "Free World" : isTransformation ? "General Population" : "Solitary Confinement"}
+          />
+        )}
 
         {/* Welcome Banner for New Users */}
         {showWelcomeBanner && (

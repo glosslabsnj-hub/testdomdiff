@@ -1211,6 +1211,7 @@ export type Database = {
           age: number | null
           avatar_url: string | null
           created_at: string
+          dashboard_video_watched: boolean | null
           discipline_template_id: string | null
           display_name: string | null
           display_name_preference: string | null
@@ -1240,6 +1241,7 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          dashboard_video_watched?: boolean | null
           discipline_template_id?: string | null
           display_name?: string | null
           display_name_preference?: string | null
@@ -1269,6 +1271,7 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          dashboard_video_watched?: boolean | null
           discipline_template_id?: string | null
           display_name?: string | null
           display_name_preference?: string | null
@@ -1909,6 +1912,7 @@ export type Database = {
           duration_seconds: number | null
           error: string | null
           id: string
+          screen_slides: Json | null
           script_text: string | null
           status: string
           thumbnail_url: string | null
@@ -1925,6 +1929,7 @@ export type Database = {
           duration_seconds?: number | null
           error?: string | null
           id?: string
+          screen_slides?: Json | null
           script_text?: string | null
           status?: string
           thumbnail_url?: string | null
@@ -1941,6 +1946,7 @@ export type Database = {
           duration_seconds?: number | null
           error?: string | null
           id?: string
+          screen_slides?: Json | null
           script_text?: string | null
           status?: string
           thumbnail_url?: string | null
