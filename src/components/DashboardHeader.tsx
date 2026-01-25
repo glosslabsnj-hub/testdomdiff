@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield, Settings } from "lucide-react";
+import { Cross, LogOut, Clock, Crown, Sparkles, User, ChevronDown, Shield, Settings, Command } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -12,6 +12,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const DashboardHeader = () => {
   const { profile, subscription, daysRemaining, signOut } = useAuth();
@@ -96,6 +101,22 @@ const DashboardHeader = () => {
 
           {/* User Info & Actions */}
           <div className="flex items-center gap-3 sm:gap-4">
+            {/* Command Palette Hint */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-muted/30 hover:bg-muted/50 rounded-md border border-border text-muted-foreground hover:text-foreground transition-colors text-xs"
+                >
+                  <Command className="w-3 h-3" />
+                  <span>K</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>Quick navigation (⌘K)</p>
+              </TooltipContent>
+            </Tooltip>
+
             {/* Days Remaining Badge - Only for 12-week users */}
             {subscription?.plan_type === "transformation" && daysRemaining !== null && (
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full border border-primary/20">
