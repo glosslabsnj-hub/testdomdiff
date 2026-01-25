@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Check, Clock, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
 import RoutineTimeEditor from "./RoutineTimeEditor";
 import RoutineDurationEditor from "./RoutineDurationEditor";
 import SubStepsList from "./SubStepsList";
@@ -56,10 +57,17 @@ export default function RoutineItem({
 }: RoutineItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const constraintsRef = useRef(null);
+  const x = useMotionValue(0);
+  const checkOpacity = useTransform(x, [0, 80], [0, 1]);
+  const checkScale = useTransform(x, [0, 80], [0.5, 1]);
   
   const hasDescription = description && description.trim().length > 0;
   const hasSubSteps = subSteps.length > 0 || onSubStepAdd;
   const isExpandable = hasDescription || hasSubSteps;
+
+  // Swipe threshold for completion
+  const SWIPE_THRESHOLD = 100;
 
   const handleToggle = () => {
     if (!completed) {
@@ -71,37 +79,66 @@ export default function RoutineItem({
     onToggle(id);
   };
 
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    if (info.offset.x > SWIPE_THRESHOLD && !completed) {
+      handleToggle();
+    }
+  };
+
   return (
     <div
+      ref={constraintsRef}
       className={cn(
-        "w-full rounded-lg border transition-all duration-300",
+        "w-full rounded-lg border transition-all duration-300 relative overflow-hidden",
         completed 
           ? "bg-primary/10 border-primary/30" 
           : "bg-charcoal border-border hover:border-primary/50",
         justCompleted && "animate-success-pulse"
       )}
     >
-      <div className="flex items-center gap-4 p-4">
-        {/* Checkbox - ONLY toggles completion */}
+      {/* Swipe reveal background */}
+      <motion.div 
+        className="absolute inset-y-0 left-0 w-20 flex items-center justify-center bg-primary/20"
+        style={{ opacity: checkOpacity }}
+      >
+        <motion.div style={{ scale: checkScale }}>
+          <Check className="w-6 h-6 text-primary" />
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        drag={completed ? false : "x"}
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.1}
+        onDragEnd={handleDragEnd}
+        style={{ x }}
+        className="flex items-center gap-3 p-4 bg-inherit relative z-10"
+      >
+        {/* Checkbox - minimum 44x44 touch target */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             handleToggle();
           }}
           className={cn(
-            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0",
-            completed 
-              ? "bg-primary border-primary" 
-              : "border-muted-foreground/50 hover:border-primary/70"
+            "min-w-[44px] min-h-[44px] flex items-center justify-center",
+            "rounded-full transition-all flex-shrink-0 -m-2"
           )}
           aria-label={completed ? "Mark incomplete" : "Mark complete"}
         >
-          {completed && (
-            <Check className={cn(
-              "w-4 h-4 text-primary-foreground",
-              justCompleted && "animate-check-pop"
-            )} />
-          )}
+          <div className={cn(
+            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+            completed 
+              ? "bg-primary border-primary" 
+              : "border-muted-foreground/50 hover:border-primary/70"
+          )}>
+            {completed && (
+              <Check className={cn(
+                "w-4 h-4 text-primary-foreground",
+                justCompleted && "animate-check-pop"
+              )} />
+            )}
+          </div>
         </button>
 
         {/* Content area - expands for instructions/sub-steps */}
@@ -175,7 +212,7 @@ export default function RoutineItem({
             {format(new Date(completionTime), "h:mm a")}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

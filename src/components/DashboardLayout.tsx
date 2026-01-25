@@ -5,6 +5,9 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import MobileBackButton from "@/components/MobileBackButton";
+import InstallPrompt from "@/components/InstallPrompt";
+import OfflineIndicator from "@/components/OfflineIndicator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -133,12 +136,15 @@ export function DashboardLayout({ children, showBreadcrumb = true }: DashboardLa
           </header>
           
           {/* Main content */}
-          <main className={cn("flex-1", isMobile && "pb-20")}>
+          <main className={cn("flex-1", isMobile && "pb-[calc(5rem+env(safe-area-inset-bottom))]")}>
             {children}
           </main>
           
           <Footer />
           <MobileBottomNav />
+          <MobileBackButton />
+          <InstallPrompt />
+          <OfflineIndicator />
         </div>
       </div>
     </SidebarProvider>

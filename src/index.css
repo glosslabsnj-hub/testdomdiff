@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* iOS Safe Area Utilities */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+.safe-area-inset-bottom {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+/* Mobile bottom nav with safe area */
+.mobile-bottom-nav-padding {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
 /* REDEEMED STRENGTH - Faith + Discipline Design System */
 /* GRITTY INDUSTRIAL - Prison Iron & Blood Edition */
 
@@ -146,6 +172,15 @@
       /* Base gradient */
       linear-gradient(180deg, hsl(210 8% 5%) 0%, hsl(210 6% 7%) 100%);
     background-attachment: fixed;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fix scroll jank on mobile - disable fixed background */
+  @media (max-width: 768px) {
+    body {
+      background-attachment: scroll;
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
