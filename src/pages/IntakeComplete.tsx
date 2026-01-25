@@ -1,8 +1,120 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, Play, CheckSquare, Dumbbell } from "lucide-react";
+import { Check, ArrowRight, Play, CheckSquare, Dumbbell, Crown, Calendar, MessageCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const IntakeComplete = () => {
+  const { subscription } = useAuth();
+  const isCoaching = subscription?.plan_type === "coaching";
+  const isTransformation = subscription?.plan_type === "transformation";
+
+  // Tier-specific content
+  const getTierContent = () => {
+    if (isCoaching) {
+      return {
+        title: "Welcome Aboard",
+        subtitle: "You're officially in the Free World. Dom is your P.O. now.",
+        description: "Your personalized coaching journey begins. Let's get to work.",
+        steps: [
+          {
+            icon: MessageCircle,
+            title: "Send Dom a Message",
+            description: "Introduce yourself via Direct Line",
+          },
+          {
+            icon: Calendar,
+            title: "Schedule Your First Call",
+            description: "Book a 1:1 session in the Coaching Portal",
+          },
+          {
+            icon: Play,
+            title: "Start Your Program",
+            description: "Your custom training plan awaits",
+          },
+        ],
+        primaryCta: {
+          label: "Go to Coaching Portal",
+          href: "/dashboard/coaching",
+          icon: Crown,
+        },
+        secondaryCta: {
+          label: "Skip to Dashboard",
+          href: "/dashboard",
+        },
+      };
+    }
+
+    if (isTransformation) {
+      return {
+        title: "Processing Complete",
+        subtitle: "You're officially on the inside. Your cell block is ready.",
+        description: "Time to serve your 12-week sentence. Build different.",
+        steps: [
+          {
+            icon: Play,
+            title: "Watch Dom's Welcome Video",
+            description: "Get a personal message from your coach",
+          },
+          {
+            icon: CheckSquare,
+            title: "Complete Your Setup Checklist",
+            description: "Get oriented with all program features",
+          },
+          {
+            icon: Calendar,
+            title: "Start Week 1 of The Sentence",
+            description: "Your 12-week transformation begins now",
+          },
+        ],
+        primaryCta: {
+          label: "Go to Start Here",
+          href: "/dashboard/start-here",
+          icon: ArrowRight,
+        },
+        secondaryCta: {
+          label: "Skip to Dashboard",
+          href: "/dashboard",
+        },
+      };
+    }
+
+    // Membership (Solitary)
+    return {
+      title: "Processing Complete",
+      subtitle: "You're officially in Solitary. Your cell is ready.",
+      description: "Time to build discipline with bodyweight training.",
+      steps: [
+        {
+          icon: Play,
+          title: "Watch Dom's Welcome Video",
+          description: "Get a personal message from your coach",
+        },
+        {
+          icon: CheckSquare,
+          title: "Complete Your Setup Checklist",
+          description: "Get oriented with all program features",
+        },
+        {
+          icon: Dumbbell,
+          title: "Start Your First Workout",
+          description: "Jump into Yard Time when you're ready",
+        },
+      ],
+      primaryCta: {
+        label: "Go to Start Here",
+        href: "/dashboard/start-here",
+        icon: ArrowRight,
+      },
+      secondaryCta: {
+        label: "Skip to Dashboard",
+        href: "/dashboard",
+      },
+    };
+  };
+
+  const content = getTierContent();
+  const PrimaryIcon = content.primaryCta.icon;
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="section-container py-20">
@@ -11,52 +123,43 @@ const IntakeComplete = () => {
             <Check className="w-10 h-10 text-primary" />
           </div>
           <h1 className="headline-section mb-4">
-            Processing <span className="text-primary">Complete</span>
+            {content.title.split(" ")[0]}{" "}
+            <span className="text-primary">{content.title.split(" ").slice(1).join(" ")}</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            You're officially on the inside. Your cell block is ready. Time to build different.
+          <p className="text-xl text-muted-foreground mb-2">
+            {content.subtitle}
+          </p>
+          <p className="text-muted-foreground mb-8">
+            {content.description}
           </p>
           <div className="bg-charcoal p-8 rounded-lg border border-border mb-8">
             <h3 className="headline-card mb-4">What's Next:</h3>
             <ul className="text-left space-y-4">
-              <li className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <Play className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Watch Dom's Welcome Video</p>
-                  <p className="text-sm text-muted-foreground">Get a personal message from your coach</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <CheckSquare className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Complete Your Setup Checklist</p>
-                  <p className="text-sm text-muted-foreground">Get oriented with all program features</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <Dumbbell className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Start Your First Workout</p>
-                  <p className="text-sm text-muted-foreground">Jump in when you're ready — no pressure</p>
-                </div>
-              </li>
+              {content.steps.map((step, index) => {
+                const StepIcon = step.icon;
+                return (
+                  <li key={index} className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <StepIcon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{step.title}</p>
+                      <p className="text-sm text-muted-foreground">{step.description}</p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="hero" asChild>
-              <Link to="/dashboard/start-here" className="gap-2">
-                Go to Start Here <ArrowRight className="w-5 h-5" />
+              <Link to={content.primaryCta.href} className="gap-2">
+                {content.primaryCta.label} <PrimaryIcon className="w-5 h-5" />
               </Link>
             </Button>
             <Button variant="goldOutline" size="lg" asChild>
-              <Link to="/dashboard">
-                Skip to Dashboard
+              <Link to={content.secondaryCta.href}>
+                {content.secondaryCta.label}
               </Link>
             </Button>
           </div>

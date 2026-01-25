@@ -184,7 +184,13 @@ export function GlobalQuickAction({
               <Lock className="h-6 w-6 text-green-500" />
             </div>
             <p className="text-sm font-semibold text-green-500">All Routines Complete</p>
-            <p className="text-xs text-muted-foreground mt-1">Yard time earned.</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {subscription?.plan_type === "coaching" 
+                ? "Training earned." 
+                : subscription?.plan_type === "transformation"
+                  ? "Sentence continues."
+                  : "Yard time earned."}
+            </p>
           </div>
         ) : nextTask ? (
           // Next task

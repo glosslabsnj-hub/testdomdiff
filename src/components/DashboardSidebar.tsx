@@ -79,8 +79,8 @@ export function DashboardSidebar() {
       locked: isMembership,
     },
     {
-      title: isCoaching ? "Training" : "Yard Time",
-      subtitle: "Workouts",
+      title: isCoaching ? "Training" : isMembership ? "Yard Time" : "Workout Library",
+      subtitle: isMembership ? "Bodyweight" : "All Workouts",
       href: "/dashboard/workouts",
       icon: Dumbbell,
     },

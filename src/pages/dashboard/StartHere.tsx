@@ -144,7 +144,7 @@ const StartHere = () => {
           bgClass: "from-primary/20",
           borderClass: "border-primary/30",
           backLabel: "Back to Cell Block",
-          ctaLabel: "Report to Yard Time",
+          ctaLabel: "Begin The Sentence",
           ctaHref: "/dashboard/program",
         };
       default:

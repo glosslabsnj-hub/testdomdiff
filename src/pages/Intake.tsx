@@ -516,11 +516,11 @@ const Intake = () => {
         </div>
       </div>
 
-      <section className="pb-20 -mt-4">
+      <section className="pb-20 -mt-2 sm:-mt-4">
         <div className="section-container">
           <div className="max-w-2xl mx-auto">
             {/* Step Indicators */}
-            <div className="flex items-center justify-center mb-8">
+            <div className="flex items-center justify-center mb-8 pt-4 sm:pt-0">
               {stepConfig.map((s, index) => {
                 const Icon = s.icon;
                 const stepNum = index + 1;
