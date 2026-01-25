@@ -241,6 +241,9 @@ const Program = () => {
     const [completing, setCompleting] = useState(false);
     
     const setIsOpen = (open: boolean) => {
+      // Capture scroll position before state change
+      const scrollY = window.scrollY;
+      
       setExpandedWorkouts(prev => {
         const next = new Set(prev);
         if (open) {
@@ -249,6 +252,11 @@ const Program = () => {
           next.delete(workout.id);
         }
         return next;
+      });
+      
+      // Restore scroll position after render
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollY, behavior: 'instant' });
       });
     };
 
@@ -328,15 +336,39 @@ const Program = () => {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {isCompleted && (
                 <Badge className="bg-destructive/20 text-destructive border-destructive/30">
                   SERVED
                 </Badge>
               )}
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs hidden sm:inline-flex">
                 {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
               </Badge>
+              {/* Quick-complete button on collapsed card */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-9 w-9 rounded-full shrink-0",
+                  isCompleted 
+                    ? "text-destructive hover:bg-destructive/10" 
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent expand toggle
+                  handleMarkComplete();
+                }}
+                disabled={completing}
+              >
+                {completing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : isCompleted ? (
+                  <Lock className="w-4 h-4" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4" />
+                )}
+              </Button>
               {isOpen ? (
                 <ChevronDown className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
               ) : (
@@ -436,21 +468,23 @@ const Program = () => {
     const phaseInfo = getPhaseInfo(week.phase);
     const isExpanded = expandedWeek === week.week_number;
     const isCurrentWeek = currentWeek === week.week_number;
-    const isWeekCompleted = week.week_number < currentWeek;
-
     const weekWorkouts = getWorkoutsForWeek(week.id);
     const workoutCount = weekWorkouts.filter(w => !w.is_rest_day).length;
     
     // Calculate day completion progress for this week
     const completedDays = weekWorkouts.filter(w => !w.is_rest_day && isDayCompleted(w.id)).length;
     const weekProgress = workoutCount > 0 ? Math.round((completedDays / workoutCount) * 100) : 0;
+    
+    // Week is "served" if all workout days are complete OR if the week has passed
+    const isWeekFullyCompleted = workoutCount > 0 && completedDays === workoutCount;
+    const isWeekServed = isWeekFullyCompleted || week.week_number < currentWeek;
 
     return (
       <div className={cn(
         "rounded-xl border transition-all",
-        isCurrentWeek 
+        isCurrentWeek && !isWeekFullyCompleted
           ? "border-primary shadow-[0_0_30px_-10px_hsl(43_74%_49%_/_0.3)] bg-charcoal" 
-          : isWeekCompleted 
+          : isWeekServed 
             ? "border-destructive/30 bg-destructive/5"
             : "border-border bg-card hover:border-primary/30"
       )}>
@@ -464,18 +498,18 @@ const Program = () => {
               {/* Week Number Circle */}
               <div className={cn(
                 "relative w-14 h-14 rounded-full flex items-center justify-center font-display text-xl",
-                isCurrentWeek 
+                isCurrentWeek && !isWeekFullyCompleted
                   ? "bg-primary text-primary-foreground" 
-                  : isWeekCompleted
+                  : isWeekServed
                     ? "bg-destructive/20 text-destructive border-2 border-destructive"
                     : `${phaseInfo.bgColor} ${phaseInfo.textColor} border-2 ${phaseInfo.borderColor}`
               )}>
-                {isWeekCompleted ? (
+                {isWeekServed ? (
                   <Lock className="w-6 h-6" />
                 ) : (
                   week.week_number
                 )}
-                {isCurrentWeek && (
+                {isCurrentWeek && !isWeekFullyCompleted && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full animate-pulse" />
                 )}
               </div>
@@ -486,12 +520,12 @@ const Program = () => {
                   <Badge className={`${phaseInfo.bgColor} ${phaseInfo.textColor} ${phaseInfo.borderColor} border text-xs`}>
                     {phaseInfo.name}
                   </Badge>
-                  {isCurrentWeek && (
+                  {isCurrentWeek && !isWeekFullyCompleted && (
                     <Badge className="bg-primary text-primary-foreground text-xs">
                       Current Week
                     </Badge>
                   )}
-                  {isWeekCompleted && (
+                  {isWeekServed && (
                     <Badge className="bg-destructive/20 text-destructive border-destructive/30 text-xs">
                       Served
                     </Badge>
@@ -504,7 +538,7 @@ const Program = () => {
                 </div>
                 <h3 className={cn(
                   "font-display text-xl",
-                  isWeekCompleted && "text-muted-foreground"
+                  isWeekServed && "text-muted-foreground"
                 )}>
                   Week {week.week_number}: {week.title || `${phaseInfo.name} Training`}
                 </h3>
