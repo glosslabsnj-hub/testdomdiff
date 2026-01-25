@@ -68,7 +68,7 @@ export function useCommandPalette() {
       },
       {
         id: "workouts",
-        label: isCoaching ? "Training Sessions" : "Yard Time",
+        label: isCoaching ? "Training Sessions" : isMembership ? "Yard Time" : "Workout Library",
         description: isMembership ? "Bodyweight workout templates" : "Full workout library",
         icon: Dumbbell,
         href: "/dashboard/workouts",

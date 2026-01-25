@@ -3,6 +3,7 @@ import { Check, ChevronUp, Zap, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import jailSounds from "@/lib/sounds";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface RoutineTask {
   id: string;
@@ -26,9 +27,22 @@ export default function QuickActionFAB({
   onComplete,
   soundEnabled = true,
 }: QuickActionFABProps) {
+  const { subscription } = useAuth();
   const [celebrating, setCelebrating] = useState(false);
   const [justCompleted, setJustCompleted] = useState<string | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
+
+  // Get tier-aware completion message
+  const getCompletionMessage = () => {
+    switch (subscription?.plan_type) {
+      case "coaching":
+        return "Training earned.";
+      case "transformation":
+        return "Sentence continues.";
+      default:
+        return "Yard time earned.";
+    }
+  };
 
   // Find the next uncompleted task
   const getNextTask = (): RoutineTask | null => {
@@ -202,7 +216,7 @@ export default function QuickActionFAB({
               </div>
               <p className="font-display text-lg text-success">LOCKED IN</p>
               <p className="text-xs text-muted-foreground mt-1">
-                All routines complete. Yard time earned.
+                All routines complete. {getCompletionMessage()}
               </p>
             </div>
           ) : celebrating ? (
