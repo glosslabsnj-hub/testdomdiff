@@ -23,7 +23,7 @@ import NutritionManager from "@/components/admin/NutritionManager";
 import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
 import MealPlanManager from "@/components/admin/MealPlanManager";
 import MealAnalyticsPanel from "@/components/admin/MealAnalyticsPanel";
-import CoachingClientsManager from "@/components/admin/CoachingClientsManager";
+import { CoachingCommandCenter } from "@/components/admin/coaching";
 import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
 import CheckInReviewManager from "@/components/admin/CheckInReviewManager";
 import ClientHealthAlertsPanel from "@/components/admin/ClientHealthAlertsPanel";
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="coaching">
-            <CoachingClientsManager />
+            <CoachingCommandCenter />
           </TabsContent>
 
           <TabsContent value="leads" className="space-y-6">
