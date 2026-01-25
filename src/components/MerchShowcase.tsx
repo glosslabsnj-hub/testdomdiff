@@ -31,10 +31,10 @@ const MerchShowcase = () => {
         <div className="text-center mb-12">
           <Badge className="bg-primary/20 text-primary border-primary/30 mb-4">
             <ShoppingBag className="h-3 w-3 mr-1" />
-            Dom Different Apparel
+            The Commissary
           </Badge>
           <h2 className="headline-section mb-4">
-            Wear The <span className="text-primary">Mindset</span>
+            Locked In <span className="text-primary">Essentials</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Rep the Dom Different brand. Premium apparel designed for men who refuse to be average.
