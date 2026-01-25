@@ -173,6 +173,10 @@ export default {
           "42%": { transform: "scale(1.1)" },
           "70%": { transform: "scale(1)" },
         },
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -192,6 +196,7 @@ export default {
         "wiggle": "wiggle 0.5s ease-in-out",
         "shimmer": "shimmer 2s linear infinite",
         "heartbeat": "heartbeat 1.5s ease-in-out",
+        "spin-slow": "spin-slow 2s linear infinite",
       },
       backgroundImage: {
         "gradient-gold": "linear-gradient(135deg, hsl(43 74% 49%), hsl(43 74% 35%))",
