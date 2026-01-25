@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Hash, Menu, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import DashboardHeader from "@/components/DashboardHeader";
-import { useAuth } from "@/contexts/AuthContext";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import ChannelSidebar from "@/components/community/ChannelSidebar";
 import MessageList from "@/components/community/MessageList";
@@ -14,11 +14,9 @@ import { useCommunityChannels, useCommunityMessages } from "@/hooks/useCommunity
 import { cn } from "@/lib/utils";
 
 const Community = () => {
-  const { subscription } = useAuth();
+  const { isMembership, isCoaching } = useEffectiveSubscription();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const isMembership = subscription?.plan_type === "membership";
-  const isCoaching = subscription?.plan_type === "coaching";
   
   const { channels, loading: channelsLoading } = useCommunityChannels();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);

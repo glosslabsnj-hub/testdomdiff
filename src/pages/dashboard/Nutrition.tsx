@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMealPlanAssignment } from "@/hooks/useMealPlanAssignment";
 import { useMealFeedback } from "@/hooks/useMealFeedback";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import BasicNutritionPlan from "@/components/nutrition/BasicNutritionPlan";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -25,7 +26,8 @@ const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"] as const;
 
 const Nutrition = () => {
   const { assignedPlan, userCalories, loading } = useMealPlanAssignment();
-  const { subscription, profile } = useAuth();
+  const { profile } = useAuth();
+  const { isMembership } = useEffectiveSubscription();
   const { 
     addFeedback, 
     removeFeedback, 
@@ -42,7 +44,7 @@ const Nutrition = () => {
   const [mealToSwap, setMealToSwap] = useState<MealPlanMeal | null>(null);
 
   // Membership users get basic nutrition plan
-  if (subscription?.plan_type === "membership") {
+  if (isMembership) {
     return <BasicNutritionPlan userGoal={profile?.goal} />;
   }
 

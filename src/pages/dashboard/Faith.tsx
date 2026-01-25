@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFaithLessons } from "@/hooks/useFaithLessons";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import { useToast } from "@/hooks/use-toast";
 import { useTTS } from "@/hooks/useTTS";
@@ -31,7 +32,8 @@ import EmptyState from "@/components/EmptyState";
 
 const Faith = () => {
   const { lessons, loading } = useFaithLessons(true);
-  const { subscription, user } = useAuth();
+  const { user } = useAuth();
+  const { subscription, isMembership } = useEffectiveSubscription();
   const { toast } = useToast();
   const tts = useTTS();
   
@@ -72,7 +74,7 @@ const Faith = () => {
   }, [user?.id, currentWeek]);
   
   // Block membership users from accessing Faith content (after all hooks)
-  if (subscription?.plan_type === "membership") {
+  if (isMembership) {
     return <UpgradePrompt feature="Chapel (Faith & Mindset)" upgradeTo="transformation" />;
   }
 
