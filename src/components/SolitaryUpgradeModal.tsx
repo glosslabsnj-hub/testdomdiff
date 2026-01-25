@@ -90,7 +90,7 @@ const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: 
 
         <div className="flex flex-col gap-3">
           <Button variant="gold" size="lg" className="w-full" asChild>
-            <Link to="/programs/transformation" onClick={() => onOpenChange(false)}>
+            <Link to="/checkout?plan=transformation" onClick={() => onOpenChange(false)}>
               Join Gen Pop <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>

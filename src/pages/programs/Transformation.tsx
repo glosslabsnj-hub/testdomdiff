@@ -255,8 +255,8 @@ const Transformation = () => {
             </div>
             <div className="mt-6 flex justify-center">
               <Button variant="goldOutline" size="sm" asChild>
-                <Link to="/programs/coaching" className="inline-flex items-center gap-2">
-                  Explore Free World Coaching <ArrowRight className="w-4 h-4" />
+                <Link to="/checkout?plan=coaching" className="inline-flex items-center gap-2">
+                  Apply for Free World <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
             </div>

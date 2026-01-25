@@ -188,7 +188,7 @@ const BasicNutritionPlan = ({ userGoal }: BasicNutritionPlanProps) => {
                 Upgrade to Gen Pop for full meal planning with swaps and customization.
               </p>
               <Button variant="goldOutline" size="sm" asChild>
-                <Link to="/programs/transformation" className="inline-flex items-center gap-2">
+                <Link to="/checkout?plan=transformation" className="inline-flex items-center gap-2">
                   Upgrade to Gen Pop <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>

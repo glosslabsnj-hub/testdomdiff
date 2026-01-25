@@ -155,8 +155,8 @@ const Membership = () => {
                   Ready to join the General Population?
                 </p>
                 <Button variant="goldOutline" size="sm" asChild>
-                  <Link to="/programs/transformation" className="inline-flex items-center gap-2">
-                    View Gen Pop <ArrowRight className="w-4 h-4" />
+                  <Link to="/checkout?plan=transformation" className="inline-flex items-center gap-2">
+                    Join Gen Pop <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
               </div>

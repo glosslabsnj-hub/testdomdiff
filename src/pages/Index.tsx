@@ -34,7 +34,7 @@ const Index = () => {
     description: "The foundation. Strip away distractions. Just the essentials needed to perform.",
     features: ["4 bodyweight workout templates", "Daily discipline routine templates", "Basic nutrition template", "Weekly check-in submissions", "Progress tracking"],
     cta: "Enter Solitary",
-    href: "/programs/membership",
+    href: "/checkout?plan=membership",
     popular: false
   }, {
     title: "General Population",
@@ -43,7 +43,7 @@ const Index = () => {
     description: "You've earned your place. Connect with peers, get video instruction, and start building your hustle.",
     features: ["Complete 12-week framework", "Weekly video coaching", "Nutrition templates + meal guides", "Faith + mindset lessons", "Skill-building lessons", "Community access"],
     cta: "Join Gen Pop",
-    href: "/programs/transformation",
+    href: "/checkout?plan=transformation",
     popular: true
   }, {
     title: "Free World 1:1 Coaching",
@@ -52,7 +52,7 @@ const Index = () => {
     description: "You've done the time. Now live free. Direct access to Dom. Limited to 10 clients.",
     features: ["Weekly 1:1 video calls", "Direct messaging access", "Custom-built programming", "In-person training (NJ area)", "Advanced skill-building", "Everything in Gen Pop"],
     cta: "Apply for Free World",
-    href: "/programs/coaching",
+    href: "/checkout?plan=coaching",
     popular: false
   }];
   const testimonials = [{
@@ -138,18 +138,18 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up opacity-0 delay-300">
             <Button variant="hero" size="hero" asChild className="glow-gold animate-glow-pulse">
-                <Link to="/programs/transformation">
+                <Link to="/checkout?plan=transformation">
                   <span className="hidden sm:inline">Join General Population</span>
                   <span className="sm:hidden">Join Gen Pop</span>
                 </Link>
               </Button>
               <Button variant="heroOutline" size="hero" asChild>
-                <Link to="/programs/membership">
+                <Link to="/checkout?plan=membership">
                   Enter Solitary
                 </Link>
               </Button>
             </div>
-            <Link to="/programs/coaching" className="inline-flex items-center gap-2 mt-6 text-muted-foreground hover:text-primary transition-colors animate-slide-up opacity-0 delay-400">
+            <Link to="/checkout?plan=coaching" className="inline-flex items-center gap-2 mt-6 text-muted-foreground hover:text-primary transition-colors animate-slide-up opacity-0 delay-400">
               Ready for the Free World? <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -421,7 +421,7 @@ const Index = () => {
             Stop waiting. Start building. Your transformation begins with one decision.
           </p>
           <Button variant="hero" size="hero" asChild className="glow-gold">
-            <Link to="/programs/transformation">
+            <Link to="/checkout?plan=transformation">
               Start Your Transformation Now
             </Link>
           </Button>
