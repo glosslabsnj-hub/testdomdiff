@@ -12,13 +12,15 @@ import {
   RefreshCw,
   Shield,
   Lightbulb,
-  TrendingUp
+  TrendingUp,
+  Timer
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTTS } from "@/hooks/useTTS";
 import { AudioPlayButton } from "@/components/AudioPlayButton";
+import { RestTimer } from "@/components/workout/RestTimer";
 
 interface Exercise {
   id: string;
@@ -570,7 +572,7 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 bg-charcoal p-1 rounded-lg">
+          <TabsList className="grid w-full grid-cols-4 bg-charcoal p-1 rounded-lg">
             <TabsTrigger 
               value="howto" 
               className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
@@ -583,7 +585,14 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
               className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
             >
               <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Form Tips</span>
+              <span className="hidden sm:inline">Form</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="timer" 
+              className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
+            >
+              <Timer className="w-4 h-4" />
+              <span className="hidden sm:inline">Rest</span>
             </TabsTrigger>
             <TabsTrigger 
               value="video" 
@@ -694,6 +703,25 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
                 <p className="text-sm text-muted-foreground">{exercise.scaling_options}</p>
               </div>
             )}
+          </TabsContent>
+
+          {/* Rest Timer Tab */}
+          <TabsContent value="timer" className="mt-4">
+            <div className="bg-charcoal rounded-lg p-6">
+              <div className="text-center mb-4">
+                <h4 className="font-semibold text-primary flex items-center justify-center gap-2">
+                  <Timer className="w-5 h-5" />
+                  Rest Timer
+                </h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Take your rest between sets. You'll hear when it's time to work.
+                </p>
+              </div>
+              <RestTimer 
+                defaultDuration={exercise.rest ? parseInt(exercise.rest) || 60 : 60}
+                presets={[30, 45, 60, 90, 120]}
+              />
+            </div>
           </TabsContent>
 
           {/* Video Demo Tab */}
