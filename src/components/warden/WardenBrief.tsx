@@ -1,10 +1,11 @@
-import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown } from "lucide-react";
+import { Shield, RefreshCw, BookOpen, MessageCircle, ChevronDown, Volume2, VolumeX, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWarden } from "@/hooks/useWarden";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,6 +20,96 @@ export function WardenBrief() {
   const { weeklyBrief, briefLoading, briefError, refreshBrief } = useWarden();
   const isMobile = useIsMobile();
   const [scriptureOpen, setScriptureOpen] = useState(!isMobile);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
+
+  const handleListen = useCallback(async () => {
+    if (!weeklyBrief?.message) return;
+
+    // If already playing, stop
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      return;
+    }
+
+    setIsGeneratingAudio(true);
+
+    try {
+      // Build the full text to speak
+      let textToSpeak = weeklyBrief.message;
+      if (weeklyBrief.scripture_text && weeklyBrief.scripture_reference) {
+        textToSpeak += ` ... ${weeklyBrief.scripture_text}. ${weeklyBrief.scripture_reference}.`;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/warden-tts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text: textToSpeak }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate audio");
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      // Clean up previous audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        URL.revokeObjectURL(audioRef.current.src);
+      }
+
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      audio.onerror = () => {
+        setIsPlaying(false);
+        toast({
+          title: "Audio Error",
+          description: "Failed to play audio. Please try again.",
+          variant: "destructive",
+        });
+      };
+
+      await audio.play();
+      setIsPlaying(true);
+    } catch (error) {
+      console.error("TTS error:", error);
+      toast({
+        title: "Voice Unavailable",
+        description: "Could not generate audio. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingAudio(false);
+    }
+  }, [weeklyBrief, isPlaying, toast]);
+
+  // Cleanup on unmount
+  const cleanupAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      URL.revokeObjectURL(audioRef.current.src);
+      audioRef.current = null;
+    }
+  }, []);
 
   if (briefLoading && !weeklyBrief) {
     return (
@@ -92,15 +183,37 @@ export function WardenBrief() {
             </p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={refreshBrief}
-          disabled={briefLoading}
-          className="text-muted-foreground hover:text-foreground flex-shrink-0"
-        >
-          <RefreshCw className={cn("h-4 w-4", briefLoading && "animate-spin")} />
-        </Button>
+        <div className="flex items-center gap-1">
+          {/* Listen button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleListen}
+            disabled={isGeneratingAudio}
+            className={cn(
+              "text-muted-foreground hover:text-gold hover:bg-gold/10",
+              isPlaying && "text-gold bg-gold/10"
+            )}
+            title={isPlaying ? "Stop" : "Listen"}
+          >
+            {isGeneratingAudio ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : isPlaying ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={refreshBrief}
+            disabled={briefLoading}
+            className="text-muted-foreground hover:text-foreground flex-shrink-0"
+          >
+            <RefreshCw className={cn("h-4 w-4", briefLoading && "animate-spin")} />
+          </Button>
+        </div>
       </div>
 
       {/* Focus area badge */}

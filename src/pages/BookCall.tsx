@@ -1,67 +1,108 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, Phone, ArrowRight } from "lucide-react";
+import { Calendar, Phone, ArrowRight, Clock, CheckCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+// TODO: Replace with your actual Calendly URL when ready
+const CALENDLY_URL = "https://calendly.com/your-link";
+
 const BookCall = () => {
+  useEffect(() => {
+    // Load Calendly widget script
+    const script = document.createElement("script");
+    script.src = "https://assets.calendly.com/assets/external/widget.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup script on unmount
+      const existingScript = document.querySelector(
+        'script[src="https://assets.calendly.com/assets/external/widget.js"]'
+      );
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <section className="pt-32 pb-20">
         <div className="section-container">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <p className="text-primary uppercase tracking-widest mb-4">Free Consultation</p>
               <h1 className="headline-hero mb-6">
                 Book a <span className="text-primary">Call</span>
               </h1>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Not sure which program is right for you? Let's talk. 
                 15 minutes to discuss your goals and find the best path forward.
               </p>
             </div>
 
-            {/* Calendly Placeholder */}
-            <div className="bg-charcoal p-12 rounded-lg border border-border text-center mb-12">
-              <Calendar className="w-16 h-16 text-primary mx-auto mb-6" />
-              <h3 className="headline-card mb-4">Calendly Integration</h3>
-              <p className="text-muted-foreground mb-6">
-                Calendly scheduling widget will be embedded here.
-              </p>
-              <div className="p-6 bg-background rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground">
-                  Replace this section with your Calendly embed code:
-                </p>
-                <code className="text-xs text-primary mt-2 block">
-                  {`<div class="calendly-inline-widget" data-url="YOUR_CALENDLY_URL"></div>`}
-                </code>
-              </div>
+            {/* Calendly Widget */}
+            <div className="bg-charcoal rounded-xl border border-border overflow-hidden mb-12">
+              <div 
+                className="calendly-inline-widget" 
+                data-url={CALENDLY_URL}
+                style={{ minWidth: "320px", height: "700px" }}
+              />
+              
+              {/* Fallback if widget doesn't load */}
+              <noscript>
+                <div className="p-12 text-center">
+                  <Calendar className="w-16 h-16 text-primary mx-auto mb-6" />
+                  <h3 className="headline-card mb-4">Schedule Your Call</h3>
+                  <p className="text-muted-foreground mb-6">
+                    JavaScript is required to display the scheduling widget.
+                  </p>
+                  <Button variant="gold" size="lg" asChild>
+                    <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">
+                      Open Scheduler
+                    </a>
+                  </Button>
+                </div>
+              </noscript>
             </div>
 
             {/* What to Expect */}
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <div className="p-6 rounded-lg bg-charcoal border border-border">
-                <Phone className="w-10 h-10 text-primary mb-4" />
-                <h3 className="headline-card mb-2">15-Minute Call</h3>
-                <p className="text-muted-foreground">
-                  Quick, focused conversation to understand your goals and 
-                  determine the best program for your situation.
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <div className="p-6 rounded-lg bg-charcoal border border-border text-center">
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-6 h-6 text-gold" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">15 Minutes</h3>
+                <p className="text-sm text-muted-foreground">
+                  Quick, focused conversation to understand your goals
                 </p>
               </div>
-              <div className="p-6 rounded-lg bg-charcoal border border-border">
-                <Calendar className="w-10 h-10 text-primary mb-4" />
-                <h3 className="headline-card mb-2">No Obligation</h3>
-                <p className="text-muted-foreground">
-                  This is a consultation, not a sales pitch. We'll give you 
-                  honest advice about whether this is right for you.
+              <div className="p-6 rounded-lg bg-charcoal border border-border text-center">
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                  <Phone className="w-6 h-6 text-gold" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">No Pressure</h3>
+                <p className="text-sm text-muted-foreground">
+                  Honest advice, not a sales pitch
+                </p>
+              </div>
+              <div className="p-6 rounded-lg bg-charcoal border border-border text-center">
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-6 h-6 text-gold" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2">Clear Direction</h3>
+                <p className="text-sm text-muted-foreground">
+                  Leave knowing exactly which path is right for you
                 </p>
               </div>
             </div>
 
             {/* Alternative CTA */}
-            <div className="text-center p-8 bg-charcoal rounded-lg border border-primary/30">
+            <div className="text-center p-8 bg-charcoal rounded-lg border border-gold/30">
               <h3 className="headline-card mb-4">Ready to Start Now?</h3>
               <p className="text-muted-foreground mb-6">
                 Skip the call and jump straight into the transformation.

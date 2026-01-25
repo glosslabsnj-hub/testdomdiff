@@ -1,1 +1,7 @@
 project_id = "wbnrmnfsxrxcxnvmowtp"
+
+[functions.warden-tts]
+verify_jwt = false
+
+[functions.email-subscribe]
+verify_jwt = false
