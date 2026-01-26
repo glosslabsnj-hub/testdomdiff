@@ -1,9 +1,9 @@
-import { Play, RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Play, RefreshCw, Loader2, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useOnboardingVideo } from "@/hooks/useOnboardingVideo";
-import { OnboardingVideoWithVisuals } from "./OnboardingVideoWithVisuals";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OnboardingVideoPlayerProps {
   tierKey: string;
@@ -22,10 +22,36 @@ export function OnboardingVideoPlayer({
   onVideoWatched,
   fallbackContent,
 }: OnboardingVideoPlayerProps) {
-  const { video, isLoading, needsGeneration, isGenerating, isReady, triggerGeneration } = useOnboardingVideo(tierKey);
+  const [walkthroughUrl, setWalkthroughUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [hasWatched, setHasWatched] = useState(false);
+
+  // Fetch walkthrough video URL for this tier
+  useEffect(() => {
+    const fetchWalkthrough = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("program_welcome_videos")
+        .select("walkthrough_video_url")
+        .eq("plan_type", tierKey)
+        .single();
+
+      if (!error && data?.walkthrough_video_url) {
+        setWalkthroughUrl(data.walkthrough_video_url);
+      }
+      setLoading(false);
+    };
+
+    fetchWalkthrough();
+  }, [tierKey]);
+
+  const handleVideoEnd = () => {
+    setHasWatched(true);
+    onVideoWatched?.();
+  };
 
   // Loading state
-  if (isLoading) {
+  if (loading) {
     return (
       <Card className={cn("mb-8", borderClass)}>
         <CardContent className="p-6">
@@ -41,39 +67,8 @@ export function OnboardingVideoPlayer({
     );
   }
 
-  // Generation in progress
-  if (isGenerating) {
-    const statusMessages: Record<string, string> = {
-      queued: "Preparing your walkthrough...",
-      generating_script: "Writing your personalized script...",
-      generating_audio: "Recording voiceover...",
-      generating_captions: "Adding captions...",
-    };
-
-    return (
-      <Card className={cn("mb-8 bg-charcoal", borderClass)}>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Loader2 className={cn("w-8 h-8 animate-spin", accentClass)} />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold mb-1">Generating Your Tier Walkthrough</h3>
-              <p className="text-sm text-muted-foreground mb-2">
-                {video?.status ? statusMessages[video.status] : "Starting..."}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                This takes about 2 minutes. You can continue browsing.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Needs generation (not auto-triggered)
-  if (needsGeneration) {
+  // No walkthrough video uploaded yet
+  if (!walkthroughUrl) {
     return (
       <Card className={cn("mb-8 bg-charcoal", borderClass)}>
         <CardContent className="p-6">
@@ -83,33 +78,9 @@ export function OnboardingVideoPlayer({
             </div>
             <div className="flex-1">
               <h3 className="font-semibold mb-1">{tierName} Walkthrough</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                {video?.error 
-                  ? "Previous generation failed. Click to try again."
-                  : "Get a personalized audio walkthrough of how to use your program."}
+              <p className="text-sm text-muted-foreground">
+                Walkthrough video coming soon. Check back later for a guided tour of your program.
               </p>
-              <Button
-                variant="gold"
-                size="sm"
-                onClick={() => triggerGeneration.mutate(!!video?.error)}
-                disabled={triggerGeneration.isPending}
-                className="gap-2"
-              >
-                {triggerGeneration.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : video?.error ? (
-                  <RefreshCw className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-                {video?.error ? "Retry Generation" : "Generate Walkthrough"}
-              </Button>
-              {video?.error && (
-                <p className="text-xs text-destructive mt-2 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {video.error}
-                </p>
-              )}
             </div>
           </div>
         </CardContent>
@@ -117,25 +88,31 @@ export function OnboardingVideoPlayer({
     );
   }
 
-  // Ready - show visual video player with Ken Burns effects
-  if (isReady && video?.audio_url) {
-    return (
-      <Card className={cn("mb-8 bg-charcoal overflow-hidden", borderClass)}>
-        <CardContent className="p-0">
-          <OnboardingVideoWithVisuals
-            audioUrl={video.audio_url}
-            captionLines={video.caption_lines}
-            screenSlides={video.screen_slides}
-            tierKey={tierKey}
-            tierName={tierName}
-            accentClass={accentClass}
-            onVideoWatched={onVideoWatched}
-          />
-        </CardContent>
-      </Card>
-    );
-  }
+  // Ready - show video player
+  return (
+    <Card className={cn("mb-8 bg-charcoal overflow-hidden", borderClass)}>
+      <CardContent className="p-0">
+        <div className="relative">
+          {/* Video Player */}
+          <div className="aspect-video bg-black">
+            <video
+              src={walkthroughUrl}
+              controls
+              className="w-full h-full"
+              onEnded={handleVideoEnd}
+              playsInline
+            />
+          </div>
 
-  // Fallback to provided content
-  return <>{fallbackContent}</>;
+          {/* Watched badge */}
+          {hasWatched && (
+            <div className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+              <Check className="w-3 h-3" />
+              Watched
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }

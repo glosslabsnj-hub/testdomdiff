@@ -1580,6 +1580,7 @@ export type Database = {
           video_description: string | null
           video_title: string | null
           video_url: string | null
+          walkthrough_video_url: string | null
         }
         Insert: {
           created_at?: string | null
@@ -1589,6 +1590,7 @@ export type Database = {
           video_description?: string | null
           video_title?: string | null
           video_url?: string | null
+          walkthrough_video_url?: string | null
         }
         Update: {
           created_at?: string | null
@@ -1598,6 +1600,7 @@ export type Database = {
           video_description?: string | null
           video_title?: string | null
           video_url?: string | null
+          walkthrough_video_url?: string | null
         }
         Relationships: []
       }
