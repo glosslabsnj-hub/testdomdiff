@@ -350,11 +350,18 @@ Generate a weekly brief that:
 3. Optionally includes ONE scripture reference
 4. Identifies focus area: discipline, workouts, nutrition, faith, or general
 5. Uses ONLY the tier-correct terminology above
-6. Contains proper markdown links (not parenthetical paths)
+6. Contains proper markdown links - format: [text](/path)
+7. NEVER use HTML tags like <a href="...">, <strong>, <em>, etc.
+8. Use ONLY markdown formatting - no HTML whatsoever
+
+CRITICAL: Your response MUST use markdown syntax ONLY:
+- Links: [The Sentence](/dashboard/program) - NOT <a href="/dashboard/program">The Sentence</a>
+- Bold: **text** - NOT <strong>text</strong>
+- Italic: *text* - NOT <em>text</em>
 
 Respond in JSON format:
 {
-  "message": "Your message with proper tier terminology",
+  "message": "Your message with proper markdown formatting (NO HTML TAGS)",
   "scriptureReference": "Book Chapter:Verse" or null,
   "scriptureText": "The verse text" or null,
   "focusArea": "discipline|workouts|nutrition|faith|general"
@@ -389,18 +396,42 @@ Respond in JSON format:
   try {
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      const parsed = JSON.parse(jsonMatch[0]);
+      // Strip any HTML tags that may have slipped through and convert to markdown
+      if (parsed.message) {
+        parsed.message = stripHtmlToMarkdown(parsed.message);
+      }
+      return parsed;
     }
   } catch {
     // If parsing fails, return the raw message
   }
   
   return {
-    message: content,
+    message: stripHtmlToMarkdown(content),
     scriptureReference: null,
     scriptureText: null,
     focusArea: "general",
   };
+}
+
+// Convert HTML to markdown and strip remaining tags
+function stripHtmlToMarkdown(text: string): string {
+  let result = text;
+  
+  // Convert HTML links to markdown links
+  result = result.replace(/<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/gi, '[$2]($1)');
+  
+  // Convert bold/strong to markdown
+  result = result.replace(/<(strong|b)>([^<]+)<\/(strong|b)>/gi, '**$2**');
+  
+  // Convert italic/em to markdown
+  result = result.replace(/<(em|i)>([^<]+)<\/(em|i)>/gi, '*$2*');
+  
+  // Strip any remaining HTML tags
+  result = result.replace(/<[^>]+>/g, '');
+  
+  return result;
 }
 
 Deno.serve(async (req) => {
