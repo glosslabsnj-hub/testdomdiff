@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Video, Upload, Film, Clapperboard } from "lucide-react";
+import { Loader2, Save, Video, Upload, Film, Clapperboard, Music } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 interface WelcomeVideo {
   id: string;
@@ -17,6 +18,7 @@ interface WelcomeVideo {
   video_title: string;
   video_description: string | null;
   walkthrough_video_url: string | null;
+  walkthrough_audio_url: string | null;
 }
 
 const TIER_LABELS: Record<string, { name: string; description: string; color: string }> = {
@@ -75,6 +77,7 @@ export default function WelcomeVideosManager() {
         video_title: video.video_title,
         video_description: video.video_description,
         walkthrough_video_url: video.walkthrough_video_url,
+        walkthrough_audio_url: video.walkthrough_audio_url,
         updated_at: new Date().toISOString(),
       })
       .eq("id", video.id);
@@ -85,6 +88,98 @@ export default function WelcomeVideosManager() {
       toast({ title: "Success", description: "Video settings updated" });
     }
     setSaving(null);
+  };
+
+  const handleAudioUpload = async (
+    videoId: string, 
+    planType: string, 
+    file: File
+  ) => {
+    if (!file) return;
+
+    // Validate file size (50MB max)
+    const MAX_SIZE = 50 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      toast({
+        title: "File too large",
+        description: `Maximum file size is 50MB. Your file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/x-m4a', 'audio/aac'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|aac)$/i)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload MP3, WAV, M4A, or AAC files only.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log(`🔊 Starting audio upload:`, {
+      videoId,
+      planType,
+      fileName: file.name,
+      fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+      fileType: file.type
+    });
+
+    setUploading({ id: videoId, type: 'walkthrough' });
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `audio-${planType}-${Date.now()}.${fileExt}`;
+      const filePath = `${planType}/${fileName}`;
+
+      console.log(`📤 Uploading audio to bucket: tier-walkthroughs, path: ${filePath}`);
+
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('tier-walkthroughs')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("❌ Storage upload error:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("✅ Audio upload successful:", uploadData);
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('tier-walkthroughs')
+        .getPublicUrl(filePath);
+
+      console.log("🔗 Public URL:", publicUrl);
+
+      const { error: updateError } = await supabase
+        .from("program_welcome_videos")
+        .update({ walkthrough_audio_url: publicUrl, updated_at: new Date().toISOString() })
+        .eq("id", videoId);
+
+      if (updateError) {
+        console.error("❌ Database update error:", updateError);
+        throw updateError;
+      }
+
+      console.log("✅ Database updated successfully");
+
+      setVideos(videos.map(v => 
+        v.id === videoId ? { ...v, walkthrough_audio_url: publicUrl } : v
+      ));
+
+      toast({ title: "Success", description: "Narration audio uploaded" });
+    } catch (error: any) {
+      console.error("❌ Audio upload error:", error);
+      toast({ 
+        title: "Upload Failed", 
+        description: error.message || "Unknown error occurred.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setUploading(null);
+    }
   };
 
   const handleFileUpload = async (
@@ -296,6 +391,66 @@ export default function WelcomeVideosManager() {
                         id={`walkthrough-url-${video.id}`}
                         value={video.walkthrough_video_url || ""}
                         onChange={(e) => updateVideoField(video.id, "walkthrough_video_url", e.target.value)}
+                        placeholder="https://..."
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    {/* Narration Audio Section */}
+                    <div className="p-4 rounded-lg bg-accent/10 border border-accent/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Music className="w-4 h-4 text-accent" />
+                        <h4 className="font-medium text-sm">Narration Audio</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Upload custom audio narration. Overrides AI-generated audio when set.
+                      </p>
+                    </div>
+
+                    {/* Audio Preview */}
+                    {video.walkthrough_audio_url && (
+                      <div className="p-3 rounded-lg bg-charcoal border border-border">
+                        <Label className="text-xs text-muted-foreground mb-2 block">Current Audio</Label>
+                        <audio 
+                          src={video.walkthrough_audio_url} 
+                          controls 
+                          className="w-full h-10"
+                        />
+                      </div>
+                    )}
+
+                    {/* Upload Audio Button */}
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">Upload Audio File</Label>
+                      <div className="flex gap-3 items-center">
+                        <Input
+                          type="file"
+                          accept=".mp3,.wav,.m4a,.aac,audio/mpeg,audio/wav,audio/m4a,audio/aac"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleAudioUpload(video.id, video.plan_type, file);
+                          }}
+                          className="flex-1"
+                          disabled={uploading?.id === video.id}
+                        />
+                        {uploading?.id === video.id && (
+                          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        MP3, WAV, M4A, or AAC • Max 50MB
+                      </p>
+                    </div>
+
+                    {/* Direct Audio URL */}
+                    <div>
+                      <Label htmlFor={`audio-url-${video.id}`}>Or paste audio URL</Label>
+                      <Input
+                        id={`audio-url-${video.id}`}
+                        value={video.walkthrough_audio_url || ""}
+                        onChange={(e) => updateVideoField(video.id, "walkthrough_audio_url", e.target.value)}
                         placeholder="https://..."
                         className="mt-1"
                       />

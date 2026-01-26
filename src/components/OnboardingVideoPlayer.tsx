@@ -27,6 +27,7 @@ export function OnboardingVideoPlayer({
 }: OnboardingVideoPlayerProps) {
   const [welcomeVideoUrl, setWelcomeVideoUrl] = useState<string | null>(null);
   const [walkthroughVideoUrl, setWalkthroughVideoUrl] = useState<string | null>(null);
+  const [manualAudioUrl, setManualAudioUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasWatched, setHasWatched] = useState(false);
   const [playbackPhase, setPlaybackPhase] = useState<PlaybackPhase>("welcome");
@@ -44,25 +45,30 @@ export function OnboardingVideoPlayer({
   // Get AI-generated audio for walkthrough
   const { video: onboardingData, isReady: hasAiAudio } = useOnboardingVideo(tierKey);
 
-  // Fetch welcome video and walkthrough video URLs
+  // Fetch welcome video, walkthrough video, and manual audio URLs
   useEffect(() => {
     const fetchVideos = async () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("program_welcome_videos")
-        .select("video_url, walkthrough_video_url")
+        .select("video_url, walkthrough_video_url, walkthrough_audio_url")
         .eq("plan_type", tierKey)
         .single();
 
       if (!error && data) {
         setWelcomeVideoUrl(data.video_url);
         setWalkthroughVideoUrl(data.walkthrough_video_url);
+        setManualAudioUrl(data.walkthrough_audio_url);
       }
       setLoading(false);
     };
 
     fetchVideos();
   }, [tierKey]);
+
+  // Determine which audio to use: manual upload takes priority over AI-generated
+  const effectiveAudioUrl = manualAudioUrl || onboardingData?.audio_url;
+  const hasAudio = !!effectiveAudioUrl;
 
   // Auto-transition to walkthrough if no welcome video
   useEffect(() => {
@@ -79,8 +85,10 @@ export function OnboardingVideoPlayer({
     console.log("[OnboardingVideoPlayer] Starting walkthrough playback", {
       hasVideo: !!video,
       hasAudio: !!audio,
-      hasAiAudio,
-      audioUrl: onboardingData?.audio_url,
+      hasAudioSource: hasAudio,
+      manualAudioUrl,
+      aiAudioUrl: onboardingData?.audio_url,
+      effectiveAudioUrl,
     });
 
     if (!video) return;
@@ -95,7 +103,7 @@ export function OnboardingVideoPlayer({
       return;
     }
 
-    if (audio && hasAiAudio && onboardingData?.audio_url) {
+    if (audio && hasAudio) {
       audio.currentTime = 0;
       try {
         await audio.play();
@@ -109,7 +117,7 @@ export function OnboardingVideoPlayer({
     }
 
     setIsPlaying(true);
-  }, [hasAiAudio, onboardingData?.audio_url]);
+  }, [hasAudio, manualAudioUrl, onboardingData?.audio_url, effectiveAudioUrl]);
 
   // Handle welcome video end - transition to walkthrough
   const handleWelcomeVideoEnd = useCallback(() => {
@@ -153,7 +161,7 @@ export function OnboardingVideoPlayer({
 
     // Mobile browsers (especially iOS Safari) often require a user gesture before audio can play.
     // We "prime" the narration audio on the first tap so the later auto-transition can start audio reliably.
-    if (hasAiAudio && onboardingData?.audio_url && audioRef.current) {
+    if (hasAudio && audioRef.current) {
       const audio = audioRef.current;
       const previousMuted = audio.muted;
       audio.muted = true;
@@ -174,7 +182,7 @@ export function OnboardingVideoPlayer({
     } else if (playbackPhase === "walkthrough") {
       startWalkthroughPlayback();
     }
-  }, [playbackPhase, startWalkthroughPlayback, hasAiAudio, onboardingData?.audio_url]);
+  }, [playbackPhase, startWalkthroughPlayback, hasAudio]);
 
   // Toggle play/pause
   const togglePlayPause = useCallback(() => {
@@ -231,7 +239,7 @@ export function OnboardingVideoPlayer({
 
   // Sync walkthrough video with audio - audio is the source of truth
   useEffect(() => {
-    if (playbackPhase !== "walkthrough" || !hasAiAudio || !onboardingData?.audio_url) {
+    if (playbackPhase !== "walkthrough" || !hasAudio) {
       return;
     }
 
@@ -256,13 +264,13 @@ export function OnboardingVideoPlayer({
     }, 500);
 
     return () => clearInterval(syncInterval);
-  }, [playbackPhase, hasAiAudio, onboardingData?.audio_url]);
+  }, [playbackPhase, hasAudio]);
 
   // If the walkthrough is playing but audio got blocked/paused, try to start it once it's available.
   useEffect(() => {
     if (playbackPhase !== "walkthrough") return;
     if (!hasStarted) return;
-    if (!hasAiAudio || !onboardingData?.audio_url) return;
+    if (!hasAudio) return;
     if (needsAudioTap) return;
 
     const video = walkthroughVideoRef.current;
@@ -278,7 +286,7 @@ export function OnboardingVideoPlayer({
         setNeedsAudioTap(true);
       });
     }
-  }, [playbackPhase, hasStarted, hasAiAudio, onboardingData?.audio_url, needsAudioTap]);
+  }, [playbackPhase, hasStarted, hasAudio, needsAudioTap]);
 
   // Handle video play/pause events
   const handleVideoPlay = useCallback(() => setIsPlaying(true), []);
@@ -327,10 +335,10 @@ export function OnboardingVideoPlayer({
     <Card className={cn("mb-8 bg-charcoal overflow-hidden", borderClass)}>
       <CardContent className="p-0">
         <div className="relative">
-          {/* ALWAYS mount audio element for mobile reliability - src updates when data loads */}
+          {/* ALWAYS mount audio element for mobile reliability - uses manual audio if available, else AI audio */}
           <audio
             ref={audioRef}
-            src={onboardingData?.audio_url || ""}
+            src={effectiveAudioUrl || ""}
             onEnded={handleWalkthroughEnd}
             preload="auto"
             onPlay={() => setIsPlaying(true)}
@@ -478,10 +486,10 @@ export function OnboardingVideoPlayer({
               {/* Phase indicator with audio status */}
               <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-background/80 text-xs font-medium flex items-center gap-2">
                 <span>Platform Walkthrough</span>
-                {hasAiAudio && onboardingData?.audio_url && (
+                {hasAudio && (
                   <span className="flex items-center gap-1 text-primary">
                     <Volume2 className="w-3 h-3" />
-                    <span>AI Narration</span>
+                    <span>{manualAudioUrl ? "Narration" : "AI Narration"}</span>
                   </span>
                 )}
               </div>
