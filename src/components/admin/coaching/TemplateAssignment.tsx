@@ -1,27 +1,23 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   Loader2,
   Sparkles,
   Check,
   ChevronDown,
+  ChevronRight,
   Dumbbell,
   Calendar,
   Target,
   Activity,
   AlertCircle,
+  Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Collapsible,
   CollapsibleContent,
@@ -31,6 +27,7 @@ import {
   useTemplateCategories,
   useProgramTemplates,
   useAssignTemplate,
+  useTemplateDetails,
   type ProgramTemplate,
 } from "@/hooks/useProgramTemplates";
 import { useTemplateSuggestion, getMatchQuality } from "@/hooks/useTemplateSuggestion";
@@ -41,20 +38,22 @@ interface TemplateAssignmentProps {
   onAssigned: () => void;
 }
 
+type Mode = "initial" | "selecting-template" | "preview";
+
 export default function TemplateAssignment({ client, onAssigned }: TemplateAssignmentProps) {
+  const [mode, setMode] = useState<Mode>("initial");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   const { data: categories, isLoading: categoriesLoading } = useTemplateCategories();
   const { recommendedCategory, scoredCategories } = useTemplateSuggestion(categories, client);
-  const { data: templates, isLoading: templatesLoading } = useProgramTemplates(
-    selectedCategoryId || recommendedCategory?.category.id
-  );
+  const { data: templates, isLoading: templatesLoading } = useProgramTemplates(selectedCategoryId || undefined);
+  const { data: templateDetails, isLoading: previewLoading } = useTemplateDetails(selectedTemplateId);
   const assignTemplate = useAssignTemplate();
 
-  // Auto-select recommended category on first load
-  useMemo(() => {
+  // Auto-select recommended category when available
+  useEffect(() => {
     if (recommendedCategory && !selectedCategoryId) {
       setSelectedCategoryId(recommendedCategory.category.id);
     }
@@ -70,6 +69,29 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
 
   const matchQuality = getMatchQuality(activeCategoryScore);
 
+  const selectedTemplate = templates?.find(t => t.id === selectedTemplateId);
+  const clientName = client.first_name || "Client";
+
+  const handleContinueWithRecommended = () => {
+    if (recommendedCategory) {
+      setSelectedCategoryId(recommendedCategory.category.id);
+      setMode("selecting-template");
+      setShowAllCategories(false);
+    }
+  };
+
+  const handleSelectDifferentCategory = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    setSelectedTemplateId(null);
+    setMode("selecting-template");
+    setShowAllCategories(false);
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplateId(templateId);
+    setMode("preview");
+  };
+
   const handleAssign = async () => {
     if (!selectedTemplateId) return;
 
@@ -80,7 +102,20 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
       matchScore: recommendedCategory?.score,
     });
 
+    // Reset state and notify parent
+    setMode("initial");
+    setSelectedTemplateId(null);
+    setShowAllCategories(false);
     onAssigned();
+  };
+
+  const handleBack = () => {
+    if (mode === "preview") {
+      setSelectedTemplateId(null);
+      setMode("selecting-template");
+    } else if (mode === "selecting-template") {
+      setMode("initial");
+    }
   };
 
   if (categoriesLoading) {
@@ -92,57 +127,49 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
   }
 
   return (
-    <div className="space-y-6">
-      {/* Client Summary for Context */}
-      <Card className="bg-muted/30 border-muted">
-        <CardContent className="pt-4">
-          <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Experience:</span>
-              <Badge variant="secondary">{client.experience || "Not specified"}</Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Goal:</span>
-              <Badge variant="secondary">{client.goal || "Not specified"}</Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Days:</span>
-              <Badge variant="secondary">{client.training_days_per_week || 3} days/week</Badge>
-            </div>
-            {client.body_fat_estimate && (
-              <div className="flex items-center gap-2">
-                <Dumbbell className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">Body:</span>
-                <Badge variant="secondary">{client.body_fat_estimate}</Badge>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-5">
+      {/* Client Summary Badges */}
+      <div className="flex flex-wrap gap-2 text-sm">
+        <Badge variant="secondary" className="gap-1">
+          <Activity className="w-3 h-3" />
+          {client.experience || "Unknown Experience"}
+        </Badge>
+        <Badge variant="secondary" className="gap-1">
+          <Target className="w-3 h-3" />
+          {client.goal || "No Goal Set"}
+        </Badge>
+        <Badge variant="secondary" className="gap-1">
+          <Calendar className="w-3 h-3" />
+          {client.training_days_per_week || 3} days/week
+        </Badge>
+        {client.body_fat_estimate && (
+          <Badge variant="secondary" className="gap-1">
+            <Dumbbell className="w-3 h-3" />
+            {client.body_fat_estimate}
+          </Badge>
+        )}
+      </div>
 
-      {/* Recommended Category */}
-      {recommendedCategory && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              Recommended Category
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-start justify-between gap-4">
-              <div>
+      {/* Mode: Initial - Show recommendation with action buttons */}
+      {mode === "initial" && recommendedCategory && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-xs uppercase tracking-wide text-primary font-medium">
+                    Recommended Category
+                  </span>
+                </div>
                 <h3 className="font-bold text-lg">{recommendedCategory.category.name}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {recommendedCategory.category.description}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {recommendedCategory.reasons.slice(0, 3).map((reason, i) => (
-                    <Badge key={i} variant="outline" className="text-xs">
-                      <Check className="w-3 h-3 mr-1" />
+                    <Badge key={i} variant="outline" className="text-xs border-primary/30">
+                      <Check className="w-3 h-3 mr-1 text-primary" />
                       {reason}
                     </Badge>
                   ))}
@@ -153,136 +180,216 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
                 <div className={`text-xs ${matchQuality.color}`}>{matchQuality.label}</div>
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={handleContinueWithRecommended}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Continue with This
+              </Button>
+              <Collapsible open={showAllCategories} onOpenChange={setShowAllCategories}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    Select Different
+                    <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showAllCategories ? "rotate-180" : ""}`} />
+                  </Button>
+                </CollapsibleTrigger>
+              </Collapsible>
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Category Override */}
-      <Collapsible open={showAllCategories} onOpenChange={setShowAllCategories}>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between">
-            <span>Or select a different category</span>
-            <ChevronDown
-              className={`w-4 h-4 transition-transform ${showAllCategories ? "rotate-180" : ""}`}
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-2">
-          <div className="grid grid-cols-1 gap-2">
-            {scoredCategories.map(({ category, score }) => (
-              <button
-                key={category.id}
-                onClick={() => {
-                  setSelectedCategoryId(category.id);
-                  setSelectedTemplateId(null);
-                  setShowAllCategories(false);
-                }}
-                className={`flex items-center justify-between p-3 rounded-lg border text-left transition-colors ${
-                  selectedCategoryId === category.id
-                    ? "border-primary bg-primary/10"
-                    : "border-border hover:border-muted-foreground"
-                }`}
-              >
-                <div>
-                  <div className="font-medium">{category.name}</div>
-                  <div className="text-xs text-muted-foreground">{category.target_profile}</div>
-                </div>
-                <Badge variant={score >= 70 ? "default" : "secondary"}>{score}%</Badge>
-              </button>
-            ))}
+      {/* Category Selector (when "Select Different" is clicked) */}
+      {mode === "initial" && showAllCategories && (
+        <div className="grid gap-2">
+          {scoredCategories.map(({ category, score }) => (
+            <button
+              key={category.id}
+              onClick={() => handleSelectDifferentCategory(category.id)}
+            className={`flex items-center justify-between p-3 rounded-lg border text-left transition-colors ${
+              category.id === recommendedCategory?.category.id
+                ? "border-primary/50 bg-primary/10"
+                : "border-border hover:border-muted-foreground hover:bg-muted/10"
+            }`}
+            >
+              <div>
+                <div className="font-medium">{category.name}</div>
+                <div className="text-xs text-muted-foreground">{category.target_profile}</div>
+              </div>
+              <Badge variant={score >= 70 ? "default" : "secondary"}>{score}%</Badge>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Mode: Selecting Template */}
+      {mode === "selecting-template" && activeCategory && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground">
+              <ChevronRight className="w-4 h-4 mr-1 rotate-180" />
+              Back
+            </Button>
+            <Badge className={matchQuality.color}>{activeCategoryScore}% Match</Badge>
           </div>
-        </CollapsibleContent>
-      </Collapsible>
 
-      {/* Template Selection */}
-      {activeCategory && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <Dumbbell className="w-4 h-4" />
-                Select Template from "{activeCategory.name}"
-              </span>
-              <Badge className={matchQuality.color}>{activeCategoryScore}% Match</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {templatesLoading ? (
-              <div className="flex items-center justify-center py-4">
-                <Loader2 className="w-5 h-5 animate-spin" />
-              </div>
-            ) : templates && templates.length > 0 ? (
-              <RadioGroup
-                value={selectedTemplateId || ""}
-                onValueChange={setSelectedTemplateId}
-                className="space-y-2"
-              >
-                {templates.map((template) => (
-                  <div
-                    key={template.id}
-                    className={`flex items-start space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedTemplateId === template.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-muted-foreground"
-                    }`}
-                    onClick={() => setSelectedTemplateId(template.id)}
-                  >
-                    <RadioGroupItem value={template.id} id={template.id} className="mt-1" />
-                    <Label htmlFor={template.id} className="flex-1 cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{template.name}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {template.days_per_week} days
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          {template.difficulty}
-                        </Badge>
+          <div>
+            <h4 className="font-medium mb-1">Select Template from "{activeCategory.name}"</h4>
+            <p className="text-sm text-muted-foreground mb-4">Choose a template to preview before assigning</p>
+          </div>
+
+          {templatesLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ) : templates && templates.length > 0 ? (
+            <RadioGroup
+              value={selectedTemplateId || ""}
+              onValueChange={handleTemplateSelect}
+              className="space-y-2"
+            >
+              {templates.map((template) => (
+                <div
+                  key={template.id}
+                  className={`flex items-start space-x-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+                    selectedTemplateId === template.id
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-muted-foreground"
+                  }`}
+                  onClick={() => handleTemplateSelect(template.id)}
+                >
+                  <RadioGroupItem value={template.id} id={template.id} className="mt-1" />
+                  <Label htmlFor={template.id} className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">{template.name}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {template.days_per_week} days
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {template.difficulty}
+                      </Badge>
+                    </div>
+                    {template.description && (
+                      <p className="text-sm text-muted-foreground">{template.description}</p>
+                    )}
+                    {template.equipment && template.equipment.length > 0 && (
+                      <div className="flex gap-1 mt-2">
+                        {template.equipment.map((eq) => (
+                          <Badge key={eq} variant="outline" className="text-xs">
+                            {eq}
+                          </Badge>
+                        ))}
                       </div>
-                      {template.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{template.description}</p>
-                      )}
-                      {template.equipment && template.equipment.length > 0 && (
-                        <div className="flex gap-1 mt-2">
-                          {template.equipment.map((eq) => (
-                            <Badge key={eq} variant="outline" className="text-xs">
-                              {eq}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            ) : (
-              <div className="flex items-center gap-2 text-muted-foreground py-4">
-                <AlertCircle className="w-4 h-4" />
-                <span>No templates available in this category yet.</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    )}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          ) : (
+            <div className="flex items-center gap-2 text-muted-foreground py-6 justify-center border border-dashed rounded-lg">
+              <AlertCircle className="w-4 h-4" />
+              <span>No templates available in this category yet.</span>
+            </div>
+          )}
+        </div>
       )}
 
-      {/* Assign Button */}
-      <Button
-        onClick={handleAssign}
-        disabled={!selectedTemplateId || assignTemplate.isPending}
-        className="w-full"
-        size="lg"
-      >
-        {assignTemplate.isPending ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Assigning Template...
-          </>
-        ) : (
-          <>
-            <Check className="w-4 h-4 mr-2" />
-            Assign Selected Template
-          </>
-        )}
-      </Button>
+      {/* Mode: Preview */}
+      {mode === "preview" && selectedTemplate && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground">
+              <ChevronRight className="w-4 h-4 mr-1 rotate-180" />
+              Back to Templates
+            </Button>
+          </div>
+
+          <Card className="border-primary/30">
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Dumbbell className="w-4 h-4 text-primary" />
+                <h4 className="font-semibold">Preview: {selectedTemplate.name}</h4>
+              </div>
+
+              {previewLoading ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ) : templateDetails ? (
+                <div className="space-y-4">
+                  {templateDetails.weeks.map((week) => {
+                    const weekDays = templateDetails.days.filter(d => d.week_id === week.id);
+                    return (
+                      <div key={week.id} className="text-sm">
+                        <div className="font-medium text-primary mb-2">
+                          Week {week.week_number}{week.title ? `: ${week.title}` : ""}
+                        </div>
+                        <div className="pl-4 space-y-1">
+                          {weekDays.map((day) => {
+                            const exerciseCount = templateDetails.exercises.filter(
+                              e => e.day_id === day.id
+                            ).length;
+                            return (
+                              <div
+                                key={day.id}
+                                className="flex items-center gap-2 text-muted-foreground"
+                              >
+                                <span className="w-2 h-2 rounded-full bg-muted-foreground/50" />
+                                <span className="w-20">{day.day_of_week}:</span>
+                                {day.is_rest_day ? (
+                                  <span className="flex items-center gap-1">
+                                    <Moon className="w-3 h-3" /> Rest Day
+                                  </span>
+                                ) : (
+                                  <span>
+                                    {day.workout_name}
+                                    <span className="text-xs ml-2">({exerciseCount} exercises)</span>
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Unable to load preview</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Assign Button */}
+          <Button
+            onClick={handleAssign}
+            disabled={assignTemplate.isPending}
+            className="w-full"
+            size="lg"
+          >
+            {assignTemplate.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Assigning to {clientName}...
+              </>
+            ) : (
+              <>
+                <Target className="w-4 h-4 mr-2" />
+                Assign "{selectedTemplate.name}" to {clientName}
+              </>
+            )}
+          </Button>
+          <p className="text-xs text-center text-muted-foreground">
+            This will replace any existing program and sync to their dashboard
+          </p>
+        </div>
+      )}
     </div>
   );
 }

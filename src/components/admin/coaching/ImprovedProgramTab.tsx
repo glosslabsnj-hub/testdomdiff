@@ -75,11 +75,15 @@ const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
 export default function ImprovedProgramTab({ clientId, client }: ImprovedProgramTabProps) {
   const { programs, loading: filesLoading, uploadProgram, updateProgram, deleteProgram, getSignedUrl } =
     useClientCustomPrograms(clientId);
-  const { weeks, loading: programLoading } = useClientProgram(clientId);
+  const { weeks, loading: programLoading, refetch: refetchProgram } = useClientProgram(clientId);
 
   const [activeWeek, setActiveWeek] = useState("1");
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [showFiles, setShowFiles] = useState(false);
+  const [showTemplateAssignment, setShowTemplateAssignment] = useState(true);
+
+  // Auto-expand template assignment if no program exists
+  const hasProgram = weeks.length > 0;
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadDescription, setUploadDescription] = useState("");
@@ -168,20 +172,36 @@ export default function ImprovedProgramTab({ clientId, client }: ImprovedProgram
 
   const clientName = `${client.first_name || "Client"}'s`;
 
+  const handleTemplateAssigned = () => {
+    refetchProgram();
+    setShowTemplateAssignment(false);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Template Assignment - Always Visible at Top */}
-      <Card className="border-purple-500/30 bg-purple-500/5">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-medium flex items-center gap-2">
-            <Dumbbell className="w-4 h-4 text-purple-400" />
-            Assign Training Template
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <TemplateAssignment client={client} onAssigned={() => {}} />
-        </CardContent>
-      </Card>
+      {/* Template Assignment - Collapsible after assignment */}
+      <Collapsible open={showTemplateAssignment || !hasProgram} onOpenChange={setShowTemplateAssignment}>
+        <Card className="border-primary/30 bg-primary/5">
+          <CollapsibleTrigger asChild>
+            <CardHeader className="pb-3 cursor-pointer hover:bg-muted/10 transition-colors">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-medium flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4 text-primary" />
+                  {hasProgram ? "Change Training Template" : "Assign Training Template"}
+                </CardTitle>
+                {hasProgram && (
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showTemplateAssignment ? "rotate-180" : ""}`} />
+                )}
+              </div>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0">
+              <TemplateAssignment client={client} onAssigned={handleTemplateAssigned} />
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Current Program Section */}
       <div className="space-y-4">
