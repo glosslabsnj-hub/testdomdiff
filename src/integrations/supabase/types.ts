@@ -122,6 +122,45 @@ export type Database = {
         }
         Relationships: []
       }
+      client_custom_programs: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_active: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          is_active?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       coaching_action_items: {
         Row: {
           client_id: string
