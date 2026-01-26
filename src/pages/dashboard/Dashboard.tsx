@@ -460,8 +460,8 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Tiles Grid - show ALL tiles immediately */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* Tiles Grid - single column on narrow phones, 2 col on sm, 4 col on lg */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {tiles.map((tile, index) => (
             <Link
               key={index}
@@ -476,10 +476,15 @@ const Dashboard = () => {
               }`}
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              {/* New User Badge */}
+              {/* New User Badge with enhanced animation */}
               {tile.isNew && (
-                <div className="absolute -top-2 -right-2 px-2 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full animate-pulse z-10">
-                  START HERE
+                <div className="absolute -top-2 -right-2 z-10">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-50" />
+                    <div className="relative px-2.5 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-lg">
+                      START HERE
+                    </div>
+                  </div>
                 </div>
               )}
               

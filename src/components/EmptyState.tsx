@@ -47,9 +47,9 @@ const EMPTY_STATE_CONFIG: Record<EmptyStateType, {
 }> = {
   workouts: {
     icon: Dumbbell,
-    defaultTitle: "No workouts completed yet",
-    defaultDescription: "Start your transformation journey today. Your first workout is waiting.",
-    defaultActionLabel: "Start First Workout",
+    defaultTitle: "Your iron is being forged",
+    defaultDescription: "Workout templates are being prepared. Check back soon or start with the structured program.",
+    defaultActionLabel: "Start The Sentence",
     defaultActionLink: "/dashboard/program",
     iconColor: "text-primary",
   },
@@ -63,10 +63,10 @@ const EMPTY_STATE_CONFIG: Record<EmptyStateType, {
   },
   faith: {
     icon: Cross,
-    defaultTitle: "No lessons completed",
-    defaultDescription: "Strengthen your spirit alongside your body. Start your first chapel session.",
-    defaultActionLabel: "Enter the Chapel",
-    defaultActionLink: "/dashboard/faith",
+    defaultTitle: "The Chapel awaits",
+    defaultDescription: "Strengthen your spirit alongside your body. Weekly faith lessons coming soon.",
+    defaultActionLabel: "View Dashboard",
+    defaultActionLink: "/dashboard",
     iconColor: "text-primary",
   },
   photos: {
@@ -79,11 +79,11 @@ const EMPTY_STATE_CONFIG: Record<EmptyStateType, {
   },
   checkins: {
     icon: ClipboardCheck,
-    defaultTitle: "No check-ins submitted",
-    defaultDescription: "Weekly check-ins help your coach track your progress and adjust your program.",
+    defaultTitle: "Roll call is clear",
+    defaultDescription: "Weekly check-ins help you stay accountable. Submit your first report when ready.",
     defaultActionLabel: "Submit Check-In",
-    defaultActionLink: "/dashboard/checkin",
-    iconColor: "text-green-400",
+    defaultActionLink: "/dashboard/check-in",
+    iconColor: "text-success",
   },
   messages: {
     icon: MessageSquare,

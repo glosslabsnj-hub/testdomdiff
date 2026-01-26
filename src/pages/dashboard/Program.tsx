@@ -176,8 +176,23 @@ const Program = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <div className="section-container py-12">
+          {/* Skeleton for header */}
+          <div className="mb-8">
+            <div className="h-4 w-32 bg-muted rounded animate-pulse mb-4" />
+            <div className="h-8 w-64 bg-muted rounded animate-pulse mb-2" />
+            <div className="h-4 w-96 max-w-full bg-muted rounded animate-pulse" />
+          </div>
+          {/* Skeleton for progress bar */}
+          <div className="h-24 bg-charcoal rounded-lg border border-border animate-pulse mb-8" />
+          {/* Skeleton for week cards */}
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-20 bg-charcoal rounded-lg border border-border animate-pulse" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

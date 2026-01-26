@@ -133,6 +133,7 @@ export default function PhotoUploadCard({
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              capture="environment"
               className="hidden"
               onChange={handleFileSelect}
               disabled={disabled}
@@ -142,7 +143,7 @@ export default function PhotoUploadCard({
                 <Camera className="h-6 w-6 text-primary" />
               </div>
               <p className="text-sm text-muted-foreground text-center">
-                Tap to upload your {photoType} photo
+                Tap to take or upload your {photoType} photo
               </p>
               <Upload className="h-4 w-4 text-muted-foreground" />
             </div>
