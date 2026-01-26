@@ -36,13 +36,13 @@ export function FirstLoginVideoModal({
   const walkthroughVideoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Fetch video URLs
+  // Fetch video URLs (including manual audio)
   const { data: videos, isLoading } = useQuery({
     queryKey: ["welcome-videos-modal", tierKey],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("program_welcome_videos")
-        .select("video_url, walkthrough_video_url")
+        .select("video_url, walkthrough_video_url, walkthrough_audio_url")
         .eq("plan_type", tierKey)
         .single();
       
@@ -87,6 +87,9 @@ export function FirstLoginVideoModal({
     enabled: !!configVersion,
   });
 
+  // Determine effective audio URL (manual takes priority over AI-generated)
+  const effectiveAudioUrl = videos?.walkthrough_audio_url || onboardingAudio?.audio_url;
+
   // Unlock close button after 5 seconds
   useEffect(() => {
     if (!isOpen) return;
@@ -118,7 +121,7 @@ export function FirstLoginVideoModal({
 
   // Sync audio with walkthrough video - audio is source of truth
   useEffect(() => {
-    if (playbackPhase !== "walkthrough" || !onboardingAudio?.audio_url) return;
+    if (playbackPhase !== "walkthrough" || !effectiveAudioUrl) return;
     
     const syncInterval = setInterval(() => {
       const video = walkthroughVideoRef.current;
@@ -139,11 +142,11 @@ export function FirstLoginVideoModal({
     }, 500);
 
     return () => clearInterval(syncInterval);
-  }, [playbackPhase, onboardingAudio?.audio_url]);
+  }, [playbackPhase, effectiveAudioUrl]);
 
   // Prime audio on first user tap to unlock mobile autoplay
   const primeAudioForMobile = () => {
-    if (audioPrimed || !audioRef.current || !onboardingAudio?.audio_url) return;
+    if (audioPrimed || !audioRef.current || !effectiveAudioUrl) return;
     
     const audio = audioRef.current;
     const previousMuted = audio.muted;
@@ -171,7 +174,7 @@ export function FirstLoginVideoModal({
       walkthroughVideoRef.current.play().catch(console.error);
     }
     
-    if (audioRef.current && onboardingAudio?.audio_url) {
+    if (audioRef.current && effectiveAudioUrl) {
       audioRef.current.currentTime = 0;
       try {
         await audioRef.current.play();
@@ -303,7 +306,7 @@ export function FirstLoginVideoModal({
         {/* Always mount audio element for mobile reliability */}
         <audio
           ref={audioRef}
-          src={onboardingAudio?.audio_url || ""}
+          src={effectiveAudioUrl || ""}
           preload="auto"
           onEnded={handleWalkthroughEnd}
           onPlay={() => setIsPlaying(true)}
