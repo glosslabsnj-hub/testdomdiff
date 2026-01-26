@@ -5,12 +5,11 @@ import {
   MessageSquare,
   Calendar,
   Target,
-  ClipboardList,
-  Camera,
   TrendingUp,
   Mail,
   Phone,
   Loader2,
+  FileText,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +21,7 @@ import ClientOverviewTab from "./ClientOverviewTab";
 import ClientSessionsTab from "./ClientSessionsTab";
 import ClientGoalsTab from "./ClientGoalsTab";
 import ClientMessagesTab from "./ClientMessagesTab";
+import ClientProgramTab from "./ClientProgramTab";
 
 interface ClientProgressPanelProps {
   client: ClientWithSubscription;
@@ -122,6 +122,13 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
             <MessageSquare className="w-4 h-4 mr-2" />
             Messages
           </TabsTrigger>
+          <TabsTrigger
+            value="program"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Program
+          </TabsTrigger>
         </TabsList>
 
         <div className="flex-1 overflow-auto">
@@ -145,6 +152,10 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
 
               <TabsContent value="messages" className="m-0 p-4">
                 <ClientMessagesTab clientId={client.user_id} />
+              </TabsContent>
+
+              <TabsContent value="program" className="m-0 p-4">
+                <ClientProgramTab clientId={client.user_id} />
               </TabsContent>
             </>
           )}
