@@ -187,19 +187,27 @@ serve(async (req) => {
     // Step 4: Generate simple thumbnail (placeholder for now)
     const thumbnailUrl = null; // Can add image generation later
 
-    // Mark as ready
+    // Mark as ready - IMPORTANT: Preserve script data that was saved during script generation
+    // The generate-onboarding-script function already saved script_text, caption_lines, duration_seconds
+    // We only need to add the final status and SRT URL
     const { data: finalVideo, error: finalError } = await supabase
       .from("tier_onboarding_videos")
       .update({
         status: "ready",
         captions_srt_url: srtUrlData.publicUrl,
         thumbnail_url: thumbnailUrl,
+        // Explicitly re-save script data to ensure it persists through the pipeline
+        script_text: scriptData.script_text,
+        caption_lines: scriptData.caption_lines,
+        duration_seconds: scriptData.estimated_duration_seconds,
       })
       .eq("id", videoId)
       .select()
       .single();
 
     if (finalError) throw finalError;
+
+    console.log("Final video saved with script length:", scriptData.script_text?.length || 0, "chars");
 
     console.log("Generation complete! Video ready:", videoId);
 

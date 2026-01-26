@@ -22,41 +22,47 @@ interface TierConfig {
 }
 
 // Tier configurations with detailed features and comprehensive screen slides
+// CRITICAL: Each tier must have COMPLETELY DISTINCT features, terminology, and narrative
 const TIER_CONFIGS: Record<string, TierConfig> = {
   membership: {
     name: "Solitary Confinement",
     subtitle: "Cell Block Orientation",
-    description: "Master the basics with bodyweight training, daily discipline routines, and basic nutrition.",
+    description: "You're in ISOLATION. Stripped down to the basics. Bodyweight-only training, daily discipline, basic nutrition. This is where you prove yourself before earning more access.",
     persona: "onboarding", // Uses authoritative but encouraging voice
     features: [
-      "Yard Time: 4 bodyweight workout templates - Push Day, Pull Day, Legs Day, Full Body. No equipment needed.",
-      "Lights On Routine: Morning discipline - cold shower, prayer, movement, plan your day. Check off each step.",
-      "Lights Out Routine: Evening discipline - reflection, gratitude journaling, sleep prep. Lock in every night.",
-      "Roll Call: Weekly check-in to report weight, wins, struggles, and weekly reflection.",
-      "Time Served: Progress photo tracking - front, side, and back photos to document your transformation.",
-      "Basic Rations: Simple meal guidance for bulking, cutting, or maintenance. Fixed templates to keep it simple.",
-      "Ask the Warden: Your AI assistant - tap the shield button anytime to ask questions or get guidance.",
+      "YARD TIME - Your ONLY workout access: 4 bodyweight templates (Push, Pull, Legs, Full Body). No equipment, no gym - just you and the cell floor. This is your gym now.",
+      "LIGHTS ON ROUTINE - Your morning structure: Wake up, cold shower, prayer, movement, plan the day. Check off each step. No excuses.",
+      "LIGHTS OUT ROUTINE - Your evening lockdown: Reflection, gratitude journaling, sleep prep. Every night, same routine. Discipline builds discipline.",
+      "ROLL CALL - Weekly accountability: Report your weight, wins, and struggles. This is how I track if you're putting in work or faking it.",
+      "TIME SERVED - Progress documentation: Front, side, back photos. Document your transformation from Day 1. You'll need the proof later.",
+      "BASIC RATIONS - Simple nutrition: Fixed meal templates for bulking, cutting, or maintenance. Nothing fancy - just fuel.",
+      "ASK THE WARDEN - Your AI guide: That gold shield button is your only lifeline. Questions, motivation, guidance - tap it anytime.",
+      "⛔ LOCKED: The Chapel (faith lessons) - You gotta earn this. Upgrade to Gen Pop.",
+      "⛔ LOCKED: The Yard (community) - No brotherhood access in Solitary. That's the point.",
+      "⛔ LOCKED: The Sentence (12-week program) - You don't get structure until you prove yourself.",
+      "⛔ LOCKED: Chow Hall (personalized nutrition) - Basic Rations only. No swaps, no custom meals.",
+      "⛔ LOCKED: Work Release (skills) - No income building access until you level up.",
     ],
     detailedSteps: [
-      { step: "Check out your Cell Block", location: "Dashboard", details: "This is your home base. Every feature you got access to is right here on these tiles.", time: "30 sec" },
-      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "This is your orientation checklist. It walks you through everything step by step.", time: "2 min" },
-      { step: "Set up Lights On / Lights Out", location: "Discipline page", details: "This is your daily structure. Morning routine - cold shower, prayer, movement, plan the day. Evening routine - reflect, gratitude, prep for sleep. You can edit the times to match your schedule by tapping on them.", time: "3 min" },
-      { step: "Customize your routine times", location: "Discipline page", details: "Tap on any time like '5:30 AM' to change it. Set it to when you actually wake up and go to bed.", time: "1 min" },
-      { step: "Browse Yard Time workouts", location: "Workouts page", details: "You got 4 templates: Push, Pull, Legs, and Full Body. All bodyweight - no gym, no equipment, no excuses.", time: "3 min" },
-      { step: "Click any workout to see the exercises", location: "Workout card", details: "Each exercise shows you the reps, sets, and form tips. Listen to the audio if you need more guidance.", time: "2 min" },
-      { step: "Complete your first workout", location: "Workout detail", details: "Follow along with the exercises, then mark the workout complete when you're done.", time: "30 min" },
-      { step: "Go to Time Served", location: "Progress page", details: "This is where you upload photos and track your body changes over time.", time: "1 min" },
-      { step: "Upload your starting photos", location: "Progress photos", details: "Front, side, and back. This is your Day 1 documentation. You'll thank yourself later.", time: "3 min" },
-      { step: "Submit your first Roll Call", location: "Check-in page", details: "Report your weight, your wins this week, any struggles. Do this every week - it's your accountability.", time: "5 min" },
-      { step: "Ask the Warden anything", location: "Floating shield button", details: "See that gold shield button? That's your AI Warden. Tap it to ask questions, get motivation, or troubleshoot.", time: "1 min" },
+      { step: "Check out your Cell Block", location: "Dashboard", details: "This is your cell. These tiles show what you GOT and what you DON'T. You're in isolation, so it's stripped down.", time: "30 sec" },
+      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "This is your orientation checklist. Complete every item or you're already slipping.", time: "2 min" },
+      { step: "Set up Lights On / Lights Out", location: "Discipline page", details: "Your daily structure. Morning routine, evening routine. Tap the times to set them to YOUR schedule. This is non-negotiable.", time: "3 min" },
+      { step: "Customize your routine times", location: "Discipline page", details: "Tap on any time like '5:30 AM' to change it. Match it to when you actually wake up.", time: "1 min" },
+      { step: "Browse Yard Time workouts", location: "Workouts page", details: "4 templates. That's it. Push, Pull, Legs, Full Body. All bodyweight. No gym needed. No excuses accepted.", time: "3 min" },
+      { step: "Click any workout to see exercises", location: "Workout card", details: "Each exercise has reps, sets, form tips. Audio guidance if you need it. Execute.", time: "2 min" },
+      { step: "Complete your first workout", location: "Workout detail", details: "Follow the exercises, mark it done. Your first day serving time.", time: "30 min" },
+      { step: "Go to Time Served", location: "Progress page", details: "This is where you document the transformation. Photos don't lie.", time: "1 min" },
+      { step: "Upload starting photos", location: "Progress photos", details: "Front, side, back. This is Day 1. You'll compare this to Week 12. Don't skip it.", time: "3 min" },
+      { step: "Submit your first Roll Call", location: "Check-in page", details: "Weight, wins, struggles. Do this every week. This is how you stay accountable.", time: "5 min" },
+      { step: "Ask the Warden anything", location: "Floating shield button", details: "That gold shield? That's the Warden. Your AI guide. Questions, motivation - tap it.", time: "1 min" },
     ],
     navigation: [
-      { name: "Yard Time", purpose: "Your 4 bodyweight workouts", howTo: "Tap the Yard Time tile or use the bottom nav > Pick Push, Pull, Legs, or Full Body > Follow the exercises" },
-      { name: "Lights On / Lights Out", purpose: "Morning and evening discipline routines. Morning: cold shower, prayer, movement, plan the day. Evening: reflection, gratitude, sleep prep.", howTo: "Tap Discipline tile or bottom nav > Check off each step as you complete it > Edit times by tapping them" },
-      { name: "Roll Call", purpose: "Weekly accountability check-ins", howTo: "Tap Roll Call tile > Fill out the form every week with weight, wins, struggles" },
-      { name: "Time Served", purpose: "Progress photos and body tracking", howTo: "Tap Progress tile > Upload photos > Track your transformation over time" },
-      { name: "Basic Rations", purpose: "Simple meal templates", howTo: "Tap Nutrition tile > See fixed meal templates based on your goal" },
-      { name: "Ask the Warden", purpose: "Your AI guide and assistant", howTo: "Tap the gold shield button in bottom nav > Ask any question > Get instant guidance" },
+      { name: "Yard Time", purpose: "Your 4 bodyweight-only workouts (Push, Pull, Legs, Full Body)", howTo: "Tap Yard Time tile > Pick a workout > Complete exercises > Mark done" },
+      { name: "Lights On / Lights Out", purpose: "Daily discipline routines - morning and evening", howTo: "Tap Discipline tile > Check off each step > Tap times to customize schedule" },
+      { name: "Roll Call", purpose: "Weekly check-ins", howTo: "Tap Roll Call tile > Submit weight, wins, struggles every week" },
+      { name: "Time Served", purpose: "Progress photos", howTo: "Tap Progress tile > Upload front/side/back photos" },
+      { name: "Basic Rations", purpose: "Fixed meal templates", howTo: "Tap Nutrition tile > See your simple meal guidance" },
+      { name: "Ask the Warden", purpose: "AI guide", howTo: "Tap gold shield button > Ask questions anytime" },
     ],
     screenSlides: [
       { id: "dashboard-home", screen: "dashboard-overview", highlight_areas: [{ x: 15, y: 10, width: 30, height: 25 }], duration: 25, zoom_level: 1.0 },
@@ -70,53 +76,53 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { id: "checkin-form", screen: "checkin-form", highlight_areas: [{ x: 10, y: 10, width: 80, height: 70 }], duration: 15, zoom_level: 1.0 },
       { id: "warden-button", screen: "warden-chat", highlight_areas: [{ x: 70, y: 80, width: 25, height: 15 }], duration: 15, zoom_level: 1.0 },
     ],
-    specialFeatures: null,
-    upgradeHint: "Ready for more structure? Upgrade to General Population to unlock the full 12-week program, personalized nutrition, faith lessons, and community access.",
-    ctaText: "Head to Yard Time and crush your first workout",
+    specialFeatures: "SOLITARY REALITY: You're isolated for a reason. You got the basics - workout templates, discipline routines, basic nutrition. That's it. No community, no structured program, no faith lessons. Prove you can handle this and you can move to General Population where the real transformation begins.",
+    upgradeHint: "Ready to get out of isolation? Upgrade to GENERAL POPULATION to unlock: The Sentence (12-week program), Chow Hall (personalized nutrition), The Chapel (faith lessons), The Yard (community), and Work Release (skills). That's where the full transformation happens.",
+    ctaText: "Get to Yard Time and complete your first workout. Prove you belong here.",
   },
   transformation: {
     name: "General Population",
     subtitle: "Intake Processing Complete",
-    description: "The full 12-week sentence with structured programming, nutrition, faith, and community.",
+    description: "You made it out of Solitary. Now you're in GENERAL POPULATION - the FULL 12-week transformation program. You got access to everything: structured training, complete nutrition, faith lessons, community. This is where real transformation happens.",
     persona: "onboarding", // Uses authoritative prison-themed voice
     features: [
-      "The Sentence: Your 12-week structured program - 3 phases of progressive training. Foundation (1-4), Building (5-8), Peak (9-12).",
-      "Daily Workouts: 5-6 training days per week with detailed exercise instructions and audio guidance.",
-      "Chow Hall: Complete nutrition with personalized meal plans, macros, recipes, and meal swap options.",
-      "Lights On / Lights Out: Morning and evening discipline routines to build iron habits every day.",
-      "The Chapel: Weekly faith lessons with scripture, teaching, and reflection questions.",
-      "The Yard: Community access - connect with fellow inmates, share wins, get support.",
-      "Roll Call: Weekly accountability check-ins with weight, wins, and progress tracking.",
-      "Time Served: Progress photos and measurements to document your 12-week transformation.",
-      "Work Release: Income-generating skills and resume building for life after the program.",
-      "Ask the Warden: Your AI guide - tap the shield anytime for questions or motivation.",
+      "THE SENTENCE - Your 12-week structured program: 3 phases of progressive training. Weeks 1-4 Foundation (build the base). Weeks 5-8 Building (ramp up intensity). Weeks 9-12 Peak (maximum performance). This is YOUR path.",
+      "DAILY WORKOUTS - 5-6 training days per week: Full equipment access. Detailed exercise instructions with video demos. Audio guidance. Real training, not templates.",
+      "CHOW HALL - Complete personalized nutrition: Meal plans built for YOUR goals and body. Breakfast, lunch, dinner, snacks - all with macros. MEAL SWAPS when you don't like something. No more Basic Rations.",
+      "LIGHTS ON / LIGHTS OUT - Daily discipline routines: Morning structure (cold shower, prayer, movement, plan). Evening lockdown (reflection, gratitude, sleep prep). Customize times to your schedule.",
+      "THE CHAPEL - Weekly faith lessons: Scripture, teaching, reflection questions. This ain't just physical - we're building your spirit too. 12 weeks of lessons that align with your training phases.",
+      "THE YARD - Community access UNLOCKED: Connect with fellow inmates. Share wins. Ask questions. Get support. Iron sharpens iron - you got brothers now.",
+      "ROLL CALL - Weekly accountability check-ins: Weight, measurements, wins, struggles. Report every week. Stay accountable.",
+      "TIME SERVED - Progress tracking: Photos (front, side, back) and measurements. Document Week 1 to Week 12. Watch the transformation happen.",
+      "WORK RELEASE - Skills building: Resume builder, interview prep, job search tools. Prepare for life after the program.",
+      "ASK THE WARDEN - Your AI guide: That gold shield button. Questions, motivation, form checks - tap anytime.",
     ],
     detailedSteps: [
-      { step: "Check out your Cell Block", location: "Dashboard", details: "This is your command center. You got access to everything - training, nutrition, faith, community.", time: "30 sec" },
-      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "This checklist walks you through your full orientation. Complete each item.", time: "2 min" },
-      { step: "Open The Sentence", location: "Program page", details: "This is your 12-week structured program. All 12 weeks laid out with daily workouts.", time: "3 min" },
-      { step: "Understand the 3 phases", location: "Program overview", details: "Weeks 1-4 build your foundation. Weeks 5-8 ramp up intensity. Weeks 9-12 are peak performance.", time: "2 min" },
-      { step: "Click Week 1 to expand", location: "Week 1 card", details: "See all the daily workouts for your first week. Each day has a specific focus.", time: "1 min" },
-      { step: "Start Day 1", location: "Week 1, Day 1", details: "Click the workout, follow the exercises, mark it complete when done.", time: "45 min" },
-      { step: "Set up Lights On / Lights Out", location: "Discipline page", details: "Your daily structure. Morning: cold shower, prayer, movement, plan the day. Evening: reflection, gratitude, sleep prep. Tap times to customize your schedule.", time: "3 min" },
-      { step: "Open Chow Hall", location: "Nutrition page", details: "Your meal plan for the day. Breakfast, lunch, dinner, snacks - all with macros.", time: "3 min" },
-      { step: "Check out meal swaps", location: "Nutrition page", details: "Don't like something? Tap the swap button to trade for an alternative meal.", time: "2 min" },
-      { step: "Read your Week 1 faith lesson", location: "Chapel page", details: "Scripture, teaching, and reflection questions. Take 10 minutes to read and pray.", time: "5 min" },
-      { step: "Introduce yourself in The Yard", location: "Community page", details: "Post your goals and why you're here. Your brothers are waiting to welcome you.", time: "3 min" },
-      { step: "Upload your starting photos", location: "Progress page", details: "Front, side, back photos. Document Day 1 for your transformation comparison.", time: "3 min" },
-      { step: "Submit your first Roll Call", location: "Check-in page", details: "Weight, wins, struggles. Do this every week for accountability.", time: "5 min" },
-      { step: "Ask the Warden anything", location: "Floating shield button", details: "That gold shield button is your AI Warden. Questions, motivation, guidance - tap it anytime.", time: "1 min" },
+      { step: "Check out your Cell Block", location: "Dashboard", details: "This is Gen Pop. Full access. Training, nutrition, faith, community - all unlocked.", time: "30 sec" },
+      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "Complete this orientation checklist. Every item. Get fully set up.", time: "2 min" },
+      { step: "Open THE SENTENCE", location: "Program page", details: "This is your 12-week structured program. Not templates - a REAL progressive program.", time: "3 min" },
+      { step: "Understand the 3 phases", location: "Program overview", details: "Foundation (1-4) builds your base. Building (5-8) ramps intensity. Peak (9-12) is maximum performance. Trust the process.", time: "2 min" },
+      { step: "Expand Week 1", location: "Week 1 card", details: "See every daily workout for Week 1. Each day has a specific focus. Follow the order.", time: "1 min" },
+      { step: "Start Day 1", location: "Week 1, Day 1", details: "Click the workout. Follow every exercise. Mark complete when done. Day 1 of your sentence starts NOW.", time: "45 min" },
+      { step: "Set up Lights On / Lights Out", location: "Discipline page", details: "Morning and evening discipline. Tap the times to match YOUR schedule. This is daily non-negotiable.", time: "3 min" },
+      { step: "Open CHOW HALL", location: "Nutrition page", details: "Your personalized meal plan. Breakfast, lunch, dinner, snacks. Macros calculated for YOU.", time: "3 min" },
+      { step: "Try a meal swap", location: "Nutrition page", details: "Don't like something? Tap the swap button. Trade for alternatives. You got options now.", time: "2 min" },
+      { step: "Read Week 1 Chapel lesson", location: "Chapel page", details: "Faith lessons align with your training phase. Scripture, teaching, reflection. 10 minutes.", time: "5 min" },
+      { step: "Introduce yourself in The Yard", location: "Community page", details: "Post your goals. Share why you're here. Your brothers are waiting. Iron sharpens iron.", time: "3 min" },
+      { step: "Upload Day 1 photos", location: "Progress page", details: "Front, side, back. This is your starting point. You'll compare Week 12 to this.", time: "3 min" },
+      { step: "Submit first Roll Call", location: "Check-in page", details: "Weight, wins, struggles. Every week. Stay accountable.", time: "5 min" },
+      { step: "Ask the Warden", location: "Floating shield button", details: "Gold shield button. Your AI guide. Questions, motivation - tap it anytime.", time: "1 min" },
     ],
     navigation: [
-      { name: "The Sentence", purpose: "Your 12-week structured program", howTo: "Tap The Sentence tile or bottom nav > Select your week > Pick a day > Complete workout" },
-      { name: "Chow Hall", purpose: "Complete meal plans with macros and swaps", howTo: "Tap Nutrition tile > See today's meals > Tap any meal for recipe > Use swap button for alternatives" },
-      { name: "Lights On / Lights Out", purpose: "Daily morning and evening routines", howTo: "Tap Discipline tile or bottom nav > Check off each step > Edit times by tapping them" },
-      { name: "The Chapel", purpose: "Weekly faith lessons and scripture", howTo: "Tap Faith tile > Read this week's lesson > Reflect and pray" },
-      { name: "The Yard", purpose: "Community and brotherhood", howTo: "Tap Community tile > Post updates, share wins, connect with inmates" },
-      { name: "Roll Call", purpose: "Weekly accountability check-ins", howTo: "Tap Check-In tile > Submit every week with weight, wins, struggles" },
-      { name: "Time Served", purpose: "Progress photos and measurements", howTo: "Tap Progress tile > Upload photos > Track your transformation" },
-      { name: "Work Release", purpose: "Skills and resume building", howTo: "Tap Skills tile > Explore income strategies and build your resume" },
-      { name: "Ask the Warden", purpose: "Your AI guide", howTo: "Tap the gold shield in bottom nav > Ask any question" },
+      { name: "The Sentence", purpose: "Your complete 12-week structured program", howTo: "Tap The Sentence tile > Select week > Pick day > Complete workout" },
+      { name: "Chow Hall", purpose: "Personalized nutrition with meal swaps", howTo: "Tap Nutrition tile > See today's meals > Tap meal for recipe > Swap button for alternatives" },
+      { name: "Lights On / Lights Out", purpose: "Daily discipline routines", howTo: "Tap Discipline tile > Check off steps > Tap times to customize" },
+      { name: "The Chapel", purpose: "Weekly faith lessons aligned to program phases", howTo: "Tap Faith tile > Read this week's lesson > Reflect and pray" },
+      { name: "The Yard", purpose: "Community - your brothers in the program", howTo: "Tap Community tile > Post, share wins, connect" },
+      { name: "Roll Call", purpose: "Weekly accountability", howTo: "Tap Check-In tile > Submit weight, wins, struggles every week" },
+      { name: "Time Served", purpose: "Progress photos and measurements", howTo: "Tap Progress tile > Upload photos > Track transformation" },
+      { name: "Work Release", purpose: "Skills for after the program", howTo: "Tap Skills tile > Resume builder, interview prep" },
+      { name: "Ask the Warden", purpose: "AI guide", howTo: "Tap gold shield button > Ask anything" },
     ],
     screenSlides: [
       { id: "dashboard-home", screen: "dashboard-overview", highlight_areas: [{ x: 15, y: 10, width: 30, height: 25 }], duration: 20, zoom_level: 1.0 },
@@ -133,52 +139,52 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { id: "checkin-form", screen: "checkin-form", highlight_areas: [{ x: 10, y: 10, width: 80, height: 70 }], duration: 15, zoom_level: 1.0 },
       { id: "warden-button", screen: "warden-chat", highlight_areas: [{ x: 70, y: 80, width: 25, height: 15 }], duration: 10, zoom_level: 1.0 },
     ],
-    specialFeatures: "The Yard Community: You ain't in this alone. Post your wins, ask questions, connect with brothers who are on the same journey. Iron sharpens iron.",
+    specialFeatures: "THE YARD COMMUNITY: You got brothers now. Post your wins. Ask questions when you're struggling. Share what's working. Iron sharpens iron - this is where accountability lives. You ain't alone in Gen Pop.",
     upgradeHint: null,
-    ctaText: "Open The Sentence and start Week 1, Day 1 right now",
+    ctaText: "Open The Sentence and start Week 1, Day 1. Your 12-week transformation begins NOW.",
   },
   coaching: {
     name: "Free World",
     subtitle: "Welcome to Probation",
-    description: "Premium 1:1 coaching with direct access to Dom, personalized programming, and VIP support.",
+    description: "You're OUT. You did your time. Now you're in the FREE WORLD - premium 1:1 coaching with DIRECT access to Coach Dom. Personal calls, private messaging, custom programming. This is VIP. This is how you stay free.",
     persona: "po", // Uses P.O. (Parole Officer) professional mentor voice
     features: [
-      "Coaching Portal: Book 1:1 video calls with Dom - 30 or 60 minute sessions for personalized guidance.",
-      "Direct Line: Private messaging with Dom - he reads and responds personally within 24-48 hours.",
-      "Daily Structure: Lights On / Lights Out routines - even though you're out, consistency keeps you free.",
-      "Meal Planning: Personalized nutrition adjusted to your TDEE and goals. Dom tweaks it based on feedback.",
-      "Your Program: Custom training built specifically for you based on your intake and goals.",
-      "Weekly Report: Your check-ins get personal attention and detailed feedback from Dom.",
-      "Empire Building: Advanced business strategies, income building, and financial freedom skills.",
-      "The Network: Connect with other Free World members - share experiences, build relationships.",
-      "All Gen Pop Features: 12-week structure, faith lessons, community - everything from the full program.",
-      "Ask Your P.O.: Your AI assistant - tap the shield button to ask questions or get guidance anytime.",
+      "COACHING PORTAL - Book 1:1 video calls with Dom: 30 or 60 minute sessions. Face to face. Personal guidance. This is what separates Free World from everyone else.",
+      "DIRECT LINE - Private messaging with Dom: Send messages anytime. He reads and responds PERSONALLY within 24-48 hours. Not AI. Not support. Dom himself.",
+      "CUSTOM PROGRAM - Training built for YOU: Based on your intake, your goals, your equipment. Not a template. Dom builds this specifically for your situation.",
+      "MEAL PLANNING - Personalized nutrition: Adjusted to YOUR TDEE and goals. Dom tweaks based on your feedback during calls. Real customization.",
+      "DAILY STRUCTURE - Even though you're out, discipline keeps you free: Morning routine (cold shower, prayer, movement, plan). Evening lockdown (reflection, gratitude, prep). Tap times to customize.",
+      "WEEKLY REPORT - Dom personally reviews: Your check-ins get actual attention. He reads your weight, wins, struggles - and adjusts your plan based on what you report.",
+      "EMPIRE BUILDING - FREE WORLD EXCLUSIVE: Advanced business strategies, income building, financial freedom. This is how you build after you're out. Not available to inmates.",
+      "THE NETWORK - Free World community: Connect with other coaching clients. People on YOUR level. Build relationships that matter.",
+      "ALL GEN POP ACCESS - Everything from The Sentence: 12-week structure, faith lessons, full community. You get EVERYTHING plus the VIP features.",
+      "ASK YOUR P.O. - Your AI assistant: Gold shield button. Quick questions when Dom's not available. Guidance anytime.",
     ],
     detailedSteps: [
-      { step: "Check out your home base", location: "Dashboard", details: "You home now. This dashboard shows everything you got access to - and you got VIP access to everything.", time: "30 sec" },
-      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "This orientation walks you through everything. Complete each item to get fully set up.", time: "2 min" },
-      { step: "Open the Coaching Portal", location: "Coaching Portal tile", details: "This is your hub for booking 1:1 calls with Dom. This is what separates Free World from everyone else.", time: "2 min" },
-      { step: "Schedule your first call", location: "Book Call section", details: "Pick a time that works. Your first call sets the foundation for everything.", time: "3 min" },
-      { step: "Send Dom an intro message", location: "Direct Line tile", details: "Introduce yourself, share your goals, ask questions. He responds personally.", time: "3 min" },
-      { step: "Set up Daily Structure", location: "Daily Structure page", details: "Even though you out, you still need discipline. Morning: cold shower, prayer, movement, plan the day. Evening: reflect, gratitude, sleep prep. Tap times to customize your schedule.", time: "3 min" },
-      { step: "Review your Meal Planning", location: "Nutrition page", details: "These are adjusted to your TDEE and goals. Dom can tweak them based on your feedback in calls.", time: "3 min" },
-      { step: "Check out Your Program", location: "Program page", details: "This is your custom training - built specifically for you, not a template.", time: "3 min" },
-      { step: "Explore Empire Building", location: "Advanced Skills page", details: "Business strategies, income building, legitimate hustles. This is Free World exclusive.", time: "5 min" },
-      { step: "Connect with The Network", location: "Community page", details: "Other Free World members. Build relationships with people on the same level.", time: "3 min" },
-      { step: "Upload your starting photos", location: "Progress Report page", details: "Dom reviews these personally. Be thorough - front, side, back.", time: "3 min" },
-      { step: "Submit your Weekly Report", location: "Check-in page", details: "Weight, wins, struggles, questions. Dom reads every one and adjusts your plan.", time: "5 min" },
-      { step: "Ask Your P.O. anything", location: "Floating shield button", details: "That gold shield button is your AI P.O. Tap it anytime for quick questions or guidance.", time: "1 min" },
+      { step: "Check out your home base", location: "Dashboard", details: "You're home now. Free World. This dashboard shows VIP access to everything - coaching, custom program, direct messaging, all of it.", time: "30 sec" },
+      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "Complete this orientation. Get fully set up before your first call with Dom.", time: "2 min" },
+      { step: "Open the COACHING PORTAL", location: "Coaching Portal tile", details: "This is the crown jewel. This is why you're Free World. Book calls with Dom directly.", time: "2 min" },
+      { step: "Schedule your first call", location: "Book Call section", details: "Pick a time that works. This first call sets the foundation. Come prepared with your goals.", time: "3 min" },
+      { step: "Send Dom an intro message", location: "Direct Line tile", details: "This is private. Introduce yourself. Share your story. Ask questions. He responds personally.", time: "3 min" },
+      { step: "Set up Daily Structure", location: "Daily Structure page", details: "Just because you're out doesn't mean discipline stops. Morning and evening routines. Tap times to customize.", time: "3 min" },
+      { step: "Review your Meal Planning", location: "Nutrition page", details: "Personalized to YOUR TDEE and goals. Dom can tweak during your calls based on feedback.", time: "3 min" },
+      { step: "Check Your Custom Program", location: "Program page", details: "This is YOUR training - not The Sentence, not templates. Built specifically for you.", time: "3 min" },
+      { step: "Explore EMPIRE BUILDING", location: "Advanced Skills page", details: "Free World exclusive. Business strategies, income building, financial freedom. Build your empire.", time: "5 min" },
+      { step: "Connect with The Network", location: "Community page", details: "Other Free World members. Your level. Build relationships with people who made it out.", time: "3 min" },
+      { step: "Upload starting photos", location: "Progress Report page", details: "Dom reviews these personally. Front, side, back. He uses these to track your progress.", time: "3 min" },
+      { step: "Submit first Weekly Report", location: "Check-in page", details: "Weight, wins, struggles, questions. Dom reads every one. He adjusts your program based on this.", time: "5 min" },
+      { step: "Ask Your P.O.", location: "Floating shield button", details: "Gold shield button. Your AI P.O. for quick questions when Dom's busy.", time: "1 min" },
     ],
     navigation: [
-      { name: "Coaching Portal", purpose: "Book 1:1 calls with Dom", howTo: "Tap Coaching Portal tile > View available times > Book your session" },
-      { name: "Direct Line", purpose: "Private messaging with Dom", howTo: "Tap Direct Line tile > Send a message > Dom responds within 24-48 hours" },
-      { name: "Daily Structure", purpose: "Morning and evening discipline routines", howTo: "Tap Daily Structure tile or bottom nav > Check off each step > Edit times by tapping them" },
-      { name: "Meal Planning", purpose: "Your personalized nutrition", howTo: "Tap Nutrition tile > See meals adjusted to your TDEE > Give feedback to Dom for tweaks" },
-      { name: "Your Program", purpose: "Custom training plan", howTo: "Tap Program tile > See your personalized workouts > Track completion" },
-      { name: "Empire Building", purpose: "Advanced business and income skills", howTo: "Tap Advanced Skills tile > Explore strategies for building income" },
-      { name: "The Network", purpose: "Free World community", howTo: "Tap Community tile > Connect with other Free World members" },
-      { name: "Weekly Report", purpose: "Your accountability check-in", howTo: "Tap Check-In tile > Submit every week > Dom reviews personally" },
-      { name: "Ask Your P.O.", purpose: "Your AI assistant", howTo: "Tap the gold shield in bottom nav > Ask any question" },
+      { name: "Coaching Portal", purpose: "Book 1:1 video calls with Dom personally", howTo: "Tap Coaching Portal tile > View available times > Book session" },
+      { name: "Direct Line", purpose: "Private messaging - Dom responds personally", howTo: "Tap Direct Line tile > Send message > Response within 24-48 hours" },
+      { name: "Custom Program", purpose: "Training built specifically for YOU", howTo: "Tap Program tile > See your personalized workouts" },
+      { name: "Meal Planning", purpose: "Personalized nutrition Dom can adjust", howTo: "Tap Nutrition tile > Review your custom plan > Give feedback in calls" },
+      { name: "Daily Structure", purpose: "Morning/evening discipline routines", howTo: "Tap Daily Structure tile > Check off steps > Tap times to customize" },
+      { name: "Empire Building", purpose: "Free World exclusive business strategies", howTo: "Tap Advanced Skills tile > Access income building strategies" },
+      { name: "The Network", purpose: "Free World community", howTo: "Tap Community tile > Connect with other coaching clients" },
+      { name: "Weekly Report", purpose: "Check-ins Dom personally reviews", howTo: "Tap Check-In tile > Submit every week > Dom adjusts program" },
+      { name: "Ask Your P.O.", purpose: "AI assistant for quick questions", howTo: "Tap gold shield button > Ask anything" },
     ],
     screenSlides: [
       { id: "dashboard-home", screen: "dashboard-overview", highlight_areas: [{ x: 15, y: 10, width: 30, height: 25 }], duration: 20, zoom_level: 1.0 },
@@ -195,9 +201,9 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { id: "progress-photos", screen: "progress-photos", highlight_areas: [{ x: 15, y: 25, width: 70, height: 50 }], duration: 15, zoom_level: 1.0 },
       { id: "po-button", screen: "po-chat", highlight_areas: [{ x: 70, y: 80, width: 25, height: 15 }], duration: 10, zoom_level: 1.0 },
     ],
-    specialFeatures: "Personal Access: Unlike other tiers, Dom personally reviews your check-ins, adjusts your program, and responds to your messages. You got direct access to your P.O. - use it. Book calls, send messages, ask questions. That's what you're paying for.",
+    specialFeatures: "VIP ACCESS: Dom personally reviews your check-ins. Dom personally adjusts your program. Dom personally responds to your messages. You got DIRECT ACCESS to your P.O. - not AI, not support, Dom himself. Book calls. Send messages. Ask questions. This is what Free World is about.",
     upgradeHint: null,
-    ctaText: "Open the Coaching Portal and book your first 1:1 call with Dom",
+    ctaText: "Open the Coaching Portal and book your first 1:1 call with Dom. This is what you paid for.",
   },
 };
 
@@ -226,7 +232,34 @@ serve(async (req) => {
       );
     }
 
-    // Build persona-aware prompt - Hood P.O. voice for all tiers
+    // Build persona-aware prompt - Hood P.O. voice with DISTINCT tier identity
+    const tierIdentity = tier_key === "membership" 
+      ? `=== SOLITARY CONFINEMENT IDENTITY ===
+This person is in ISOLATION - the entry-level tier. They have LIMITED access.
+- They're LOCKED OUT of: The Chapel, The Yard, The Sentence, Chow Hall personalization, Work Release
+- They ONLY have: Yard Time (4 bodyweight workouts), Basic Rations, Discipline routines, Roll Call, Progress photos
+- NARRATIVE: They're proving themselves before earning more access. Stripped down to basics.
+- TERMINOLOGY: "Cell Block", "Yard Time", "Basic Rations", "Time Served", "Roll Call", "Ask the Warden"
+- TONE: Acknowledge their limitations but emphasize they're building foundation. Tease what they could unlock.
+- CRITICAL: Mention locked features and upgrade path at the end`
+      : tier_key === "transformation"
+      ? `=== GENERAL POPULATION IDENTITY ===
+This person is in GEN POP - the FULL 12-week transformation program. They have FULL access.
+- They have UNLOCKED: The Sentence (12-week program), Chow Hall (personalized nutrition), The Chapel (faith), The Yard (community), Work Release (skills)
+- This is the CORE experience - structured progression, brotherhood, complete transformation
+- NARRATIVE: They're doing their sentence with everything they need. Full access to the yard, the chapel, the program.
+- TERMINOLOGY: "The Sentence", "Chow Hall", "The Chapel", "The Yard", "Roll Call", "Time Served", "Work Release", "Ask the Warden"
+- TONE: Emphasize the STRUCTURE of the 12-week program. Foundation → Building → Peak. Community support.
+- CRITICAL: Highlight the 3-phase program structure and community aspect`
+      : `=== FREE WORLD IDENTITY ===
+This person is FREE - the VIP coaching tier. They're OUT of the system, on probation.
+- They have VIP ACCESS: Coaching Portal (1:1 calls with Dom), Direct Line (personal messaging), Custom Program, Empire Building
+- They get EVERYTHING from Gen Pop PLUS personal attention from Coach Dom
+- NARRATIVE: They made it out. Now they're building their empire with personal guidance.
+- TERMINOLOGY: "Your P.O." (not Warden), "Daily Structure", "Meal Planning", "Coaching Portal", "Direct Line", "Empire Building", "The Network"
+- TONE: Professional mentorship. They paid for VIP - emphasize the PERSONAL access to Dom.
+- CRITICAL: The Coaching Portal and Direct Line are the crown jewels. Book that first call.`;
+
     const personaInstructions = `You are a P.O. (Parole Officer) who came up from the streets himself. 
 You know the struggle because you lived it. Now you're on the other side helping others get right.
 
@@ -246,17 +279,7 @@ SPEECH STYLE EXAMPLES:
 - "That's how you handle that, simple" (not "That's the process")
 - "You already know what it is" (not "As you know")
 
-TIER-SPECIFIC CONTEXT:
-${config.persona === "po" 
-  ? `- This person is FREE WORLD (coaching tier) - they're on probation, out of the system
-- Address them like they made it out: "You home now", "You did your time", "Now we building something real"
-- They have direct access to Coach Dom - emphasize the personal relationship
-- Phrases: "You on the outside now", "This your second chance", "Don't fumble this bag"`
-  : `- This person is still in the SYSTEM (${config.name})
-- Use prison metaphors: "cell block", "yard time", "the sentence", "roll call"
-- Speak like you're checking in on someone doing their time but rooting for them
-- Phrases: "You serving time in here", "This your cell block", "Time to put in work"`
-}`;
+${tierIdentity}`;
 
     // Calculate total expected duration from screen slides
     const totalSlideDuration = config.screenSlides.reduce((acc, slide) => acc + slide.duration, 0);
