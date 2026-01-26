@@ -8,6 +8,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTierOnboardingVideos } from "@/hooks/useOnboardingVideo";
 import { cn } from "@/lib/utils";
 
+// Voice IDs for reference
+const VOICE_IDS = {
+  onboarding: "YtCzf4XXIC5vu5YfIjoP",
+  po: "4bOoBAdJb8z9qH6OY0IA",
+};
+
 const TIERS = [
   {
     key: "membership",
@@ -15,6 +21,8 @@ const TIERS = [
     description: "Self-serve bodyweight training",
     color: "text-muted-foreground",
     bgColor: "bg-muted/20",
+    expectedVoice: VOICE_IDS.onboarding,
+    voiceLabel: "Onboarding Voice",
   },
   {
     key: "transformation",
@@ -22,6 +30,8 @@ const TIERS = [
     description: "12-week structured program",
     color: "text-primary",
     bgColor: "bg-primary/20",
+    expectedVoice: VOICE_IDS.onboarding,
+    voiceLabel: "Onboarding Voice",
   },
   {
     key: "coaching",
@@ -29,6 +39,8 @@ const TIERS = [
     description: "Premium 1:1 coaching",
     color: "text-green-400",
     bgColor: "bg-green-500/20",
+    expectedVoice: VOICE_IDS.po,
+    voiceLabel: "P.O. Voice",
   },
 ];
 
@@ -82,21 +94,40 @@ export default function TierOnboardingManager() {
         </CardHeader>
         <CardContent className="flex items-center gap-4">
           <div className="text-4xl font-bold text-primary">v{configVersion}</div>
-          <Button
-            variant="outline"
-            onClick={() => incrementVersion.mutate()}
-            disabled={incrementVersion.isPending}
-            className="gap-2"
-          >
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => incrementVersion.mutate()}
+              disabled={incrementVersion.isPending}
+              className="gap-2"
+            >
             {incrementVersion.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <RefreshCw className="w-4 h-4" />
             )}
-            Increment Version
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            Use this when tier features change significantly.
+              Increment Version
+            </Button>
+            <Button
+              variant="gold"
+              onClick={async () => {
+                for (const tier of TIERS) {
+                  await generateVideo.mutateAsync({ tierKey: tier.key, forceRegenerate: true });
+                }
+              }}
+              disabled={generateVideo.isPending}
+              className="gap-2"
+            >
+              {generateVideo.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              Regenerate All Tiers
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">
+            Use "Increment Version" when tier features change. Use "Regenerate All" to fix voice/visual issues.
           </p>
         </CardContent>
       </Card>
@@ -118,8 +149,11 @@ export default function TierOnboardingManager() {
                     <div>
                       <h3 className={cn("font-semibold", tier.color)}>{tier.name}</h3>
                       <p className="text-sm text-muted-foreground">{tier.description}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Expected: {tier.voiceLabel}
+                      </p>
                       
-                      <div className="flex items-center gap-3 mt-3">
+                      <div className="flex flex-wrap items-center gap-2 mt-3">
                         {video ? (
                           <>
                             {getStatusBadge(video.status)}
@@ -127,6 +161,24 @@ export default function TierOnboardingManager() {
                               <span className="text-xs text-muted-foreground">
                                 {Math.floor(video.duration_seconds / 60)}:{String(video.duration_seconds % 60).padStart(2, "0")}
                               </span>
+                            )}
+                            {video.voice_id && (
+                              <Badge 
+                                variant="outline" 
+                                className={cn(
+                                  "text-xs",
+                                  video.voice_id === tier.expectedVoice 
+                                    ? "border-green-500/30 text-green-400" 
+                                    : "border-destructive/30 text-destructive"
+                                )}
+                              >
+                                {video.voice_id === tier.expectedVoice ? "✓ Correct Voice" : "⚠ Wrong Voice"}
+                              </Badge>
+                            )}
+                            {video.screen_slides && Array.isArray(video.screen_slides) && video.screen_slides.length > 0 && (
+                              <Badge variant="outline" className="text-xs border-primary/30 text-primary">
+                                {video.screen_slides.length} slides
+                              </Badge>
                             )}
                           </>
                         ) : (

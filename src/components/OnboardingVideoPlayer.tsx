@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Download, RefreshCw, Loader2, Check, AlertCircle } from "lucide-react";
+import { Play, RefreshCw, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { useOnboardingVideo } from "@/hooks/useOnboardingVideo";
+import { OnboardingVideoWithVisuals } from "./OnboardingVideoWithVisuals";
 
 interface OnboardingVideoPlayerProps {
   tierKey: string;
@@ -24,92 +23,6 @@ export function OnboardingVideoPlayer({
   fallbackContent,
 }: OnboardingVideoPlayerProps) {
   const { video, isLoading, needsGeneration, isGenerating, isReady, triggerGeneration } = useOnboardingVideo(tierKey);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentCaption, setCurrentCaption] = useState("");
-  const [hasWatched, setHasWatched] = useState(false);
-
-  // Auto-trigger generation if needed (only once)
-  useEffect(() => {
-    if (needsGeneration && !isGenerating && !triggerGeneration.isPending) {
-      // Don't auto-generate, let user click to generate
-    }
-  }, [needsGeneration, isGenerating]);
-
-  // Update current caption based on audio time
-  useEffect(() => {
-    if (!video?.caption_lines || !audioRef.current) return;
-
-    const updateCaption = () => {
-      const time = audioRef.current?.currentTime || 0;
-      const caption = video.caption_lines?.find(
-        (c) => time >= c.start && time < c.end
-      );
-      setCurrentCaption(caption?.text || "");
-    };
-
-    const audio = audioRef.current;
-    audio.addEventListener("timeupdate", updateCaption);
-    return () => audio.removeEventListener("timeupdate", updateCaption);
-  }, [video?.caption_lines]);
-
-  // Handle audio events
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleLoadedMetadata = () => setDuration(audio.duration);
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setHasWatched(true);
-      onVideoWatched?.();
-    };
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-
-    return () => {
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-    };
-  }, [onVideoWatched]);
-
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-    }
-  };
-
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  const formatTime = (time: number) => {
-    const mins = Math.floor(time / 60);
-    const secs = Math.floor(time % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   // Loading state
   if (isLoading) {
@@ -133,7 +46,7 @@ export function OnboardingVideoPlayer({
     const statusMessages: Record<string, string> = {
       queued: "Preparing your walkthrough...",
       generating_script: "Writing your personalized script...",
-      generating_audio: "Recording voiceover with Dom...",
+      generating_audio: "Recording voiceover...",
       generating_captions: "Adding captions...",
     };
 
@@ -204,121 +117,20 @@ export function OnboardingVideoPlayer({
     );
   }
 
-  // Ready - show audio player with captions
+  // Ready - show visual video player with Ken Burns effects
   if (isReady && video?.audio_url) {
     return (
       <Card className={cn("mb-8 bg-charcoal overflow-hidden", borderClass)}>
         <CardContent className="p-0">
-          {/* Visual area with captions */}
-          <div className="relative aspect-video bg-gradient-to-b from-charcoal to-background flex items-center justify-center">
-            {/* Background branding */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-10">
-              <span className="text-6xl font-bold tracking-wider">DOM DIFFERENT</span>
-            </div>
-            
-            {/* Caption display */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-              <p className={cn(
-                "text-lg md:text-xl font-medium text-center transition-opacity duration-300",
-                currentCaption ? "opacity-100" : "opacity-0"
-              )}>
-                {currentCaption || " "}
-              </p>
-            </div>
-
-            {/* Play button overlay when paused */}
-            {!isPlaying && (
-              <button
-                onClick={togglePlayPause}
-                className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors group"
-              >
-                <div className={cn(
-                  "w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center",
-                  "group-hover:scale-110 transition-transform"
-                )}>
-                  <Play className="w-10 h-10 text-primary-foreground ml-1" />
-                </div>
-              </button>
-            )}
-
-            {/* Watched badge */}
-            {hasWatched && (
-              <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 rounded-full bg-primary text-primary-foreground text-xs">
-                <Check className="w-3 h-3" />
-                Watched
-              </div>
-            )}
-          </div>
-
-          {/* Audio controls */}
-          <div className="p-4 space-y-3">
-            {/* Progress bar */}
-            <div className="relative">
-              <Progress value={progressPercent} className="h-2 cursor-pointer" />
-              <input
-                type="range"
-                min={0}
-                max={duration || 100}
-                value={currentTime}
-                onChange={(e) => {
-                  if (audioRef.current) {
-                    audioRef.current.currentTime = Number(e.target.value);
-                  }
-                }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
-
-            {/* Controls row */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={togglePlayPause}
-                  className="h-10 w-10"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-5 h-5" />
-                  ) : (
-                    <Play className="w-5 h-5 ml-0.5" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleMute}
-                  className="h-10 w-10"
-                >
-                  {isMuted ? (
-                    <VolumeX className="w-5 h-5" />
-                  ) : (
-                    <Volume2 className="w-5 h-5" />
-                  )}
-                </Button>
-                <span className="text-sm text-muted-foreground tabular-nums">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-              </div>
-
-              {video.captions_srt_url && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  asChild
-                  className="gap-2 text-muted-foreground"
-                >
-                  <a href={video.captions_srt_url} download>
-                    <Download className="w-4 h-4" />
-                    Captions
-                  </a>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Hidden audio element */}
-          <audio ref={audioRef} src={video.audio_url} preload="metadata" />
+          <OnboardingVideoWithVisuals
+            audioUrl={video.audio_url}
+            captionLines={video.caption_lines}
+            screenSlides={video.screen_slides}
+            tierKey={tierKey}
+            tierName={tierName}
+            accentClass={accentClass}
+            onVideoWatched={onVideoWatched}
+          />
         </CardContent>
       </Card>
     );
