@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import AvatarUpload from "@/components/AvatarUpload";
 import MilestoneBadge from "@/components/MilestoneBadge";
 import { useMilestones, PAROLE_MILESTONES } from "@/hooks/useMilestones";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { ReplayOrientationButton } from "@/components/ReplayOrientationButton";
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -837,6 +838,22 @@ export default function Settings() {
                   {profile?.user_id?.slice(0, 8)}...
                 </span>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Help & Support Card */}
+          <Card className="bg-charcoal border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground text-base">
+                <RotateCcw className="h-5 w-5 text-primary" />
+                Help & Orientation
+              </CardTitle>
+              <CardDescription>
+                Need a refresher? Replay your orientation walkthrough.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ReplayOrientationButton variant="outline" />
             </CardContent>
           </Card>
         </div>

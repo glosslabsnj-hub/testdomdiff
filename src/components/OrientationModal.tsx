@@ -24,14 +24,24 @@ interface OrientationStep {
   items: { label: string; description: string }[];
 }
 
-// Steps for Solitary Confinement (membership tier) - ONLY their features
+// Steps for Solitary Confinement (membership tier) - 5 steps
 const solitarySteps: OrientationStep[] = [
+  {
+    title: "Welcome to Solitary Confinement",
+    description: "You're starting your sentence in isolation. This is where discipline is forged.",
+    icon: Play,
+    items: [
+      { label: "Your Tier", description: "Solitary Confinement - self-serve discipline foundation" },
+      { label: "What's Included", description: "Bodyweight workouts, morning/evening routines, basic nutrition" },
+      { label: "Your Mission", description: "Build unshakable discipline through consistency" },
+    ],
+  },
   {
     title: "Your Cell Operations",
     description: "Here's what you have access to in Solitary Confinement",
-    icon: Play,
+    icon: Dumbbell,
     items: [
-      { label: "Intake Processing", description: "Your orientation hub - start here to get set up" },
+      { label: "Intake Processing", description: "Your orientation hub - you're here now" },
       { label: "Yard Time", description: "4 bodyweight workout templates - no equipment needed" },
       { label: "Lights On/Out", description: "Morning and evening discipline routines" },
       { label: "Roll Call", description: "Weekly check-ins to track your progress" },
@@ -49,6 +59,16 @@ const solitarySteps: OrientationStep[] = [
     ],
   },
   {
+    title: "The 3 Non-Negotiables",
+    description: "Every day, no excuses. This is how you serve your time.",
+    icon: Camera,
+    items: [
+      { label: "1. Complete Your Routine", description: "Morning or evening - pick one and never miss" },
+      { label: "2. Move Your Body", description: "Hit Yard Time at least 3x per week" },
+      { label: "3. Submit Roll Call", description: "Weekly check-in every Friday-Sunday" },
+    ],
+  },
+  {
     title: "Upgrading Your Status",
     description: "Ready for more? Here's what's waiting in Gen Pop",
     icon: Users,
@@ -61,14 +81,24 @@ const solitarySteps: OrientationStep[] = [
   },
 ];
 
-// Steps for Gen Pop (transformation tier) - their full features
+// Steps for Gen Pop (transformation tier) - 5 steps
 const genPopSteps: OrientationStep[] = [
   {
-    title: "Welcome to Gen Pop",
-    description: "You've got access to the full program. Here's how it works.",
+    title: "Welcome to General Population",
+    description: "You've committed to the full 12-week sentence. Let's get you set up.",
     icon: Play,
     items: [
-      { label: "Intake Processing", description: "Your orientation hub - start here to get set up" },
+      { label: "Your Tier", description: "General Population - full transformation program" },
+      { label: "What's Included", description: "12-week program, nutrition plans, faith lessons, community" },
+      { label: "Your Mission", description: "Complete your sentence and transform body, mind, and spirit" },
+    ],
+  },
+  {
+    title: "Your Program Access",
+    description: "You've got access to the full program. Here's how it works.",
+    icon: Dumbbell,
+    items: [
+      { label: "Intake Processing", description: "Your orientation hub - you're here now" },
       { label: "The Sentence", description: "Your 12-week transformation program" },
       { label: "Yard Time", description: "Access your workout library and training" },
       { label: "Roll Call", description: "Weekly check-ins to track compliance" },
@@ -86,6 +116,16 @@ const genPopSteps: OrientationStep[] = [
     ],
   },
   {
+    title: "The 3 Non-Negotiables",
+    description: "Every day, no excuses. This is how you serve your sentence.",
+    icon: Camera,
+    items: [
+      { label: "1. Follow The Sentence", description: "Complete each week's assigned workouts" },
+      { label: "2. Stay Disciplined", description: "Morning/evening routines - never skip" },
+      { label: "3. Submit Roll Call", description: "Weekly accountability every Friday-Sunday" },
+    ],
+  },
+  {
     title: "Your Brotherhood",
     description: "You're not alone in here",
     icon: Users,
@@ -98,11 +138,22 @@ const genPopSteps: OrientationStep[] = [
   },
 ];
 
+// Steps for Coaching (Free World tier) - 5 steps
 const coachingSteps: OrientationStep[] = [
   {
     title: "Welcome Home, You're on Probation",
-    description: "Dom is your parole officer. He's got your back and will help you succeed in your reintroduction to society.",
+    description: "You made it out. Now Dom's your P.O. and he's got your back.",
     icon: Play,
+    items: [
+      { label: "Your Tier", description: "Free World - premium 1:1 coaching" },
+      { label: "What's Included", description: "Custom program, direct access to Dom, VIP support" },
+      { label: "Your Mission", description: "Build a life of freedom with elite accountability" },
+    ],
+  },
+  {
+    title: "Your VIP Access",
+    description: "You've got the full package. Here's what you get.",
+    icon: Dumbbell,
     items: [
       { label: "Welcome Home", description: "Your getting-started hub with orientation checklist" },
       { label: "Your Program", description: "Your personalized transformation journey" },
@@ -122,6 +173,16 @@ const coachingSteps: OrientationStep[] = [
     ],
   },
   {
+    title: "The 3 Non-Negotiables",
+    description: "Your P.O. is watching. These are mandatory.",
+    icon: Camera,
+    items: [
+      { label: "1. Follow Your Program", description: "Complete each week's assigned training" },
+      { label: "2. Stay Connected", description: "Use Direct Line for questions and updates" },
+      { label: "3. Weekly Report", description: "Submit your report every week without fail" },
+    ],
+  },
+  {
     title: "Your Support System",
     description: "You've got a team now. Dom and your brothers have your back.",
     icon: Users,
@@ -129,7 +190,7 @@ const coachingSteps: OrientationStep[] = [
       { label: "The Network", description: "Connect with others on probation" },
       { label: "Your P.O. (Dom)", description: "Direct access to your parole officer" },
       { label: "Photo Gallery", description: "Document your new life" },
-      { label: "Career Building", description: "Build legitimate income streams" },
+      { label: "Entrepreneur Track", description: "Build legitimate income streams" },
     ],
   },
 ];
@@ -146,6 +207,11 @@ export default function OrientationModal() {
   // Select steps based on tier
   const steps = isCoaching ? coachingSteps : (isMembership ? solitarySteps : genPopSteps);
 
+  // Calculate if user is in first 7 days (mandatory orientation period)
+  const isFirstWeek = profile?.intake_completed_at 
+    ? (Date.now() - new Date(profile.intake_completed_at).getTime()) / (1000 * 60 * 60 * 24) <= 7
+    : false;
+    
   // Check if user should see orientation
   useEffect(() => {
     if (!profile?.intake_completed_at) return;
@@ -294,13 +360,22 @@ export default function OrientationModal() {
             </Button>
           </div>
 
-          {/* Skip link */}
-          <button
-            onClick={handleDismiss}
-            className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Skip orientation
-          </button>
+          {/* Skip link - only show after first week */}
+          {!isFirstWeek && (
+            <button
+              onClick={handleDismiss}
+              className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Skip orientation
+            </button>
+          )}
+          
+          {/* Progress indicator for mandatory period */}
+          {isFirstWeek && (
+            <p className="w-full mt-3 text-xs text-muted-foreground text-center">
+              Complete all {steps.length} steps to unlock your dashboard
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

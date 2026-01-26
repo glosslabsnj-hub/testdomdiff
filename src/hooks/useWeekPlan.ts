@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
+import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, startOfWeek } from "date-fns";
 
 export interface WeekDayPlan {
@@ -171,10 +172,36 @@ export function useWeekPlan() {
     morningRoutines, eveningRoutines
   ]);
   
+  // Save week plan to database (upsert)
+  const saveWeekPlan = useCallback(async () => {
+    if (!subscription || !profile) return;
+    
+    try {
+      await supabase
+        .from("user_week_plans")
+        .upsert({
+          user_id: profile.user_id,
+          week_number: currentWeek,
+          plan_data: weekPlan as any,
+          generated_from_intake: true,
+        }, { onConflict: "user_id,week_number" });
+    } catch (error) {
+      console.error("Error saving week plan:", error);
+    }
+  }, [subscription, profile, currentWeek, weekPlan]);
+  
+  // Auto-save when week plan changes
+  useEffect(() => {
+    if (profile && subscription) {
+      saveWeekPlan();
+    }
+  }, [saveWeekPlan, profile, subscription]);
+  
   return {
     weekPlan,
     currentWeek,
     isLoading: false,
+    saveWeekPlan,
   };
 }
 

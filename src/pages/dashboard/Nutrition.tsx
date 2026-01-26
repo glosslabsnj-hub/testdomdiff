@@ -168,14 +168,18 @@ const Nutrition = () => {
           </p>
         </div>
 
-        {/* User Stats Card */}
+        {/* Step 1: User Stats Card */}
         {userCalories && (
           <Card className="bg-charcoal border-border mb-8">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold mr-1">
+                  1
+                </div>
                 <ChefHat className="h-5 w-5 text-primary" />
-                Your Tray
+                Know Your Numbers
               </CardTitle>
+              <p className="text-sm text-muted-foreground ml-10">Step 1: Your daily macro targets based on your goal</p>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -218,8 +222,17 @@ const Nutrition = () => {
           />
         ) : (
           <>
-            {/* Assigned Template Info */}
+            {/* Step 2: Assigned Template Info */}
             <Card className="bg-card border-primary/30 mb-6">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold mr-1">
+                    2
+                  </div>
+                  Follow Your Template
+                </CardTitle>
+                <p className="text-sm text-muted-foreground ml-10">Step 2: Your assigned meal plan template</p>
+              </CardHeader>
               <CardContent className="py-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
@@ -298,13 +311,17 @@ const Nutrition = () => {
               ))}
             </Tabs>
 
-            {/* Shopping List */}
+            {/* Step 3: Shopping List */}
             <Card className="bg-charcoal border-border">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold mr-1">
+                    3
+                  </div>
                   <ShoppingCart className="h-5 w-5 text-primary" />
-                  Weekly Shopping List
+                  Shop Your List
                 </CardTitle>
+                <p className="text-sm text-muted-foreground ml-10">Step 3: Get these items for the week</p>
               </CardHeader>
               <CardContent>
                 {generateShoppingList().length === 0 ? (

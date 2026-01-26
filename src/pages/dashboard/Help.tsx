@@ -10,7 +10,8 @@ import {
   BookOpen,
   MessageCircle,
   Shield,
-  ExternalLink
+  ExternalLink,
+  RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +23,7 @@ import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import DashboardLayout from "@/components/DashboardLayout";
+import { ReplayOrientationButton } from "@/components/ReplayOrientationButton";
 
 // FAQ data organized by category
 const faqCategories = [
@@ -158,19 +160,14 @@ export default function Help() {
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <Play className="w-6 h-6 text-primary" />
+                  <RotateCcw className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold mb-1">Replay Orientation</h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Watch your welcome video again
+                    Re-watch the full orientation walkthrough
                   </p>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/dashboard/start-here">
-                      Go to Start Here
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Link>
-                  </Button>
+                  <ReplayOrientationButton variant="outline" size="sm" />
                 </div>
               </div>
             </CardContent>
