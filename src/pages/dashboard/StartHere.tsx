@@ -167,7 +167,7 @@ const StartHere = () => {
           bgClass: "from-muted/20",
           borderClass: "border-border",
           backLabel: "Back to Cell",
-          ctaLabel: "Start Yard Time",
+          ctaLabel: "Start Iron Pile",
           ctaHref: "/dashboard/workouts",
         };
     }

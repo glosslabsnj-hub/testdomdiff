@@ -51,7 +51,7 @@ function getTierNavigation(planType: string) {
     };
   } else {
     return {
-      workouts: "Yard Time",
+      workouts: "Iron Pile",
       workoutsPath: "/dashboard/workouts",
       discipline: "Lights On/Out",
       nutrition: "Chow Hall",
@@ -61,10 +61,10 @@ function getTierNavigation(planType: string) {
       skills: "Work Release",
       community: "The Yard",
       dashboard: "Cell Block",
-      program: "Yard Time",
+      program: "Iron Pile",
       programPath: "/dashboard/workouts",
       tierName: "Solitary Confinement",
-      primaryAction: "[Yard Time](/dashboard/workouts)",
+      primaryAction: "[Iron Pile](/dashboard/workouts)",
       persona: "Warden",
       forbiddenTerms: [],
     };
@@ -175,7 +175,7 @@ WHAT YOU CAN HELP WITH:
 5. SCRIPTURE & FAITH - Tie guidance to biblical truth when it fits naturally
 
 TIER-SPECIFIC WORKOUT GUIDANCE (CRITICAL):
-- Solitary Confinement (membership): Direct to [Yard Time](/dashboard/workouts) for bodyweight templates
+- Solitary Confinement (membership): Direct to [Iron Pile](/dashboard/workouts) for bodyweight templates
 - General Population (transformation): Direct to [The Sentence](/dashboard/program) for the 12-week structured program  
 - Free World (coaching): Direct to [Your Program](/dashboard/program) for personalized training
 

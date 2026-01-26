@@ -33,7 +33,7 @@ const TIER_SCREENSHOT_LABELS: Record<string, Record<string, string>> = {
   membership: {
     "dashboard-overview": "Your Cell Block",
     "intake-checklist": "Intake Processing",
-    "workouts-library": "Yard Time Workouts",
+    "workouts-library": "Iron Pile Workouts",
     "discipline-routines": "Lights On / Lights Out",
     "nutrition-plan": "Chow Hall",
     "progress-tracker": "Time Served",
@@ -41,7 +41,7 @@ const TIER_SCREENSHOT_LABELS: Record<string, Record<string, string>> = {
   transformation: {
     "dashboard-overview": "Your Cell Block",
     "program-week": "The Sentence",
-    "workouts-library": "Yard Time",
+    "workouts-library": "Iron Pile",
     "discipline-routines": "Lights On / Lights Out",
     "nutrition-plan": "Chow Hall",
     "faith-lesson": "The Chapel",

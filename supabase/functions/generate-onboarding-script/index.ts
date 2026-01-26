@@ -30,7 +30,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
     description: "You're in ISOLATION. Stripped down to the basics. Bodyweight-only training, daily discipline, basic nutrition. This is where you prove yourself before earning more access.",
     persona: "onboarding", // Uses authoritative but encouraging voice
     features: [
-      "YARD TIME - Your ONLY workout access: 4 bodyweight templates (Push, Pull, Legs, Full Body). No equipment, no gym - just you and the cell floor. This is your gym now.",
+      "IRON PILE - Your ONLY workout access: 4 bodyweight templates (Push, Pull, Legs, Full Body). No equipment, no gym - just you and the cell floor. This is your gym now.",
       "LIGHTS ON ROUTINE - Your morning structure: Wake up, cold shower, prayer, movement, plan the day. Check off each step. No excuses.",
       "LIGHTS OUT ROUTINE - Your evening lockdown: Reflection, gratitude journaling, sleep prep. Every night, same routine. Discipline builds discipline.",
       "ROLL CALL - Weekly accountability: Report your weight, wins, and struggles. This is how I track if you're putting in work or faking it.",
@@ -48,7 +48,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { step: "Hit 'Intake Processing' first", location: "Intake Processing tile", details: "See that tile that says 'Intake Processing'? That's your Week 0 orientation. Complete every item on that checklist or you're already slipping.", time: "2 min" },
       { step: "Set up Lights On / Lights Out", location: "Discipline page", details: "Your daily structure. Morning routine, evening routine. Tap the times to set them to YOUR schedule. This is non-negotiable.", time: "3 min" },
       { step: "Customize your routine times", location: "Discipline page", details: "Tap on any time like '5:30 AM' to change it. Match it to when you actually wake up.", time: "1 min" },
-      { step: "Browse Yard Time workouts", location: "Workouts page", details: "4 templates. That's it. Push, Pull, Legs, Full Body. All bodyweight. No gym needed. No excuses accepted.", time: "3 min" },
+      { step: "Browse Iron Pile workouts", location: "Workouts page", details: "4 templates. That's it. Push, Pull, Legs, Full Body. All bodyweight. No gym needed. No excuses accepted.", time: "3 min" },
       { step: "Click any workout to see exercises", location: "Workout card", details: "Each exercise has reps, sets, form tips. Audio guidance if you need it. Execute.", time: "2 min" },
       { step: "Complete your first workout", location: "Workout detail", details: "Follow the exercises, mark it done. Your first day serving time.", time: "30 min" },
       { step: "Go to Time Served", location: "Progress page", details: "This is where you document the transformation. Photos don't lie.", time: "1 min" },
@@ -57,7 +57,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { step: "Ask the Warden anything", location: "Floating shield button", details: "That gold shield? That's the Warden. Your AI guide. Questions, motivation - tap it.", time: "1 min" },
     ],
     navigation: [
-      { name: "Yard Time", purpose: "Your 4 bodyweight-only workouts (Push, Pull, Legs, Full Body)", howTo: "Tap Yard Time tile > Pick a workout > Complete exercises > Mark done" },
+      { name: "Iron Pile", purpose: "Your 4 bodyweight-only workouts (Push, Pull, Legs, Full Body)", howTo: "Tap Iron Pile tile > Pick a workout > Complete exercises > Mark done" },
       { name: "Lights On / Lights Out", purpose: "Daily discipline routines - morning and evening", howTo: "Tap Discipline tile > Check off each step > Tap times to customize schedule" },
       { name: "Roll Call", purpose: "Weekly check-ins", howTo: "Tap Roll Call tile > Submit weight, wins, struggles every week" },
       { name: "Time Served", purpose: "Progress photos", howTo: "Tap Progress tile > Upload front/side/back photos" },
@@ -76,9 +76,9 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { id: "checkin-form", screen: "checkin-form", highlight_areas: [{ x: 10, y: 10, width: 80, height: 70 }], duration: 15, zoom_level: 1.0 },
       { id: "warden-button", screen: "warden-chat", highlight_areas: [{ x: 70, y: 80, width: 25, height: 15 }], duration: 15, zoom_level: 1.0 },
     ],
-    specialFeatures: "SOLITARY REALITY: You're isolated for a reason. You got the basics - workout templates, discipline routines, basic nutrition. That's it. No community, no structured program, no faith lessons. Prove you can handle this and you can move to General Population where the real transformation begins.",
+    specialFeatures: "SOLITARY REALITY: You're isolated for a reason. You got the basics - the Iron Pile workout templates, discipline routines, basic nutrition. That's it. No community, no structured program, no faith lessons. Prove you can handle this and you can move to General Population where the real transformation begins.",
     upgradeHint: "Ready to get out of isolation? Upgrade to GENERAL POPULATION to unlock: The Sentence (12-week program), Chow Hall (personalized nutrition), The Chapel (faith lessons), The Yard (community), and Work Release (skills). That's where the full transformation happens.",
-    ctaText: "Get to Yard Time and complete your first workout. Prove you belong here.",
+    ctaText: "Get to the Iron Pile and complete your first workout. Prove you belong here.",
   },
   transformation: {
     name: "General Population",

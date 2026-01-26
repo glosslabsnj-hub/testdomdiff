@@ -62,7 +62,7 @@ export function TodayFocusCard() {
       pills.push({
         id: "workout",
         label: todayPlan.primary.type === "workout" 
-          ? (isCoaching ? "Training" : isMembership ? "Yard Time" : "The Sentence")
+          ? (isCoaching ? "Training" : isMembership ? "Iron Pile" : "The Sentence")
           : "Recovery",
         subLabel: todayPlan.primary.duration || "",
         href: todayPlan.primary.href,

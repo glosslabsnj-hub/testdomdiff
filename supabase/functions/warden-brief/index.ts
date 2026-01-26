@@ -39,19 +39,19 @@ function getTierTerms(planType: string) {
       primaryWorkoutPath: "/dashboard/program",
       tierName: "General Population",
       persona: "Warden",
-      forbiddenTerms: ["yard time"], // Gen Pop should never see "yard time" - that's Solitary only
+      forbiddenTerms: ["iron pile"], // Gen Pop should never see "iron pile" - that's Solitary only
     };
   } else {
     // membership (Solitary Confinement)
     return {
-      workouts: "yard time", // Solitary only has bodyweight templates
+      workouts: "iron pile", // Solitary only has bodyweight templates
       discipline: "routine",
       nutrition: "chow hall",
       faith: "chapel",
       community: "The Yard",
       checkIn: "roll call",
       progress: "time served",
-      program: "yard time",
+      program: "iron pile",
       primaryWorkoutPath: "/dashboard/workouts",
       tierName: "Solitary Confinement",
       persona: "Warden",
@@ -67,14 +67,14 @@ function sanitizeMessageForTier(message: string, planType: string): string {
   if (planType === "transformation") {
     // Gen Pop: NUCLEAR replacement - catch EVERY possible variant
     
-    // 1. Replace action phrases containing "yard"
-    sanitized = sanitized.replace(/hit\s+the\s+yard/gi, "get to [The Sentence](/dashboard/program)");
-    sanitized = sanitized.replace(/get\s+to\s+(?:the\s+)?yard\s*time/gi, "get to [The Sentence](/dashboard/program)");
-    sanitized = sanitized.replace(/get\s+your\s+yard\s*time/gi, "get to [The Sentence](/dashboard/program)");
+    // 1. Replace action phrases containing "iron pile"
+    sanitized = sanitized.replace(/hit\s+the\s+iron\s*pile/gi, "get to [The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/get\s+to\s+(?:the\s+)?iron\s*pile/gi, "get to [The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/get\s+your\s+iron\s*pile/gi, "get to [The Sentence](/dashboard/program)");
     
-    // 2. Replace any variations of "yard time" (with/without spaces)
-    sanitized = sanitized.replace(/yard\s*time/gi, "[The Sentence](/dashboard/program)");
-    sanitized = sanitized.replace(/yardtime/gi, "[The Sentence](/dashboard/program)");
+    // 2. Replace any variations of "iron pile" (with/without spaces)
+    sanitized = sanitized.replace(/iron\s*pile/gi, "[The Sentence](/dashboard/program)");
+    sanitized = sanitized.replace(/ironpile/gi, "[The Sentence](/dashboard/program)");
     
     // 3. Replace "the yard" when it means workouts (not community)
     sanitized = sanitized.replace(/to\s+the\s+yard(?!\s+is|\s+community)/gi, "to [The Sentence](/dashboard/program)");
@@ -86,8 +86,8 @@ function sanitizeMessageForTier(message: string, planType: string): string {
     sanitized = sanitized.replace(/for\s+workouts?/gi, "for [The Sentence](/dashboard/program)");
     sanitized = sanitized.replace(/to\s+workouts?/gi, "to [The Sentence](/dashboard/program)");
     
-    // 5. Replace ANY markdown link containing "workout" or "yard" in the text or URL
-    sanitized = sanitized.replace(/\[([^\]]*(?:yard|workout)[^\]]*)\]\([^)]*\)/gi, "[The Sentence](/dashboard/program)");
+    // 5. Replace ANY markdown link containing "workout" or "iron pile" in the text or URL
+    sanitized = sanitized.replace(/\[([^\]]*(?:iron\s*pile|workout)[^\]]*)\]\([^)]*\)/gi, "[The Sentence](/dashboard/program)");
     
     // 6. Replace markdown links pointing to /dashboard/workouts
     sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[The Sentence](/dashboard/program)");
@@ -112,18 +112,18 @@ function sanitizeMessageForTier(message: string, planType: string): string {
     
   } else if (planType === "coaching") {
     // Coaching: Replace prison terminology with professional terms
-    sanitized = sanitized.replace(/hit\s+the\s+yard/gi, "get to [your training plan](/dashboard/program)");
-    sanitized = sanitized.replace(/yard\s*time/gi, "[your training sessions](/dashboard/program)");
+    sanitized = sanitized.replace(/hit\s+the\s+iron\s*pile/gi, "get to [your training plan](/dashboard/program)");
+    sanitized = sanitized.replace(/iron\s*pile/gi, "[your training sessions](/dashboard/program)");
     sanitized = sanitized.replace(/the yard(?!\s+is)/gi, "The Network");
     sanitized = sanitized.replace(/warden/gi, "P.O.");
     sanitized = sanitized.replace(/inmate/gi, "client");
     
     // Replace workout-related links
-    sanitized = sanitized.replace(/\[([^\]]*(?:yard|workout)[^\]]*)\]\([^)]*\)/gi, "[your training plan](/dashboard/program)");
+    sanitized = sanitized.replace(/\[([^\]]*(?:iron\s*pile|workout)[^\]]*)\]\([^)]*\)/gi, "[your training plan](/dashboard/program)");
     sanitized = sanitized.replace(/\[([^\]]*)\]\(\/dashboard\/workouts\)/gi, "[your training plan](/dashboard/program)");
     sanitized = sanitized.replace(/\/dashboard\/workouts\b/g, "/dashboard/program");
   }
-  // Solitary (membership) keeps "yard time" - no changes needed
+  // Solitary (membership) keeps "iron pile" - no changes needed
 
   return sanitized;
 }
@@ -215,11 +215,11 @@ TERMINOLOGY (use these terms based on user's plan):
 - Check-ins: ${terms.checkIn}
 
 TIER-SPECIFIC WORKOUT GUIDANCE:
-- Solitary Confinement (membership): Direct to "yard time" at /dashboard/workouts for bodyweight templates
+- Solitary Confinement (membership): Direct to "iron pile" at /dashboard/workouts for bodyweight templates
 - General Population (transformation): Direct to "The Sentence" at /dashboard/program for their 12-week structured program  
 - Free World (coaching): Direct to "your custom training plan" at /dashboard/program for personalized training
 
-CRITICAL: NEVER direct a Gen Pop (transformation) user to "Yard Time" - their primary training is "The Sentence" (the 12-week program).
+CRITICAL: NEVER direct a Gen Pop (transformation) user to "Iron Pile" - their primary training is "The Sentence" (the 12-week program).
 
 YOUR APPROACH:
 - When compliance is high: Acknowledge the grind, push for more
@@ -279,9 +279,9 @@ async function generateWardenBrief(context: UserContext): Promise<{
 YOU ARE WRITING FOR A GENERAL POPULATION USER.
 
 ABSOLUTELY FORBIDDEN - DO NOT USE UNDER ANY CIRCUMSTANCES:
-- "yard time" (this is ONLY for Solitary tier members)
-- "hit the yard" (wrong tier)
-- "get to the yard" (wrong tier)
+- "iron pile" (this is ONLY for Solitary tier members)
+- "hit the iron pile" (wrong tier)
+- "get to the iron pile" (wrong tier)
 - "workouts" or "workout" as a standalone term
 - Any path containing "/dashboard/workouts"
 - Any parenthetical paths like "(dashboard/program)"
@@ -320,8 +320,8 @@ REQUIRED TERMINOLOGY:
 === SOLITARY (MEMBERSHIP) TIER RULES ===
 
 CORRECT TERMINOLOGY:
-- Call training: "yard time"
-- Link to: [yard time](/dashboard/workouts)`;
+- Call training: "iron pile"
+- Link to: [iron pile](/dashboard/workouts)`;
     }
   })();
 

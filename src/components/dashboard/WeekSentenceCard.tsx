@@ -58,7 +58,7 @@ export function WeekSentenceCard() {
             {isCoaching 
               ? `Week ${currentWeek} Schedule` 
               : isMembership 
-                ? "This Week's Yard Time" 
+                ? "This Week's Iron Pile" 
                 : `Week ${currentWeek} of The Sentence`}
           </CardTitle>
           {weekPlan.theme && (

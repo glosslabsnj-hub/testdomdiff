@@ -67,7 +67,7 @@ const routeCategories: RouteCategory[] = [
       { path: "/dashboard", name: "Cell Block (Main)", protection: "auth", tier: "all", status: "active" },
       { path: "/dashboard/start-here", name: "Intake Processing / Start Here", protection: "auth", tier: "all", status: "active" },
       { path: "/dashboard/program", name: "The Sentence (12-Week)", protection: "auth", tier: "transformation", status: "active" },
-      { path: "/dashboard/workouts", name: "Yard Time (Workouts)", protection: "auth", tier: "all", status: "active" },
+      { path: "/dashboard/workouts", name: "Iron Pile (Workouts)", protection: "auth", tier: "all", status: "active" },
       { path: "/dashboard/workouts/:templateId", name: "Workout Template Detail", protection: "auth", tier: "all", status: "active" },
       { path: "/dashboard/discipline", name: "Lights On/Out (Discipline)", protection: "auth", tier: "all", status: "active" },
       { path: "/dashboard/nutrition", name: "Chow Hall (Nutrition)", protection: "auth", tier: "all", status: "active" },

@@ -93,7 +93,7 @@ export function TodaysFocus() {
                 <Dumbbell className="w-4 h-4 text-primary" />
               </div>
               <span className="text-sm font-medium text-muted-foreground">
-                {isMembership ? "Yard Time" : isCoaching ? "Training Sessions" : "The Sentence"}
+                {isMembership ? "Iron Pile" : isCoaching ? "Training Sessions" : "The Sentence"}
               </span>
             </div>
             <Target className="w-4 h-4 text-muted-foreground/50" />

@@ -20,7 +20,7 @@ export function MobileBottomNav() {
   const getWorkoutDestination = () => {
     if (isMembership) {
       // Solitary: bodyweight templates only
-      return { href: "/dashboard/workouts", label: "Yard Time", icon: Dumbbell };
+      return { href: "/dashboard/workouts", label: "Iron Pile", icon: Dumbbell };
     } else if (isTransformation) {
       // Gen Pop: 12-week program is primary
       return { href: "/dashboard/program", label: "The Sentence", icon: Calendar };
