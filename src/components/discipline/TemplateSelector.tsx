@@ -25,6 +25,7 @@ interface DisciplineTemplate {
 interface TemplateSelectorProps {
   currentTemplateId: string | null;
   onTemplateChange: (templateId: string) => void;
+  trigger?: React.ReactNode;
 }
 
 const TEMPLATE_ICONS: Record<string, any> = {
@@ -41,7 +42,7 @@ const TEMPLATE_COLORS: Record<string, string> = {
   "Iron Sharpens Iron": "from-primary/20 to-primary/5 border-primary/30",
 };
 
-const TemplateSelector = ({ currentTemplateId, onTemplateChange }: TemplateSelectorProps) => {
+const TemplateSelector = ({ currentTemplateId, onTemplateChange, trigger }: TemplateSelectorProps) => {
   const { user, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [templates, setTemplates] = useState<DisciplineTemplate[]>([]);
@@ -121,15 +122,21 @@ const TemplateSelector = ({ currentTemplateId, onTemplateChange }: TemplateSelec
   return (
     <>
       {/* Current Template Display & Trigger */}
-      <Button
-        variant="goldOutline"
-        size="sm"
-        onClick={() => setOpen(true)}
-        className="gap-2"
-      >
-        <CurrentIcon className="w-4 h-4" />
-        {currentTemplate ? currentTemplate.name : "Choose Discipline Level"}
-      </Button>
+      {trigger ? (
+        <div onClick={() => setOpen(true)} className="cursor-pointer">
+          {trigger}
+        </div>
+      ) : (
+        <Button
+          variant="goldOutline"
+          size="sm"
+          onClick={() => setOpen(true)}
+          className="gap-2"
+        >
+          <CurrentIcon className="w-4 h-4" />
+          {currentTemplate ? currentTemplate.name : "Choose Discipline Level"}
+        </Button>
+      )}
 
       {/* Template Selection Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
