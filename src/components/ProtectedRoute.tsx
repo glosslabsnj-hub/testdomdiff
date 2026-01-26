@@ -91,6 +91,11 @@ const ProtectedRoute = ({ children, requireIntake = true }: ProtectedRouteProps)
     return <Navigate to="/intake" replace />;
   }
 
+  // Check if onboarding video is completed (for dashboard routes)
+  if (requireIntake && !profile?.first_login_video_watched) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return <>{children}</>;
 };
 

@@ -13,6 +13,7 @@ import Coaching from "@/pages/programs/Coaching";
 import Checkout from "@/pages/Checkout";
 import Intake from "@/pages/Intake";
 import IntakeComplete from "@/pages/IntakeComplete";
+import Onboarding from "@/pages/Onboarding";
 import BookCall from "@/pages/BookCall";
 import Login from "@/pages/Login";
 import AccessExpired from "@/pages/AccessExpired";
@@ -100,6 +101,14 @@ export function AnimatedRoutes() {
           element={
             <ProtectedRoute requireIntake={false}>
               <PageTransition><IntakeComplete /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            <ProtectedRoute requireIntake={false}>
+              <Onboarding />
             </ProtectedRoute>
           }
         />
