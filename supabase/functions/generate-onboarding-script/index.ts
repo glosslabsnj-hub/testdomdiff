@@ -274,27 +274,27 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
 
 === CRITICAL RULES ===
 1. TARGET DURATION: ${targetDuration} seconds (${Math.round(targetDuration/60)} minutes) - comprehensive walkthrough
-2. PACING: VERY SLOW speaking pace, 90-100 words per minute. LOTS of breathing room for screen recording.
-3. MANDATORY PAUSES - THIS IS THE MOST IMPORTANT RULE:
-   - Add "... ... ..." (TRIPLE dots with spaces = 5-7 seconds) after EVERY feature explanation
-   - Add "... ... ... ... ..." (5 groups of dots = 10-12 seconds) between MAJOR SECTIONS for screen transitions
-   - After EVERY "click here", "go to", or describing a screen element - ALWAYS add "... ... ..."
-   - LESS WORDS, MORE PAUSES. The pauses are MORE IMPORTANT than the words.
-   - EXAMPLE: "Aight, this right here is your dashboard. ... ... ... This where you gon' see everything at once. ... ... ... ... ... Now let me show you the workouts. ... ... ..."
-   - ANOTHER EXAMPLE: "See that button right there? ... ... ... Click it. ... ... ... That's how you log your workout. ... ... ... ... ... Moving on to nutrition. ... ... ..."
-   - EVERY sentence should end with at least "... ... ..." to give time for screen recording
+2. PACING: Natural speaking pace, 110-120 words per minute. Conversational flow.
+3. SMART PAUSES - BE STRATEGIC, NOT ROBOTIC:
+   - SHORT pause "..." (1-2 sec): After a quick statement, natural breath
+   - MEDIUM pause "... ..." (3-4 sec): After explaining a feature or pointing to something on screen
+   - LONG pause "... ... ..." (6-8 sec): ONLY when transitioning to a COMPLETELY NEW SECTION
+   - DO NOT pause after every sentence - let it flow naturally like a real conversation
+   - PAUSE WHEN: Switching screens, pointing to a new area, after "click here/go to", between major topics
+   - DON'T PAUSE WHEN: Mid-explanation, building up a point, casual conversational flow
+   - GOOD EXAMPLE: "Aight, this right here is your dashboard. This where you see everything at once, feel me? Your workouts, your progress, all of it. ... ... Now peep this section over here. ... This your workout tracker. Click it and you can log what you did. ... ... ... Bet, let's move to nutrition."
+   - BAD EXAMPLE: "This is your dashboard. ... ... ... This is where you see things. ... ... ... Your workouts are here. ... ... ..." (too robotic)
 4. STRUCTURE: 
-   - Hood intro / what's up (20-30 sec with pauses)
-   - Dashboard quick overview (45 sec with pauses)  
-   - Feature-by-feature breakdown with LONG pauses (3-4 min)
-   - How to get around / navigation (45 sec with pauses)
-   - What to do next (30 sec)
+   - Hood intro / what's up (15-20 sec)
+   - Dashboard quick overview (30-45 sec)  
+   - Feature-by-feature breakdown with smart pauses (2-3 min)
+   - How to get around / navigation (30-45 sec)
+   - What to do next (20-30 sec)
    - Strong closing / call-to-action (15 sec)
-5. LANGUAGE: Keep it real. Street talk but clear. Short sentences. Max 8-10 words per sentence.
-6. BREATHING ROOM: After EVERY screen element description, add "... ... ..." pause
-7. VISUAL SYNC: Each section should align with a screen_slide for visual sync
-8. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
-9. PAUSE RATIO: At least 40% of the total duration should be pauses, not talking
+5. LANGUAGE: Keep it real. Street talk but clear. Natural sentence length - not choppy.
+6. VISUAL SYNC: Add medium/long pauses when pointing to or demonstrating something visual
+7. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
+8. FLOW: Sound like a real person explaining, not a robot reading with pauses inserted
 
 === OUTPUT FORMAT (valid JSON only) ===
 {
