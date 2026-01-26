@@ -97,6 +97,22 @@ const Login = () => {
     }
   };
 
+  // Verify subscription exists and is readable before navigation
+  const verifySubscription = async (userId: string, maxAttempts = 5): Promise<boolean> => {
+    for (let i = 0; i < maxAttempts; i++) {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("id, status")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+      
+      if (data) return true;
+      await new Promise(r => setTimeout(r, 300)); // Wait 300ms between attempts
+    }
+    return false;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError("");
@@ -137,6 +153,16 @@ const Login = () => {
         try {
           // Create dev subscription
           await createDevSubscription(newUserId, selectedPlan);
+          
+          // Verify subscription is readable before proceeding
+          const verified = await verifySubscription(newUserId);
+          if (!verified) {
+            throw new Error("Subscription verification timed out");
+          }
+          
+          // Mark that we just completed signup (for ProtectedRoute safety net)
+          sessionStorage.setItem("rs_fresh_signup", "true");
+          
           await refreshSubscription();
           
           toast({
