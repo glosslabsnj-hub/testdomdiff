@@ -5,3 +5,5 @@ export { default as ClientOverviewTab } from "./ClientOverviewTab";
 export { default as ClientSessionsTab } from "./ClientSessionsTab";
 export { default as ClientGoalsTab } from "./ClientGoalsTab";
 export { default as ClientMessagesTab } from "./ClientMessagesTab";
+export { default as ClientProgramTab } from "./ClientProgramTab";
+export { default as ClientProgramEditor } from "./ClientProgramEditor";

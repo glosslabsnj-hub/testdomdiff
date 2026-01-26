@@ -12,12 +12,14 @@ import {
   Pencil,
   Check,
   X,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +39,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useClientCustomPrograms, ClientCustomProgram } from "@/hooks/useClientCustomPrograms";
+import ClientProgramEditor from "./ClientProgramEditor";
 
 interface ClientProgramTabProps {
   clientId: string;
@@ -137,153 +140,161 @@ export default function ClientProgramTab({ clientId }: ClientProgramTabProps) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Custom Program Files</h3>
-          <p className="text-sm text-muted-foreground">
-            Upload personalized workout plans, nutrition guides, and other program materials
-          </p>
+    <div className="space-y-8">
+      {/* Structured Workouts Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-semibold">Structured Workouts</h3>
         </div>
-        <Button variant="gold" onClick={() => setIsUploadDialogOpen(true)}>
-          <Upload className="w-4 h-4 mr-2" />
-          Upload File
-        </Button>
+        <ClientProgramEditor clientId={clientId} />
       </div>
 
-      {/* Program List */}
-      {programs.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="w-12 h-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground text-center mb-4">
-              No custom program files uploaded yet.
-              <br />
-              Upload workout plans, nutrition guides, or other materials for this client.
-            </p>
-            <Button variant="goldOutline" onClick={() => setIsUploadDialogOpen(true)}>
-              <Upload className="w-4 h-4 mr-2" />
-              Upload First File
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {programs.map((program) => {
-            const FileIcon = getFileIcon(program.file_type);
-            const isEditing = editingId === program.id;
+      <Separator />
 
-            return (
-              <Card key={program.id} className="bg-charcoal-light">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex items-center gap-2">
-                      <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                        <FileIcon className="w-5 h-5 text-primary" />
-                      </div>
-                    </div>
+      {/* File Uploads Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-semibold">Program Files</h3>
+          </div>
+          <Button variant="goldOutline" size="sm" onClick={() => setIsUploadDialogOpen(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload File
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Upload PDFs, nutrition guides, or other reference materials
+        </p>
 
-                    <div className="flex-1 min-w-0">
-                      {isEditing ? (
-                        <div className="space-y-2">
-                          <Input
-                            value={editTitle}
-                            onChange={(e) => setEditTitle(e.target.value)}
-                            placeholder="Title"
-                            className="font-semibold"
-                          />
-                          <Textarea
-                            value={editDescription}
-                            onChange={(e) => setEditDescription(e.target.value)}
-                            placeholder="Description (optional)"
-                            rows={2}
-                          />
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="gold" onClick={saveEditing}>
-                              <Check className="w-4 h-4 mr-1" />
-                              Save
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={cancelEditing}>
-                              <X className="w-4 h-4 mr-1" />
-                              Cancel
-                            </Button>
-                          </div>
+        {/* Program Files List */}
+        {programs.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-8">
+              <FileText className="w-10 h-10 text-muted-foreground mb-3" />
+              <p className="text-muted-foreground text-center text-sm">
+                No files uploaded yet
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {programs.map((program) => {
+              const FileIcon = getFileIcon(program.file_type);
+              const isEditing = editingId === program.id;
+
+              return (
+                <Card key={program.id} className="bg-charcoal-light">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex items-center gap-2">
+                        <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+                        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                          <FileIcon className="w-5 h-5 text-primary" />
                         </div>
-                      ) : (
-                        <>
-                          <h4 className="font-semibold text-foreground truncate">
-                            {program.title}
-                          </h4>
-                          {program.description && (
-                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                              {program.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                            <span className="uppercase font-medium">
-                              {getFileTypeLabel(program.file_type)}
-                            </span>
-                            <span>•</span>
-                            <span>
-                              Uploaded {format(new Date(program.created_at), "MMM d, yyyy")}
-                            </span>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        {isEditing ? (
+                          <div className="space-y-2">
+                            <Input
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              placeholder="Title"
+                              className="font-semibold"
+                            />
+                            <Textarea
+                              value={editDescription}
+                              onChange={(e) => setEditDescription(e.target.value)}
+                              placeholder="Description (optional)"
+                              rows={2}
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="gold" onClick={saveEditing}>
+                                <Check className="w-4 h-4 mr-1" />
+                                Save
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={cancelEditing}>
+                                <X className="w-4 h-4 mr-1" />
+                                Cancel
+                              </Button>
+                            </div>
                           </div>
-                        </>
+                        ) : (
+                          <>
+                            <h4 className="font-semibold text-foreground truncate">
+                              {program.title}
+                            </h4>
+                            {program.description && (
+                              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                {program.description}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                              <span className="uppercase font-medium">
+                                {getFileTypeLabel(program.file_type)}
+                              </span>
+                              <span>•</span>
+                              <span>
+                                Uploaded {format(new Date(program.created_at), "MMM d, yyyy")}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {!isEditing && (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => startEditing(program)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleView(program)}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash2 className="w-4 h-4 text-crimson" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Program File</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{program.title}"? This will remove
+                                  the file from the client's dashboard and cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteProgram(program.id)}
+                                  className="bg-crimson hover:bg-crimson-dark"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       )}
                     </div>
-
-                    {!isEditing && (
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => startEditing(program)}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleView(program)}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="w-4 h-4 text-crimson" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Program File</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete "{program.title}"? This will remove
-                                the file from the client's dashboard and cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteProgram(program.id)}
-                                className="bg-crimson hover:bg-crimson-dark"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Upload Dialog */}
       <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
