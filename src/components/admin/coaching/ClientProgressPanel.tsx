@@ -22,7 +22,7 @@ import ClientOverviewTab from "./ClientOverviewTab";
 import ClientSessionsTab from "./ClientSessionsTab";
 import ClientGoalsTab from "./ClientGoalsTab";
 import ClientMessagesTab from "./ClientMessagesTab";
-import ClientProgramTab from "./ClientProgramTab";
+import ImprovedProgramTab from "./ImprovedProgramTab";
 import ClientIntakeTab from "./ClientIntakeTab";
 
 interface ClientProgressPanelProps {
@@ -168,7 +168,7 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
               </TabsContent>
 
               <TabsContent value="program" className="m-0 p-4">
-                <ClientProgramTab clientId={client.user_id} client={client} />
+                <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
             </>
           )}
