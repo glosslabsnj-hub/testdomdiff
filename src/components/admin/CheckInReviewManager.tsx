@@ -14,6 +14,8 @@ import {
   ChevronDown,
   ChevronUp,
   Send,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -42,6 +45,8 @@ export default function CheckInReviewManager() {
   const [expandedCheckIn, setExpandedCheckIn] = useState<string | null>(null);
   const [coachNotes, setCoachNotes] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkProcessing, setBulkProcessing] = useState(false);
   const { toast } = useToast();
 
   const { checkIns, loading, addCoachNotes, getCheckInStats, refetch } = useAdminCheckIns({
@@ -50,6 +55,46 @@ export default function CheckInReviewManager() {
   });
 
   const stats = getCheckInStats();
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === checkIns.filter(c => !c.coach_reviewed_at).length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(checkIns.filter(c => !c.coach_reviewed_at).map(c => c.id)));
+    }
+  };
+
+  const handleBulkMarkReviewed = async () => {
+    if (selectedIds.size === 0) return;
+    
+    setBulkProcessing(true);
+    let successCount = 0;
+    
+    for (const id of selectedIds) {
+      const success = await addCoachNotes(id, "Bulk reviewed - no additional notes.");
+      if (success) successCount++;
+    }
+    
+    setBulkProcessing(false);
+    setSelectedIds(new Set());
+    
+    toast({
+      title: "Bulk review complete",
+      description: `${successCount} check-in${successCount !== 1 ? 's' : ''} marked as reviewed.`,
+    });
+  };
 
   const handleSubmitNotes = async (checkIn: AdminCheckIn) => {
     const notes = coachNotes[checkIn.id];
@@ -139,27 +184,63 @@ export default function CheckInReviewManager() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by client name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-charcoal border-border"
-          />
+      {/* Filters + Bulk Actions */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by client name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-charcoal border-border"
+            />
+          </div>
+          <Select value={filterReview} onValueChange={setFilterReview}>
+            <SelectTrigger className="w-full sm:w-[180px] bg-charcoal border-border">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Check-Ins</SelectItem>
+              <SelectItem value="pending">Pending Review</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={filterReview} onValueChange={setFilterReview}>
-          <SelectTrigger className="w-full sm:w-[180px] bg-charcoal border-border">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filter" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Check-Ins</SelectItem>
-            <SelectItem value="pending">Pending Review</SelectItem>
-          </SelectContent>
-        </Select>
+
+        {/* Bulk Actions Bar */}
+        {checkIns.filter(c => !c.coach_reviewed_at).length > 0 && (
+          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={selectedIds.size === checkIns.filter(c => !c.coach_reviewed_at).length && selectedIds.size > 0}
+                onCheckedChange={toggleSelectAll}
+                className="border-muted-foreground"
+              />
+              <span className="text-sm text-muted-foreground">
+                {selectedIds.size > 0 
+                  ? `${selectedIds.size} selected` 
+                  : `Select all pending (${checkIns.filter(c => !c.coach_reviewed_at).length})`}
+              </span>
+            </div>
+            {selectedIds.size > 0 && (
+              <Button
+                variant="gold"
+                size="sm"
+                onClick={handleBulkMarkReviewed}
+                disabled={bulkProcessing}
+                className="gap-2"
+              >
+                {bulkProcessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckSquare className="h-4 w-4" />
+                )}
+                Mark {selectedIds.size} Reviewed
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Check-Ins List */}
@@ -187,6 +268,15 @@ export default function CheckInReviewManager() {
                   <div className="p-4 cursor-pointer hover:bg-muted/30 transition-colors">
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
+                        {/* Checkbox for pending items */}
+                        {!checkIn.coach_reviewed_at && (
+                          <Checkbox
+                            checked={selectedIds.has(checkIn.id)}
+                            onCheckedChange={() => toggleSelect(checkIn.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="border-muted-foreground"
+                          />
+                        )}
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={checkIn.profile?.avatar_url || undefined} />
                           <AvatarFallback className="bg-primary/20 text-primary">

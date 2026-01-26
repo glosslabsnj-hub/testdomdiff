@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import MilestoneBadge from "@/components/MilestoneBadge";
 import { useMilestones, PAROLE_MILESTONES } from "@/hooks/useMilestones";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ReplayOrientationButton } from "@/components/ReplayOrientationButton";
+import { CancelSubscriptionDialog } from "@/components/CancelSubscriptionDialog";
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -908,6 +909,33 @@ export default function Settings() {
               <ReplayOrientationButton variant="outline" />
             </CardContent>
           </Card>
+
+          {/* Subscription Management Card */}
+          {subscription && subscription.status === "active" && (
+            <Card className="bg-charcoal border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-foreground text-base">
+                  <XCircle className="h-5 w-5 text-muted-foreground" />
+                  Subscription Management
+                </CardTitle>
+                <CardDescription>
+                  Manage your subscription and billing
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Need to cancel? Your progress will be saved and you can return anytime.
+                </p>
+                <CancelSubscriptionDialog 
+                  trigger={
+                    <Button variant="outline" size="sm" className="text-muted-foreground hover:text-destructive hover:border-destructive">
+                      Cancel Subscription
+                    </Button>
+                  }
+                />
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
     </DashboardLayout>
