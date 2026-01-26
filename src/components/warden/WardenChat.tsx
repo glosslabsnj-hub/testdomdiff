@@ -20,8 +20,15 @@ interface WardenChatProps {
 }
 
 export function WardenChat({ className }: WardenChatProps) {
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
   const isMobile = useIsMobile();
+  
+  // Tier-aware labels: Coaching users get "Your PO", others get "The Warden"
+  const isCoaching = subscription?.plan_type === "coaching";
+  const chatTitle = isCoaching ? "Your PO" : "The Warden";
+  const chatSubtitle = isCoaching ? "Your personal accountability partner" : "Your guide through the grind";
+  const buttonLabel = isCoaching ? "Ask Your PO" : "Ask the Warden";
+  const inputPlaceholder = isCoaching ? "Ask Your PO..." : "Ask The Warden...";
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -214,7 +221,7 @@ export function WardenChat({ className }: WardenChatProps) {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask The Warden..."
+            placeholder={inputPlaceholder}
             disabled={chatLoading}
             className={cn(
               "flex-1 bg-charcoal border border-border rounded-full px-4 py-2",
@@ -251,7 +258,7 @@ export function WardenChat({ className }: WardenChatProps) {
             isOpen && "scale-0 opacity-0",
             className
           )}
-          aria-label="Ask The Warden"
+          aria-label={buttonLabel}
         >
           <Shield className="h-5 w-5" />
         </button>
@@ -265,8 +272,8 @@ export function WardenChat({ className }: WardenChatProps) {
                     <Shield className="h-5 w-5 text-charcoal-dark" />
                   </div>
                   <div>
-                    <DrawerTitle className="font-semibold text-foreground text-sm text-left">The Warden</DrawerTitle>
-                    <p className="text-xs text-muted-foreground text-left">Your guide through the grind</p>
+                    <DrawerTitle className="font-semibold text-foreground text-sm text-left">{chatTitle}</DrawerTitle>
+                    <p className="text-xs text-muted-foreground text-left">{chatSubtitle}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -314,10 +321,10 @@ export function WardenChat({ className }: WardenChatProps) {
           isOpen && "scale-0 opacity-0",
           className
         )}
-        aria-label="Ask The Warden"
+        aria-label={buttonLabel}
       >
         <Shield className="h-5 w-5" />
-        <span className="font-semibold text-sm whitespace-nowrap">Ask the Warden</span>
+        <span className="font-semibold text-sm whitespace-nowrap">{buttonLabel}</span>
       </button>
 
       {/* Chat panel */}
@@ -337,8 +344,8 @@ export function WardenChat({ className }: WardenChatProps) {
               <Shield className="h-5 w-5 text-charcoal-dark" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground text-sm">The Warden</h3>
-              <p className="text-xs text-muted-foreground">Your guide through the grind</p>
+              <h3 className="font-semibold text-foreground text-sm">{chatTitle}</h3>
+              <p className="text-xs text-muted-foreground">{chatSubtitle}</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
