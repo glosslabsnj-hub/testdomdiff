@@ -31,6 +31,7 @@ import { TransformationWidget } from "@/components/TransformationWidget";
 import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
+import { DashboardPullToRefresh } from "@/components/DashboardPullToRefresh";
 
 import { TodayFocusCard } from "@/components/dashboard/TodayFocusCard";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
@@ -428,10 +429,10 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout showBreadcrumb={false}>
-      <div className="section-container py-8">
-        {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
-        <StreakWarningBanner />
-
+      <DashboardPullToRefresh queryKeys={["profile", "subscription", "checkIns", "workoutCompletions", "dayCompletions"]}>
+        <div className="section-container py-8">
+          {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
+          <StreakWarningBanner />
 
         {/* Compact Welcome Card - replaces verbose welcome banner */}
         <DashboardWelcomeCard userName={profile?.first_name || undefined} />
@@ -530,7 +531,7 @@ const Dashboard = () => {
                 {tile.subtitle}
               </p>
               <h3 className="headline-card mb-2 relative z-10">{tile.title}</h3>
-              <p className="text-sm text-muted-foreground relative z-10">{tile.description}</p>
+              <p className="text-sm text-muted-foreground relative z-10 leading-relaxed">{tile.description}</p>
               
               {tile.locked && tile.featureName && (
                 <div className="mt-3 flex items-center gap-2 relative z-10">
@@ -576,8 +577,8 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
-      </div>
-      
+        </div>
+      </DashboardPullToRefresh>
     </DashboardLayout>
   );
 };

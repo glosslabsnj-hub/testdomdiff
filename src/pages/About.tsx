@@ -125,6 +125,7 @@ const About = () => {
               <img
                 src={storyImage}
                 alt="Dom's transformation journey"
+                loading="lazy"
                 className="relative rounded-lg w-full aspect-[4/5] object-cover border border-border shadow-2xl"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent rounded-lg" />
@@ -152,6 +153,7 @@ const About = () => {
                   <img
                     src={domPrisonImage}
                     alt="Dom during his incarceration - where the transformation began"
+                    loading="lazy"
                     className="relative rounded-lg w-full aspect-[3/4] object-cover object-top border-2 border-primary/50 shadow-2xl"
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-charcoal via-charcoal/90 to-transparent rounded-b-lg">
@@ -326,6 +328,7 @@ const About = () => {
               <img
                 src={trainingImage}
                 alt="Training with faith"
+                loading="lazy"
                 className="rounded-lg w-full aspect-square object-cover border border-border"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent rounded-lg" />

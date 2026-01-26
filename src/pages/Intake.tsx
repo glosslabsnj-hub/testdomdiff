@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Check, ArrowRight, ArrowLeft, Loader2, User, Target, Cross, Dumbbell, Activity, Shield, Camera, SkipForward } from "lucide-react";
+import StickyMobileFooter from "@/components/StickyMobileFooter";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -720,8 +721,8 @@ const Intake = () => {
                 {renderStep()}
               </div>
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between p-6 border-t border-border bg-muted/30">
+              {/* Navigation - Desktop only (mobile uses sticky footer) */}
+              <div className="hidden md:flex items-center justify-between p-6 border-t border-border bg-muted/30">
                 <Button
                   variant="ghost"
                   onClick={() => setStep((s) => Math.max(1, s - 1))}
@@ -772,6 +773,67 @@ const Intake = () => {
                 )}
               </div>
             </div>
+
+            {/* Mobile Sticky Navigation */}
+            <StickyMobileFooter className="md:hidden">
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => setStep((s) => Math.max(1, s - 1))}
+                  disabled={step === 1}
+                  className="gap-2 flex-shrink-0"
+                  size="lg"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden xs:inline">Back</span>
+                </Button>
+
+                <div className="flex gap-2 flex-1 justify-end">
+                  {step === 4 && beforePhotos.length === 0 && !skippedPhotos && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => setSkippedPhotos(true)}
+                      className="gap-1 text-muted-foreground"
+                      size="lg"
+                    >
+                      <SkipForward className="w-4 h-4" />
+                      <span className="hidden xs:inline">Skip</span>
+                    </Button>
+                  )}
+                  {step < totalSteps ? (
+                    <Button
+                      variant="gold"
+                      onClick={handleNextStep}
+                      disabled={!canProceed()}
+                      className="gap-2 flex-1 max-w-[200px]"
+                      size="lg"
+                    >
+                      Continue <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="gold"
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className="gap-2 flex-1"
+                      size="lg"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span className="hidden xs:inline">Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="hidden xs:inline">{isCoaching ? "Complete" : "Complete"}</span>
+                          <Check className="w-4 h-4" />
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </StickyMobileFooter>
           </div>
         </div>
       </section>

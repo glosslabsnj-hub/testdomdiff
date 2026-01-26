@@ -13,6 +13,7 @@ import PhotoUploadCard from "@/components/progress/PhotoUploadCard";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
 import DashboardBackLink from "@/components/DashboardBackLink";
+import StickyMobileFooter from "@/components/StickyMobileFooter";
 
 const CheckIn = () => {
   const { checkIns, loading, submitCheckIn, getCurrentWeekNumber } = useCheckIns();
@@ -300,23 +301,49 @@ const CheckIn = () => {
                 )}
               </div>
 
-              <Button
-                variant="gold"
-                size="lg"
-                className="w-full gap-2"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-                Report In
-              </Button>
+              {/* Desktop submit button */}
+              <div className="hidden md:block">
+                <Button
+                  variant="gold"
+                  size="lg"
+                  className="w-full gap-2"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                  Report In
+                </Button>
+              </div>
+              
+              {/* Add spacing for mobile sticky footer */}
+              <div className="h-20 md:hidden" />
             </div>
           )}
         </div>
+        
+        {/* Mobile sticky submit button */}
+        {!showHistory && (
+          <StickyMobileFooter className="md:hidden">
+            <Button
+              variant="gold"
+              size="lg"
+              className="w-full gap-2"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              Report In
+            </Button>
+          </StickyMobileFooter>
+        )}
       </div>
     </div>
   );

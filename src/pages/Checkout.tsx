@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { TRANSFORMATION_DURATION_DAYS } from "@/lib/constants";
+import StickyMobileFooter from "@/components/StickyMobileFooter";
 
 type PlanType = "membership" | "transformation" | "coaching";
 
@@ -147,14 +148,14 @@ const Checkout = () => {
             </div>
 
             {/* Order Summary */}
-            <div className="bg-charcoal p-8 rounded-lg border border-border mb-8">
+            <div className="bg-charcoal p-6 sm:p-8 rounded-lg border border-border mb-8">
               <h2 className="headline-card mb-4">Order Summary</h2>
-              <div className="flex items-center justify-between py-4 border-b border-border">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-b border-border gap-2">
                 <div>
                   <p className="font-semibold">{selectedPlan.name}</p>
                   <p className="text-sm text-muted-foreground">{selectedPlan.description}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="text-2xl font-display text-primary">{selectedPlan.price}</p>
                   <p className="text-sm text-muted-foreground">{selectedPlan.period}</p>
                 </div>
@@ -214,16 +215,21 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Checkout Button */}
-            <Button
-              variant="gold"
-              size="xl"
-              className="w-full"
-              onClick={handleCheckout}
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Processing..." : `Pay ${selectedPlan.price}`}
-            </Button>
+            {/* Checkout Button - Desktop */}
+            <div className="hidden md:block">
+              <Button
+                variant="gold"
+                size="xl"
+                className="w-full"
+                onClick={handleCheckout}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : `Pay ${selectedPlan.price}`}
+              </Button>
+            </div>
+            
+            {/* Spacing for mobile sticky footer */}
+            <div className="h-20 md:hidden" />
 
             <p className="text-center text-sm text-muted-foreground mt-4">
               After payment, you'll complete a required intake form to access your dashboard.
@@ -252,6 +258,19 @@ const Checkout = () => {
       </section>
 
       <Footer />
+      
+      {/* Mobile sticky checkout button */}
+      <StickyMobileFooter className="md:hidden">
+        <Button
+          variant="gold"
+          size="xl"
+          className="w-full"
+          onClick={handleCheckout}
+          disabled={isProcessing}
+        >
+          {isProcessing ? "Processing..." : `Pay ${selectedPlan.price}`}
+        </Button>
+      </StickyMobileFooter>
     </div>
   );
 };

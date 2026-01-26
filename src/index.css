@@ -176,10 +176,12 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Fix scroll jank on mobile - disable fixed background */
+  /* Fix scroll jank on mobile - disable fixed background and complex textures */
   @media (max-width: 768px) {
     body {
       background-attachment: scroll;
+      /* Simplified background for better mobile performance */
+      background-image: linear-gradient(180deg, hsl(210 8% 5%) 0%, hsl(210 6% 7%) 100%);
     }
   }
 
@@ -205,23 +207,23 @@
 }
 
 @layer components {
-  /* Hero headline style */
+  /* Hero headline style - responsive scaling for mobile */
   .headline-hero {
     font-family: var(--font-display);
-    @apply text-5xl md:text-7xl lg:text-8xl tracking-wider leading-none;
+    @apply text-4xl sm:text-5xl md:text-7xl lg:text-8xl tracking-wider leading-none;
     text-shadow: 0 4px 40px hsl(0 0% 0% / 0.8);
   }
 
-  /* Section headlines */
+  /* Section headlines - responsive scaling */
   .headline-section {
     font-family: var(--font-display);
-    @apply text-3xl md:text-5xl lg:text-6xl tracking-wider;
+    @apply text-2xl sm:text-3xl md:text-5xl lg:text-6xl tracking-wider;
   }
 
-  /* Card headline */
+  /* Card headline - responsive scaling */
   .headline-card {
     font-family: var(--font-display);
-    @apply text-2xl md:text-3xl tracking-wider;
+    @apply text-xl sm:text-2xl md:text-3xl tracking-wider;
   }
 
   /* Gold text accent */
