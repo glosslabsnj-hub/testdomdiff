@@ -109,48 +109,6 @@ export function WeekSentenceCard() {
             );
           })}
         </div>
-        
-        {/* Today's Detail */}
-        {weekPlan.days.find(d => d.isToday) && (
-          <div className="mt-4 pt-4 border-t border-border">
-            {(() => {
-              const today = weekPlan.days.find(d => d.isToday)!;
-              const Icon = getActivityIcon(today.primary.type);
-              
-              return (
-                <Link 
-                  to={today.primary.href}
-                  className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20 hover:border-primary/40 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                        Today: {today.primary.title}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {today.primary.duration && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {today.primary.duration}
-                          </span>
-                        )}
-                        {today.secondary && (
-                          <span className="flex items-center gap-1">
-                            + {today.secondary.title}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </Link>
-              );
-            })()}
-          </div>
-        )}
       </CardContent>
     </Card>
   );

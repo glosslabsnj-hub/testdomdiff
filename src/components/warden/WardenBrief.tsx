@@ -53,7 +53,9 @@ export function WardenBrief() {
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
-    return localStorage.getItem(WARDEN_COLLAPSED_KEY) === "true";
+    // Default to collapsed unless user has explicitly expanded
+    const stored = localStorage.getItem(WARDEN_COLLAPSED_KEY);
+    return stored === null ? true : stored === "true";
   });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
