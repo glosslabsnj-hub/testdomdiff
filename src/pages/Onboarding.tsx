@@ -64,20 +64,25 @@ const Onboarding = () => {
     },
   });
 
-  // Fetch AI-generated audio with version filter
+  // Fetch AI-generated audio with version filter and cache-busting
   const { data: onboardingAudio } = useQuery({
     queryKey: ["onboarding-audio", tierKey, configVersion],
     queryFn: async () => {
       if (!configVersion) return null;
       const { data, error } = await supabase
         .from("tier_onboarding_videos")
-        .select("audio_url, status")
+        .select("audio_url, status, updated_at")
         .eq("tier_key", tierKey)
         .eq("tier_config_version", configVersion)
         .maybeSingle();
       
-      if (error || data?.status !== "ready") return null;
-      return data;
+      if (error || data?.status !== "ready" || !data?.audio_url) return null;
+      
+      // Add cache-busting parameter to force fresh audio fetch
+      const cacheBuster = new Date(data.updated_at).getTime();
+      const audioUrlWithCacheBust = `${data.audio_url}?v=${configVersion}&t=${cacheBuster}`;
+      
+      return { ...data, audio_url: audioUrlWithCacheBust };
     },
     enabled: !!configVersion,
   });
