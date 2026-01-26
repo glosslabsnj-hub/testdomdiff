@@ -1,12 +1,105 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Play, Pause, Volume2, VolumeX, Check, Loader2 } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Import screenshots for each tier
+import solitaryDashboard from "@/assets/onboarding/solitary/dashboard.png";
+import solitaryIntake from "@/assets/onboarding/solitary/intake.png";
+import solitaryWorkouts from "@/assets/onboarding/solitary/workouts.png";
+import solitaryDiscipline from "@/assets/onboarding/solitary/discipline.png";
+import solitaryNutrition from "@/assets/onboarding/solitary/nutrition.png";
+import solitaryProgress from "@/assets/onboarding/solitary/progress.png";
+
+// Screenshot mappings per tier with actual images
+const TIER_SCREENSHOT_IMAGES: Record<string, Record<string, string>> = {
+  membership: {
+    "dashboard-overview": solitaryDashboard,
+    "intake-checklist": solitaryIntake,
+    "workouts-library": solitaryWorkouts,
+    "discipline-routines": solitaryDiscipline,
+    "nutrition-plan": solitaryNutrition,
+    "progress-tracker": solitaryProgress,
+  },
+  // Gen Pop and Coaching will use placeholder until screenshots uploaded
+  transformation: {},
+  coaching: {},
+};
+
+// Screenshot labels for display
+const TIER_SCREENSHOT_LABELS: Record<string, Record<string, string>> = {
+  membership: {
+    "dashboard-overview": "Your Cell Block",
+    "intake-checklist": "Intake Processing",
+    "workouts-library": "Yard Time Workouts",
+    "discipline-routines": "Lights On / Lights Out",
+    "nutrition-plan": "Chow Hall",
+    "progress-tracker": "Time Served",
+  },
+  transformation: {
+    "dashboard-overview": "Your Cell Block",
+    "program-week": "The Sentence",
+    "workouts-library": "Yard Time",
+    "discipline-routines": "Lights On / Lights Out",
+    "nutrition-plan": "Chow Hall",
+    "faith-lesson": "The Chapel",
+    "community-yard": "The Yard",
+    "progress-tracker": "Time Served",
+  },
+  coaching: {
+    "dashboard-overview": "Your Cell Block",
+    "coaching-portal": "Coaching Portal",
+    "direct-line": "Direct Line",
+    "advanced-skills": "The Network",
+    "program-custom": "Your Program",
+    "nutrition-plan": "Chow Hall",
+    "faith-lesson": "The Chapel",
+    "progress-tracker": "Time Served",
+  },
+};
+
+// Default slides if none provided from database
+const DEFAULT_SLIDES: Record<string, ScreenSlide[]> = {
+  membership: [
+    { id: "1", screen: "dashboard-overview", start: 0, end: 30, zoom_level: 1.0, pan: { x: 0, y: 0 } },
+    { id: "2", screen: "intake-checklist", start: 30, end: 60, zoom_level: 1.15, pan: { x: 0, y: 10 } },
+    { id: "3", screen: "workouts-library", start: 60, end: 90, zoom_level: 1.1, pan: { x: 0, y: 0 } },
+    { id: "4", screen: "discipline-routines", start: 90, end: 120, zoom_level: 1.12, pan: { x: 0, y: 5 } },
+    { id: "5", screen: "nutrition-plan", start: 120, end: 150, zoom_level: 1.08, pan: { x: 0, y: -5 } },
+    { id: "6", screen: "progress-tracker", start: 150, end: 180, zoom_level: 1.05, pan: { x: 0, y: 0 } },
+  ],
+  transformation: [
+    { id: "1", screen: "dashboard-overview", start: 0, end: 25, zoom_level: 1.0 },
+    { id: "2", screen: "program-week", start: 25, end: 50, zoom_level: 1.1 },
+    { id: "3", screen: "workouts-library", start: 50, end: 75, zoom_level: 1.1 },
+    { id: "4", screen: "discipline-routines", start: 75, end: 100, zoom_level: 1.1 },
+    { id: "5", screen: "nutrition-plan", start: 100, end: 125, zoom_level: 1.1 },
+    { id: "6", screen: "faith-lesson", start: 125, end: 150, zoom_level: 1.1 },
+    { id: "7", screen: "community-yard", start: 150, end: 175, zoom_level: 1.1 },
+    { id: "8", screen: "progress-tracker", start: 175, end: 200, zoom_level: 1.05 },
+  ],
+  coaching: [
+    { id: "1", screen: "dashboard-overview", start: 0, end: 25, zoom_level: 1.0 },
+    { id: "2", screen: "coaching-portal", start: 25, end: 50, zoom_level: 1.1 },
+    { id: "3", screen: "direct-line", start: 50, end: 75, zoom_level: 1.1 },
+    { id: "4", screen: "advanced-skills", start: 75, end: 100, zoom_level: 1.1 },
+    { id: "5", screen: "program-custom", start: 100, end: 125, zoom_level: 1.1 },
+    { id: "6", screen: "nutrition-plan", start: 125, end: 150, zoom_level: 1.1 },
+    { id: "7", screen: "faith-lesson", start: 150, end: 175, zoom_level: 1.1 },
+    { id: "8", screen: "progress-tracker", start: 175, end: 200, zoom_level: 1.05 },
+  ],
+};
+
 // Support both string and object formats for highlight areas
 type HighlightArea = string | { x: number; y: number; width: number; height: number };
+
+interface CaptionLine {
+  text: string;
+  start: number;
+  end: number;
+}
 
 interface ScreenSlide {
   id: string;
@@ -15,12 +108,7 @@ interface ScreenSlide {
   start: number;
   end: number;
   zoom_level?: number;
-}
-
-interface CaptionLine {
-  text: string;
-  start: number;
-  end: number;
+  pan?: { x: number; y: number };
 }
 
 interface OnboardingVideoWithVisualsProps {
@@ -33,72 +121,10 @@ interface OnboardingVideoWithVisualsProps {
   onVideoWatched?: () => void;
 }
 
-// Screenshot mappings per tier - these would ideally be uploaded to storage
-const TIER_SCREENSHOTS: Record<string, Record<string, string>> = {
-  membership: {
-    "dashboard-overview": "🏠 Dashboard Overview",
-    "workouts-library": "💪 Yard Time Workouts",
-    "discipline-routines": "⏰ Morning Discipline",
-    "progress-tracker": "📸 Time Served Progress",
-    "checkin-form": "📋 Roll Call Check-in",
-  },
-  transformation: {
-    "dashboard-overview": "🏠 Dashboard Overview",
-    "program-week1": "📅 The Sentence - Week 1",
-    "workout-detail": "💪 Workout Details",
-    "nutrition-plan": "🍽️ Chow Hall Nutrition",
-    "faith-lesson": "⛪ Chapel - Faith Lessons",
-    "community-yard": "👥 The Yard Community",
-  },
-  coaching: {
-    "dashboard-overview": "🏠 Welcome Home",
-    "coaching-portal": "📞 Coaching Portal",
-    "messages-direct": "💬 Direct Line",
-    "program-custom": "📋 Your Program",
-    "advanced-skills": "🚀 Advanced Skills",
-  },
-};
-
-// Gradient backgrounds per slide for visual variety
-const SLIDE_GRADIENTS: Record<string, string> = {
-  "dashboard-overview": "from-charcoal via-background to-charcoal",
-  "workouts-library": "from-primary/20 via-charcoal to-background",
-  "discipline-routines": "from-yellow-900/30 via-charcoal to-background",
-  "progress-tracker": "from-green-900/30 via-charcoal to-background",
-  "checkin-form": "from-blue-900/30 via-charcoal to-background",
-  "program-week1": "from-primary/30 via-charcoal to-background",
-  "workout-detail": "from-red-900/30 via-charcoal to-background",
-  "nutrition-plan": "from-orange-900/30 via-charcoal to-background",
-  "faith-lesson": "from-purple-900/30 via-charcoal to-background",
-  "community-yard": "from-green-900/30 via-charcoal to-background",
-  "coaching-portal": "from-blue-900/30 via-charcoal to-background",
-  "messages-direct": "from-cyan-900/30 via-charcoal to-background",
-  "program-custom": "from-primary/30 via-charcoal to-background",
-  "advanced-skills": "from-yellow-900/30 via-charcoal to-background",
-};
-
-// Icon mapping for visual representation
-const SLIDE_ICONS: Record<string, string> = {
-  "dashboard-overview": "🏠",
-  "workouts-library": "💪",
-  "discipline-routines": "⏰",
-  "progress-tracker": "📸",
-  "checkin-form": "📋",
-  "program-week1": "📅",
-  "workout-detail": "🎯",
-  "nutrition-plan": "🍽️",
-  "faith-lesson": "⛪",
-  "community-yard": "👥",
-  "coaching-portal": "📞",
-  "messages-direct": "💬",
-  "program-custom": "📋",
-  "advanced-skills": "🚀",
-};
-
 export function OnboardingVideoWithVisuals({
   audioUrl,
   captionLines = [],
-  screenSlides = [],
+  screenSlides,
   tierKey,
   tierName,
   accentClass = "text-primary",
@@ -113,21 +139,27 @@ export function OnboardingVideoWithVisuals({
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [currentCaption, setCurrentCaption] = useState("");
 
+  // Use provided slides or default slides based on tier
+  const effectiveSlides = useMemo(() => {
+    if (screenSlides && screenSlides.length > 0) return screenSlides;
+    return DEFAULT_SLIDES[tierKey] || DEFAULT_SLIDES.membership;
+  }, [screenSlides, tierKey]);
+
   // Get current slide based on time
   const currentSlide = useMemo(() => {
-    if (!screenSlides?.length) return null;
-    const slide = screenSlides.find(s => currentTime >= s.start && currentTime < s.end);
-    return slide || screenSlides[0];
-  }, [currentTime, screenSlides]);
+    if (!effectiveSlides.length) return null;
+    const slide = effectiveSlides.find(s => currentTime >= s.start && currentTime < s.end);
+    return slide || effectiveSlides[0];
+  }, [currentTime, effectiveSlides]);
 
   // Update slide index for transitions
   useEffect(() => {
-    if (!screenSlides?.length) return;
-    const index = screenSlides.findIndex(s => currentTime >= s.start && currentTime < s.end);
+    if (!effectiveSlides.length) return;
+    const index = effectiveSlides.findIndex(s => currentTime >= s.start && currentTime < s.end);
     if (index >= 0 && index !== currentSlideIndex) {
       setCurrentSlideIndex(index);
     }
-  }, [currentTime, screenSlides, currentSlideIndex]);
+  }, [currentTime, effectiveSlides, currentSlideIndex]);
 
   // Update caption based on time
   useEffect(() => {
@@ -191,127 +223,128 @@ export function OnboardingVideoWithVisuals({
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  const slideLabel = currentSlide 
-    ? TIER_SCREENSHOTS[tierKey]?.[currentSlide.screen] || currentSlide.screen
-    : tierName;
+  // Get screenshot image for current slide
+  const getScreenshotImage = () => {
+    if (!currentSlide) return null;
+    return TIER_SCREENSHOT_IMAGES[tierKey]?.[currentSlide.screen] || null;
+  };
 
-  const slideGradient = currentSlide 
-    ? SLIDE_GRADIENTS[currentSlide.screen] || "from-charcoal via-background to-charcoal"
-    : "from-charcoal via-background to-charcoal";
+  // Get label for current slide
+  const getSlideLabel = () => {
+    if (!currentSlide) return tierName;
+    return TIER_SCREENSHOT_LABELS[tierKey]?.[currentSlide.screen] || currentSlide.screen.replace(/-/g, ' ');
+  };
 
-  const slideIcon = currentSlide 
-    ? SLIDE_ICONS[currentSlide.screen] || "📺"
-    : "📺";
+  const screenshotImage = getScreenshotImage();
+  const slideLabel = getSlideLabel();
+
+  // Calculate Ken Burns animation values
+  const getKenBurnsAnimation = () => {
+    if (!currentSlide) return { scale: 1, x: 0, y: 0 };
+    
+    const slideProgress = currentSlide.end > currentSlide.start 
+      ? (currentTime - currentSlide.start) / (currentSlide.end - currentSlide.start)
+      : 0;
+    
+    const baseZoom = currentSlide.zoom_level || 1.0;
+    const pan = currentSlide.pan || { x: 0, y: 0 };
+    
+    // Slow zoom and pan effect
+    const scale = baseZoom + (slideProgress * 0.05); // Subtle zoom during slide
+    const x = pan.x * slideProgress;
+    const y = pan.y * slideProgress;
+    
+    return { scale, x, y };
+  };
+
+  const kenBurns = getKenBurnsAnimation();
 
   return (
     <div className="relative overflow-hidden rounded-lg">
       {/* Visual area with animated slides */}
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-video overflow-hidden bg-charcoal">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide?.id || "default"}
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ 
-              opacity: 1, 
-              scale: currentSlide?.zoom_level || 1.0,
-            }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className={cn(
-              "absolute inset-0 flex items-center justify-center",
-              "bg-gradient-to-br",
-              slideGradient
-            )}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="absolute inset-0"
           >
-            {/* Central visual indicator */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-center z-10"
-            >
+            {screenshotImage ? (
+              // Real screenshot with Ken Burns effect
               <motion.div
-                animate={{ 
-                  scale: [1, 1.1, 1],
+                className="absolute inset-0"
+                animate={{
+                  scale: kenBurns.scale,
+                  x: `${kenBurns.x}%`,
+                  y: `${kenBurns.y}%`,
                 }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-                className="text-6xl md:text-8xl mb-4"
+                transition={{ duration: 0.1, ease: "linear" }}
               >
-                {slideIcon}
+                <img
+                  src={screenshotImage}
+                  alt={slideLabel}
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
-              <p className={cn("text-lg md:text-xl font-semibold", accentClass)}>
-                {slideLabel}
-              </p>
-            </motion.div>
+            ) : (
+              // Fallback gradient with icon for tiers without screenshots
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-charcoal via-background to-charcoal">
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="text-center z-10"
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="text-6xl md:text-8xl mb-4"
+                  >
+                    📺
+                  </motion.div>
+                  <p className={cn("text-lg md:text-xl font-semibold", accentClass)}>
+                    {slideLabel}
+                  </p>
+                </motion.div>
+              </div>
+            )}
 
-            {/* Highlight areas animation - now uses object format {x, y, width, height} */}
+            {/* Highlight areas animation */}
             {currentSlide?.highlight_areas?.filter(Boolean).map((area, idx) => {
-              // Handle both old string format and new object format
               if (!area) return null;
               const isObjectFormat = typeof area === 'object' && 'x' in area;
               
               if (isObjectFormat) {
-                // New object format with position data
                 const areaObj = area as { x: number; y: number; width: number; height: number };
                 return (
                   <motion.div
                     key={`${currentSlide.id}-highlight-${idx}`}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ 
-                      opacity: [0.4, 0.7, 0.4],
+                      opacity: [0.4, 0.8, 0.4],
                       scale: [1, 1.02, 1],
                     }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity, 
-                      delay: idx * 0.3 
-                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: idx * 0.2 }}
                     className="absolute border-2 border-primary rounded-lg pointer-events-none"
                     style={{
                       left: `${areaObj.x}%`,
                       top: `${areaObj.y}%`,
                       width: `${areaObj.width}%`,
                       height: `${areaObj.height}%`,
-                      boxShadow: '0 0 20px rgba(212, 175, 55, 0.4)',
+                      boxShadow: '0 0 30px rgba(212, 175, 55, 0.5)',
                     }}
                   />
                 );
               }
               
-              // Old string format - display as label
-              const areaStr = String(area);
-              return (
-                <motion.div
-                  key={`${currentSlide.id}-${areaStr}-${idx}`}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ 
-                    opacity: [0.3, 0.6, 0.3],
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{ 
-                    duration: 1.5, 
-                    repeat: Infinity, 
-                    delay: idx * 0.2 
-                  }}
-                  className="absolute bottom-20 left-1/2 -translate-x-1/2"
-                >
-                  <div className="px-4 py-2 rounded-full bg-primary/20 border border-primary/40 backdrop-blur-sm">
-                    <span className="text-sm text-primary">{areaStr.replace(/-/g, ' ')}</span>
-                  </div>
-                </motion.div>
-              );
+              return null;
             })}
 
-            {/* Background branding */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-              <span className="text-4xl md:text-6xl font-bold tracking-widest">
-                REDEEMED STRENGTH
-              </span>
-            </div>
+            {/* Vignette overlay for polish */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
           </motion.div>
         </AnimatePresence>
 
@@ -363,9 +396,9 @@ export function OnboardingVideoWithVisuals({
         )}
 
         {/* Slide progress indicators */}
-        {screenSlides.length > 1 && (
+        {effectiveSlides.length > 1 && (
           <div className="absolute top-4 left-4 flex gap-1 z-30">
-            {screenSlides.map((slide, idx) => (
+            {effectiveSlides.map((slide, idx) => (
               <div
                 key={slide.id}
                 className={cn(
@@ -380,6 +413,15 @@ export function OnboardingVideoWithVisuals({
             ))}
           </div>
         )}
+
+        {/* Current slide label */}
+        <div className="absolute top-4 right-4 z-20">
+          {!hasWatched && (
+            <span className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-xs text-white/80">
+              {slideLabel}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Audio controls */}
@@ -433,9 +475,9 @@ export function OnboardingVideoWithVisuals({
             </span>
           </div>
 
-          {/* Current slide label */}
+          {/* Slide counter */}
           <span className="text-xs text-muted-foreground hidden sm:block">
-            {slideLabel}
+            {currentSlideIndex + 1} / {effectiveSlides.length}
           </span>
         </div>
       </div>
