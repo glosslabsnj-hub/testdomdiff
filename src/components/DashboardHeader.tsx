@@ -250,6 +250,44 @@ const DashboardHeader = () => {
                         Admin Dashboard
                       </Link>
                     </DropdownMenuItem>
+                    
+                    {/* Mobile Tier Preview Toggle */}
+                    <DropdownMenuSeparator className="bg-border md:hidden" />
+                    <div className="md:hidden px-2 py-2">
+                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        Preview as Tier
+                      </p>
+                      <div className="flex gap-1">
+                        <Button
+                          variant={previewTier === "coaching" ? "default" : "outline"}
+                          size="sm"
+                          className="flex-1 h-7 text-xs gap-1"
+                          onClick={() => setPreviewTier("coaching")}
+                        >
+                          <Crown className="w-3 h-3" />
+                          Free World
+                        </Button>
+                        <Button
+                          variant={previewTier === "transformation" ? "default" : "outline"}
+                          size="sm"
+                          className="flex-1 h-7 text-xs gap-1"
+                          onClick={() => setPreviewTier("transformation")}
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          Gen Pop
+                        </Button>
+                        <Button
+                          variant={previewTier === "membership" ? "default" : "outline"}
+                          size="sm"
+                          className="flex-1 h-7 text-xs gap-1"
+                          onClick={() => setPreviewTier("membership")}
+                        >
+                          <User className="w-3 h-3" />
+                          Solitary
+                        </Button>
+                      </div>
+                    </div>
                   </>
                 )}
                 
