@@ -17,31 +17,28 @@ const VOICE_MAP = {
   coaching: "4bOoBAdJb8z9qH6OY0IA",       // P.O. voice for Free World
 };
 
-// Voice settings per persona
-// - Solitary (membership): Normal pace for basic walkthrough
-// - Gen Pop (transformation): Slower pace (0.85) so user can follow screen recording
-// - Free World (coaching): Slower pace (0.85) so user can follow screen recording
+// Voice settings per persona - all at normal speed (pauses are in the script)
 const VOICE_SETTINGS = {
   membership: { 
     stability: 0.7, 
     similarity_boost: 0.75, 
     style: 0.4, 
     use_speaker_boost: true, 
-    speed: 0.95 
+    speed: 1.0 
   },
   transformation: { 
     stability: 0.7, 
     similarity_boost: 0.75, 
     style: 0.4, 
     use_speaker_boost: true, 
-    speed: 0.85 // Slower for screen recording sync
+    speed: 1.0
   },
   coaching: { 
     stability: 0.65, 
     similarity_boost: 0.8, 
     style: 0.3, 
     use_speaker_boost: true, 
-    speed: 0.85 // Slower for screen recording sync
+    speed: 1.0
   },
 };
 

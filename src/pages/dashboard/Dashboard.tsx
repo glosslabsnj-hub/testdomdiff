@@ -340,59 +340,71 @@ const Dashboard = () => {
   ];
   
   type TileType = typeof allTiles.startHere & { locked?: boolean; featureName?: string; isCoachingOnly?: boolean };
-  const tiles: TileType[] = [];
   
-  tiles.push(allTiles.startHere);
+  // Build tier-specific tile order for better user journey
+  const getTilesForTier = (): TileType[] => {
+    if (isMembership) {
+      // Solitary: Daily actions first, progress second, locked features last
+      return [
+        allTiles.startHere,
+        allTiles.workouts,
+        allTiles.discipline,
+        allTiles.nutrition,
+        allTiles.checkIn,
+        allTiles.progress,
+        allTiles.photoGallery,
+        // Locked features grouped at bottom as upgrade path
+        lockedTilesForMembership.find(t => t.featureName?.includes("12-Week"))!,
+        lockedTilesForMembership.find(t => t.featureName?.includes("Chapel"))!,
+        lockedTilesForMembership.find(t => t.featureName?.includes("Skill"))!,
+        lockedTilesForMembership.find(t => t.featureName?.includes("Community"))!,
+        lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!,
+        lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!,
+        lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!,
+      ];
+    }
+    
+    if (isTransformation) {
+      // Gen Pop: Program-first, supporting features, then locked premium
+      return [
+        allTiles.startHere,
+        allTiles.program,
+        allTiles.workouts,
+        allTiles.discipline,
+        allTiles.nutrition,
+        allTiles.faith,
+        allTiles.checkIn,
+        allTiles.progress,
+        allTiles.photoGallery,
+        allTiles.skills,
+        allTiles.community,
+        // Locked premium features
+        lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!,
+        lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!,
+        lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!,
+      ];
+    }
+    
+    // Coaching (Free World): High-touch features prominent
+    return [
+      allTiles.startHere,
+      allTiles.program,
+      allTiles.workouts,
+      allTiles.discipline,
+      allTiles.nutrition,
+      allTiles.faith,
+      allTiles.checkIn,
+      allTiles.progress,
+      allTiles.photoGallery,
+      allTiles.skills,
+      allTiles.community,
+      allTiles.messages,
+      allTiles.coaching,
+      allTiles.advancedSkills,
+    ];
+  };
   
-  if (isTransformation || isCoaching) {
-    tiles.push(allTiles.program);
-  } else if (isMembership) {
-    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("12-Week"))!);
-  }
-  
-  tiles.push(allTiles.workouts);
-  tiles.push(allTiles.discipline);
-  tiles.push(allTiles.nutrition);
-  
-  if (isTransformation || isCoaching) {
-    tiles.push(allTiles.faith);
-  } else if (isMembership) {
-    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Chapel"))!);
-  }
-  tiles.push(allTiles.checkIn);
-  tiles.push(allTiles.progress);
-  
-  if (isTransformation || isCoaching) {
-    tiles.push(allTiles.skills);
-  } else if (isMembership) {
-    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Skill"))!);
-  }
-  
-  if (!isMembership) {
-    tiles.push(allTiles.community);
-  } else {
-    tiles.push(lockedTilesForMembership.find(t => t.featureName?.includes("Community"))!);
-  }
-  
-  // Photo Gallery for all users
-  tiles.push(allTiles.photoGallery);
-  
-  // Free World only features - show as locked for Solitary and Gen Pop
-  if (isCoaching) {
-    tiles.push(allTiles.advancedSkills);
-    tiles.push(allTiles.messages);
-    tiles.push(allTiles.coaching);
-  } else if (isTransformation) {
-    // Gen Pop sees these as locked with red styling
-    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!);
-    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!);
-    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!);
-  } else if (isMembership) {
-    // Solitary also sees these as locked with red styling
-    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!);
-    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!);
-    tiles.push(lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!);
-  }
+  const tiles = getTilesForTier();
 
   const handleTileClick = (tile: TileType, e: React.MouseEvent) => {
     if (tile.locked) {
