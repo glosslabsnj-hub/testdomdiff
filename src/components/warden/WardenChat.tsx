@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { Shield, X, RotateCcw, Send, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { parseLinksWithButtons } from "@/lib/linkParser";
 import { useWarden } from "@/hooks/useWarden";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Drawer,
@@ -74,54 +74,6 @@ export function WardenChat({ className }: WardenChatProps) {
   // Only show for authenticated users
   if (!user) return null;
 
-  // Parse links in messages
-  const parseLinks = (text: string) => {
-    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-    const parts: (string | JSX.Element)[] = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = linkRegex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(text.slice(lastIndex, match.index));
-      }
-
-      const [, label, href] = match;
-      if (href.startsWith("/")) {
-        parts.push(
-          <Link
-            key={match.index}
-            to={href}
-            className="inline-flex items-center gap-1 px-2 py-0.5 bg-gold/20 text-gold hover:bg-gold/30 rounded font-medium transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            {label} →
-          </Link>
-        );
-      } else {
-        parts.push(
-          <a
-            key={match.index}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gold hover:underline font-medium"
-          >
-            {label}
-          </a>
-        );
-      }
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < text.length) {
-      parts.push(text.slice(lastIndex));
-    }
-
-    return parts.length > 0 ? parts : text;
-  };
-
   const chatContent = (
     <>
       {/* Messages */}
@@ -183,7 +135,7 @@ export function WardenChat({ className }: WardenChatProps) {
               )}
             >
               <p className="text-sm whitespace-pre-wrap">
-                {parseLinks(message.content)}
+                {parseLinksWithButtons(message.content, () => setIsOpen(false))}
               </p>
             </div>
           </div>

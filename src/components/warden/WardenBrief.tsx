@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWarden } from "@/hooks/useWarden";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { cn } from "@/lib/utils";
+import { parseLinks } from "@/lib/linkParser";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -369,7 +370,7 @@ export function WardenBrief() {
 
         {/* Main message */}
         <p className="text-foreground text-sm sm:text-base leading-relaxed mb-4">
-          {weeklyBrief.message}
+          {parseLinks(weeklyBrief.message)}
         </p>
 
         {/* Scripture if present - collapsible on mobile */}
