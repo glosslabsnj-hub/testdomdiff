@@ -329,6 +329,51 @@ export type Database = {
         }
         Relationships: []
       }
+      client_template_assignments: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          client_id: string
+          id: string
+          match_score: number | null
+          suggested_category_id: string | null
+          template_id: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          client_id: string
+          id?: string
+          match_score?: number | null
+          suggested_category_id?: string | null
+          template_id?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          client_id?: string
+          id?: string
+          match_score?: number | null
+          suggested_category_id?: string | null
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_template_assignments_suggested_category_id_fkey"
+            columns: ["suggested_category_id"]
+            isOneToOne: false
+            referencedRelation: "program_template_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_template_assignments_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "program_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaching_action_items: {
         Row: {
           client_id: string
@@ -1415,8 +1460,11 @@ export type Database = {
       }
       profiles: {
         Row: {
+          activity_level: string | null
           age: number | null
           avatar_url: string | null
+          biggest_obstacle: string | null
+          body_fat_estimate: string | null
           created_at: string
           dashboard_video_watched: boolean | null
           discipline_template_id: string | null
@@ -1434,20 +1482,32 @@ export type Database = {
           injuries: string | null
           intake_completed_at: string | null
           last_name: string | null
+          long_term_goals: string | null
+          medical_conditions: string | null
+          motivation: string | null
+          nutrition_style: string | null
           onboarding_video_watched: boolean | null
           orientation_dismissed: boolean | null
           phone: string | null
+          previous_training: string | null
           setup_wizard_completed: boolean | null
           setup_wizard_step: number | null
+          short_term_goals: string | null
+          sleep_quality: string | null
           sleep_time: string | null
+          stress_level: string | null
+          training_days_per_week: number | null
           updated_at: string
           user_id: string
           wake_time: string | null
           weight: string | null
         }
         Insert: {
+          activity_level?: string | null
           age?: number | null
           avatar_url?: string | null
+          biggest_obstacle?: string | null
+          body_fat_estimate?: string | null
           created_at?: string
           dashboard_video_watched?: boolean | null
           discipline_template_id?: string | null
@@ -1465,20 +1525,32 @@ export type Database = {
           injuries?: string | null
           intake_completed_at?: string | null
           last_name?: string | null
+          long_term_goals?: string | null
+          medical_conditions?: string | null
+          motivation?: string | null
+          nutrition_style?: string | null
           onboarding_video_watched?: boolean | null
           orientation_dismissed?: boolean | null
           phone?: string | null
+          previous_training?: string | null
           setup_wizard_completed?: boolean | null
           setup_wizard_step?: number | null
+          short_term_goals?: string | null
+          sleep_quality?: string | null
           sleep_time?: string | null
+          stress_level?: string | null
+          training_days_per_week?: number | null
           updated_at?: string
           user_id: string
           wake_time?: string | null
           weight?: string | null
         }
         Update: {
+          activity_level?: string | null
           age?: number | null
           avatar_url?: string | null
+          biggest_obstacle?: string | null
+          body_fat_estimate?: string | null
           created_at?: string
           dashboard_video_watched?: boolean | null
           discipline_template_id?: string | null
@@ -1496,12 +1568,21 @@ export type Database = {
           injuries?: string | null
           intake_completed_at?: string | null
           last_name?: string | null
+          long_term_goals?: string | null
+          medical_conditions?: string | null
+          motivation?: string | null
+          nutrition_style?: string | null
           onboarding_video_watched?: boolean | null
           orientation_dismissed?: boolean | null
           phone?: string | null
+          previous_training?: string | null
           setup_wizard_completed?: boolean | null
           setup_wizard_step?: number | null
+          short_term_goals?: string | null
+          sleep_quality?: string | null
           sleep_time?: string | null
+          stress_level?: string | null
+          training_days_per_week?: number | null
           updated_at?: string
           user_id?: string
           wake_time?: string | null
@@ -1622,6 +1703,230 @@ export type Database = {
             columns: ["week_id"]
             isOneToOne: false
             referencedRelation: "program_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_template_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          target_profile: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          target_profile?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          target_profile?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      program_template_days: {
+        Row: {
+          created_at: string | null
+          day_of_week: string
+          display_order: number | null
+          id: string
+          is_rest_day: boolean | null
+          updated_at: string | null
+          week_id: string | null
+          workout_description: string | null
+          workout_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: string
+          display_order?: number | null
+          id?: string
+          is_rest_day?: boolean | null
+          updated_at?: string | null
+          week_id?: string | null
+          workout_description?: string | null
+          workout_name: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: string
+          display_order?: number | null
+          id?: string
+          is_rest_day?: boolean | null
+          updated_at?: string | null
+          week_id?: string | null
+          workout_description?: string | null
+          workout_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_template_days_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "program_template_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_template_exercises: {
+        Row: {
+          created_at: string | null
+          day_id: string | null
+          demo_url: string | null
+          display_order: number | null
+          exercise_name: string
+          id: string
+          notes: string | null
+          reps_or_time: string | null
+          rest: string | null
+          section_type: string | null
+          sets: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_id?: string | null
+          demo_url?: string | null
+          display_order?: number | null
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          section_type?: string | null
+          sets?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_id?: string | null
+          demo_url?: string | null
+          display_order?: number | null
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          section_type?: string | null
+          sets?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_template_exercises_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "program_template_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_template_weeks: {
+        Row: {
+          created_at: string | null
+          focus_description: string | null
+          id: string
+          template_id: string | null
+          title: string | null
+          updated_at: string | null
+          week_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          focus_description?: string | null
+          id?: string
+          template_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number: number
+        }
+        Update: {
+          created_at?: string | null
+          focus_description?: string | null
+          id?: string
+          template_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_template_weeks_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "program_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_templates: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          days_per_week: number | null
+          description: string | null
+          difficulty: string | null
+          display_order: number | null
+          equipment: string[] | null
+          goal_focus: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          days_per_week?: number | null
+          description?: string | null
+          difficulty?: string | null
+          display_order?: number | null
+          equipment?: string[] | null
+          goal_focus?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          days_per_week?: number | null
+          description?: string | null
+          difficulty?: string | null
+          display_order?: number | null
+          equipment?: string[] | null
+          goal_focus?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_templates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "program_template_categories"
             referencedColumns: ["id"]
           },
         ]

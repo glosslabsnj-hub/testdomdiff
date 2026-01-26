@@ -10,6 +10,7 @@ import {
   Phone,
   Loader2,
   FileText,
+  ClipboardList,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,6 +23,7 @@ import ClientSessionsTab from "./ClientSessionsTab";
 import ClientGoalsTab from "./ClientGoalsTab";
 import ClientMessagesTab from "./ClientMessagesTab";
 import ClientProgramTab from "./ClientProgramTab";
+import ClientIntakeTab from "./ClientIntakeTab";
 
 interface ClientProgressPanelProps {
   client: ClientWithSubscription;
@@ -93,13 +95,20 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0">
+        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 overflow-x-auto">
           <TabsTrigger
             value="overview"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
           >
             <TrendingUp className="w-4 h-4 mr-2" />
             Overview
+          </TabsTrigger>
+          <TabsTrigger
+            value="intake"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <ClipboardList className="w-4 h-4 mr-2" />
+            Intake
           </TabsTrigger>
           <TabsTrigger
             value="sessions"
@@ -142,6 +151,10 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
                 <ClientOverviewTab client={client} progress={progress} />
               </TabsContent>
 
+              <TabsContent value="intake" className="m-0 p-4">
+                <ClientIntakeTab client={client} />
+              </TabsContent>
+
               <TabsContent value="sessions" className="m-0 p-4">
                 <ClientSessionsTab clientId={client.user_id} />
               </TabsContent>
@@ -155,7 +168,7 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
               </TabsContent>
 
               <TabsContent value="program" className="m-0 p-4">
-                <ClientProgramTab clientId={client.user_id} />
+                <ClientProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
             </>
           )}

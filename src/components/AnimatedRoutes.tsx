@@ -19,6 +19,7 @@ import Login from "@/pages/Login";
 import AccessExpired from "@/pages/AccessExpired";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
+import FreeWorldIntake from "@/pages/FreeWorldIntake";
 
 // Dashboard pages
 import Dashboard from "@/pages/dashboard/Dashboard";
@@ -109,6 +110,14 @@ export function AnimatedRoutes() {
           element={
             <ProtectedRoute requireIntake={false}>
               <Onboarding />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/freeworld-intake"
+          element={
+            <ProtectedRoute requireIntake={false}>
+              <FreeWorldIntake />
             </ProtectedRoute>
           }
         />
