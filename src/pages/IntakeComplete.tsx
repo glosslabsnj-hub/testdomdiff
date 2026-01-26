@@ -39,29 +39,25 @@ const IntakeComplete = () => {
         description: "Your personalized coaching journey begins. Let's get to work.",
         steps: [
           {
-            icon: MessageCircle,
-            title: "Send Dom a Message",
-            description: "Introduce yourself via Direct Line",
+            icon: Play,
+            title: "Watch Dom's Welcome Video",
+            description: "Get a personal message from your coach",
+          },
+          {
+            icon: CheckSquare,
+            title: "Complete Your Orientation",
+            description: "Quick walkthrough of your Free World features",
           },
           {
             icon: Calendar,
-            title: "Schedule Your First Call",
-            description: "Book a 1:1 session in the Coaching Portal",
-          },
-          {
-            icon: Play,
-            title: "Start Your Program",
-            description: "Your custom training plan awaits",
+            title: "Book Your First Call",
+            description: "Schedule a 1:1 session with Dom",
           },
         ],
         primaryCta: {
-          label: "Go to Coaching Portal",
-          href: "/dashboard/coaching",
-          icon: Crown,
-        },
-        secondaryCta: {
-          label: "Skip to Dashboard",
+          label: "Enter The Free World",
           href: "/dashboard",
+          icon: Crown,
         },
       };
     }
@@ -79,8 +75,8 @@ const IntakeComplete = () => {
           },
           {
             icon: CheckSquare,
-            title: "Complete Your Setup Checklist",
-            description: "Get oriented with all program features",
+            title: "Complete Your Orientation",
+            description: "Quick walkthrough of your program features",
           },
           {
             icon: Calendar,
@@ -89,13 +85,9 @@ const IntakeComplete = () => {
           },
         ],
         primaryCta: {
-          label: "Go to Start Here",
-          href: "/dashboard/start-here",
-          icon: ArrowRight,
-        },
-        secondaryCta: {
-          label: "Skip to Dashboard",
+          label: "Enter General Population",
           href: "/dashboard",
+          icon: ArrowRight,
         },
       };
     }
@@ -113,8 +105,8 @@ const IntakeComplete = () => {
         },
         {
           icon: CheckSquare,
-          title: "Complete Your Setup Checklist",
-          description: "Get oriented with all program features",
+          title: "Complete Your Orientation",
+          description: "Quick walkthrough of your Solitary features",
         },
         {
           icon: Dumbbell,
@@ -123,13 +115,9 @@ const IntakeComplete = () => {
         },
       ],
       primaryCta: {
-        label: "Go to Start Here",
-        href: "/dashboard/start-here",
-        icon: ArrowRight,
-      },
-      secondaryCta: {
-        label: "Skip to Dashboard",
+        label: "Enter Solitary Confinement",
         href: "/dashboard",
+        icon: ArrowRight,
       },
     };
   };
@@ -173,15 +161,10 @@ const IntakeComplete = () => {
               })}
             </ul>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Button variant="hero" size="hero" asChild>
               <Link to={content.primaryCta.href} className="gap-2">
                 {content.primaryCta.label} <PrimaryIcon className="w-5 h-5" />
-              </Link>
-            </Button>
-            <Button variant="goldOutline" size="lg" asChild>
-              <Link to={content.secondaryCta.href}>
-                {content.secondaryCta.label}
               </Link>
             </Button>
           </div>
