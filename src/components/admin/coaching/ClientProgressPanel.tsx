@@ -140,34 +140,34 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-hidden min-h-0">
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <>
-              <TabsContent value="overview" className="m-0 p-4">
+              <TabsContent value="overview" className="m-0 p-4 h-full overflow-y-auto">
                 <ClientOverviewTab client={client} progress={progress} />
               </TabsContent>
 
-              <TabsContent value="intake" className="m-0 p-4">
+              <TabsContent value="intake" className="m-0 p-4 h-full overflow-y-auto">
                 <ClientIntakeTab client={client} />
               </TabsContent>
 
-              <TabsContent value="sessions" className="m-0 p-4">
+              <TabsContent value="sessions" className="m-0 p-4 h-full overflow-y-auto">
                 <ClientSessionsTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="goals" className="m-0 p-4">
+              <TabsContent value="goals" className="m-0 p-4 h-full overflow-y-auto">
                 <ClientGoalsTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="messages" className="m-0 p-4">
+              <TabsContent value="messages" className="m-0 p-4 h-full overflow-y-auto">
                 <ClientMessagesTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="program" className="m-0 p-4">
+              <TabsContent value="program" className="m-0 p-4 h-full overflow-y-auto">
                 <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
             </>
