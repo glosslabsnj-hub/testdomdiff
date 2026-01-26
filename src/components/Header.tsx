@@ -85,14 +85,17 @@ const Header = () => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden text-foreground p-2"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile: Cart + Menu Toggle */}
+          <div className="md:hidden flex items-center gap-2">
+            <CartButton />
+            <button
+              className="text-foreground p-2"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -100,11 +103,6 @@ const Header = () => {
       {isOpen && (
         <div className="md:hidden bg-background border-t border-border animate-slide-up">
           <nav className="section-container py-6 flex flex-col gap-4">
-            {/* Mobile Cart Button */}
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <span className="text-sm text-muted-foreground">Shopping Cart</span>
-              <CartButton />
-            </div>
             
             {navLinks.map((link) => (
               <Link

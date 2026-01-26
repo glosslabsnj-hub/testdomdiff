@@ -55,9 +55,9 @@ const Workouts = () => {
         ) : visibleTemplates.length === 0 ? (
           <EmptyState
             type="workouts"
-            title="No workout templates available"
-            description="Your training library is being prepared. Check back soon for bodyweight workouts you can do anywhere."
-            actionLabel="View 12-Week Program"
+            title="Your iron is being forged"
+            description="Workout templates are being prepared. Check back soon or start with the structured 12-week program."
+            actionLabel="Start The Sentence"
             actionLink="/dashboard/program"
           />
         ) : (
