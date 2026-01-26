@@ -156,9 +156,10 @@ serve(async (req) => {
     const audioData = await audioResponse.json();
     console.log("Audio generated successfully:", audioData.audio_url);
 
-    // Step 3: Generate SRT captions
-    console.log("Step 3: Generating captions...");
+    // Step 3: Generate SRT captions and save screen_slides
+    console.log("Step 3: Generating captions and saving screen_slides...");
     const captionLines = scriptData.caption_lines || [];
+    const screenSlides = scriptData.screen_slides || [];
     let srtContent = "";
     
     captionLines.forEach((line: { text: string; start: number; end: number }, index: number) => {
@@ -166,6 +167,15 @@ serve(async (req) => {
       const endTime = formatSrtTime(line.end);
       srtContent += `${index + 1}\n${startTime} --> ${endTime}\n${line.text}\n\n`;
     });
+
+    // Save screen_slides to the video record
+    if (screenSlides.length > 0) {
+      await supabase
+        .from("tier_onboarding_videos")
+        .update({ screen_slides: screenSlides })
+        .eq("id", videoId);
+      console.log("Screen slides saved:", screenSlides.length, "slides");
+    }
 
     // Upload SRT file
     const srtPath = `${tier_key}/captions-v${configVersion}.srt`;
