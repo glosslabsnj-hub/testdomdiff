@@ -7,13 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Tier-based voice selection
-// - Onboarding Voice: For Solitary & Gen Pop tier walkthroughs
-// - P.O. Voice: For Free World / Coaching tier (professional mentor)
-// - Warden Voice: For weekly briefs, tips (unchanged)
+// All tier walkthroughs use the P.O. Voice (professional mentor tone)
 const VOICE_MAP = {
-  membership: "YtCzf4XXIC5vu5YfIjoP",     // Onboarding voice for Solitary
-  transformation: "YtCzf4XXIC5vu5YfIjoP", // Onboarding voice for Gen Pop
+  membership: "4bOoBAdJb8z9qH6OY0IA",     // P.O. voice for Solitary
+  transformation: "4bOoBAdJb8z9qH6OY0IA", // P.O. voice for Gen Pop
   coaching: "4bOoBAdJb8z9qH6OY0IA",       // P.O. voice for Free World
 };
 
