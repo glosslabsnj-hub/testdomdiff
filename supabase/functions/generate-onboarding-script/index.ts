@@ -39,7 +39,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
     detailedSteps: [
       { step: "Open your dashboard", location: "Cell Block (Dashboard)", details: "This is your command center. Every feature you have access to starts here.", time: "30 sec" },
       { step: "Click 'Intake Processing' (Start Here)", location: "Dashboard tiles", details: "This is your orientation checklist. Complete each item to get fully set up.", time: "2 min" },
-      { step: "Review the discipline templates", location: "Lights On/Out page", details: "See the morning and evening routines. Each has sub-steps you can check off.", time: "2 min" },
+      { step: "Set up your Lights On / Lights Out routines", location: "Discipline page", details: "This ain't just about workouts, it's about your whole routine. Morning Lights On - cold shower, prayer, movement, planning your day. Evening Lights Out - reflection, gratitude, sleep prep. You check off each item, build that discipline every single day.", time: "3 min" },
       { step: "Set your wake-up and bedtime", location: "Discipline settings", details: "Customize when your routines start. The app will remind you.", time: "1 min" },
       { step: "Browse Yard Time workouts", location: "Workouts page", details: "You have 4 templates: Push, Pull, Legs, and Full Body. All bodyweight - no equipment needed.", time: "3 min" },
       { step: "Click on a workout to see exercises", location: "Any workout card", details: "Each exercise has instructions, reps, sets, and form tips.", time: "2 min" },
@@ -50,7 +50,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
     ],
     navigation: [
       { name: "Yard Time", purpose: "Your 4 bodyweight workouts", howTo: "Click sidebar > Yard Time > Pick Push, Pull, Legs, or Full Body > Follow exercises" },
-      { name: "Lights On/Out", purpose: "Morning and evening discipline routines", howTo: "Click sidebar > Discipline > See your routines > Check off each item daily" },
+      { name: "Lights On / Lights Out", purpose: "Morning and evening discipline routines - cold shower, prayer, movement, daily planning in the AM; reflection, gratitude, sleep prep in the PM. Check off each item daily to build that iron discipline.", howTo: "Click sidebar > Discipline > See your morning and evening routines > Check off each sub-step as you complete it" },
       { name: "Roll Call", purpose: "Weekly accountability check-ins", howTo: "Click sidebar > Roll Call > Fill out the form every Sunday" },
       { name: "Time Served", purpose: "Progress photos and measurements", howTo: "Click sidebar > Time Served > Upload photos > Track weight and measurements" },
       { name: "Basic Nutrition", purpose: "Simple meal guidance", howTo: "Click sidebar > Nutrition > See templates for your goal type" },
@@ -147,7 +147,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { step: "Send Dom an intro message", location: "Direct Line (Messages)", details: "Introduce yourself, share your goals, ask any questions. He responds personally.", time: "5 min" },
       { step: "Review your custom nutrition plan", location: "Meal Planning page", details: "These are adjusted to your TDEE and goals. Dom can tweak them based on your feedback.", time: "5 min" },
       { step: "Complete your first workout", location: "Your Program", details: "Follow the custom training plan. Track your performance.", time: "45 min" },
-      { step: "Set up daily structure", location: "Daily Structure page", details: "Morning and evening routines. Consistency is key on probation.", time: "3 min" },
+      { step: "Lock in your Daily Structure with Lights On / Lights Out", location: "Daily Structure page", details: "Even though you out, you still need discipline. Morning routine - cold shower, prayer, movement, plan the day. Evening routine - reflect on wins, gratitude journaling, prep for sleep. Check off each item. Consistency is what keeps you free.", time: "3 min" },
       { step: "Explore the Entrepreneur Track", location: "Advanced Skills page", details: "Business strategies, income building, legitimate hustles. This is coaching-exclusive.", time: "10 min" },
       { step: "Connect with the Network", location: "The Network (Community)", details: "Other Free World members. Share experiences, build relationships.", time: "5 min" },
       { step: "Upload your starting photos", location: "Progress Report page", details: "Dom reviews these personally. Be thorough - front, side, back.", time: "3 min" },
@@ -157,6 +157,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { name: "Your Program", purpose: "Your personalized training plan", howTo: "Click sidebar > Your Program > See your custom workouts > Track completion" },
       { name: "Coaching Portal", purpose: "Book 1:1 calls with Dom", howTo: "Click sidebar > Coaching Portal > View available times > Book your session" },
       { name: "Direct Line", purpose: "Message Dom privately", howTo: "Click sidebar > Direct Line > Type message > Dom responds within 24-48 hours" },
+      { name: "Lights On / Lights Out", purpose: "Daily discipline routines - even though you out, consistency keeps you free. Morning: cold shower, prayer, movement, plan the day. Evening: reflection, gratitude, sleep prep. Check off each item daily.", howTo: "Click sidebar > Daily Structure > See your morning and evening routines > Check off each sub-step" },
       { name: "Entrepreneur Track", purpose: "Advanced business skills", howTo: "Click sidebar > Advanced Skills > Explore income strategies and business building" },
       { name: "Meal Planning", purpose: "Your personalized nutrition", howTo: "Click sidebar > Meal Planning > See meals adjusted to your TDEE" },
       { name: "The Network", purpose: "Connect with Free World members", howTo: "Click sidebar > The Network > Post, share, and connect with others on probation" },
@@ -294,6 +295,15 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
 5. LANGUAGE: Keep it real. Street talk but clear. Natural sentence length - not choppy.
 6. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
 7. FLOW: Sound like a real person explaining, not a robot reading with pauses inserted
+8. NO SECTION ANNOUNCEMENTS - CRITICAL:
+   - DO NOT say things like "Now let's talk about X" or "Next is your Y" or "Let's look at Z" or "Moving on to..."
+   - BAD: "Now, let's look at your nutrition section. Your nutrition is..."
+   - GOOD: "Your nutrition, man, don't sleep on this. This is where..."
+   - BAD: "Next up, we have the Discipline page. On this page..."
+   - GOOD: "Every morning, you gotta get up and handle your business. That's what Discipline is about..."
+   - Just flow naturally into explaining each feature like you're talking, not reading headers
+   - Never announce what you're about to explain - just explain it directly
+   - Weave feature names INTO the explanation naturally, don't read them as titles
 
 === OUTPUT FORMAT (valid JSON only) ===
 {
