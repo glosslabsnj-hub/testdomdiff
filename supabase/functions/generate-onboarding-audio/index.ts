@@ -9,9 +9,9 @@ const corsHeaders = {
 
 // All tier walkthroughs use the P.O. Voice (professional mentor tone)
 const VOICE_MAP = {
-  membership: "4bOoBAdJb8z9qH6OY0IA",     // P.O. voice for Solitary
-  transformation: "4bOoBAdJb8z9qH6OY0IA", // P.O. voice for Gen Pop
-  coaching: "4bOoBAdJb8z9qH6OY0IA",       // P.O. voice for Free World
+  membership: "rAjfUfM1BSLyNwE8ckhm",     // P.O. voice for Solitary
+  transformation: "rAjfUfM1BSLyNwE8ckhm", // P.O. voice for Gen Pop
+  coaching: "rAjfUfM1BSLyNwE8ckhm",       // P.O. voice for Free World
 };
 
 // Voice settings per persona - all at normal speed (pauses are in the script)
