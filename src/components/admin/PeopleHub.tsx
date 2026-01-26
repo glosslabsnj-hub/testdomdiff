@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Search, Users, ClipboardCheck, Crown, Filter, MessageSquare } from "lucide-react";
+import { Search, Users, ClipboardCheck, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import ClientDetailPanel from "@/components/admin/ClientDetailPanel";
 import ClientBulkActions from "@/components/admin/ClientBulkActions";
 import CheckInReviewManager from "@/components/admin/CheckInReviewManager";
 import SupportInbox from "@/components/admin/SupportInbox";
-import { CoachingCommandCenter } from "@/components/admin/coaching";
+
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -75,13 +75,6 @@ export default function PeopleHub() {
                 {pendingCheckIns}
               </Badge>
             )}
-          </TabsTrigger>
-          <TabsTrigger value="coaching" className="text-xs sm:text-sm px-3">
-            <Crown className="h-4 w-4 mr-2 text-purple-400" />
-            Free World
-            <Badge className="ml-2 bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
-              {clientAnalytics?.clientsByPlan.coaching || 0}
-            </Badge>
           </TabsTrigger>
           <TabsTrigger value="support" className="text-xs sm:text-sm px-3">
             <MessageSquare className="h-4 w-4 mr-2" />
@@ -243,10 +236,6 @@ export default function PeopleHub() {
           <CheckInReviewManager />
         </TabsContent>
 
-        {/* Coaching View */}
-        <TabsContent value="coaching" className="mt-4">
-          <CoachingCommandCenter />
-        </TabsContent>
 
         {/* Support View */}
         <TabsContent value="support" className="mt-4">

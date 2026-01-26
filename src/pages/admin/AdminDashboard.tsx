@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { TrendingUp, Users, Package, BookOpen, MessageSquare, ArrowLeft, Loader2, Settings, ClipboardCheck } from "lucide-react";
+import { TrendingUp, Users, Package, BookOpen, MessageSquare, ArrowLeft, Loader2, Settings, ClipboardCheck, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PeopleHub from "@/components/admin/PeopleHub";
+import FreeWorldHub from "@/components/admin/FreeWorldHub";
 import CommissaryHub from "@/components/admin/CommissaryHub";
 import RevenueAnalytics from "@/components/admin/RevenueAnalytics";
 import AdminQuickActions from "@/components/admin/AdminQuickActions";
@@ -89,6 +90,15 @@ export default function AdminDashboard() {
               {pendingCheckIns > 0 && (
                 <Badge className="ml-2 bg-destructive text-destructive-foreground text-xs h-5 w-5 p-0 flex items-center justify-center rounded-full">
                   {pendingCheckIns > 9 ? "9+" : pendingCheckIns}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="freeworld" className="text-xs sm:text-sm px-3">
+              <Crown className="h-4 w-4 mr-2 text-purple-400" />
+              Free World
+              {!clientsLoading && (clientAnalytics?.clientsByPlan.coaching || 0) > 0 && (
+                <Badge className="ml-2 bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                  {clientAnalytics?.clientsByPlan.coaching || 0}
                 </Badge>
               )}
             </TabsTrigger>
@@ -255,10 +265,17 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-          {/* People Hub - Clients + Check-Ins + Coaching */}
+          {/* People Hub - Clients + Check-Ins */}
           <TabsContent value="people">
             <PeopleHub />
           </TabsContent>
+
+          {/* Free World Hub - Coaching Clients */}
+          <TabsContent value="freeworld">
+            <FreeWorldHub />
+          </TabsContent>
+
+          {/* Commissary Hub - Products + Orders */}
 
           {/* Commissary Hub - Products + Orders */}
           <TabsContent value="commissary">
