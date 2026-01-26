@@ -121,7 +121,7 @@ const DashboardHeader = () => {
                     <div className="flex items-center">
                       <Eye className={`w-4 h-4 mr-2 ${isPreviewMode ? 'text-primary' : 'text-muted-foreground'}`} />
                       <Select
-                        value={previewTier || "coaching"}
+                        value={effectiveSubscription?.plan_type || previewTier || "coaching"}
                         onValueChange={(value) => setPreviewTier(value as "membership" | "transformation" | "coaching")}
                       >
                         <SelectTrigger className="w-[140px] h-8 text-xs bg-muted/30 border-border">

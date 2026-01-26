@@ -6,6 +6,7 @@ import { useUserChecklist } from "@/hooks/useUserChecklist";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -112,7 +113,8 @@ interface WelcomeVideo {
 const StartHere = () => {
   const { loading, toggleItem, isItemCompleted, getFilteredCompletionPercent } = useUserChecklist();
   const { toast } = useToast();
-  const { subscription, profile } = useAuth();
+  const { profile } = useAuth();
+  const { subscription, planType } = useEffectiveSubscription();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [welcomeVideo, setWelcomeVideo] = useState<WelcomeVideo | null>(null);
   const [videoLoading, setVideoLoading] = useState(true);
@@ -120,14 +122,15 @@ const StartHere = () => {
   const [videoWatched, setVideoWatched] = useState(false);
   const [walkthroughExpanded, setWalkthroughExpanded] = useState(false);
 
-  const planType = subscription?.plan_type || "membership";
+  // planType comes from useEffectiveSubscription which respects admin preview mode
+  const effectivePlanType = planType || "membership";
   
   // Get onboarding video status
-  const { video: onboardingVideo, isReady: onboardingVideoReady } = useOnboardingVideo(planType);
+  const { video: onboardingVideo, isReady: onboardingVideoReady } = useOnboardingVideo(effectivePlanType);
 
   // Get tier-specific content
   const getTierConfig = () => {
-    switch (planType) {
+    switch (effectivePlanType) {
       case "coaching":
         return {
           name: "Free World",
@@ -185,7 +188,7 @@ const StartHere = () => {
       const { data, error } = await supabase
         .from("program_welcome_videos")
         .select("video_url, video_title, video_description")
-        .eq("plan_type", planType)
+        .eq("plan_type", effectivePlanType)
         .single();
 
       if (!error && data) {
@@ -195,7 +198,7 @@ const StartHere = () => {
     };
 
     fetchWelcomeVideo();
-  }, [planType]);
+  }, [effectivePlanType]);
 
   // Check if video was already watched
   useEffect(() => {
@@ -299,7 +302,7 @@ const StartHere = () => {
                 <CollapsibleContent>
                   <div className="px-4 pb-4">
                     <OnboardingVideoPlayer
-                      tierKey={planType}
+                      tierKey={effectivePlanType}
                       tierName={tierConfig.name}
                       accentClass={tierConfig.accentClass}
                       borderClass={tierConfig.borderClass}
@@ -314,7 +317,7 @@ const StartHere = () => {
           {/* Non-collapsible version when video isn't ready yet */}
           {!onboardingVideoReady && (
             <OnboardingVideoPlayer
-              tierKey={planType}
+              tierKey={effectivePlanType}
               tierName={tierConfig.name}
               accentClass={tierConfig.accentClass}
               borderClass={tierConfig.borderClass}
