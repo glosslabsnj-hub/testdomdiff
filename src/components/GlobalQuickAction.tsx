@@ -189,7 +189,7 @@ export function GlobalQuickAction({
                 ? "Training earned." 
                 : subscription?.plan_type === "transformation"
                   ? "Sentence continues."
-                  : "Yard time earned."}
+                  : "Iron earned."}
             </p>
           </div>
         ) : nextTask ? (

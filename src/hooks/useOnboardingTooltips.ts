@@ -19,7 +19,7 @@ const SOLITARY_TOOLTIPS: Record<string, TooltipConfig> = {
   },
   workouts: {
     id: "workouts",
-    title: "Yard Time",
+    title: "Iron Pile",
     description: "4 bodyweight workout templates you can do anywhere. Pick one and get after it.",
   },
   discipline: {

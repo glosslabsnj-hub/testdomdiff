@@ -35,7 +35,7 @@ export function WeeklyProgressCard() {
   
   // Get tier-specific workout label
   const getWorkoutLabel = () => {
-    if (isMembership) return "Yard Time";
+    if (isMembership) return "Iron Pile";
     if (isCoaching) return "Training Sessions";
     return "The Sentence"; // Transformation
   };

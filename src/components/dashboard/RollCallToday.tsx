@@ -108,12 +108,12 @@ export function RollCallToday() {
       title: isCoaching 
         ? "Complete Today's Training" 
         : isMembership 
-          ? "Hit Yard Time" 
+          ? "Hit Iron Pile" 
           : "Continue The Sentence",
       subtitle: isCoaching 
         ? "Your personalized workout is ready" 
         : isMembership 
-          ? "Your bodyweight session is ready" 
+          ? "Your Iron Pile session is ready" 
           : `Week ${currentWeek} training`,
       href: isMembership ? "/dashboard/workouts" : "/dashboard/program",
       icon: Dumbbell,

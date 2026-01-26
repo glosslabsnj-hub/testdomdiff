@@ -42,7 +42,7 @@ const solitarySteps: OrientationStep[] = [
     icon: Dumbbell,
     items: [
       { label: "Intake Processing", description: "Your orientation hub - you're here now" },
-      { label: "Yard Time", description: "4 bodyweight workout templates - no equipment needed" },
+      { label: "Iron Pile", description: "4 bodyweight workout templates - no equipment needed" },
       { label: "Lights On/Out", description: "Morning and evening discipline routines" },
       { label: "Roll Call", description: "Weekly check-ins to track your progress" },
     ],
@@ -100,7 +100,7 @@ const genPopSteps: OrientationStep[] = [
     items: [
       { label: "Intake Processing", description: "Your orientation hub - you're here now" },
       { label: "The Sentence", description: "Your 12-week transformation program" },
-      { label: "Yard Time", description: "Access your workout library and training" },
+      { label: "Iron Pile", description: "Access your workout library and training" },
       { label: "Roll Call", description: "Weekly check-ins to track compliance" },
     ],
   },

@@ -46,7 +46,7 @@ const tierJourneys: TierJourney[] = [
       { id: "s5", title: "First Dashboard Visit", description: "Orientation modal auto-opens", timeframe: "0.5 min" },
       { id: "s6", title: "Watch Walkthrough", description: "Solitary-specific onboarding video", timeframe: "2 min", isCritical: true },
       { id: "s7", title: "Complete Orientation Checklist", description: "Watch video, set routines, first workout", timeframe: "30 min" },
-      { id: "s8", title: "First Yard Time Workout", description: "Complete a bodyweight template", timeframe: "45 min", isCritical: true },
+      { id: "s8", title: "First Iron Pile Workout", description: "Complete a bodyweight template", timeframe: "45 min", isCritical: true },
       { id: "s9", title: "First Roll Call (Week 1)", description: "Submit weekly accountability check-in", timeframe: "5 min" },
       { id: "s10", title: "Upgrade Prompt", description: "Locked tiles show Gen Pop benefits", timeframe: "Ongoing" },
     ],
@@ -229,7 +229,7 @@ export function PrisonJourneyBlueprint() {
               <p className="text-xs text-muted-foreground">12-week program</p>
             </div>
             <div className="p-3 rounded-lg bg-background/30">
-              <span className="font-medium text-primary">Yard Time</span>
+              <span className="font-medium text-primary">Iron Pile</span>
               <p className="text-xs text-muted-foreground">Workout library</p>
             </div>
             <div className="p-3 rounded-lg bg-background/30">

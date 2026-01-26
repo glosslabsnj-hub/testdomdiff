@@ -26,7 +26,7 @@ const Workouts = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="headline-section mb-2">
-              <span className="text-primary">{isCoaching ? "Training" : "Yard Time"}</span> — {isCoaching ? "Workout Library" : "Training Templates"}
+              <span className="text-primary">{isCoaching ? "Training" : "Iron Pile"}</span> — {isCoaching ? "Workout Library" : "Training Templates"}
             </h1>
             <p className="text-muted-foreground">
               {isCoaching 

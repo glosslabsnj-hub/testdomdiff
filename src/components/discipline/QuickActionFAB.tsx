@@ -40,7 +40,7 @@ export default function QuickActionFAB({
       case "transformation":
         return "Sentence continues.";
       default:
-        return "Yard time earned.";
+        return "Iron earned.";
     }
   };
 

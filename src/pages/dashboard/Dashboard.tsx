@@ -45,7 +45,7 @@ import {
 const prisonTooltips: Record<string, string> = {
   "Intake Processing": "Complete your orientation and get set up",
   "The Sentence": "Your structured 12-week transformation program",
-  "Yard Time": "Your workout library — train like you mean it",
+  "Iron Pile": "Your workout library — hit the Iron Pile",
   "Lights On / Lights Out": "Morning and evening discipline routines",
   "Chow Hall": "Nutrition guidance and meal planning",
   "Chapel": "Weekly faith lessons and mindset training",
@@ -101,7 +101,7 @@ function getWeekSpecificMessage(week: number, isCoaching: boolean, isMembership:
     return (
       <>
         Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Intake Processing</Link> to get oriented, 
-        then head to <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">Yard Time</Link> to start your first workout.
+        then head to <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">Iron Pile</Link> to start your first workout.
       </>
     );
   }
@@ -199,7 +199,7 @@ const Dashboard = () => {
     },
     workouts: {
       icon: Dumbbell,
-      title: isCoaching ? "Training Sessions" : "Yard Time",
+      title: isCoaching ? "Training Sessions" : "Iron Pile",
       subtitle: isCoaching ? "Your Workouts" : (isMembership ? "Bodyweight Only" : "Full Iron Access"),
       description: isCoaching 
         ? "Access your full workout library. Train like you mean it."
