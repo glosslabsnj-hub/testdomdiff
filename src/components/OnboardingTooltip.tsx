@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, Lightbulb, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useOnboardingTooltips, ONBOARDING_TOOLTIPS } from "@/hooks/useOnboardingTooltips";
+import { useOnboardingTooltips } from "@/hooks/useOnboardingTooltips";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -18,10 +18,10 @@ export function OnboardingTooltip({
   className,
   children 
 }: OnboardingTooltipProps) {
-  const { isTooltipDismissed, dismissTooltip, dismissAllTooltips } = useOnboardingTooltips();
+  const { isTooltipDismissed, dismissTooltip, dismissAllTooltips, getTooltip } = useOnboardingTooltips();
   const [isVisible, setIsVisible] = useState(false);
   
-  const tooltip = ONBOARDING_TOOLTIPS[tooltipId];
+  const tooltip = getTooltip(tooltipId);
   
   useEffect(() => {
     // Show tooltip after a short delay if not dismissed

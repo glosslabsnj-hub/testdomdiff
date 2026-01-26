@@ -87,20 +87,21 @@ export function DashboardSidebar() {
     },
   ];
 
-  // Lifestyle items
+  // Lifestyle items - Solitary only has basic nutrition, not full Chow Hall or Chapel
   const lifestyleItems: NavItem[] = [
     {
-      title: isCoaching ? "Meal Planning" : "Chow Hall",
-      subtitle: "Nutrition",
+      title: isCoaching ? "Meal Planning" : isMembership ? "Basic Nutrition" : "Chow Hall",
+      subtitle: isMembership ? "Basics" : "Nutrition",
       href: "/dashboard/nutrition",
       icon: Utensils,
-      locked: isMembership,
+      // Solitary has basic nutrition access, not locked
     },
     {
       title: isCoaching ? "Faith & Mindset" : "Chapel",
       subtitle: "Faith",
       href: "/dashboard/faith",
       icon: BookOpen,
+      locked: isMembership, // Chapel is Gen Pop+ only
     },
   ];
 
