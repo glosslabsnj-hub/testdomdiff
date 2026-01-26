@@ -274,23 +274,27 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
 
 === CRITICAL RULES ===
 1. TARGET DURATION: ${targetDuration} seconds (${Math.round(targetDuration/60)} minutes) - comprehensive walkthrough
-2. PACING: SLOW speaking pace, 110-120 words per minute. Leave room for screen recording narration.
-3. MANDATORY PAUSES:
-   - Add "..." after EVERY major statement (gives 2-3 seconds for user to see screen)
-   - Add "... ..." (double pause) between SECTIONS (gives 4-5 seconds for screen transitions)
-   - After saying "click here" or "go to" - pause so user can see what you mean
-   - EXAMPLE: "Aight, this right here is your dashboard. ... This where you gon' see everything at once. ... ... Now let me show you where you click first..."
+2. PACING: VERY SLOW speaking pace, 90-100 words per minute. LOTS of breathing room for screen recording.
+3. MANDATORY PAUSES - THIS IS THE MOST IMPORTANT RULE:
+   - Add "... ... ..." (TRIPLE dots with spaces = 5-7 seconds) after EVERY feature explanation
+   - Add "... ... ... ... ..." (5 groups of dots = 10-12 seconds) between MAJOR SECTIONS for screen transitions
+   - After EVERY "click here", "go to", or describing a screen element - ALWAYS add "... ... ..."
+   - LESS WORDS, MORE PAUSES. The pauses are MORE IMPORTANT than the words.
+   - EXAMPLE: "Aight, this right here is your dashboard. ... ... ... This where you gon' see everything at once. ... ... ... ... ... Now let me show you the workouts. ... ... ..."
+   - ANOTHER EXAMPLE: "See that button right there? ... ... ... Click it. ... ... ... That's how you log your workout. ... ... ... ... ... Moving on to nutrition. ... ... ..."
+   - EVERY sentence should end with at least "... ... ..." to give time for screen recording
 4. STRUCTURE: 
-   - Hood intro / what's up (20-30 sec)
-   - Dashboard quick overview (30 sec)  
-   - Feature-by-feature breakdown with pauses (2-3 min)
-   - How to get around / navigation (30 sec)
-   - What to do next (20 sec)
+   - Hood intro / what's up (20-30 sec with pauses)
+   - Dashboard quick overview (45 sec with pauses)  
+   - Feature-by-feature breakdown with LONG pauses (3-4 min)
+   - How to get around / navigation (45 sec with pauses)
+   - What to do next (30 sec)
    - Strong closing / call-to-action (15 sec)
-5. LANGUAGE: Keep it real. Street talk but clear. Short sentences. Max 10-12 words.
-6. BREATHING ROOM: After describing ANY screen element, pause "..." so user can see it.
+5. LANGUAGE: Keep it real. Street talk but clear. Short sentences. Max 8-10 words per sentence.
+6. BREATHING ROOM: After EVERY screen element description, add "... ... ..." pause
 7. VISUAL SYNC: Each section should align with a screen_slide for visual sync
 8. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
+9. PAUSE RATIO: At least 40% of the total duration should be pauses, not talking
 
 === OUTPUT FORMAT (valid JSON only) ===
 {
