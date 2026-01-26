@@ -19,7 +19,8 @@ import {
   Info,
   X,
   Sparkles,
-  Camera
+  Camera,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +34,8 @@ import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
 import { DashboardOnboardingVideo } from "@/components/DashboardOnboardingVideo";
+import { RollCallToday } from "@/components/dashboard/RollCallToday";
+import { WeekSentenceCard } from "@/components/dashboard/WeekSentenceCard";
 import {
   Tooltip,
   TooltipContent,
@@ -134,6 +137,7 @@ const Dashboard = () => {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+  const [showAllTiles, setShowAllTiles] = useState(false);
 
   // Calculate current week based on subscription start date
   const currentWeek = (() => {
@@ -453,10 +457,15 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Roll Call Today - Single CTA Widget */}
+        <RollCallToday />
+
         {/* The Warden's Weekly Brief */}
         <div className="mb-8">
           <WardenBrief />
         </div>
+        {/* Week Schedule Card */}
+        <WeekSentenceCard />
 
         {/* Weekly Progress Summary */}
         <WeeklyProgressCard />
@@ -477,9 +486,23 @@ const Dashboard = () => {
           </div>
         </OnboardingTooltip>
 
-        {/* Tiles Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {tiles.map((tile, index) => (
+        {/* Progressive Disclosure - Week 1 users see fewer tiles initially */}
+        {(() => {
+          // During week 1, show only core tiles with option to expand
+          const isWeekOne = currentWeek === 1;
+          const coreTileCount = 5; // First 5 tiles are core
+          const displayedTiles = (isWeekOne && !showAllTiles) 
+            ? tiles.slice(0, coreTileCount) 
+            : tiles;
+          const hiddenTiles = (isWeekOne && !showAllTiles) 
+            ? tiles.slice(coreTileCount) 
+            : [];
+          
+          return (
+            <>
+              {/* Tiles Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                {displayedTiles.map((tile, index) => (
             <Link
               key={index}
               to={tile.locked ? "#" : tile.href}
@@ -553,8 +576,29 @@ const Dashboard = () => {
                 </div>
               )}
             </Link>
-          ))}
-        </div>
+                ))}
+              </div>
+              
+              {/* "See All Features" Button for Week 1 users */}
+              {isWeekOne && !showAllTiles && hiddenTiles.length > 0 && (
+                <button
+                  onClick={() => setShowAllTiles(true)}
+                  className="w-full mt-6 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 bg-charcoal/30 hover:bg-charcoal/50 transition-all text-center group"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-sm text-muted-foreground group-hover:text-foreground">
+                      See all {hiddenTiles.length} additional features
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    Including: {hiddenTiles.slice(0, 3).map(t => t.title).join(", ")}...
+                  </p>
+                </button>
+              )}
+            </>
+          );
+        })()}
         
         <SolitaryUpgradeModal
           open={upgradeModalOpen}

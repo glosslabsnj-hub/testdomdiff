@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, CheckCircle, AlertTriangle, XCircle, ExternalLink, RefreshCw, Shield, CreditCard, Users, Layout, FileText, Smartphone, BarChart3, Scale, Zap } from "lucide-react";
+import { ArrowLeft, CheckCircle, AlertTriangle, XCircle, ExternalLink, RefreshCw, Shield, CreditCard, Users, Layout, FileText, Smartphone, BarChart3, Scale, Zap, Map, Compass, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { Loader2 } from "lucide-react";
+import { AuditSitemap } from "@/components/admin/AuditSitemap";
+import { PrisonJourneyBlueprint } from "@/components/admin/PrisonJourneyBlueprint";
 
 type CheckStatus = "pass" | "warn" | "fail";
 
@@ -284,61 +286,91 @@ export default function AuditReport() {
           </Card>
         </div>
 
-        {/* Categories Accordion */}
-        <Accordion type="multiple" defaultValue={auditCategories.map((c) => c.id)} className="space-y-4">
-          {auditCategories.map((category) => {
-            const summary = getCategorySummary(category);
-            return (
-              <AccordionItem key={category.id} value={category.id} className="bg-charcoal border border-border rounded-lg overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="text-primary">{category.icon}</div>
-                    <span className="font-semibold text-foreground">{category.name}</span>
-                    <div className="flex items-center gap-2 ml-auto mr-4">
-                      {summary.passed > 0 && (
-                        <Badge className="bg-success/20 text-success text-xs">{summary.passed} ✓</Badge>
-                      )}
-                      {summary.warned > 0 && (
-                        <Badge className="bg-warning/20 text-warning text-xs">{summary.warned} ⚠</Badge>
-                      )}
-                      {summary.failed > 0 && (
-                        <Badge className="bg-destructive/20 text-destructive text-xs">{summary.failed} ✗</Badge>
-                      )}
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <div className="space-y-3">
-                    {category.checks.map((check) => (
-                      <div
-                        key={check.id}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/50"
-                      >
-                        {getStatusIcon(check.status)}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-medium text-foreground">{check.name}</span>
-                            {getStatusBadge(check.status)}
-                            {getFixStatusBadge(check.fixStatus)}
-                          </div>
-                          <p className="text-sm text-muted-foreground mt-1">{check.details}</p>
+        {/* Tabs for different audit views */}
+        <Tabs defaultValue="checks" className="space-y-6">
+          <TabsList className="grid grid-cols-3 w-full max-w-md">
+            <TabsTrigger value="checks" className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Audit Checks
+            </TabsTrigger>
+            <TabsTrigger value="sitemap" className="flex items-center gap-2">
+              <Map className="w-4 h-4" />
+              Route Map
+            </TabsTrigger>
+            <TabsTrigger value="blueprint" className="flex items-center gap-2">
+              <Compass className="w-4 h-4" />
+              UX Blueprint
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Audit Checks Tab */}
+          <TabsContent value="checks" className="space-y-4">
+            <Accordion type="multiple" defaultValue={auditCategories.map((c) => c.id)} className="space-y-4">
+              {auditCategories.map((category) => {
+                const summary = getCategorySummary(category);
+                return (
+                  <AccordionItem key={category.id} value={category.id} className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="text-primary">{category.icon}</div>
+                        <span className="font-semibold text-foreground">{category.name}</span>
+                        <div className="flex items-center gap-2 ml-auto mr-4">
+                          {summary.passed > 0 && (
+                            <Badge className="bg-success/20 text-success text-xs">{summary.passed} ✓</Badge>
+                          )}
+                          {summary.warned > 0 && (
+                            <Badge className="bg-warning/20 text-warning text-xs">{summary.warned} ⚠</Badge>
+                          )}
+                          {summary.failed > 0 && (
+                            <Badge className="bg-destructive/20 text-destructive text-xs">{summary.failed} ✗</Badge>
+                          )}
                         </div>
-                        {check.route && (
-                          <Link
-                            to={check.route}
-                            className="text-primary hover:underline text-sm flex items-center gap-1 shrink-0"
-                          >
-                            View <ExternalLink className="h-3 w-3" />
-                          </Link>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4">
+                      <div className="space-y-3">
+                        {category.checks.map((check) => (
+                          <div
+                            key={check.id}
+                            className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/50"
+                          >
+                            {getStatusIcon(check.status)}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-foreground">{check.name}</span>
+                                {getStatusBadge(check.status)}
+                                {getFixStatusBadge(check.fixStatus)}
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">{check.details}</p>
+                            </div>
+                            {check.route && (
+                              <Link
+                                to={check.route}
+                                className="text-primary hover:underline text-sm flex items-center gap-1 shrink-0"
+                              >
+                                View <ExternalLink className="h-3 w-3" />
+                              </Link>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          </TabsContent>
+          
+          {/* Route Sitemap Tab */}
+          <TabsContent value="sitemap">
+            <AuditSitemap />
+          </TabsContent>
+          
+          {/* UX Blueprint Tab */}
+          <TabsContent value="blueprint">
+            <PrisonJourneyBlueprint />
+          </TabsContent>
+        </Tabs>
 
         {/* Quick Actions */}
         <Card className="mt-8 bg-charcoal border-border">
