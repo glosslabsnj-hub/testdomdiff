@@ -1,5 +1,8 @@
 project_id = "wbnrmnfsxrxcxnvmowtp"
 
+[functions.populate-program-templates]
+verify_jwt = false
+
 [functions.warden-tts]
 verify_jwt = false
 
