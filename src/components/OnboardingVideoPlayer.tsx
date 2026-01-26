@@ -33,6 +33,7 @@ export function OnboardingVideoPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [showSkipButton, setShowSkipButton] = useState(false);
   
   const welcomeVideoRef = useRef<HTMLVideoElement>(null);
   const walkthroughVideoRef = useRef<HTMLVideoElement>(null);
@@ -157,6 +158,17 @@ export function OnboardingVideoPlayer({
       welcomeVideoRef.current.muted = newMuted;
     }
   }, [isMuted]);
+
+  // Show skip button after 30 seconds of playback
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    const timer = setTimeout(() => {
+      setShowSkipButton(true);
+    }, 30000);
+    
+    return () => clearTimeout(timer);
+  }, [isPlaying]);
 
   // Sync walkthrough video with audio - audio is the source of truth
   useEffect(() => {
@@ -345,6 +357,23 @@ export function OnboardingVideoPlayer({
                 </Button>
               </div>
               
+              {/* Skip button after 30 seconds */}
+              {showSkipButton && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setPlaybackPhase("complete");
+                    setHasWatched(true);
+                    setIsPlaying(false);
+                    onVideoWatched?.();
+                  }}
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs"
+                >
+                  Skip Video →
+                </Button>
+              )}
+
               {/* Phase indicator with audio status */}
               <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-background/80 text-xs font-medium flex items-center gap-2">
                 <span>Platform Walkthrough</span>

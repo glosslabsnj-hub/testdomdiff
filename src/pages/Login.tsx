@@ -401,21 +401,27 @@ const Login = () => {
               </form>
 
               <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setPasswordError("");
-                    setConfirmPassword("");
-                  }}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {isSignUp ? (
-                    <>Already in the system? <span className="text-primary hover:underline">Re-Enter</span></>
-                  ) : (
-                    <>New to the system? <span className="text-primary hover:underline">Begin Processing</span></>
-                  )}
-                </button>
+                {isSignUp ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(false);
+                      setPasswordError("");
+                      setConfirmPassword("");
+                    }}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    Already in the system? <span className="text-primary hover:underline">Re-Enter</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/programs")}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    New to the system? <span className="text-primary hover:underline">Choose Your Program</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
