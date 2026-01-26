@@ -34,10 +34,12 @@ export function OnboardingVideoPlayer({
   const [isMuted, setIsMuted] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [showSkipButton, setShowSkipButton] = useState(false);
+  const [needsAudioTap, setNeedsAudioTap] = useState(false);
   
   const welcomeVideoRef = useRef<HTMLVideoElement>(null);
   const walkthroughVideoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const autoStartWalkthroughRef = useRef(false);
 
   // Get AI-generated audio for walkthrough
   const { video: onboardingData, isReady: hasAiAudio } = useOnboardingVideo(tierKey);
@@ -69,25 +71,43 @@ export function OnboardingVideoPlayer({
     }
   }, [loading, welcomeVideoUrl, walkthroughVideoUrl, playbackPhase]);
 
-  // Start walkthrough playback when phase changes
-  const startWalkthroughPlayback = useCallback(() => {
+  // Start walkthrough playback. If mobile blocks programmatic audio, we pause and show a tap-to-enable overlay.
+  const startWalkthroughPlayback = useCallback(async () => {
+    const video = walkthroughVideoRef.current;
+    const audio = audioRef.current;
+
     console.log("[OnboardingVideoPlayer] Starting walkthrough playback", {
-      hasVideo: !!walkthroughVideoRef.current,
-      hasAudio: !!audioRef.current,
+      hasVideo: !!video,
+      hasAudio: !!audio,
       hasAiAudio,
       audioUrl: onboardingData?.audio_url,
     });
-    
-    if (walkthroughVideoRef.current) {
-      walkthroughVideoRef.current.currentTime = 0;
-      walkthroughVideoRef.current.play().catch(console.error);
+
+    if (!video) return;
+
+    setNeedsAudioTap(false);
+    video.currentTime = 0;
+
+    try {
+      await video.play();
+    } catch (e) {
+      console.error("[OnboardingVideoPlayer] Video play failed", e);
+      return;
     }
-    
-    if (audioRef.current && hasAiAudio && onboardingData?.audio_url) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(console.error);
+
+    if (audio && hasAiAudio && onboardingData?.audio_url) {
+      audio.currentTime = 0;
+      try {
+        await audio.play();
+      } catch (e) {
+        console.warn("[OnboardingVideoPlayer] Audio play blocked; waiting for user tap", e);
+        video.pause();
+        setIsPlaying(false);
+        setNeedsAudioTap(true);
+        return;
+      }
     }
-    
+
     setIsPlaying(true);
   }, [hasAiAudio, onboardingData?.audio_url]);
 
@@ -96,14 +116,26 @@ export function OnboardingVideoPlayer({
     console.log("[OnboardingVideoPlayer] Welcome video ended");
     if (walkthroughVideoUrl) {
       setPlaybackPhase("walkthrough");
-      // Small delay for smooth transition
-      setTimeout(startWalkthroughPlayback, 300);
+      autoStartWalkthroughRef.current = true;
     } else {
       setPlaybackPhase("complete");
       setHasWatched(true);
       onVideoWatched?.();
     }
   }, [walkthroughVideoUrl, startWalkthroughPlayback, onVideoWatched]);
+
+  // Auto-start walkthrough after phase switch (allows refs to mount first)
+  useEffect(() => {
+    if (playbackPhase !== "walkthrough") return;
+    if (!autoStartWalkthroughRef.current) return;
+    autoStartWalkthroughRef.current = false;
+
+    const t = setTimeout(() => {
+      startWalkthroughPlayback();
+    }, 250);
+
+    return () => clearTimeout(t);
+  }, [playbackPhase, startWalkthroughPlayback]);
 
   // Handle walkthrough end
   const handleWalkthroughEnd = useCallback(() => {
@@ -118,13 +150,31 @@ export function OnboardingVideoPlayer({
   const handlePlay = useCallback(() => {
     setHasStarted(true);
     setIsPlaying(true);
+
+    // Mobile browsers (especially iOS Safari) often require a user gesture before audio can play.
+    // We "prime" the narration audio on the first tap so the later auto-transition can start audio reliably.
+    if (hasAiAudio && onboardingData?.audio_url && audioRef.current) {
+      const audio = audioRef.current;
+      const previousMuted = audio.muted;
+      audio.muted = true;
+      audio
+        .play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.muted = previousMuted;
+        })
+        .catch(() => {
+          audio.muted = previousMuted;
+        });
+    }
     
     if (playbackPhase === "welcome" && welcomeVideoRef.current) {
       welcomeVideoRef.current.play().catch(console.error);
     } else if (playbackPhase === "walkthrough") {
       startWalkthroughPlayback();
     }
-  }, [playbackPhase, startWalkthroughPlayback]);
+  }, [playbackPhase, startWalkthroughPlayback, hasAiAudio, onboardingData?.audio_url]);
 
   // Toggle play/pause
   const togglePlayPause = useCallback(() => {
@@ -139,12 +189,21 @@ export function OnboardingVideoPlayer({
         walkthroughVideoRef.current?.pause();
         audioRef.current?.pause();
       } else {
-        walkthroughVideoRef.current?.play().catch(console.error);
-        audioRef.current?.play().catch(console.error);
+        const video = walkthroughVideoRef.current;
+        const audio = audioRef.current;
+        video?.play().catch(console.error);
+        audio?.play().catch((e) => {
+          console.warn("[OnboardingVideoPlayer] Audio play blocked on resume", e);
+          video?.pause();
+          setNeedsAudioTap(true);
+          setIsPlaying(false);
+        });
       }
     }
-    setIsPlaying(!isPlaying);
-  }, [playbackPhase, isPlaying]);
+    if (!(playbackPhase === "walkthrough" && !isPlaying && needsAudioTap)) {
+      setIsPlaying(!isPlaying);
+    }
+  }, [playbackPhase, isPlaying, needsAudioTap]);
 
   // Toggle mute for the walkthrough audio
   const toggleMute = useCallback(() => {
@@ -199,6 +258,28 @@ export function OnboardingVideoPlayer({
     return () => clearInterval(syncInterval);
   }, [playbackPhase, hasAiAudio, onboardingData?.audio_url]);
 
+  // If the walkthrough is playing but audio got blocked/paused, try to start it once it's available.
+  useEffect(() => {
+    if (playbackPhase !== "walkthrough") return;
+    if (!hasStarted) return;
+    if (!hasAiAudio || !onboardingData?.audio_url) return;
+    if (needsAudioTap) return;
+
+    const video = walkthroughVideoRef.current;
+    const audio = audioRef.current;
+    if (!video || !audio) return;
+
+    if (!video.paused && audio.paused) {
+      audio.currentTime = video.currentTime;
+      audio.play().catch((e) => {
+        console.warn("[OnboardingVideoPlayer] Audio play blocked during sync-start", e);
+        video.pause();
+        setIsPlaying(false);
+        setNeedsAudioTap(true);
+      });
+    }
+  }, [playbackPhase, hasStarted, hasAiAudio, onboardingData?.audio_url, needsAudioTap]);
+
   // Handle video play/pause events
   const handleVideoPlay = useCallback(() => setIsPlaying(true), []);
   const handleVideoPause = useCallback(() => setIsPlaying(false), []);
@@ -246,6 +327,16 @@ export function OnboardingVideoPlayer({
     <Card className={cn("mb-8 bg-charcoal overflow-hidden", borderClass)}>
       <CardContent className="p-0">
         <div className="relative">
+          {/* Keep audio element mounted to improve mobile reliability */}
+          {hasAiAudio && onboardingData?.audio_url && (
+            <audio
+              ref={audioRef}
+              src={onboardingData.audio_url}
+              onEnded={handleWalkthroughEnd}
+              preload="auto"
+            />
+          )}
+
           {/* Welcome Video (Phase 1) */}
           {playbackPhase === "welcome" && welcomeVideoUrl && (
             <div className="aspect-video bg-black relative">
@@ -314,15 +405,25 @@ export function OnboardingVideoPlayer({
                 playsInline
                 muted
               />
-              
-              {/* AI-generated audio overlay */}
-              {hasAiAudio && onboardingData?.audio_url && (
-                <audio
-                  ref={audioRef}
-                  src={onboardingData.audio_url}
-                  onEnded={handleWalkthroughEnd}
-                  preload="auto"
-                />
+
+              {/* If mobile blocks audio autoplay, require a tap */}
+              {needsAudioTap && (
+                <div
+                  className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm cursor-pointer"
+                  onClick={() => startWalkthroughPlayback()}
+                >
+                  <div className="px-4 py-3 rounded-lg bg-background/80 border border-border text-center max-w-[85%]">
+                    <p className="text-sm font-medium">Tap to enable narration</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Some phones block auto-audio until you tap.
+                    </p>
+                    <div className="mt-3 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-primary/90 flex items-center justify-center">
+                        <Play className="w-6 h-6 text-primary-foreground ml-0.5" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* Play overlay for walkthrough - shown if not started from welcome */}

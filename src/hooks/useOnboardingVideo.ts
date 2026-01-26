@@ -50,13 +50,11 @@ function parseScreenSlides(data: Json | null): ScreenSlide[] | null {
 function transformVideoData(data: any, configVersion?: number): OnboardingVideo | null {
   if (!data) return null;
   
-  // Add aggressive cache-busting to audio_url to prevent stale cached audio on mobile
+  // Add cache-busting to audio_url to prevent stale cached audio
   let audioUrl = data.audio_url;
   if (audioUrl && data.updated_at) {
     const cacheBuster = new Date(data.updated_at).getTime();
-    // Use random component to bypass aggressive mobile browser caching
-    const randomSeed = Math.random().toString(36).substring(7);
-    audioUrl = `${audioUrl}?v=${configVersion || 1}&t=${cacheBuster}&r=${randomSeed}`;
+    audioUrl = `${audioUrl}?v=${configVersion || 1}&t=${cacheBuster}`;
   }
   
   return {
