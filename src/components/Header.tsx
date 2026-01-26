@@ -89,7 +89,7 @@ const Header = () => {
           <div className="md:hidden flex items-center gap-2">
             <CartButton />
             <button
-              className="text-foreground p-2"
+              className="text-foreground p-3 -mr-2 min-w-[48px] min-h-[48px] flex items-center justify-center"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >

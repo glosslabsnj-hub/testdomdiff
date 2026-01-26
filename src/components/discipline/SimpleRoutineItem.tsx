@@ -59,22 +59,22 @@ export default function SimpleRoutineItem({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200",
+        "flex items-center gap-3 py-3 px-4 rounded-lg transition-all duration-200 min-h-[56px]",
         completed
           ? "bg-primary/10"
           : "hover:bg-muted/30",
         justCompleted && "animate-success-pulse"
       )}
     >
-      {/* Checkbox with 44x44 touch target */}
+      {/* Checkbox with 48x48 touch target for better mobile UX */}
       <button
         onClick={handleToggle}
-        className="min-w-[44px] min-h-[44px] flex items-center justify-center -m-2 flex-shrink-0"
+        className="min-w-[48px] min-h-[48px] flex items-center justify-center -m-2 flex-shrink-0 touch-manipulation"
         aria-label={completed ? "Mark incomplete" : "Mark complete"}
       >
         <div
           className={cn(
-            "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
             completed
               ? "bg-primary border-primary"
               : "border-muted-foreground/40 hover:border-primary/70"
@@ -83,7 +83,7 @@ export default function SimpleRoutineItem({
           {completed && (
             <Check
               className={cn(
-                "w-3 h-3 text-primary-foreground",
+                "w-3.5 h-3.5 text-primary-foreground",
                 justCompleted && "animate-check-pop"
               )}
             />

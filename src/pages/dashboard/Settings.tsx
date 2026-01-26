@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw, XCircle } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw, XCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
@@ -18,6 +19,7 @@ import { useMilestones, PAROLE_MILESTONES } from "@/hooks/useMilestones";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ReplayOrientationButton } from "@/components/ReplayOrientationButton";
 import { CancelSubscriptionDialog } from "@/components/CancelSubscriptionDialog";
+import StickyMobileFooter from "@/components/StickyMobileFooter";
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -349,9 +351,16 @@ export default function Settings() {
     }
   };
 
+  // Track if any form has unsaved changes
+  const hasUnsavedChanges = !isSaved && (
+    formData.first_name !== (profile?.first_name || "") ||
+    formData.last_name !== (profile?.last_name || "") ||
+    formData.phone !== (profile?.phone || "")
+  );
+
   return (
     <DashboardLayout showBreadcrumb={false}>
-      <main className="section-container py-8">
+      <main className="section-container py-8 pb-24 md:pb-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button 
@@ -369,34 +378,289 @@ export default function Settings() {
         </div>
 
         <div className="max-w-2xl space-y-6">
-          {/* Profile Picture */}
-          <Card className="bg-charcoal border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground">Profile Picture</CardTitle>
-              <CardDescription>
-                Upload a profile picture to personalize your account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AvatarUpload 
-                currentAvatarUrl={profile?.avatar_url}
-              />
-            </CardContent>
-          </Card>
+          {/* Mobile: Accordion-based settings */}
+          <div className="md:hidden">
+            <Accordion type="single" collapsible className="space-y-4">
+              {/* Profile Section */}
+              <AccordionItem value="profile" className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <User className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Profile Information</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  {/* Avatar */}
+                  <div className="mb-6">
+                    <AvatarUpload currentAvatarUrl={profile?.avatar_url} />
+                  </div>
+                  
+                  {/* Profile Form */}
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="first_name_mobile">First Name</Label>
+                        <Input
+                          id="first_name_mobile"
+                          name="first_name"
+                          value={formData.first_name}
+                          onChange={handleChange}
+                          className="bg-charcoal-dark border-border h-12"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="last_name_mobile">Last Name</Label>
+                        <Input
+                          id="last_name_mobile"
+                          name="last_name"
+                          value={formData.last_name}
+                          onChange={handleChange}
+                          className="bg-charcoal-dark border-border h-12"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone_mobile">Phone</Label>
+                      <Input
+                        id="phone_mobile"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="bg-charcoal-dark border-border h-12"
+                      />
+                    </div>
+                    <Button type="submit" variant="gold" disabled={isLoading} className="w-full">
+                      {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                      Save Profile
+                    </Button>
+                  </form>
+                </AccordionContent>
+              </AccordionItem>
 
-          {/* Profile Information */}
-          <Card className="bg-charcoal border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
-                <User className="h-5 w-5 text-primary" />
-                {labels.profileTitle}
-              </CardTitle>
-              <CardDescription>
-                {labels.profileDescription}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Display Name Section */}
+              <AccordionItem value="display" className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Community Display</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <RadioGroup 
+                    value={displayNamePreference} 
+                    onValueChange={setDisplayNamePreference}
+                    className="space-y-2"
+                  >
+                    <div className="flex items-center space-x-3 p-3 rounded-lg border border-border">
+                      <RadioGroupItem value="full_name" id="full_name_mobile" />
+                      <Label htmlFor="full_name_mobile" className="flex-1">Full Name</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 rounded-lg border border-border">
+                      <RadioGroupItem value="first_name" id="first_name_opt_mobile" />
+                      <Label htmlFor="first_name_opt_mobile" className="flex-1">First Name Only</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 rounded-lg border border-border">
+                      <RadioGroupItem value="nickname" id="nickname_mobile" />
+                      <Label htmlFor="nickname_mobile" className="flex-1">Nickname</Label>
+                    </div>
+                  </RadioGroup>
+                  {displayNamePreference === "nickname" && (
+                    <Input
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder="Enter nickname"
+                      className="mt-3 bg-charcoal-dark border-border h-12"
+                    />
+                  )}
+                  <Button variant="gold" onClick={handleDisplayNameSave} disabled={isSavingDisplay} className="w-full mt-4">
+                    Save Display Settings
+                  </Button>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Security Section */}
+              <AccordionItem value="security" className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <Lock className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Security</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Current Password</Label>
+                      <Input
+                        type="password"
+                        name="currentPassword"
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordChange}
+                        className="bg-charcoal-dark border-border h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>New Password</Label>
+                      <Input
+                        type="password"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        className="bg-charcoal-dark border-border h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Confirm Password</Label>
+                      <Input
+                        type="password"
+                        name="confirmPassword"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        className="bg-charcoal-dark border-border h-12"
+                      />
+                    </div>
+                    <Button type="submit" variant="goldOutline" disabled={isChangingPassword} className="w-full">
+                      Change Password
+                    </Button>
+                  </form>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Notifications Section */}
+              <AccordionItem value="notifications" className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <Bell className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Notifications</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  {!pushSupported ? (
+                    <p className="text-sm text-muted-foreground">Push notifications not supported in this browser.</p>
+                  ) : pushPermission === "denied" ? (
+                    <p className="text-sm text-destructive">Notifications are blocked. Enable in browser settings.</p>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{pushSubscribed ? "Enabled" : "Disabled"}</p>
+                        <p className="text-xs text-muted-foreground">Get alerts for important updates</p>
+                      </div>
+                      <Button
+                        variant={pushSubscribed ? "outline" : "gold"}
+                        size="sm"
+                        onClick={pushSubscribed ? unsubscribePush : subscribePush}
+                        disabled={pushLoading}
+                      >
+                        {pushSubscribed ? "Disable" : "Enable"}
+                      </Button>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Account Section */}
+              <AccordionItem value="account" className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <Trophy className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Account & Achievements</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Member since</span>
+                      <span>{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : '-'}</span>
+                    </div>
+                    {subscription && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Plan</span>
+                        <span className="text-primary font-semibold capitalize">
+                          {subscription.plan_type === "membership" ? "Solitary" : 
+                           subscription.plan_type === "transformation" ? "Gen Pop" : 
+                           subscription.plan_type === "coaching" ? "Free World" : 
+                           subscription.plan_type}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <RefreshSubscriptionButton />
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium mb-2">Badges Earned</p>
+                    <div className="flex flex-wrap gap-2">
+                      {PAROLE_MILESTONES.slice(0, 4).map((milestone) => {
+                        const earned = hasMilestone(milestone.key);
+                        return (
+                          <MilestoneBadge
+                            key={milestone.key}
+                            icon={milestone.icon}
+                            name={milestone.name}
+                            description={milestone.description}
+                            earned={earned}
+                            size="sm"
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Help & Cancel */}
+              <AccordionItem value="help" className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <RotateCcw className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Help & Subscription</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-4">
+                  <ReplayOrientationButton variant="outline" className="w-full" />
+                  {subscription && subscription.status === "active" && (
+                    <CancelSubscriptionDialog 
+                      trigger={
+                        <Button variant="outline" size="sm" className="w-full text-muted-foreground hover:text-destructive hover:border-destructive">
+                          Cancel Subscription
+                        </Button>
+                      }
+                    />
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+
+          {/* Desktop: Card-based settings (existing layout) */}
+          <div className="hidden md:block space-y-6">
+            {/* Profile Picture */}
+            <Card className="bg-charcoal border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground">Profile Picture</CardTitle>
+                <CardDescription>
+                  Upload a profile picture to personalize your account
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AvatarUpload 
+                  currentAvatarUrl={profile?.avatar_url}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Profile Information */}
+            <Card className="bg-charcoal border-border">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <User className="h-5 w-5 text-primary" />
+                  {labels.profileTitle}
+                </CardTitle>
+                <CardDescription>
+                  {labels.profileDescription}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -936,6 +1200,7 @@ export default function Settings() {
               </CardContent>
             </Card>
           )}
+          </div> {/* End desktop div */}
         </div>
       </main>
     </DashboardLayout>
