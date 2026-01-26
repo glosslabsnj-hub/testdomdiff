@@ -91,6 +91,42 @@ export default function WelcomeVideosManager() {
     file: File, 
     type: 'welcome' | 'walkthrough'
   ) => {
+    // Validate file exists
+    if (!file) {
+      console.warn("No file selected");
+      return;
+    }
+
+    // Validate file size (500MB max as stated in UI)
+    const MAX_SIZE = 500 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      toast({
+        title: "File too large",
+        description: `Maximum file size is 500MB. Your file is ${(file.size / (1024 * 1024)).toFixed(1)}MB`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: `Please upload MP4, WebM, or MOV files only. Got: ${file.type || 'unknown'}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log(`📹 Starting ${type} video upload:`, {
+      videoId,
+      planType,
+      fileName: file.name,
+      fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+      fileType: file.type
+    });
+
     setUploading({ id: videoId, type });
     
     try {
@@ -100,24 +136,40 @@ export default function WelcomeVideosManager() {
       const folder = type === 'walkthrough' ? planType : 'welcome-videos';
       const filePath = `${folder}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      console.log(`📤 Uploading to bucket: ${bucket}, path: ${filePath}`);
+
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from(bucket)
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("❌ Storage upload error:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("✅ Upload successful:", uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
 
+      console.log("🔗 Public URL:", publicUrl);
+
       // Update the video record
       const updateField = type === 'walkthrough' ? 'walkthrough_video_url' : 'video_url';
+      console.log(`📝 Updating database field: ${updateField}`);
+      
       const { error: updateError } = await supabase
         .from("program_welcome_videos")
         .update({ [updateField]: publicUrl, updated_at: new Date().toISOString() })
         .eq("id", videoId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("❌ Database update error:", updateError);
+        throw updateError;
+      }
+
+      console.log("✅ Database updated successfully");
 
       // Update local state
       setVideos(videos.map(v => 
@@ -126,8 +178,12 @@ export default function WelcomeVideosManager() {
 
       toast({ title: "Success", description: `${type === 'walkthrough' ? 'Walkthrough' : 'Welcome'} video uploaded` });
     } catch (error: any) {
-      console.error("Upload error:", error);
-      toast({ title: "Error", description: error.message || "Failed to upload video", variant: "destructive" });
+      console.error("❌ Upload error details:", error);
+      toast({ 
+        title: "Upload Failed", 
+        description: error.message || "Unknown error occurred. Check console for details.", 
+        variant: "destructive" 
+      });
     } finally {
       setUploading(null);
     }
