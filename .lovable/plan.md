@@ -1,259 +1,267 @@
 
 
-# Free World Admin Reorganization
+# Optimized Free World Tab & Programs Flow
 
 ## Overview
 
-This plan promotes "Free World" from a sub-tab inside the "People" hub to its own **top-level tab** in the Admin Dashboard. It creates a dedicated, premium client management experience with a streamlined layout featuring a client sidebar with sub-tabs for each client, and a completely redesigned Program tab that's more user-friendly for the admin.
+This plan optimizes the Free World admin tab to make the Program assignment flow more intuitive. The key improvements are:
+
+1. **Streamlined category selection** - Clear "Continue with Recommended" or "Select Different" buttons
+2. **Live template preview** - When a template is selected, show a preview of the weekly structure
+3. **One-click assignment** - Single "Assign & Save" button that updates the client's program
+4. **Instant client dashboard reflection** - The Custom Program tile on the client's dashboard immediately shows their assigned program
 
 ---
 
-## Part 1: New Admin Tab Structure
+## Part 1: Problem Analysis
 
-### Current Structure
-```text
-[Command Center] [People] [Commissary] [Content CMS] [Settings]
-                    └── All Clients
-                    └── Check-Ins
-                    └── Free World (coaching)  ← MOVING
-                    └── Support
-```
+### Current Issues
 
-### New Structure
-```text
-[Command Center] [People] [Free World] [Commissary] [Content CMS] [Settings]
-                    └── All Clients          └── Client sidebar
-                    └── Check-Ins                with detail panel
-                    └── Support
-```
-
-The Free World tab gets its own purple-accented icon and displays the count of active coaching clients.
+1. **Template Assignment UI is confusing** - The flow requires expanding a collapsible to change categories, then selecting a template, then clicking "Assign"
+2. **No preview before assignment** - Admin can't see what the template looks like before assigning
+3. **Feedback is unclear** - After assigning, it's not obvious the client's program was updated
+4. **No "Continue with Recommended" button** - Admin must manually select even when the suggestion is correct
+5. **Template assignment doesn't refresh the program view** - The week tabs below don't update after assigning
 
 ---
 
-## Part 2: Free World Tab Layout
+## Part 2: Optimized Program Tab Design
 
-### Desktop View (Split-Pane)
-
-```text
-┌──────────────────────────────────────────────────────────────────────────┐
-│  FREE WORLD COACHING                                        [+ New Client] │
-├──────────────────┬───────────────────────────────────────────────────────┤
-│                  │                                                        │
-│  CLIENT SIDEBAR  │   CLIENT DETAIL PANEL                                 │
-│  ─────────────── │   ───────────────────                                 │
-│                  │                                                        │
-│  🔍 Search...    │   [Avatar] John Smith                                 │
-│                  │   Free World • Started Jan 15, 2026                   │
-│  ┌─────────────┐ │   📧 john@example.com  📱 (555) 123-4567             │
-│  │ ● John S.   │ │                                                        │
-│  │   Jan 15    │ │   ┌─────────────────────────────────────────────────┐ │
-│  └─────────────┘ │   │ [Overview] [Intake] [Program] [Sessions] [...]  │ │
-│  ┌─────────────┐ │   └─────────────────────────────────────────────────┘ │
-│  │   Mike D.   │ │                                                        │
-│  │   Dec 3     │ │   < Active Tab Content >                              │
-│  └─────────────┘ │                                                        │
-│  ┌─────────────┐ │                                                        │
-│  │   Tom R.    │ │                                                        │
-│  │   Nov 22    │ │                                                        │
-│  └─────────────┘ │                                                        │
-│                  │                                                        │
-└──────────────────┴───────────────────────────────────────────────────────┘
-```
-
-### Client Detail Sub-Tabs
-
-| Tab | Content |
-|-----|---------|
-| **Overview** | Stats, recent activity, quick actions, case notes |
-| **Intake** | Full intake questionnaire answers (all 12+ fields) |
-| **Program** | **REDESIGNED** - Suggested template + workout builder |
-| **Sessions** | P.O. session notes, past check-ins |
-| **Goals** | Goals with progress sliders, action items |
-| **Messages** | Direct message thread with client |
-
----
-
-## Part 3: Redesigned Program Tab
-
-The current Program tab is cluttered with collapsibles and too many sections. The new design prioritizes usability:
-
-### New Program Tab Layout
+### New Layout
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  JOHN'S TRAINING PROGRAM                                                 │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌─────────────────────────────────────────────────────────────────────┐│
-│  │  💡 SUGGESTED CATEGORY: Beginner Basics (92% Match)                 ││
-│  │                                                                      ││
-│  │  Based on: Beginner experience • Overweight • Sedentary • 3 days   ││
-│  │                                                                      ││
-│  │  [Select Category ▼: Beginner Basics]  [Select Template ▼: None]   ││
-│  │                                                                      ││
-│  │  [🎯 Assign Template]                                               ││
-│  └─────────────────────────────────────────────────────────────────────┘│
-│                                                                          │
+│  💡 RECOMMENDED CATEGORY: Beginner Basics (92% Match)                   │
+│  ───────────────────────────────────────────────────────────────────── │
+│  Based on: Beginner experience • Overweight • Sedentary • 3 days       │
+│                                                                         │
+│  ┌──────────────────────────────┐  ┌──────────────────────────────────┐│
+│  │ ✓ Continue with Recommended │  │ ↓ Select Different Category     ││
+│  │     Beginner Basics          │  │                                  ││
+│  └──────────────────────────────┘  └──────────────────────────────────┘│
+│                                                                         │
 │  ═══════════════════════════════════════════════════════════════════════│
-│                                                                          │
-│  CURRENT PROGRAM: Phase 1 - Foundation                                  │
-│  ─────────────────────────────────────────                              │
-│                                                                          │
-│  [ Week 1 ▼]  [ Week 2 ]  [ Week 3 ]  [ Week 4 ]                        │
-│                                                                          │
+│                                                                         │
+│  SELECT TEMPLATE FROM BEGINNER BASICS                                   │
+│  ───────────────────────────────────────────────────────────────────── │
+│                                                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐│
-│  │  MONDAY - Upper Body Push                     [Edit Day] [+ Exercise]││
-│  │  ─────────────────────────────────────────────────────────────────  ││
-│  │  1. Bench Press        4 x 8-10    90s rest    Main Work            ││
-│  │  2. Incline DB Press   3 x 10-12   60s rest    Main Work            ││
-│  │  3. Cable Flyes        3 x 12-15   45s rest    Accessory            ││
-│  │  4. Tricep Pushdowns   3 x 12-15   45s rest    Accessory            ││
+│  │ ● Total Body Foundations (3 days)                                   ││
+│  │   Perfect for beginners learning movement patterns                  ││
+│  │   Equipment: Bodyweight, Dumbbells                                  ││
 │  └─────────────────────────────────────────────────────────────────────┘│
-│                                                                          │
+│                                                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐│
-│  │  TUESDAY - Lower Body                          [Edit Day] [+ Exercise]││
-│  │  ...                                                                 ││
+│  │ ○ Fat Loss Fundamentals (4 days)                                    ││
+│  │   Cardio-focused with strength foundations                          ││
 │  └─────────────────────────────────────────────────────────────────────┘│
-│                                                                          │
-│  ┌─────────────────────────────────────────────────────────────────────┐│
-│  │  WEDNESDAY - Rest Day 🌙                                            ││
-│  └─────────────────────────────────────────────────────────────────────┘│
-│                                                                          │
+│                                                                         │
+│  (more templates...)                                                    │
+│                                                                         │
 │  ═══════════════════════════════════════════════════════════════════════│
-│                                                                          │
-│  ADDITIONAL FILES                                           [+ Upload]  │
-│  Nutrition Guide.pdf • Week 1-4 Overview.pdf                            │
-│                                                                          │
+│                                                                         │
+│  📋 TEMPLATE PREVIEW                                                    │
+│  ───────────────────────────────────────────────────────────────────── │
+│  Week 1: Foundation Phase                                               │
+│  ├── Monday: Full Body A (5 exercises)                                 │
+│  ├── Tuesday: Rest Day                                                 │
+│  ├── Wednesday: Full Body B (5 exercises)                              │
+│  ├── Thursday: Rest Day                                                │
+│  ├── Friday: Full Body C (5 exercises)                                 │
+│  ├── Saturday: Active Recovery                                         │
+│  └── Sunday: Rest Day                                                  │
+│                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐│
+│  │            🎯 ASSIGN TEMPLATE TO JOHN                               ││
+│  │  This will replace any existing program and sync to their dashboard ││
+│  └─────────────────────────────────────────────────────────────────────┘│
+│                                                                         │
+│  ═══════════════════════════════════════════════════════════════════════│
+│                                                                         │
+│  CURRENT ASSIGNED PROGRAM (if exists)                                   │
+│  Shows the week tabs with exercises (existing UI)                       │
+│                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Key Improvements
+---
 
-1. **Template Assignment at Top** - Immediately visible, not hidden in collapsible
-2. **Horizontal Week Tabs** - Switch weeks without expanding/collapsing
-3. **Day Cards Always Visible** - All 7 days shown (no collapsing needed)
-4. **Inline Exercise Editing** - Click to edit in place
-5. **Files Minimized** - Collapsed section at bottom for PDFs
+## Part 3: Key User Flows
+
+### Flow 1: Accept Recommended Category
+
+1. Admin opens client's Program tab
+2. Sees recommended category (e.g., "Beginner Basics - 92% Match")
+3. Clicks **"Continue with Recommended"** button
+4. Templates from that category appear
+5. Admin selects a template (radio button)
+6. Template preview appears showing week/day structure
+7. Admin clicks **"Assign Template to [Client Name]"**
+8. Template is copied to client's program, UI refreshes to show the assigned weeks
+
+### Flow 2: Select Different Category
+
+1. Admin opens client's Program tab
+2. Sees recommended category but wants something different
+3. Clicks **"Select Different Category"** dropdown
+4. Category selector expands showing all 5 categories with match scores
+5. Admin clicks a different category
+6. Templates from selected category appear
+7. Rest of flow same as above
+
+### Flow 3: After Assignment
+
+1. After clicking "Assign Template", a success toast appears
+2. The "Template Preview" section collapses
+3. The "Current Assigned Program" section expands automatically
+4. Week tabs show the newly assigned program with all exercises
+5. Client can now see their program on their dashboard
 
 ---
 
-## Part 4: File Changes
+## Part 4: Component Changes
 
-### New Files
+### Modified: ImprovedProgramTab.tsx
 
-| File | Purpose |
-|------|---------|
-| `src/components/admin/FreeWorldHub.tsx` | New top-level Free World tab component |
-| `src/components/admin/coaching/ImprovedProgramTab.tsx` | Redesigned program management UI |
+Major changes:
+- Move TemplateAssignment inline (not as a separate card)
+- Add "Continue with Recommended" and "Select Different" buttons
+- Add template preview section that shows when a template is selected
+- Add callback to refresh program weeks after assignment
+- Show "Currently Assigned" section that auto-expands after assignment
 
-### Modified Files
+### Modified: TemplateAssignment.tsx
+
+Changes:
+- Add `useTemplateDetails` hook to fetch template preview data
+- Add preview rendering when a template is selected
+- Split UI into two clear actions: "Continue with Recommended" vs "Select Different"
+- Add confirmation text showing what will happen
+- Call `refetch` on the parent's `useClientProgram` after successful assignment
+
+### Hook Changes: useProgramTemplates.ts
+
+Changes:
+- Update `useAssignTemplate` to invalidate `["client-program"]` query (already does this)
+- Ensure query keys are consistent so React Query properly refreshes
+
+---
+
+## Part 5: Implementation Details
+
+### New State in TemplateAssignment
+
+```typescript
+const [mode, setMode] = useState<"initial" | "selecting" | "preview">("initial");
+const [continueWithRecommended, setContinueWithRecommended] = useState(false);
+```
+
+### Template Preview Component
+
+```typescript
+function TemplatePreview({ templateId }: { templateId: string }) {
+  const { data, isLoading } = useTemplateDetails(templateId);
+  
+  if (isLoading) return <Skeleton />;
+  if (!data) return null;
+  
+  return (
+    <div className="space-y-2">
+      {data.weeks.map((week) => (
+        <div key={week.id}>
+          <h4>Week {week.week_number}: {week.title}</h4>
+          <ul>
+            {data.days
+              .filter((d) => d.week_id === week.id)
+              .map((day) => (
+                <li key={day.id}>
+                  {day.day_of_week}: {day.is_rest_day ? "Rest Day" : day.workout_name}
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Assignment Button Logic
+
+```typescript
+const handleAssign = async () => {
+  await assignTemplate.mutateAsync({
+    clientId: client.user_id,
+    templateId: selectedTemplateId,
+    suggestedCategoryId: recommendedCategory?.category.id,
+    matchScore: recommendedCategory?.score,
+  });
+  
+  // Trigger parent refetch so weeks update
+  onAssigned();
+  
+  // Reset state
+  setMode("initial");
+  setSelectedTemplateId(null);
+};
+```
+
+---
+
+## Part 6: Client Dashboard Update
+
+The client's Custom Program tile (`src/pages/dashboard/CustomProgram.tsx`) already uses `useClientProgram(user?.id)` which fetches from `client_program_weeks`, `client_program_days`, and `client_program_exercises`. When the admin assigns a template:
+
+1. `useAssignTemplate` deletes existing weeks and copies template to client tables
+2. The query invalidation refreshes data
+3. Next time client views their dashboard, they see the new program
+
+No changes needed to `CustomProgram.tsx` - it will automatically reflect the assigned program.
+
+---
+
+## Part 7: Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/pages/admin/AdminDashboard.tsx` | Add "Free World" as 3rd top-level tab |
-| `src/components/admin/PeopleHub.tsx` | Remove "Free World" sub-tab |
-| `src/components/admin/coaching/ClientProgressPanel.tsx` | Use new improved program tab |
+| `src/components/admin/coaching/ImprovedProgramTab.tsx` | Simplify layout, add onAssigned callback, auto-refresh weeks |
+| `src/components/admin/coaching/TemplateAssignment.tsx` | Complete redesign with new flow, template preview, clear actions |
+| `src/hooks/useProgramTemplates.ts` | Add `useTemplateDetails` to export list if not already (it exists) |
 
 ---
 
-## Part 5: Component Details
+## Part 8: UI Text Updates
 
-### FreeWorldHub.tsx
+### Before Assignment
+- "Continue with Recommended" button → green, prominent
+- "Select Different Category" → outline, secondary
+- Template selection: "Select a template to preview"
+- Preview section: "Preview: [Template Name]"
 
-```text
-Purpose: Self-contained Free World management hub
+### Assignment Button
+- Primary: "Assign [Template Name] to [Client First Name]"
+- Subtext: "This will replace any existing program"
 
-State:
-- selectedClient: Currently selected coaching client
-- searchQuery: Client search filter
-
-Layout:
-- Left sidebar: CoachingClientList (existing, reused)
-- Right panel: ClientProgressPanel (existing, reused)
-
-When no client selected:
-- Show empty state with "Select a client to manage"
-```
-
-### ImprovedProgramTab.tsx
-
-```text
-Purpose: User-friendly program management for coaching clients
-
-Sections:
-1. Template Assignment (always visible at top)
-   - Intake summary badges
-   - Suggested category with score
-   - Category dropdown + template dropdown
-   - "Assign Template" button
-
-2. Current Program (tabbed weeks)
-   - Horizontal week selector tabs
-   - Day cards showing workout name + exercise count
-   - Expand day to see/edit exercises
-   - Add exercise button per day
-
-3. Files Section (collapsible at bottom)
-   - List of uploaded PDFs/files
-   - Upload button
-```
-
-### AdminDashboard.tsx Changes
-
-```text
-Add new TabsTrigger:
-<TabsTrigger value="freeworld" className="text-xs sm:text-sm px-3">
-  <Crown className="h-4 w-4 mr-2 text-purple-400" />
-  Free World
-  <Badge className="ml-2 bg-purple-500/20 text-purple-400">
-    {clientAnalytics?.clientsByPlan.coaching || 0}
-  </Badge>
-</TabsTrigger>
-
-Add new TabsContent:
-<TabsContent value="freeworld">
-  <FreeWorldHub />
-</TabsContent>
-```
-
-### PeopleHub.tsx Changes
-
-Remove the "coaching" sub-tab:
-- Delete TabsTrigger for "coaching"
-- Delete TabsContent for "coaching"
-- Remove CoachingCommandCenter import
-
----
-
-## Part 6: Visual Styling
-
-### Free World Tab Accent
-
-All Free World components use the **purple accent** color scheme:
-- `text-purple-400` for icons and highlights
-- `bg-purple-500/20` for badges and backgrounds
-- `border-purple-500/30` for borders
-
-### Program Tab Cards
-
-Day cards use a clean, scannable design:
-- White/light text for workout name
-- Muted text for exercise count
-- Rest days have `bg-muted/30` background
-- Active/editing states have primary border
+### After Assignment
+- Toast: "✓ [Template Name] assigned to [Client Name]"
+- Section header: "[Client Name]'s Current Program"
 
 ---
 
 ## Summary
 
-| Change | Impact |
-|--------|--------|
-| Free World becomes top-level tab | Faster access, premium treatment |
-| Removed from People sub-tabs | Cleaner People hub, less confusion |
-| Redesigned Program tab | Horizontal week tabs, better exercise management |
-| Template assignment always visible | No hunting in collapsibles |
-| Files section minimized | Focus on workouts, not PDFs |
+| Feature | Implementation |
+|---------|----------------|
+| Continue with Recommended | Button that auto-selects category |
+| Select Different Category | Dropdown that shows all 5 with scores |
+| Template Preview | Shows week/day structure before assigning |
+| Single Assign Button | Clear action with client name |
+| Auto-refresh after assignment | Calls refetch on useClientProgram |
+| Client dashboard sync | Automatic via same database tables |
 
-After implementation, Dom will have a dedicated command center for his premium coaching clients with an intuitive program builder that doesn't require excessive clicking/expanding.
+After this optimization, Dom can:
+1. See the AI recommendation at a glance
+2. Accept it with one click OR choose differently
+3. Preview any template before assigning
+4. Assign with confidence knowing client will see it immediately
 
