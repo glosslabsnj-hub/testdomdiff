@@ -188,7 +188,7 @@ export function FirstLoginVideoModal({
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent 
-        className="max-w-4xl w-[95vw] p-0 bg-black border-primary/30 overflow-hidden"
+        className="max-w-none w-screen h-screen max-h-screen p-0 bg-black border-none rounded-none overflow-hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => !closeUnlocked && e.preventDefault()}
       >
@@ -218,18 +218,18 @@ export function FirstLoginVideoModal({
 
         {/* Loading state */}
         {isLoading && (
-          <div className="aspect-video flex items-center justify-center bg-black">
+          <div className="w-full h-full flex items-center justify-center bg-black">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
           </div>
         )}
 
         {/* Welcome Video (Phase 1) */}
         {!isLoading && playbackPhase === "welcome" && videos?.video_url && (
-          <div className="aspect-video bg-black relative">
+          <div className="w-full h-full bg-black relative flex items-center justify-center">
             <video
               ref={welcomeVideoRef}
               src={videos.video_url}
-              className="w-full h-full"
+              className="w-full h-full object-contain"
               onEnded={handleWelcomeVideoEnd}
               playsInline
               onPlay={() => setIsPlaying(true)}
@@ -277,7 +277,7 @@ export function FirstLoginVideoModal({
 
         {/* Skip directly to walkthrough if no welcome video */}
         {!isLoading && playbackPhase === "welcome" && !videos?.video_url && videos?.walkthrough_video_url && (
-          <div className="aspect-video bg-black relative flex items-center justify-center">
+          <div className="w-full h-full bg-black relative flex items-center justify-center">
             <div 
               className="flex flex-col items-center cursor-pointer"
               onClick={() => {
@@ -305,11 +305,11 @@ export function FirstLoginVideoModal({
 
         {/* Walkthrough Video with Audio Overlay (Phase 2) */}
         {!isLoading && playbackPhase === "walkthrough" && videos?.walkthrough_video_url && (
-          <div className="aspect-video bg-black relative">
+          <div className="w-full h-full bg-black relative flex items-center justify-center">
             <video
               ref={walkthroughVideoRef}
               src={videos.walkthrough_video_url}
-              className="w-full h-full"
+              className="w-full h-full object-contain"
               onEnded={handleWalkthroughEnd}
               playsInline
               muted // Video is muted - audio comes from AI narration
