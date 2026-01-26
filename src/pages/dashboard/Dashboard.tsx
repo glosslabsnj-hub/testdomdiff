@@ -26,13 +26,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
-import OrientationModal from "@/components/OrientationModal";
 import { WardenBrief, WardenTip } from "@/components/warden";
 import { TransformationWidget } from "@/components/TransformationWidget";
 import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
-import { DashboardOnboardingVideo } from "@/components/DashboardOnboardingVideo";
 
 import { TodayFocusCard } from "@/components/dashboard/TodayFocusCard";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
@@ -434,13 +432,6 @@ const Dashboard = () => {
         {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
         <StreakWarningBanner />
 
-        {/* Onboarding Video - First thing for new users */}
-        {isNewUser && (
-          <DashboardOnboardingVideo 
-            tierKey={subscription?.plan_type || "membership"}
-            tierName={isCoaching ? "Free World" : isTransformation ? "General Population" : "Solitary Confinement"}
-          />
-        )}
 
         {/* Compact Welcome Card - replaces verbose welcome banner */}
         <DashboardWelcomeCard userName={profile?.first_name || undefined} />
@@ -581,7 +572,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <OrientationModal />
+      
     </DashboardLayout>
   );
 };
