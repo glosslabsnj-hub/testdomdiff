@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Loader2, Volume2, VolumeX, Play, Pause } from "lucide-react";
+import { X, Loader2, Volume2, VolumeX, Play, Pause, Volume1 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,8 @@ export function FirstLoginVideoModal({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showSkipButton, setShowSkipButton] = useState(false);
+  const [needsAudioTap, setNeedsAudioTap] = useState(false);
+  const [audioPrimed, setAudioPrimed] = useState(false);
   
   const welcomeVideoRef = useRef<HTMLVideoElement>(null);
   const walkthroughVideoRef = useRef<HTMLVideoElement>(null);
@@ -139,25 +141,56 @@ export function FirstLoginVideoModal({
     return () => clearInterval(syncInterval);
   }, [playbackPhase, onboardingAudio?.audio_url]);
 
+  // Prime audio on first user tap to unlock mobile autoplay
+  const primeAudioForMobile = () => {
+    if (audioPrimed || !audioRef.current || !onboardingAudio?.audio_url) return;
+    
+    const audio = audioRef.current;
+    const previousMuted = audio.muted;
+    audio.muted = true;
+    audio.play()
+      .then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = previousMuted;
+        setAudioPrimed(true);
+        console.log("[FirstLoginVideoModal] Audio primed for mobile playback");
+      })
+      .catch(() => {
+        audio.muted = previousMuted;
+        console.log("[FirstLoginVideoModal] Audio priming failed");
+      });
+  };
+
+  const startWalkthroughPlayback = async () => {
+    console.log("[FirstLoginVideoModal] Starting walkthrough playback");
+    setNeedsAudioTap(false);
+    
+    if (walkthroughVideoRef.current) {
+      walkthroughVideoRef.current.currentTime = 0;
+      walkthroughVideoRef.current.play().catch(console.error);
+    }
+    
+    if (audioRef.current && onboardingAudio?.audio_url) {
+      audioRef.current.currentTime = 0;
+      try {
+        await audioRef.current.play();
+        console.log("[FirstLoginVideoModal] Audio started successfully");
+      } catch (error) {
+        console.log("[FirstLoginVideoModal] Audio autoplay blocked, showing tap overlay");
+        // Audio was blocked - pause video and show tap overlay
+        walkthroughVideoRef.current?.pause();
+        setNeedsAudioTap(true);
+      }
+    }
+  };
+
   const handleWelcomeVideoEnd = () => {
     console.log("[FirstLoginVideoModal] Welcome video ended");
     if (videos?.walkthrough_video_url) {
       setPlaybackPhase("walkthrough");
       setTimeout(() => {
-        console.log("[FirstLoginVideoModal] Starting walkthrough playback", {
-          hasVideo: !!walkthroughVideoRef.current,
-          hasAudio: !!audioRef.current,
-          audioUrl: onboardingAudio?.audio_url,
-        });
-        
-        if (walkthroughVideoRef.current) {
-          walkthroughVideoRef.current.currentTime = 0;
-          walkthroughVideoRef.current.play().catch(console.error);
-        }
-        if (audioRef.current && onboardingAudio?.audio_url) {
-          audioRef.current.currentTime = 0;
-          audioRef.current.play().catch(console.error);
-        }
+        startWalkthroughPlayback();
       }, 300);
     } else {
       handleComplete();
@@ -195,10 +228,24 @@ export function FirstLoginVideoModal({
   };
 
   const handlePlay = () => {
+    // Prime audio on first user interaction for mobile
+    primeAudioForMobile();
+    
     setIsPlaying(true);
     if (playbackPhase === "welcome" && welcomeVideoRef.current) {
       welcomeVideoRef.current.play();
     }
+  };
+
+  const handleStartWalkthroughDirect = () => {
+    // Prime audio on first user interaction for mobile
+    primeAudioForMobile();
+    
+    setPlaybackPhase("walkthrough");
+    setIsPlaying(true);
+    setTimeout(() => {
+      startWalkthroughPlayback();
+    }, 100);
   };
 
   const togglePlayPause = () => {
@@ -209,6 +256,11 @@ export function FirstLoginVideoModal({
         welcomeVideoRef.current.play().catch(console.error);
       }
     } else if (playbackPhase === "walkthrough") {
+      if (needsAudioTap) {
+        // If audio was blocked, try to resume with user tap
+        startWalkthroughPlayback();
+        return;
+      }
       if (isPlaying) {
         walkthroughVideoRef.current?.pause();
         audioRef.current?.pause();
@@ -247,6 +299,16 @@ export function FirstLoginVideoModal({
         <VisuallyHidden>
           <DialogTitle>{tierName} Orientation</DialogTitle>
         </VisuallyHidden>
+        
+        {/* Always mount audio element for mobile reliability */}
+        <audio
+          ref={audioRef}
+          src={onboardingAudio?.audio_url || ""}
+          preload="auto"
+          onEnded={handleWalkthroughEnd}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => !needsAudioTap && setIsPlaying(false)}
+        />
         
         {/* Close button with countdown */}
         <div className="absolute top-4 right-4 z-50">
@@ -352,15 +414,7 @@ export function FirstLoginVideoModal({
           <div className="w-full h-full bg-black relative flex items-center justify-center">
             <div 
               className="flex flex-col items-center cursor-pointer"
-              onClick={() => {
-                setPlaybackPhase("walkthrough");
-                setTimeout(() => {
-                  walkthroughVideoRef.current?.play();
-                  if (audioRef.current && onboardingAudio?.audio_url) {
-                    audioRef.current.play();
-                  }
-                }, 100);
-              }}
+              onClick={handleStartWalkthroughDirect}
             >
               <div className="w-24 h-24 rounded-full bg-primary/90 flex items-center justify-center mb-4">
                 <Play className="w-12 h-12 text-primary-foreground ml-1" />
@@ -387,13 +441,18 @@ export function FirstLoginVideoModal({
               muted // Video is muted - audio comes from AI narration
             />
             
-            {/* AI-generated audio overlay */}
-            {onboardingAudio?.audio_url && (
-              <audio
-                ref={audioRef}
-                src={onboardingAudio.audio_url}
-                onEnded={handleWalkthroughEnd}
-              />
+            {/* Tap to enable narration overlay - shows when audio was blocked */}
+            {needsAudioTap && (
+              <div
+                className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm cursor-pointer z-10"
+                onClick={startWalkthroughPlayback}
+              >
+                <div className="px-6 py-4 rounded-xl bg-background/90 border border-primary/30 text-center shadow-lg">
+                  <Volume1 className="w-8 h-8 mx-auto mb-2 text-primary" />
+                  <p className="text-sm font-medium text-foreground">Tap to enable narration</p>
+                  <p className="text-xs text-muted-foreground mt-1">Audio was blocked by your browser</p>
+                </div>
+              </div>
             )}
 
             {/* Controls for walkthrough */}
@@ -404,7 +463,7 @@ export function FirstLoginVideoModal({
                 onClick={togglePlayPause}
                 className="bg-background/80 hover:bg-background"
               >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {isPlaying && !needsAudioTap ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </Button>
               <Button
                 variant="secondary"
