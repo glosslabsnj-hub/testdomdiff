@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +16,7 @@ export function ReplayOrientationButton({
   size = "default",
   className 
 }: ReplayOrientationButtonProps) {
+  const navigate = useNavigate();
   const { user, refreshProfile } = useAuth();
   const [isResetting, setIsResetting] = useState(false);
 
@@ -23,20 +25,17 @@ export function ReplayOrientationButton({
     
     setIsResetting(true);
     try {
-      // Reset orientation_dismissed to false to trigger the modal
+      // Reset first_login_video_watched to false to allow replay
       await supabase
         .from("profiles")
-        .update({ orientation_dismissed: false })
+        .update({ first_login_video_watched: false })
         .eq("user_id", user.id);
       
-      // Clear localStorage fallback
-      localStorage.removeItem("orientationModalDismissed");
-      
-      // Refresh profile to trigger modal
+      // Refresh profile to update state
       await refreshProfile();
       
-      // Reload the page to show the modal
-      window.location.reload();
+      // Navigate to the onboarding page
+      navigate("/onboarding");
     } catch (error) {
       console.error("Error resetting orientation:", error);
     } finally {
