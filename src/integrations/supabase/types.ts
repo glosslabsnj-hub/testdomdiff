@@ -161,6 +161,174 @@ export type Database = {
         }
         Relationships: []
       }
+      client_day_completions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          day_id: string
+          id: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          day_id: string
+          id?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          day_id?: string
+          id?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_day_completions_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "client_program_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_program_days: {
+        Row: {
+          created_at: string | null
+          day_of_week: string
+          display_order: number | null
+          id: string
+          is_rest_day: boolean | null
+          updated_at: string | null
+          week_id: string
+          workout_description: string | null
+          workout_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: string
+          display_order?: number | null
+          id?: string
+          is_rest_day?: boolean | null
+          updated_at?: string | null
+          week_id: string
+          workout_description?: string | null
+          workout_name: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: string
+          display_order?: number | null
+          id?: string
+          is_rest_day?: boolean | null
+          updated_at?: string | null
+          week_id?: string
+          workout_description?: string | null
+          workout_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_program_days_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "client_program_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_program_exercises: {
+        Row: {
+          created_at: string | null
+          day_id: string
+          demo_url: string | null
+          display_order: number | null
+          exercise_name: string
+          id: string
+          instructions: string | null
+          notes: string | null
+          reps_or_time: string | null
+          rest: string | null
+          section_type: string
+          sets: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_id: string
+          demo_url?: string | null
+          display_order?: number | null
+          exercise_name: string
+          id?: string
+          instructions?: string | null
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          section_type?: string
+          sets?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_id?: string
+          demo_url?: string | null
+          display_order?: number | null
+          exercise_name?: string
+          id?: string
+          instructions?: string | null
+          notes?: string | null
+          reps_or_time?: string | null
+          rest?: string | null
+          section_type?: string
+          sets?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_program_exercises_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "client_program_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_program_weeks: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          focus_description: string | null
+          id: string
+          phase: string | null
+          title: string | null
+          updated_at: string | null
+          week_number: number
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          focus_description?: string | null
+          id?: string
+          phase?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number: number
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          focus_description?: string | null
+          id?: string
+          phase?: string | null
+          title?: string | null
+          updated_at?: string | null
+          week_number?: number
+        }
+        Relationships: []
+      }
       coaching_action_items: {
         Row: {
           client_id: string
