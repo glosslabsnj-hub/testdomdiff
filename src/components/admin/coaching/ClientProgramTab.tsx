@@ -13,9 +13,10 @@ import {
   Check,
   X,
   Calendar,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -38,11 +39,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useClientCustomPrograms, ClientCustomProgram } from "@/hooks/useClientCustomPrograms";
 import ClientProgramEditor from "./ClientProgramEditor";
+import TemplateAssignment from "./TemplateAssignment";
+import type { ClientWithSubscription } from "@/hooks/useClientAnalytics";
 
 interface ClientProgramTabProps {
   clientId: string;
+  client?: ClientWithSubscription;
 }
 
 const getFileIcon = (fileType: string) => {
@@ -58,7 +67,7 @@ const getFileTypeLabel = (fileType: string) => {
   return "File";
 };
 
-export default function ClientProgramTab({ clientId }: ClientProgramTabProps) {
+export default function ClientProgramTab({ clientId, client }: ClientProgramTabProps) {
   const { programs, loading, uploadProgram, updateProgram, deleteProgram, getSignedUrl } =
     useClientCustomPrograms(clientId);
 
@@ -70,6 +79,7 @@ export default function ClientProgramTab({ clientId }: ClientProgramTabProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [showTemplateAssignment, setShowTemplateAssignment] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -141,6 +151,35 @@ export default function ClientProgramTab({ clientId }: ClientProgramTabProps) {
 
   return (
     <div className="space-y-8">
+      {/* Template Assignment Section (for Free World clients) */}
+      {client && (
+        <Collapsible open={showTemplateAssignment} onOpenChange={setShowTemplateAssignment}>
+          <Card className="border-primary/30 bg-primary/5">
+            <CardHeader className="pb-2">
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-0 h-auto hover:bg-transparent">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Assign Template from Library
+                  </CardTitle>
+                  <span className="text-xs text-muted-foreground">
+                    {showTemplateAssignment ? "Hide" : "Show"}
+                  </span>
+                </Button>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <TemplateAssignment 
+                  client={client} 
+                  onAssigned={() => setShowTemplateAssignment(false)} 
+                />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
+
       {/* Structured Workouts Section */}
       <div>
         <div className="flex items-center gap-2 mb-4">

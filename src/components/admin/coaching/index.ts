@@ -7,3 +7,5 @@ export { default as ClientGoalsTab } from "./ClientGoalsTab";
 export { default as ClientMessagesTab } from "./ClientMessagesTab";
 export { default as ClientProgramTab } from "./ClientProgramTab";
 export { default as ClientProgramEditor } from "./ClientProgramEditor";
+export { default as ClientIntakeTab } from "./ClientIntakeTab";
+export { default as TemplateAssignment } from "./TemplateAssignment";

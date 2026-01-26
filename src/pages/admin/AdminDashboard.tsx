@@ -24,6 +24,7 @@ import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
 import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
 import TierOnboardingManager from "@/components/admin/TierOnboardingManager";
 import SiteSettingsManager from "@/components/admin/SiteSettingsManager";
+import ProgramTemplateManager from "@/components/admin/ProgramTemplateManager";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
@@ -274,6 +275,7 @@ export default function AdminDashboard() {
               <div className="flex-1 min-w-0">
                 {contentSection === "program" && <ProgramBuilder />}
                 {contentSection === "workouts" && <WorkoutContentManager />}
+                {contentSection === "freeworld-templates" && <ProgramTemplateManager />}
                 {contentSection === "faith" && <FaithLessonsManager />}
                 {contentSection === "nutrition" && <NutritionManager />}
                 {contentSection === "mealplans" && <MealPlanManager />}

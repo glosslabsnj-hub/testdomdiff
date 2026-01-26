@@ -20,6 +20,19 @@ interface ClientProfile {
   intake_completed_at: string | null;
   created_at: string;
   updated_at: string;
+  // Enhanced Free World intake fields
+  body_fat_estimate: string | null;
+  activity_level: string | null;
+  training_days_per_week: number | null;
+  sleep_quality: string | null;
+  stress_level: string | null;
+  previous_training: string | null;
+  medical_conditions: string | null;
+  motivation: string | null;
+  short_term_goals: string | null;
+  long_term_goals: string | null;
+  nutrition_style: string | null;
+  biggest_obstacle: string | null;
 }
 
 interface Subscription {

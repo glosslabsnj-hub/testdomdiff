@@ -8,7 +8,8 @@ import {
   Briefcase, 
   Video, 
   BarChart3,
-  ChevronRight
+  ChevronRight,
+  Library,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,7 @@ interface ContentSection {
 const CONTENT_SECTIONS: ContentSection[] = [
   { id: "program", label: "12-Week Program", icon: Calendar, group: "training" },
   { id: "workouts", label: "Workout Templates", icon: Dumbbell, group: "training" },
+  { id: "freeworld-templates", label: "Free World Templates", icon: Library, group: "training" },
   { id: "faith", label: "Faith Lessons", icon: Cross, group: "growth" },
   { id: "nutrition", label: "Nutrition Content", icon: Utensils, group: "lifestyle" },
   { id: "mealplans", label: "Meal Plans", icon: ChefHat, group: "lifestyle" },
