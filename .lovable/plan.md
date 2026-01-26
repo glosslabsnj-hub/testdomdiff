@@ -1,143 +1,124 @@
 
-# Comprehensive Onboarding Video Audio Fix
+# Add Manual Audio Upload for Walkthrough Videos
 
-## Problem Summary
+## Overview
 
-The onboarding video audio is working correctly on your desktop (admin preview) but may have issues for real users on other devices. Based on my investigation, I identified several potential causes:
-
-1. **Inconsistent cache-busting**: Different components fetch audio with slightly different cache-busting strategies
-2. **Mobile audio autoplay blocks**: Not all components handle iOS/Android audio permission requirements
-3. **Audio preloading inconsistency**: Some components don't preload audio, causing delays or failures
-4. **Missing "tap to enable" fallback**: Only `OnboardingVideoPlayer.tsx` has the `needsAudioTap` fallback; other components lack this
-
-## Current State
-
-**Database Status (tier_config_version: 7):**
-- All 3 tiers have "ready" audio with correct voice ID (`rAjfUfM1BSLyNwE8ckhm`)
-- membership: `audio-v7.mp3` (261 seconds)
-- transformation: `audio-v7.mp3` (372 seconds)  
-- coaching: `audio-v7.mp3` (291 seconds)
-
-**Components that play onboarding audio:**
-1. `OnboardingVideoPlayer.tsx` - Used by DashboardOnboardingVideo and StartHere (has mobile handling)
-2. `Onboarding.tsx` - Mandatory fullscreen orientation page (MISSING mobile handling)
-3. `FirstLoginVideoModal.tsx` - Modal fallback (MISSING mobile handling)
+Add the ability to upload a custom audio file for each tier's walkthrough video directly in the admin dashboard. This gives you full control over the audio narration, bypassing the AI-generated audio system when needed.
 
 ---
 
-## Implementation Plan
+## Architecture Decision
 
-### 1. Fix Onboarding.tsx (Priority: Critical)
-The main onboarding page that new users see lacks the mobile audio handling that exists in `OnboardingVideoPlayer.tsx`.
+**Two options for storing manual audio:**
 
-**Changes:**
-- Add `needsAudioTap` state for mobile audio permission handling
-- Add audio "priming" on first user interaction (same pattern as OnboardingVideoPlayer)
-- Add "Tap to enable narration" overlay when audio fails to autoplay
-- Preload audio element to ensure it's ready when walkthrough starts
-- Add `preload="auto"` to audio element
+| Option | Pros | Cons |
+|--------|------|------|
+| A. Add to `program_welcome_videos` table | Simpler, co-located with walkthrough video | Different from AI audio location |
+| B. Add to `tier_onboarding_videos` table | Audio stays together (AI + manual) | Requires migration + more complex logic |
 
-### 2. Fix FirstLoginVideoModal.tsx (Priority: High)
-The modal version also lacks mobile audio handling.
-
-**Changes:**
-- Add `needsAudioTap` state and overlay
-- Add audio priming on first play
-- Preload audio element
-- Add fallback UI for blocked audio
-
-### 3. Standardize Cache-Busting (Priority: Medium)
-Ensure all components use the exact same cache-busting strategy from `useOnboardingVideo.ts`.
-
-**Changes in Onboarding.tsx and FirstLoginVideoModal.tsx:**
-- Use the `useOnboardingVideo` hook instead of raw queries (DRY principle)
-- This ensures consistent `?v=${configVersion}&t=${cacheBuster}` parameters
-
-### 4. Add Audio Element Mounting (Priority: Medium)
-Ensure the audio element is always in the DOM (not conditionally rendered) for better mobile reliability.
-
-**Changes:**
-- Mount audio element at component load (not just during walkthrough phase)
-- Control playback via JavaScript instead of conditional rendering
-
-### 5. Ensure Service Worker Doesn't Interfere (Priority: Low)
-Already fixed - the service worker skips audio/video caching. No changes needed.
+**Recommended: Option A** - Add `walkthrough_audio_url` column to `program_welcome_videos` table. This keeps the manual uploads together (video + audio) and is simpler to implement.
 
 ---
 
-## Technical Details
+## Database Changes
 
-### New State for Mobile Handling
+Add a new column to `program_welcome_videos`:
+
+```sql
+ALTER TABLE program_welcome_videos 
+ADD COLUMN walkthrough_audio_url TEXT;
+```
+
+---
+
+## Storage
+
+Use the existing `tier-walkthroughs` bucket (already public) to store audio files alongside walkthrough videos.
+
+**File path pattern:** `{tierKey}/audio-{timestamp}.mp3`
+
+---
+
+## UI Changes (WelcomeVideosManager.tsx)
+
+Add an audio upload section inside the "Walkthrough Video" tab for each tier:
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│  Walkthrough Video Tab                                  │
+├─────────────────────────────────────────────────────────┤
+│  [Screen Recording Walkthrough]                         │
+│  📹 Video Preview (if uploaded)                         │
+│  📤 Upload Walkthrough Video                            │
+│  🔗 Or paste video URL                                  │
+│                                                         │
+│  ─────────────────────────────────────────             │
+│                                                         │
+│  [Narration Audio] NEW                                 │
+│  🔊 Audio Preview (if uploaded)                        │
+│  📤 Upload Audio File (MP3/WAV)                        │
+│  🔗 Or paste audio URL                                  │
+│  ℹ️ Overrides AI-generated audio when set              │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Changes:**
+- Add `handleAudioUpload` function (similar to `handleFileUpload`)
+- Add audio preview player when audio exists
+- Add audio file input accepting `.mp3, .wav, .m4a`
+- Add text input for direct audio URL paste
+- Add helper text explaining this overrides AI audio
+
+---
+
+## Player Logic Changes (OnboardingVideoPlayer.tsx)
+
+Modify the audio source priority:
+
+```text
+1. Manual audio (walkthrough_audio_url) - if uploaded, use this
+2. AI-generated audio (tier_onboarding_videos.audio_url) - fallback
+3. No audio - silent video playback
+```
+
+**Code change:**
 ```typescript
-const [needsAudioTap, setNeedsAudioTap] = useState(false);
-```
+// Fetch from program_welcome_videos now includes audio
+const { data, error } = await supabase
+  .from("program_welcome_videos")
+  .select("video_url, walkthrough_video_url, walkthrough_audio_url")
+  .eq("plan_type", tierKey)
+  .single();
 
-### Audio Priming Pattern (on first user tap)
-```typescript
-const handlePlay = () => {
-  // Prime audio for later autoplay on mobile
-  if (audioRef.current && onboardingAudio?.audio_url) {
-    const audio = audioRef.current;
-    audio.muted = true;
-    audio.play()
-      .then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;
-      })
-      .catch(() => {
-        audio.muted = false;
-      });
-  }
-  // ... rest of play logic
-};
-```
-
-### Tap-to-Enable Overlay Pattern
-```tsx
-{needsAudioTap && (
-  <div
-    className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm cursor-pointer"
-    onClick={startWalkthroughWithAudio}
-  >
-    <div className="px-4 py-3 rounded-lg bg-background/80 border text-center">
-      <p className="text-sm font-medium">Tap to enable narration</p>
-      <p className="text-xs text-muted-foreground">Audio was blocked - tap to continue</p>
-    </div>
-  </div>
-)}
-```
-
-### Audio Element Always Mounted
-```tsx
-{/* Always mount audio for mobile reliability */}
-<audio
-  ref={audioRef}
-  src={onboardingAudio?.audio_url || ""}
-  preload="auto"
-  onEnded={handleWalkthroughEnd}
-/>
+// Audio source priority
+const audioUrl = walkthroughAudioUrl || onboardingData?.audio_url;
 ```
 
 ---
 
 ## Files to Modify
 
-| File | Change Type | Description |
-|------|-------------|-------------|
-| `src/pages/Onboarding.tsx` | Major | Add mobile audio handling, priming, tap overlay, use hook |
-| `src/components/FirstLoginVideoModal.tsx` | Major | Add mobile audio handling, priming, tap overlay, use hook |
-| `src/hooks/useOnboardingVideo.ts` | Minor | Add fallback for missing audio gracefully |
+| File | Change |
+|------|--------|
+| `src/components/admin/WelcomeVideosManager.tsx` | Add audio upload UI, audio preview, handleAudioUpload function |
+| `src/components/OnboardingVideoPlayer.tsx` | Fetch and use manual audio, priority logic |
+| Database Migration | Add `walkthrough_audio_url` column |
 
 ---
 
-## Testing Checklist
+## Audio Upload Details
 
-After implementation, verify:
-- [ ] New user on desktop sees/hears correct tier-specific audio
-- [ ] New user on mobile (iOS Safari) sees/hears audio after tap
-- [ ] New user on mobile (Android Chrome) sees/hears audio
-- [ ] Audio matches the video timing (sync works)
-- [ ] "Tap to enable narration" appears when audio is blocked
-- [ ] Rewatching from StartHere plays correct audio
-- [ ] No stale/cached audio plays after regeneration
+**Accepted formats:** MP3, WAV, M4A, AAC  
+**Max file size:** 50MB (audio files are typically small)  
+**Storage bucket:** `tier-walkthroughs` (already exists and is public)
+
+---
+
+## Summary
+
+This gives you two ways to set walkthrough audio:
+
+1. **AI-Generated (current):** Use the TierOnboardingManager to generate script + ElevenLabs audio
+2. **Manual Upload (new):** Upload your own pre-recorded audio file in WelcomeVideosManager
+
+Manual uploads take priority, so you can override any tier's AI audio by simply uploading a file.
