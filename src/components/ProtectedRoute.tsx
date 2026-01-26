@@ -59,6 +59,7 @@ const ProtectedRoute = ({ children, requireIntake = true }: ProtectedRouteProps)
       profile: !!profile, 
       subscription: subscription?.status,
       intakeCompleted: !!profile?.intake_completed_at,
+      videoWatched: !!profile?.first_login_video_watched,
       isVerifying,
       verificationComplete
     });
