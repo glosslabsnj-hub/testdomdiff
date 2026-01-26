@@ -56,7 +56,7 @@ const IntakeComplete = () => {
         ],
         primaryCta: {
           label: "Enter The Free World",
-          href: "/dashboard",
+          href: "/onboarding",
           icon: Crown,
         },
       };
@@ -86,7 +86,7 @@ const IntakeComplete = () => {
         ],
         primaryCta: {
           label: "Enter General Population",
-          href: "/dashboard",
+          href: "/onboarding",
           icon: ArrowRight,
         },
       };
@@ -116,7 +116,7 @@ const IntakeComplete = () => {
       ],
       primaryCta: {
         label: "Enter Solitary Confinement",
-        href: "/dashboard",
+        href: "/onboarding",
         icon: ArrowRight,
       },
     };
