@@ -2,15 +2,24 @@ import { useState } from "react";
 import { Check, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import jailSounds from "@/lib/sounds";
 
 interface SimpleRoutineItemProps {
   id: string;
   actionText: string;
   timeSlot?: string;
+  displayOrder?: number;
   completed: boolean;
   completionTime?: string | null;
   onToggle: (id: string) => void;
+  onSaveTime?: (displayOrder: number, newTime: string) => Promise<void>;
   isCustom?: boolean;
   soundEnabled?: boolean;
 }
@@ -19,13 +28,17 @@ export default function SimpleRoutineItem({
   id,
   actionText,
   timeSlot,
+  displayOrder,
   completed,
   completionTime,
   onToggle,
+  onSaveTime,
   isCustom = false,
   soundEnabled = true,
 }: SimpleRoutineItemProps) {
   const [justCompleted, setJustCompleted] = useState(false);
+  const [editingTime, setEditingTime] = useState(false);
+  const [tempTime, setTempTime] = useState(timeSlot || "");
 
   const handleToggle = () => {
     if (!completed) {
@@ -34,6 +47,13 @@ export default function SimpleRoutineItem({
       setTimeout(() => setJustCompleted(false), 600);
     }
     onToggle(id);
+  };
+
+  const handleSaveTime = async () => {
+    if (onSaveTime && displayOrder !== undefined && tempTime.trim()) {
+      await onSaveTime(displayOrder, tempTime.trim());
+    }
+    setEditingTime(false);
   };
 
   return (
@@ -86,11 +106,61 @@ export default function SimpleRoutineItem({
         )}
       </span>
 
-      {/* Time display - subtle */}
+      {/* Editable time display */}
       {timeSlot && !completed && (
-        <span className="text-xs text-muted-foreground/60 flex-shrink-0">
-          {timeSlot}
-        </span>
+        onSaveTime && displayOrder !== undefined ? (
+          <Popover open={editingTime} onOpenChange={setEditingTime}>
+            <PopoverTrigger asChild>
+              <button 
+                className="text-xs text-muted-foreground/60 hover:text-primary transition-colors flex-shrink-0"
+                onClick={() => {
+                  setTempTime(timeSlot);
+                  setEditingTime(true);
+                }}
+              >
+                {timeSlot}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-3" align="end">
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Edit time</p>
+                <Input
+                  value={tempTime}
+                  onChange={(e) => setTempTime(e.target.value)}
+                  placeholder="e.g., 6:00 AM"
+                  className="h-8 text-sm"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveTime();
+                    if (e.key === "Escape") setEditingTime(false);
+                  }}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="flex-1 h-7"
+                    onClick={() => setEditingTime(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="gold"
+                    className="flex-1 h-7"
+                    onClick={handleSaveTime}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        ) : (
+          <span className="text-xs text-muted-foreground/60 flex-shrink-0">
+            {timeSlot}
+          </span>
+        )
       )}
 
       {/* Completion time */}
