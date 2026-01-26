@@ -396,16 +396,16 @@ const Dashboard = () => {
       ];
     }
     
-    // Coaching (Free World): Custom program first, then VIP features
+    // Coaching (Free World): VIP features first, then daily essentials, then growth
     return [
       allTiles.startHere,       // Welcome Home
       allTiles.customProgram,   // Custom Program - primary focus for coaching
       allTiles.coaching,        // Coaching Portal - VIP access
       allTiles.messages,        // Direct Line - high-touch messaging
+      allTiles.discipline,      // Daily Structure - daily habits
+      allTiles.nutrition,       // Meal Planning - daily fuel
       allTiles.program,         // 12-Week Program (fallback while custom is being built)
       allTiles.workouts,        // Training Sessions
-      allTiles.discipline,      // Daily Structure
-      allTiles.nutrition,       // Meal Planning
       allTiles.faith,           // Faith & Mindset
       allTiles.checkIn,         // Weekly Report
       allTiles.progress,        // Progress Report
