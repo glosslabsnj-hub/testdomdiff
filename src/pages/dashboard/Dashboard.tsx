@@ -451,6 +451,20 @@ const Dashboard = () => {
           <WardenBrief />
         </div>
 
+        {/* Section Header - Tier-aware */}
+        <div className="mb-6">
+          <h2 className="headline-section mb-1">
+            {isCoaching ? "Your Dashboard" : "Your Cell Block"}
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            {isCoaching 
+              ? "Access your training, coaching, and progress tools."
+              : isMembership
+                ? "Your daily structure — workouts, discipline, and nutrition."
+                : "Track your sentence, build discipline, and earn your freedom."}
+          </p>
+        </div>
+
         {/* Tiles Grid - show ALL tiles immediately */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {tiles.map((tile, index) => (
