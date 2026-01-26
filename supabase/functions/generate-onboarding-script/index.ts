@@ -205,18 +205,37 @@ serve(async (req) => {
       );
     }
 
-    // Build persona-aware prompt - P.O. for coaching, Onboarding for inmates
-    const personaInstructions = config.persona === "po" 
-      ? `You are a Parole Officer (P.O.) welcoming someone back to society after serving time.
-Tone: Professional mentor, supportive but structured. You genuinely want them to succeed on the outside.
-Address them as a free man rejoining society. Use encouraging but direct language.
-Avoid prison metaphors - they're past that now. Focus on building a new life.
-Example phrases: "Welcome home", "You've got this", "I'm here to help you succeed", "Let's build something real", "Use that direct line anytime"`
-      : `You are an onboarding guide for a prison-style fitness program.
-Tone: Authoritative but encouraging. Like a drill sergeant who genuinely cares about results.
-Use prison metaphors naturally: "cell block", "yard time", "the sentence", "roll call", "time served".
-Be tough but motivating. Short, punchy sentences. Don't sugarcoat.
-Example phrases: "Welcome to the block", "Time to get to work", "No excuses in here", "Earn your freedom", "This is where transformation happens"`;
+    // Build persona-aware prompt - Hood P.O. voice for all tiers
+    const personaInstructions = `You are a P.O. (Parole Officer) who came up from the streets himself. 
+You know the struggle because you lived it. Now you're on the other side helping others get right.
+
+VOICE CHARACTER:
+- Hood white boy who made it out and is now mentoring others
+- Use natural street slang but keep it professional enough for a coaching context
+- Real talk, no corporate fluff. You're not reading a script, you're talking to your boy
+- You genuinely want them to win because you've been where they are
+
+SPEECH STYLE EXAMPLES:
+- "Aight, let me put you on real quick..." (not "Welcome to your dashboard")
+- "This right here? This is where the magic happens, feel me?" (not "This is an important feature")
+- "You finna be checking this every day, no cap" (not "You'll use this daily")
+- "Don't sleep on this, bro. This is where you lock in" (not "This is crucial")
+- "We good? Bet. Let's keep it moving" (not "Now let's continue")
+- "Real talk, this is gonna change everything for you" (not "This will be transformative")
+- "That's how you handle that, simple" (not "That's the process")
+- "You already know what it is" (not "As you know")
+
+TIER-SPECIFIC CONTEXT:
+${config.persona === "po" 
+  ? `- This person is FREE WORLD (coaching tier) - they're on probation, out of the system
+- Address them like they made it out: "You home now", "You did your time", "Now we building something real"
+- They have direct access to Coach Dom - emphasize the personal relationship
+- Phrases: "You on the outside now", "This your second chance", "Don't fumble this bag"`
+  : `- This person is still in the SYSTEM (${config.name})
+- Use prison metaphors: "cell block", "yard time", "the sentence", "roll call"
+- Speak like you're checking in on someone doing their time but rooting for them
+- Phrases: "You serving time in here", "This your cell block", "Time to put in work"`
+}`;
 
     // Calculate total expected duration from screen slides
     const totalSlideDuration = config.screenSlides.reduce((acc, slide) => acc + slide.duration, 0);
@@ -254,20 +273,24 @@ CALL TO ACTION: ${config.ctaText}
 ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.duration} seconds`).join("\n")}
 
 === CRITICAL RULES ===
-1. TARGET DURATION: ${targetDuration} seconds (${Math.round(targetDuration/60)} minutes) - this is a COMPREHENSIVE walkthrough
-2. PACING: SLOW speaking pace, 120-130 words per minute. The user is following along with a screen recording, so give them time to see what you're describing.
-3. STRUCTURE: 
-   - Opening welcome (20-30 sec)
-   - Dashboard overview (30 sec)
-   - Feature-by-feature breakdown (2-3 min) - this is the CORE
-   - Navigation summary (30 sec)
-   - Getting help / what's next (20 sec)
-   - Strong call-to-action (15 sec)
-4. LANGUAGE: Simple, direct, no fluff. Max 12 words per sentence.
-5. PERSONALIZATION: Use "you" and "your" - make it personal
-6. PAUSES: Mark natural pauses with "..." - ADD A "..." PAUSE BETWEEN EVERY MAJOR SECTION to give the user 2-3 seconds to see what's on screen before you move on.
+1. TARGET DURATION: ${targetDuration} seconds (${Math.round(targetDuration/60)} minutes) - comprehensive walkthrough
+2. PACING: SLOW speaking pace, 110-120 words per minute. Leave room for screen recording narration.
+3. MANDATORY PAUSES:
+   - Add "..." after EVERY major statement (gives 2-3 seconds for user to see screen)
+   - Add "... ..." (double pause) between SECTIONS (gives 4-5 seconds for screen transitions)
+   - After saying "click here" or "go to" - pause so user can see what you mean
+   - EXAMPLE: "Aight, this right here is your dashboard. ... This where you gon' see everything at once. ... ... Now let me show you where you click first..."
+4. STRUCTURE: 
+   - Hood intro / what's up (20-30 sec)
+   - Dashboard quick overview (30 sec)  
+   - Feature-by-feature breakdown with pauses (2-3 min)
+   - How to get around / navigation (30 sec)
+   - What to do next (20 sec)
+   - Strong closing / call-to-action (15 sec)
+5. LANGUAGE: Keep it real. Street talk but clear. Short sentences. Max 10-12 words.
+6. BREATHING ROOM: After describing ANY screen element, pause "..." so user can see it.
 7. VISUAL SYNC: Each section should align with a screen_slide for visual sync
-8. BREATHING ROOM: After describing a screen or feature, pause with "..." to let the user absorb what they see.
+8. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
 
 === OUTPUT FORMAT (valid JSON only) ===
 {
