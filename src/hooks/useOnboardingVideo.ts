@@ -18,26 +18,16 @@ interface ScreenSlide {
   zoom_level?: number;
 }
 
-interface Slide {
-  title: string;
-  subtitle?: string;
-  bullets: string[];
-  screen?: string;
-  duration_sec?: number;
-}
-
 interface OnboardingVideo {
   id: string;
   tier_key: string;
   tier_config_version: number;
-  status: "queued" | "generating_script" | "generating_audio" | "generating_captions" | "rendering_video" | "ready" | "failed";
+  status: "queued" | "generating_script" | "generating_audio" | "generating_captions" | "ready" | "failed";
   script_text: string | null;
   caption_lines: CaptionLine[] | null;
   screen_slides: ScreenSlide[] | null;
-  slides: Slide[] | null;
   voice_id: string | null;
   audio_url: string | null;
-  mp4_url: string | null;
   captions_srt_url: string | null;
   thumbnail_url: string | null;
   duration_seconds: number | null;
@@ -57,18 +47,12 @@ function parseScreenSlides(data: Json | null): ScreenSlide[] | null {
   return data as unknown as ScreenSlide[];
 }
 
-function parseSlides(data: Json | null): Slide[] | null {
-  if (!data || !Array.isArray(data)) return null;
-  return data as unknown as Slide[];
-}
-
 function transformVideoData(data: any): OnboardingVideo | null {
   if (!data) return null;
   return {
     ...data,
     caption_lines: parseCaptionLines(data.caption_lines),
     screen_slides: parseScreenSlides(data.screen_slides),
-    slides: parseSlides(data.slides),
   } as OnboardingVideo;
 }
 

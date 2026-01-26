@@ -52,8 +52,7 @@ serve(async (req) => {
     }
 
     // If currently generating, return that status
-    const generatingStatuses = ["queued", "generating_script", "generating_audio", "generating_captions", "rendering_video"];
-    if (existingVideo && generatingStatuses.includes(existingVideo.status) && !force_regenerate) {
+    if (existingVideo && ["queued", "generating_script", "generating_audio", "generating_captions"].includes(existingVideo.status) && !force_regenerate) {
       console.log("Video generation in progress for", tier_key);
       return new Response(
         JSON.stringify({ video: existingVideo, message: "Generation in progress" }),
@@ -61,7 +60,7 @@ serve(async (req) => {
       );
     }
 
-    // Create or update the video record - clear all generated fields
+    // Create or update the video record
     let videoId: string;
     if (existingVideo) {
       const { data: updated, error: updateError } = await supabase
@@ -71,12 +70,8 @@ serve(async (req) => {
           error: null,
           script_text: null,
           caption_lines: null,
-          slides: null,
           audio_url: null,
-          mp4_url: null,
           captions_srt_url: null,
-          thumbnail_url: null,
-          duration_seconds: null,
         })
         .eq("id", existingVideo.id)
         .select()
@@ -101,7 +96,7 @@ serve(async (req) => {
 
     console.log("Starting generation pipeline for video:", videoId);
 
-    // Step 1: Generate script (60-90 seconds target)
+    // Step 1: Generate script
     console.log("Step 1: Generating script...");
     const scriptResponse = await fetch(`${supabaseUrl}/functions/v1/generate-onboarding-script`, {
       method: "POST",
@@ -127,8 +122,7 @@ serve(async (req) => {
     }
 
     const scriptData = await scriptResponse.json();
-    const estimatedDuration = scriptData.estimated_duration_sec || 75;
-    console.log("Script generated successfully. Word count:", scriptData.word_count, "Estimated duration:", estimatedDuration, "s");
+    console.log("Script generated successfully");
 
     // Step 2: Generate audio
     console.log("Step 2: Generating audio...");
@@ -190,71 +184,27 @@ serve(async (req) => {
       .from("onboarding-assets")
       .getPublicUrl(srtPath);
 
-    // Step 4: Store duration and SRT URL
-    const durationSeconds = estimatedDuration;
+    // Step 4: Generate simple thumbnail (placeholder for now)
+    const thumbnailUrl = null; // Can add image generation later
 
-    await supabase
+    // Mark as ready
+    const { data: finalVideo, error: finalError } = await supabase
       .from("tier_onboarding_videos")
       .update({
+        status: "ready",
         captions_srt_url: srtUrlData.publicUrl,
-        duration_seconds: durationSeconds,
+        thumbnail_url: thumbnailUrl,
       })
-      .eq("id", videoId);
-
-    // Step 5: Render video with Creatomate
-    console.log("Step 4: Rendering video...");
-    const renderResponse = await fetch(`${supabaseUrl}/functions/v1/render-onboarding-video`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${supabaseKey}`,
-      },
-      body: JSON.stringify({ video_id: videoId }),
-    });
-
-    if (!renderResponse.ok) {
-      const renderError = await renderResponse.text();
-      console.error("Video rendering failed:", renderError);
-      
-      // Still mark as ready (audio works, video failed) - can use audio-only fallback
-      await supabase
-        .from("tier_onboarding_videos")
-        .update({ 
-          status: "ready", 
-          error: `Video render failed (audio available): ${renderError}` 
-        })
-        .eq("id", videoId);
-      
-      return new Response(
-        JSON.stringify({ 
-          warning: "Video render failed but audio is available",
-          details: renderError,
-          video_id: videoId,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const renderData = await renderResponse.json();
-    console.log("Video rendered successfully:", renderData.mp4_url);
-
-    // Fetch final video record
-    const { data: finalVideo } = await supabase
-      .from("tier_onboarding_videos")
-      .select("*")
       .eq("id", videoId)
+      .select()
       .single();
 
-    console.log("Generation complete! Video ready:", videoId, "Duration:", durationSeconds, "s");
+    if (finalError) throw finalError;
+
+    console.log("Generation complete! Video ready:", videoId);
 
     return new Response(
-      JSON.stringify({ 
-        video: finalVideo, 
-        message: "Generation complete with video",
-        duration_seconds: durationSeconds,
-        word_count: scriptData.word_count,
-        mp4_url: renderData.mp4_url,
-      }),
+      JSON.stringify({ video: finalVideo, message: "Generation complete" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

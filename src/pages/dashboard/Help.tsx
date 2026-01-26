@@ -11,8 +11,7 @@ import {
   MessageCircle,
   Shield,
   ExternalLink,
-  RotateCcw,
-  Film
+  RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +24,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ReplayOrientationButton } from "@/components/ReplayOrientationButton";
-import { FirstLoginVideoModal } from "@/components/FirstLoginVideoModal";
 
 // FAQ data organized by category
 const faqCategories = [
@@ -114,7 +112,6 @@ export default function Help() {
     message: "",
   });
   const [submitting, setSubmitting] = useState(false);
-  const [showVideoModal, setShowVideoModal] = useState(false);
   
   const supportEmail = settings?.find(s => s.key === "support_email")?.value || "support@domdifferent.com";
   const calendlyUrl = settings?.find(s => s.key === "calendly_url")?.value;
@@ -158,32 +155,7 @@ export default function Help() {
         </div>
         
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* Replay Video Walkthrough */}
-          <Card className="dashboard-tile hover-lift">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <Film className="w-6 h-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold mb-1">Video Walkthrough</h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Watch the onboarding video
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setShowVideoModal(true)}
-                  >
-                    <Play className="w-4 h-4 mr-1" />
-                    Play Video
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="dashboard-tile hover-lift">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -193,7 +165,7 @@ export default function Help() {
                 <div className="flex-1">
                   <h3 className="font-semibold mb-1">Replay Orientation</h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Step-by-step orientation guide
+                    Re-watch the full orientation walkthrough
                   </p>
                   <ReplayOrientationButton variant="outline" size="sm" />
                 </div>
@@ -342,13 +314,6 @@ export default function Help() {
           </div>
         </div>
       </div>
-      
-      {/* Video Walkthrough Modal */}
-      <FirstLoginVideoModal 
-        isOpen={showVideoModal} 
-        onClose={() => setShowVideoModal(false)}
-        isReplay={true}
-      />
     </DashboardLayout>
   );
 }

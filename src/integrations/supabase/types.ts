@@ -1219,7 +1219,6 @@ export type Database = {
           equipment: string | null
           experience: string | null
           faith_commitment: boolean | null
-          first_login_video_watched: boolean | null
           first_name: string | null
           goal: string | null
           height: string | null
@@ -1250,7 +1249,6 @@ export type Database = {
           equipment?: string | null
           experience?: string | null
           faith_commitment?: boolean | null
-          first_login_video_watched?: boolean | null
           first_name?: string | null
           goal?: string | null
           height?: string | null
@@ -1281,7 +1279,6 @@ export type Database = {
           equipment?: string | null
           experience?: string | null
           faith_commitment?: boolean | null
-          first_login_video_watched?: boolean | null
           first_name?: string | null
           goal?: string | null
           height?: string | null
@@ -1918,10 +1915,8 @@ export type Database = {
           duration_seconds: number | null
           error: string | null
           id: string
-          mp4_url: string | null
           screen_slides: Json | null
           script_text: string | null
-          slides: Json | null
           status: string
           thumbnail_url: string | null
           tier_config_version: number
@@ -1937,10 +1932,8 @@ export type Database = {
           duration_seconds?: number | null
           error?: string | null
           id?: string
-          mp4_url?: string | null
           screen_slides?: Json | null
           script_text?: string | null
-          slides?: Json | null
           status?: string
           thumbnail_url?: string | null
           tier_config_version?: number
@@ -1956,10 +1949,8 @@ export type Database = {
           duration_seconds?: number | null
           error?: string | null
           id?: string
-          mp4_url?: string | null
           screen_slides?: Json | null
           script_text?: string | null
-          slides?: Json | null
           status?: string
           thumbnail_url?: string | null
           tier_config_version?: number

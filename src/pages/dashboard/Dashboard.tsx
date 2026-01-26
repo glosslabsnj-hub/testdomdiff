@@ -35,7 +35,6 @@ import OnboardingTooltip from "@/components/OnboardingTooltip";
 import { DashboardOnboardingVideo } from "@/components/DashboardOnboardingVideo";
 import { TodayFocusCard } from "@/components/dashboard/TodayFocusCard";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
-import { FirstLoginVideoModal, useFirstLoginVideo } from "@/components/FirstLoginVideoModal";
 import {
   Tooltip,
   TooltipContent,
@@ -133,7 +132,6 @@ function getWeekSpecificMessage(week: number, isCoaching: boolean, isMembership:
 const Dashboard = () => {
   const { profile } = useAuth();
   const { subscription, isCoaching, isTransformation, isMembership } = useEffectiveSubscription();
-  const { showModal: showVideoModal, isReplay, closeModal: closeVideoModal } = useFirstLoginVideo();
   
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
@@ -582,13 +580,6 @@ const Dashboard = () => {
         </div>
       </div>
       <OrientationModal />
-      
-      {/* First Login Video Modal */}
-      <FirstLoginVideoModal 
-        isOpen={showVideoModal} 
-        onClose={closeVideoModal}
-        isReplay={isReplay}
-      />
     </DashboardLayout>
   );
 };

@@ -14,6 +14,3 @@ verify_jwt = false
 
 [functions.tier-onboarding-generate]
 verify_jwt = false
-
-[functions.render-onboarding-video]
-verify_jwt = false
