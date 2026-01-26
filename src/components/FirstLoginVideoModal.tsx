@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Loader2, Volume2, VolumeX, Play } from "lucide-react";
+import { X, Loader2, Volume2, VolumeX, Play, Pause } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ export function FirstLoginVideoModal({
   const [playbackPhase, setPlaybackPhase] = useState<PlaybackPhase>("welcome");
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [showSkipButton, setShowSkipButton] = useState(false);
   
   const welcomeVideoRef = useRef<HTMLVideoElement>(null);
   const walkthroughVideoRef = useRef<HTMLVideoElement>(null);
@@ -48,19 +49,35 @@ export function FirstLoginVideoModal({
     },
   });
 
-  // Fetch AI-generated audio
-  const { data: onboardingAudio } = useQuery({
-    queryKey: ["onboarding-audio-modal", tierKey],
+  // Fetch current tier config version
+  const { data: configVersion } = useQuery({
+    queryKey: ["tier-config-version"],
     queryFn: async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "tier_config_version")
+        .single();
+      return parseInt(data?.value || "1", 10);
+    },
+  });
+
+  // Fetch AI-generated audio with version filter
+  const { data: onboardingAudio } = useQuery({
+    queryKey: ["onboarding-audio-modal", tierKey, configVersion],
+    queryFn: async () => {
+      if (!configVersion) return null;
       const { data, error } = await supabase
         .from("tier_onboarding_videos")
         .select("audio_url, status")
         .eq("tier_key", tierKey)
-        .single();
+        .eq("tier_config_version", configVersion)
+        .maybeSingle();
       
       if (error || data?.status !== "ready") return null;
       return data;
     },
+    enabled: !!configVersion,
   });
 
   // Unlock close button after 5 seconds
@@ -80,6 +97,17 @@ export function FirstLoginVideoModal({
 
     return () => clearInterval(timer);
   }, [isOpen]);
+
+  // Show skip button after 30 seconds of playback
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    const timer = setTimeout(() => {
+      setShowSkipButton(true);
+    }, 30000);
+    
+    return () => clearTimeout(timer);
+  }, [isPlaying]);
 
   // Sync audio with walkthrough video - audio is source of truth
   useEffect(() => {
@@ -168,6 +196,25 @@ export function FirstLoginVideoModal({
     }
   };
 
+  const togglePlayPause = () => {
+    if (playbackPhase === "welcome" && welcomeVideoRef.current) {
+      if (isPlaying) {
+        welcomeVideoRef.current.pause();
+      } else {
+        welcomeVideoRef.current.play().catch(console.error);
+      }
+    } else if (playbackPhase === "walkthrough") {
+      if (isPlaying) {
+        walkthroughVideoRef.current?.pause();
+        audioRef.current?.pause();
+      } else {
+        walkthroughVideoRef.current?.play().catch(console.error);
+        audioRef.current?.play().catch(console.error);
+      }
+    }
+    setIsPlaying(!isPlaying);
+  };
+
   const toggleMute = () => {
     setIsMuted(!isMuted);
     if (audioRef.current) {
@@ -254,9 +301,17 @@ export function FirstLoginVideoModal({
               </div>
             )}
 
-            {/* Mute toggle for welcome video */}
+            {/* Controls for welcome video */}
             {isPlaying && (
-              <div className="absolute bottom-4 right-4">
+              <div className="absolute bottom-4 right-4 flex gap-2">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={togglePlayPause}
+                  className="bg-background/80 hover:bg-background"
+                >
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </Button>
                 <Button
                   variant="secondary"
                   size="icon"
@@ -266,6 +321,18 @@ export function FirstLoginVideoModal({
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </Button>
               </div>
+            )}
+
+            {/* Skip button after 30 seconds */}
+            {showSkipButton && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleComplete}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs"
+              >
+                Skip Video →
+              </Button>
             )}
 
             {/* Phase indicator */}
@@ -324,8 +391,16 @@ export function FirstLoginVideoModal({
               />
             )}
 
-            {/* Audio controls */}
-            <div className="absolute bottom-4 right-4">
+            {/* Controls for walkthrough */}
+            <div className="absolute bottom-4 right-4 flex gap-2">
+              <Button
+                variant="secondary"
+                size="icon"
+                onClick={togglePlayPause}
+                className="bg-background/80 hover:bg-background"
+              >
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </Button>
               <Button
                 variant="secondary"
                 size="icon"
@@ -335,6 +410,18 @@ export function FirstLoginVideoModal({
                 {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </Button>
             </div>
+
+            {/* Skip button after 30 seconds */}
+            {showSkipButton && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleComplete}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs"
+              >
+                Skip Video →
+              </Button>
+            )}
             
             {/* Phase indicator */}
             <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-background/80 text-xs font-medium">

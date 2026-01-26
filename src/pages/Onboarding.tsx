@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Volume2, VolumeX, Play, ArrowRight } from "lucide-react";
+import { Loader2, Volume2, VolumeX, Play, ArrowRight, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ const Onboarding = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [showSkipButton, setShowSkipButton] = useState(false);
   
   const welcomeVideoRef = useRef<HTMLVideoElement>(null);
   const walkthroughVideoRef = useRef<HTMLVideoElement>(null);
@@ -50,20 +51,47 @@ const Onboarding = () => {
     },
   });
 
-  // Fetch AI-generated audio
-  const { data: onboardingAudio } = useQuery({
-    queryKey: ["onboarding-audio", tierKey],
+  // Fetch current tier config version
+  const { data: configVersion } = useQuery({
+    queryKey: ["tier-config-version"],
     queryFn: async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "tier_config_version")
+        .single();
+      return parseInt(data?.value || "1", 10);
+    },
+  });
+
+  // Fetch AI-generated audio with version filter
+  const { data: onboardingAudio } = useQuery({
+    queryKey: ["onboarding-audio", tierKey, configVersion],
+    queryFn: async () => {
+      if (!configVersion) return null;
       const { data, error } = await supabase
         .from("tier_onboarding_videos")
         .select("audio_url, status")
         .eq("tier_key", tierKey)
-        .single();
+        .eq("tier_config_version", configVersion)
+        .maybeSingle();
       
       if (error || data?.status !== "ready") return null;
       return data;
     },
+    enabled: !!configVersion,
   });
+
+  // Show skip button after 30 seconds of playback
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    const timer = setTimeout(() => {
+      setShowSkipButton(true);
+    }, 30000);
+    
+    return () => clearTimeout(timer);
+  }, [isPlaying]);
 
   // Sync audio with walkthrough video - audio is source of truth
   useEffect(() => {
@@ -138,6 +166,25 @@ const Onboarding = () => {
     }
   };
 
+  const togglePlayPause = () => {
+    if (playbackPhase === "welcome" && welcomeVideoRef.current) {
+      if (isPlaying) {
+        welcomeVideoRef.current.pause();
+      } else {
+        welcomeVideoRef.current.play().catch(console.error);
+      }
+    } else if (playbackPhase === "walkthrough") {
+      if (isPlaying) {
+        walkthroughVideoRef.current?.pause();
+        audioRef.current?.pause();
+      } else {
+        walkthroughVideoRef.current?.play().catch(console.error);
+        audioRef.current?.play().catch(console.error);
+      }
+    }
+    setIsPlaying(!isPlaying);
+  };
+
   const toggleMute = () => {
     setIsMuted(!isMuted);
     if (audioRef.current) {
@@ -196,9 +243,17 @@ const Onboarding = () => {
             </div>
           )}
 
-          {/* Mute toggle for welcome video */}
+          {/* Controls for welcome video */}
           {isPlaying && (
-            <div className="absolute bottom-4 right-4 safe-area-inset-bottom">
+            <div className="absolute bottom-4 right-4 safe-area-inset-bottom flex gap-2">
+              <Button
+                variant="secondary"
+                size="icon"
+                onClick={togglePlayPause}
+                className="bg-background/80 hover:bg-background"
+              >
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </Button>
               <Button
                 variant="secondary"
                 size="icon"
@@ -208,6 +263,18 @@ const Onboarding = () => {
                 {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </Button>
             </div>
+          )}
+
+          {/* Skip button after 30 seconds */}
+          {showSkipButton && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleComplete}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs safe-area-inset-bottom"
+            >
+              Skip Video →
+            </Button>
           )}
 
           {/* Phase indicator */}
@@ -266,8 +333,16 @@ const Onboarding = () => {
             />
           )}
 
-          {/* Audio controls */}
-          <div className="absolute bottom-4 right-4 safe-area-inset-bottom">
+          {/* Controls for walkthrough */}
+          <div className="absolute bottom-4 right-4 safe-area-inset-bottom flex gap-2">
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={togglePlayPause}
+              className="bg-background/80 hover:bg-background"
+            >
+              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            </Button>
             <Button
               variant="secondary"
               size="icon"
@@ -277,6 +352,18 @@ const Onboarding = () => {
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </Button>
           </div>
+
+          {/* Skip button after 30 seconds */}
+          {showSkipButton && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleComplete}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs safe-area-inset-bottom"
+            >
+              Skip Video →
+            </Button>
+          )}
           
           {/* Phase indicator */}
           <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-background/80 text-xs font-medium safe-area-inset-top">
