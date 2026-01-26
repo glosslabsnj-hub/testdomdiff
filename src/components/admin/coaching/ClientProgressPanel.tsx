@@ -140,34 +140,34 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 overflow-hidden min-h-0">
+        <div className="flex-1 min-h-0 relative">
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <>
-              <TabsContent value="overview" className="m-0 p-4 h-full overflow-y-auto">
+              <TabsContent value="overview" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
                 <ClientOverviewTab client={client} progress={progress} />
               </TabsContent>
 
-              <TabsContent value="intake" className="m-0 p-4 h-full overflow-y-auto">
+              <TabsContent value="intake" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
                 <ClientIntakeTab client={client} />
               </TabsContent>
 
-              <TabsContent value="sessions" className="m-0 p-4 h-full overflow-y-auto">
+              <TabsContent value="sessions" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
                 <ClientSessionsTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="goals" className="m-0 p-4 h-full overflow-y-auto">
+              <TabsContent value="goals" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
                 <ClientGoalsTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="messages" className="m-0 p-4 h-full overflow-y-auto">
+              <TabsContent value="messages" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
                 <ClientMessagesTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="program" className="m-0 p-4 h-full overflow-y-auto">
+              <TabsContent value="program" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
                 <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
             </>
