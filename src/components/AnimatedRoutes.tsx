@@ -39,6 +39,7 @@ import AdvancedSkills from "@/pages/dashboard/AdvancedSkills";
 import DirectMessages from "@/pages/dashboard/DirectMessages";
 import Settings from "@/pages/dashboard/Settings";
 import Help from "@/pages/dashboard/Help";
+import CustomProgram from "@/pages/dashboard/CustomProgram";
 
 // Legal pages
 import Terms from "@/pages/legal/Terms";
@@ -253,6 +254,14 @@ export function AnimatedRoutes() {
           element={
             <ProtectedRoute>
               <PageTransition><Help /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/custom-program"
+          element={
+            <ProtectedRoute>
+              <PageTransition><CustomProgram /></PageTransition>
             </ProtectedRoute>
           }
         />
