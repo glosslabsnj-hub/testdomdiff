@@ -442,9 +442,29 @@ Generate the comprehensive walkthrough script now.`;
       );
     }
 
-    // Validate minimum duration
-    if (scriptData.estimated_duration_seconds < 120) {
-      console.warn("Script too short, got:", scriptData.estimated_duration_seconds, "seconds");
+    // Calculate duration from script if AI didn't provide it or returned invalid value
+    let estimatedDuration = scriptData.estimated_duration_seconds;
+    
+    if (!estimatedDuration || estimatedDuration < 60) {
+      // Estimate duration: ~2.5 words per second (150 words per minute)
+      // Also count pauses: "..." = 1.5 sec, "... ..." = 3.5 sec, "... ... ..." = 7 sec
+      const scriptText = scriptData.script_text || "";
+      const wordCount = scriptText.split(/\s+/).filter((w: string) => w.length > 0 && !w.match(/^\.+$/)).length;
+      const shortPauses = (scriptText.match(/\.\.\.(?!\s*\.)/g) || []).length; // Single "..."
+      const mediumPauses = (scriptText.match(/\.\.\.\s+\.\.\./g) || []).length; // "... ..."
+      const longPauses = (scriptText.match(/\.\.\.\s+\.\.\.\s+\.\.\./g) || []).length; // "... ... ..."
+      
+      const speechDuration = wordCount / 2.5; // ~2.5 words per second
+      const pauseDuration = (shortPauses * 1.5) + (mediumPauses * 3.5) + (longPauses * 7);
+      
+      estimatedDuration = Math.round(speechDuration + pauseDuration);
+      console.log(`Calculated duration: ${wordCount} words + pauses = ${estimatedDuration} seconds`);
+    }
+
+    // Ensure minimum reasonable duration
+    if (estimatedDuration < 120) {
+      console.warn("Script duration too short, got:", estimatedDuration, "seconds - setting to minimum 180");
+      estimatedDuration = 180;
     }
 
     // Update the video record if video_id provided
@@ -458,13 +478,15 @@ Generate the comprehensive walkthrough script now.`;
         .update({
           script_text: scriptData.script_text,
           caption_lines: scriptData.caption_lines,
-          duration_seconds: scriptData.estimated_duration_seconds,
+          duration_seconds: estimatedDuration,
           status: "generating_audio",
         })
         .eq("id", video_id);
     }
 
-    console.log("Detailed script generated successfully, duration:", scriptData.estimated_duration_seconds, "seconds");
+    // Return the corrected duration in the response
+    scriptData.estimated_duration_seconds = estimatedDuration;
+    console.log("Detailed script generated successfully, duration:", estimatedDuration, "seconds");
 
     return new Response(
       JSON.stringify(scriptData),
