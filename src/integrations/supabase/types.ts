@@ -2303,6 +2303,36 @@ export type Database = {
           },
         ]
       }
+      user_week_plans: {
+        Row: {
+          created_at: string
+          generated_from_intake: boolean | null
+          id: string
+          plan_data: Json
+          updated_at: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          generated_from_intake?: boolean | null
+          id?: string
+          plan_data?: Json
+          updated_at?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          generated_from_intake?: boolean | null
+          id?: string
+          plan_data?: Json
+          updated_at?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
       warden_conversations: {
         Row: {
           created_at: string | null

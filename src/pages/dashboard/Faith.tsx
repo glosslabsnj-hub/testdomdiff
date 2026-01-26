@@ -387,13 +387,20 @@ const Faith = () => {
                     <div className="space-y-4">
                       {reflectionQuestions.map((question, index) => (
                         <div key={index} className="p-4 bg-charcoal rounded-lg">
-                          <p className="text-sm font-medium mb-2">{question}</p>
-                          <Textarea
-                            value={reflectionAnswers[question] || ""}
-                            onChange={(e) => saveReflection(question, e.target.value)}
-                            placeholder="Your answer..."
-                            className="min-h-[80px]"
-                          />
+                          <div className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                              {index + 1}
+                            </span>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium mb-2">{question}</p>
+                              <Textarea
+                                value={reflectionAnswers[question] || ""}
+                                onChange={(e) => saveReflection(question, e.target.value)}
+                                placeholder="Your answer..."
+                                className="min-h-[80px]"
+                              />
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -481,6 +488,9 @@ const Faith = () => {
                               : "bg-charcoal border-border hover:border-primary/50"
                           }`}
                         >
+                          <span className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            {index + 1}
+                          </span>
                           {isCompleted ? (
                             <CheckCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                           ) : (

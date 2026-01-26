@@ -14,6 +14,7 @@ import { AuditSitemap } from "@/components/admin/AuditSitemap";
 import { PrisonJourneyBlueprint } from "@/components/admin/PrisonJourneyBlueprint";
 
 type CheckStatus = "pass" | "warn" | "fail";
+type Severity = "critical" | "high" | "medium" | "low";
 
 interface AuditCheck {
   id: string;
@@ -22,6 +23,8 @@ interface AuditCheck {
   details: string;
   route?: string;
   fixStatus: "done" | "pending" | "n/a";
+  severity?: Severity;
+  lastUpdated?: string;
 }
 
 interface AuditCategory {
@@ -48,12 +51,12 @@ export default function AuditReport() {
       name: "Authentication & Access",
       icon: <Shield className="h-5 w-5" />,
       checks: [
-        { id: "auth-1", name: "Login/Signup flow functional", status: "pass", details: "Email/password auth working via Supabase", route: "/login", fixStatus: "done" },
-        { id: "auth-2", name: "Password reset flow", status: "pass", details: "Forgot password and reset password pages exist and use Supabase auth", route: "/forgot-password", fixStatus: "done" },
-        { id: "auth-3", name: "Protected routes enforced", status: "pass", details: "ProtectedRoute component wraps all dashboard routes", route: "/dashboard", fixStatus: "done" },
-        { id: "auth-4", name: "Role-based access (Admin)", status: "pass", details: "Admin check via user_roles table with has_role() function", route: "/admin", fixStatus: "done" },
-        { id: "auth-5", name: "Session persistence", status: "pass", details: "AuthContext uses onAuthStateChange listener", fixStatus: "done" },
-        { id: "auth-6", name: "RLS policies configured", status: "warn", details: "3 overly permissive policies detected - review needed", fixStatus: "pending" },
+        { id: "auth-1", name: "Login/Signup flow functional", status: "pass", details: "Email/password auth working via Supabase", route: "/login", fixStatus: "done", severity: "critical", lastUpdated: "2024-01-20" },
+        { id: "auth-2", name: "Password reset flow", status: "pass", details: "Forgot password and reset password pages exist and use Supabase auth", route: "/forgot-password", fixStatus: "done", severity: "high", lastUpdated: "2024-01-20" },
+        { id: "auth-3", name: "Protected routes enforced", status: "pass", details: "ProtectedRoute component wraps all dashboard routes", route: "/dashboard", fixStatus: "done", severity: "critical", lastUpdated: "2024-01-20" },
+        { id: "auth-4", name: "Role-based access (Admin)", status: "pass", details: "Admin check via user_roles table with has_role() function", route: "/admin", fixStatus: "done", severity: "critical", lastUpdated: "2024-01-20" },
+        { id: "auth-5", name: "Session persistence", status: "pass", details: "AuthContext uses onAuthStateChange listener", fixStatus: "done", severity: "high", lastUpdated: "2024-01-20" },
+        { id: "auth-6", name: "RLS policies configured", status: "warn", details: "3 overly permissive policies detected - review needed", fixStatus: "pending", severity: "critical", lastUpdated: "2024-01-26" },
       ],
     },
     {
@@ -203,6 +206,20 @@ export default function AuditReport() {
     }
   };
 
+  const getSeverityBadge = (severity?: Severity) => {
+    if (!severity) return null;
+    switch (severity) {
+      case "critical":
+        return <Badge className="bg-destructive/20 text-destructive border-destructive/30 text-xs">Critical</Badge>;
+      case "high":
+        return <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs">High</Badge>;
+      case "medium":
+        return <Badge className="bg-warning/20 text-warning border-warning/30 text-xs">Medium</Badge>;
+      case "low":
+        return <Badge className="bg-muted text-muted-foreground border-border text-xs">Low</Badge>;
+    }
+  };
+
   const getCategorySummary = (category: AuditCategory) => {
     const passed = category.checks.filter((c) => c.status === "pass").length;
     const warned = category.checks.filter((c) => c.status === "warn").length;
@@ -338,10 +355,16 @@ export default function AuditReport() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-medium text-foreground">{check.name}</span>
+                                {getSeverityBadge(check.severity)}
                                 {getStatusBadge(check.status)}
                                 {getFixStatusBadge(check.fixStatus)}
                               </div>
                               <p className="text-sm text-muted-foreground mt-1">{check.details}</p>
+                              {check.lastUpdated && (
+                                <p className="text-xs text-muted-foreground/60 mt-0.5">
+                                  Last updated: {check.lastUpdated}
+                                </p>
+                              )}
                             </div>
                             {check.route && (
                               <Link
