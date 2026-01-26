@@ -199,7 +199,8 @@ serve(async (req) => {
         // Explicitly re-save script data to ensure it persists through the pipeline
         script_text: scriptData.script_text,
         caption_lines: scriptData.caption_lines,
-        duration_seconds: scriptData.estimated_duration_seconds,
+        // Round to integer - database column is integer type
+        duration_seconds: Math.round(scriptData.estimated_duration_seconds || 0),
       })
       .eq("id", videoId)
       .select()
