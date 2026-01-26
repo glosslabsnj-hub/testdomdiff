@@ -7,13 +7,51 @@ import { Loader2 } from "lucide-react";
 interface ProtectedRouteProps {
   children: ReactNode;
   requireIntake?: boolean;
+  requireAdmin?: boolean;
 }
 
-const ProtectedRoute = ({ children, requireIntake = true }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }: ProtectedRouteProps) => {
   const { user, loading, hasAccess, profile, subscription, refreshSubscription } = useAuth();
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [adminCheckComplete, setAdminCheckComplete] = useState(!requireAdmin);
+
+  // Check admin role if required
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!requireAdmin || !user) {
+        setAdminCheckComplete(true);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error checking admin role:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!data);
+        }
+      } catch (e) {
+        console.error('Admin check error:', e);
+        setIsAdmin(false);
+      } finally {
+        setAdminCheckComplete(true);
+      }
+    };
+
+    if (user && requireAdmin) {
+      checkAdminRole();
+    }
+  }, [user, requireAdmin]);
 
   // Check if this is a fresh signup that needs subscription verification
   useEffect(() => {
@@ -61,17 +99,20 @@ const ProtectedRoute = ({ children, requireIntake = true }: ProtectedRouteProps)
       intakeCompleted: !!profile?.intake_completed_at,
       videoWatched: !!profile?.first_login_video_watched,
       isVerifying,
-      verificationComplete
+      verificationComplete,
+      requireAdmin,
+      isAdmin,
+      adminCheckComplete
     });
   }
 
-  // Show loading during initial auth load or subscription verification
-  if (loading || isVerifying) {
+  // Show loading during initial auth load, subscription verification, or admin check
+  if (loading || isVerifying || !adminCheckComplete) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
         <p className="text-muted-foreground">
-          {isVerifying ? "Verifying your subscription..." : "Loading your dashboard..."}
+          {isVerifying ? "Verifying your subscription..." : "Loading..."}
         </p>
       </div>
     );
@@ -82,18 +123,23 @@ const ProtectedRoute = ({ children, requireIntake = true }: ProtectedRouteProps)
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // No valid subscription (only redirect if not a fresh signup still being processed)
-  if (!hasAccess) {
+  // Admin check - block non-admins from admin routes BEFORE any data loads
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // No valid subscription (only check for non-admin routes)
+  if (!requireAdmin && !hasAccess) {
     return <Navigate to="/access-expired" replace />;
   }
 
-  // Check if intake is completed (for dashboard routes)
-  if (requireIntake && !profile?.intake_completed_at) {
+  // Check if intake is completed (for dashboard routes, not admin)
+  if (requireIntake && !requireAdmin && !profile?.intake_completed_at) {
     return <Navigate to="/intake" replace />;
   }
 
-  // Check if onboarding video is completed (for dashboard routes)
-  if (requireIntake && !profile?.first_login_video_watched) {
+  // Check if onboarding video is completed (for dashboard routes, not admin)
+  if (requireIntake && !requireAdmin && !profile?.first_login_video_watched) {
     return <Navigate to="/onboarding" replace />;
   }
 

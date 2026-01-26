@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Clock, RefreshCw, ArrowRight, LogOut } from "lucide-react";
+import { Clock, RefreshCw, ArrowRight, LogOut, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useToast } from "@/hooks/use-toast";
 
 const AccessExpired = () => {
   const navigate = useNavigate();
-  const { user, subscription, signOut, hasAccess } = useAuth();
+  const { toast } = useToast();
+  const { user, subscription, signOut, hasAccess, refreshSubscription } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // If user regains access, redirect to dashboard
   useEffect(() => {
@@ -22,6 +25,27 @@ const AccessExpired = () => {
     setIsLoading(true);
     await signOut();
     navigate("/");
+  };
+
+  const handleRefreshAccess = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshSubscription();
+      toast({
+        title: "Access checked",
+        description: hasAccess 
+          ? "Your access has been restored! Redirecting..." 
+          : "No active subscription found. Contact support if you believe this is an error.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to check subscription. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const getExpiredMessage = () => {
@@ -107,6 +131,26 @@ const AccessExpired = () => {
                 </Button>
               </Link>
 
+              {/* Refresh Access Button */}
+              <Button
+                variant="secondary"
+                onClick={handleRefreshAccess}
+                disabled={isRefreshing}
+                className="w-full gap-2"
+              >
+                {isRefreshing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4" />
+                    Refresh My Access
+                  </>
+                )}
+              </Button>
+
               <Button
                 variant="ghost"
                 onClick={handleSignOut}
@@ -121,7 +165,15 @@ const AccessExpired = () => {
             {/* Support info */}
             <div className="mt-12 p-6 bg-card rounded-lg border border-border">
               <p className="text-sm text-muted-foreground">
-                Need help? Contact us at{" "}
+                Just made a payment?{" "}
+                <button 
+                  onClick={handleRefreshAccess}
+                  disabled={isRefreshing}
+                  className="text-primary hover:underline font-medium"
+                >
+                  Click here to refresh your access
+                </button>
+                . If issues persist, contact us at{" "}
                 <a href="mailto:support@domdifferent.com" className="text-primary hover:underline">
                   support@domdifferent.com
                 </a>
