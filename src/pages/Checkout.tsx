@@ -72,6 +72,22 @@ const Checkout = () => {
     if (error) throw error;
   };
 
+  // Verify subscription exists and is readable before navigation
+  const verifySubscription = async (userId: string, maxAttempts = 5): Promise<boolean> => {
+    for (let i = 0; i < maxAttempts; i++) {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("id, status")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .maybeSingle();
+      
+      if (data) return true;
+      await new Promise(r => setTimeout(r, 300));
+    }
+    return false;
+  };
+
   const handleCheckout = async () => {
     setIsProcessing(true);
     try {
@@ -87,6 +103,16 @@ const Checkout = () => {
 
       // Dev mode: create subscription for existing logged-in user
       await createDevSubscription(user.id, plan);
+      
+      // Verify subscription is readable before proceeding
+      const verified = await verifySubscription(user.id);
+      if (!verified) {
+        throw new Error("Subscription verification timed out");
+      }
+      
+      // Mark fresh signup for ProtectedRoute safety net
+      sessionStorage.setItem("rs_fresh_signup", "true");
+      
       await refreshSubscription();
 
       // Keep your required flow: intake must be completed after purchase
