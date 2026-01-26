@@ -45,7 +45,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
     ],
     detailedSteps: [
       { step: "Check out your Cell Block", location: "Dashboard", details: "This is your cell. These tiles show what you GOT and what you DON'T. You're in isolation, so it's stripped down.", time: "30 sec" },
-      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "This is your orientation checklist. Complete every item or you're already slipping.", time: "2 min" },
+      { step: "Hit 'Intake Processing' first", location: "Intake Processing tile", details: "See that tile that says 'Intake Processing'? That's your Week 0 orientation. Complete every item on that checklist or you're already slipping.", time: "2 min" },
       { step: "Set up Lights On / Lights Out", location: "Discipline page", details: "Your daily structure. Morning routine, evening routine. Tap the times to set them to YOUR schedule. This is non-negotiable.", time: "3 min" },
       { step: "Customize your routine times", location: "Discipline page", details: "Tap on any time like '5:30 AM' to change it. Match it to when you actually wake up.", time: "1 min" },
       { step: "Browse Yard Time workouts", location: "Workouts page", details: "4 templates. That's it. Push, Pull, Legs, Full Body. All bodyweight. No gym needed. No excuses accepted.", time: "3 min" },
@@ -99,7 +99,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
     ],
     detailedSteps: [
       { step: "Check out your Cell Block", location: "Dashboard", details: "This is Gen Pop. Full access. Training, nutrition, faith, community - all unlocked.", time: "30 sec" },
-      { step: "Hit 'Welcome Home' first", location: "Start Here tile", details: "Complete this orientation checklist. Every item. Get fully set up.", time: "2 min" },
+      { step: "Hit 'Intake Processing' first", location: "Intake Processing tile", details: "See that 'Intake Processing' tile? That's your Week 0 orientation. Complete every item on that checklist. Get fully set up.", time: "2 min" },
       { step: "Open THE SENTENCE", location: "Program page", details: "This is your 12-week structured program. Not templates - a REAL progressive program.", time: "3 min" },
       { step: "Understand the 3 phases", location: "Program overview", details: "Foundation (1-4) builds your base. Building (5-8) ramps intensity. Peak (9-12) is maximum performance. Trust the process.", time: "2 min" },
       { step: "Expand Week 1", location: "Week 1 card", details: "See every daily workout for Week 1. Each day has a specific focus. Follow the order.", time: "1 min" },
@@ -239,7 +239,8 @@ This person is in ISOLATION - the entry-level tier. They have LIMITED access.
 - They're LOCKED OUT of: The Chapel, The Yard, The Sentence, Chow Hall personalization, Work Release
 - They ONLY have: Yard Time (4 bodyweight workouts), Basic Rations, Discipline routines, Roll Call, Progress photos
 - NARRATIVE: They're proving themselves before earning more access. Stripped down to basics.
-- TERMINOLOGY: "Cell Block", "Yard Time", "Basic Rations", "Time Served", "Roll Call", "Ask the Warden"
+- TERMINOLOGY: "Cell Block", "Intake Processing" (NOT "Welcome Home"), "Yard Time", "Basic Rations", "Time Served", "Roll Call", "Ask the Warden"
+- IMPORTANT: The orientation tile is called "INTAKE PROCESSING" for Solitary - NOT "Welcome Home". Use that exact name.
 - TONE: Acknowledge their limitations but emphasize they're building foundation. Tease what they could unlock.
 - CRITICAL: Mention locked features and upgrade path at the end`
       : tier_key === "transformation"
@@ -248,7 +249,8 @@ This person is in GEN POP - the FULL 12-week transformation program. They have F
 - They have UNLOCKED: The Sentence (12-week program), Chow Hall (personalized nutrition), The Chapel (faith), The Yard (community), Work Release (skills)
 - This is the CORE experience - structured progression, brotherhood, complete transformation
 - NARRATIVE: They're doing their sentence with everything they need. Full access to the yard, the chapel, the program.
-- TERMINOLOGY: "The Sentence", "Chow Hall", "The Chapel", "The Yard", "Roll Call", "Time Served", "Work Release", "Ask the Warden"
+- TERMINOLOGY: "The Sentence", "Intake Processing" (NOT "Welcome Home"), "Chow Hall", "The Chapel", "The Yard", "Roll Call", "Time Served", "Work Release", "Ask the Warden"
+- IMPORTANT: The orientation tile is called "INTAKE PROCESSING" for Gen Pop - NOT "Welcome Home". Use that exact name.
 - TONE: Emphasize the STRUCTURE of the 12-week program. Foundation → Building → Peak. Community support.
 - CRITICAL: Highlight the 3-phase program structure and community aspect`
       : `=== FREE WORLD IDENTITY ===
@@ -256,7 +258,8 @@ This person is FREE - the VIP coaching tier. They're OUT of the system, on proba
 - They have VIP ACCESS: Coaching Portal (1:1 calls with Dom), Direct Line (personal messaging), Custom Program, Empire Building
 - They get EVERYTHING from Gen Pop PLUS personal attention from Coach Dom
 - NARRATIVE: They made it out. Now they're building their empire with personal guidance.
-- TERMINOLOGY: "Your P.O." (not Warden), "Daily Structure", "Meal Planning", "Coaching Portal", "Direct Line", "Empire Building", "The Network"
+- TERMINOLOGY: "Your P.O." (not Warden), "Welcome Home" (ONLY Free World uses this - it's their orientation tile), "Daily Structure", "Meal Planning", "Coaching Portal", "Direct Line", "Empire Building", "The Network"
+- IMPORTANT: The orientation tile is called "WELCOME HOME" for Free World - ONLY this tier uses that name. Others use "Intake Processing".
 - TONE: Professional mentorship. They paid for VIP - emphasize the PERSONAL access to Dom.
 - CRITICAL: The Coaching Portal and Direct Line are the crown jewels. Book that first call.`;
 
