@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, password, firstName, lastName, planType, isAdmin } = await req.json();
+    const { email, password, firstName, lastName, planType, isAdmin, action, userId: deleteUserId } = await req.json();
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -19,6 +19,20 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
+
+    // Handle delete action
+    if (action === "delete" && deleteUserId) {
+      const { error: deleteError } = await supabase.auth.admin.deleteUser(deleteUserId);
+      if (deleteError) {
+        return new Response(JSON.stringify({ error: deleteError.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, message: `User ${deleteUserId} deleted` }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Step 1: Create the user via admin API
     const { data: userData, error: userError } = await supabase.auth.admin.createUser({
