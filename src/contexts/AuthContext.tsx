@@ -28,6 +28,8 @@ interface Profile {
   faith_commitment: boolean | null;
   intake_completed_at: string | null;
   onboarding_video_watched: boolean | null;
+  first_login_video_watched: boolean | null;
+  dashboard_video_watched: boolean | null;
   created_at: string;
   display_name: string | null;
   display_name_preference: string | null;
