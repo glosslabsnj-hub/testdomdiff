@@ -18,6 +18,9 @@ const VOICE_MAP = {
 };
 
 // Voice settings per persona
+// - Solitary (membership): Normal pace for basic walkthrough
+// - Gen Pop (transformation): Slower pace (0.85) so user can follow screen recording
+// - Free World (coaching): Slower pace (0.85) so user can follow screen recording
 const VOICE_SETTINGS = {
   membership: { 
     stability: 0.7, 
@@ -31,14 +34,14 @@ const VOICE_SETTINGS = {
     similarity_boost: 0.75, 
     style: 0.4, 
     use_speaker_boost: true, 
-    speed: 0.95 
+    speed: 0.85 // Slower for screen recording sync
   },
   coaching: { 
     stability: 0.65, 
     similarity_boost: 0.8, 
     style: 0.3, 
     use_speaker_boost: true, 
-    speed: 1.0 
+    speed: 0.85 // Slower for screen recording sync
   },
 };
 
