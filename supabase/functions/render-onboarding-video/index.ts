@@ -260,9 +260,9 @@ function buildCreatomateSource(
           width: 150,
           height: 40,
           font_family: "Inter",
-          font_size: 18,
+          font_size: "18px",
           fill_color: COLORS.textMuted,
-          x_alignment: "right",
+          x_alignment: "100%",
         },
         // Tier badge
         {
@@ -273,10 +273,9 @@ function buildCreatomateSource(
           width: 300,
           height: 40,
           font_family: "Inter",
-          font_weight: 700,
-          font_size: 14,
+          font_weight: "700",
+          font_size: "14px",
           fill_color: COLORS.primary,
-          letter_spacing: "0.1em",
         },
         // Slide title
         {
@@ -287,20 +286,11 @@ function buildCreatomateSource(
           width: VIDEO_WIDTH * 0.75,
           height: 100,
           font_family: "Inter",
-          font_weight: 700,
-          font_size: 56,
+          font_weight: "700",
+          font_size: "56px",
           fill_color: COLORS.text,
-          x_alignment: "center",
-          y_alignment: "center",
-          animations: [
-            {
-              type: "text-slide",
-              time: 0,
-              duration: 0.4,
-              easing: "quadratic-out",
-              split: "word",
-            },
-          ],
+          x_alignment: "50%",
+          y_alignment: "50%",
         },
         // Subtitle (jail theme label)
         ...(slide.subtitle ? [{
@@ -311,10 +301,10 @@ function buildCreatomateSource(
           width: VIDEO_WIDTH * 0.6,
           height: 40,
           font_family: "Inter",
-          font_weight: 500,
-          font_size: 22,
+          font_weight: "500",
+          font_size: "22px",
           fill_color: COLORS.primary,
-          x_alignment: "center",
+          x_alignment: "50%",
         }] : []),
         // Bullets
         ...buildBulletElements(slide.bullets || [], VIDEO_HEIGHT * 0.52),
@@ -334,15 +324,15 @@ function buildCreatomateSource(
     width: VIDEO_WIDTH * 0.9,
     height: 80,
     font_family: "Inter",
-    font_weight: 600,
-    font_size: 32,
+    font_weight: "600",
+    font_size: "32px",
     fill_color: COLORS.text,
     background_color: "rgba(0,0,0,0.7)",
-    background_x_padding: 24,
-    background_y_padding: 12,
-    background_border_radius: 8,
-    x_alignment: "center",
-    y_alignment: "center",
+    background_x_padding: "24px",
+    background_y_padding: "12px",
+    background_border_radius: "8px",
+    x_alignment: "50%",
+    y_alignment: "50%",
   }));
 
   return {
@@ -372,18 +362,10 @@ function buildBulletElements(bullets: string[], startY: number) {
     width: VIDEO_WIDTH * 0.65,
     height: 50,
     font_family: "Inter",
-    font_weight: 400,
-    font_size: 28,
+    font_weight: "400",
+    font_size: "28px",
     fill_color: COLORS.textMuted,
-    x_alignment: "center",
-    animations: [
-      {
-        type: "fade",
-        time: 0.2 + i * 0.15,
-        duration: 0.3,
-        easing: "quadratic-out",
-      },
-    ],
+    x_alignment: "50%",
   }));
 }
 
