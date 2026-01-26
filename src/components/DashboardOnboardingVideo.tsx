@@ -7,6 +7,7 @@ import { useOnboardingVideo } from "@/hooks/useOnboardingVideo";
 import { OnboardingVideoPlayer } from "@/components/OnboardingVideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
 
 interface DashboardOnboardingVideoProps {
   tierKey: string;
@@ -14,28 +15,45 @@ interface DashboardOnboardingVideoProps {
 }
 
 export function DashboardOnboardingVideo({ tierKey, tierName }: DashboardOnboardingVideoProps) {
-  const { video, isLoading, isGenerating, isReady, needsGeneration, triggerGeneration } = useOnboardingVideo(tierKey);
+  const { video, isLoading: isAudioLoading, isGenerating, isReady: hasAiAudio, needsGeneration, triggerGeneration } = useOnboardingVideo(tierKey);
   const { profile } = useAuth();
   const [dismissed, setDismissed] = useState(false);
   const [hasWatched, setHasWatched] = useState(false);
 
-  // Check if user has already watched (using onboarding_video_watched for now)
+  // Check if walkthrough video has been uploaded by admin
+  const { data: welcomeVideos, isLoading: isVideosLoading } = useQuery({
+    queryKey: ["welcome-videos", tierKey],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("program_welcome_videos")
+        .select("video_url, walkthrough_video_url")
+        .eq("plan_type", tierKey)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+  });
+
+  const hasUploadedVideo = !!welcomeVideos?.video_url || !!welcomeVideos?.walkthrough_video_url;
+  const isLoading = isAudioLoading || isVideosLoading;
+
+  // Check if user has already watched
   useEffect(() => {
     if (profile?.onboarding_video_watched) {
       setHasWatched(true);
     }
   }, [profile]);
 
-  // Auto-trigger generation if needed and video doesn't exist
+  // Auto-trigger audio generation if needed (for walkthrough overlay)
   useEffect(() => {
-    if (needsGeneration && !isGenerating && !video?.error && !triggerGeneration.isPending) {
+    if (hasUploadedVideo && needsGeneration && !isGenerating && !video?.error && !triggerGeneration.isPending) {
       triggerGeneration.mutate(false);
     }
-  }, [needsGeneration, isGenerating, video?.error, triggerGeneration]);
+  }, [hasUploadedVideo, needsGeneration, isGenerating, video?.error, triggerGeneration]);
 
   const handleDismiss = async () => {
     setDismissed(true);
-    // Mark as watched in database
     if (profile?.user_id) {
       await supabase
         .from("profiles")
@@ -54,11 +72,11 @@ export function DashboardOnboardingVideo({ tierKey, tierName }: DashboardOnboard
     }
   };
 
-  // Don't show if dismissed or already watched (and not showing again)
+  // Don't show if dismissed
   if (dismissed) return null;
 
-  // Don't show if user explicitly watched before
-  if (hasWatched && !isReady) return null;
+  // Don't show if user explicitly watched before and no video ready to show
+  if (hasWatched && !hasUploadedVideo) return null;
 
   // Loading state
   if (isLoading) {
@@ -79,11 +97,11 @@ export function DashboardOnboardingVideo({ tierKey, tierName }: DashboardOnboard
     );
   }
 
-  // Generating state - show progress
-  if (isGenerating) {
+  // Generating audio state - show progress (only if we have uploaded video)
+  if (hasUploadedVideo && isGenerating) {
     const statusMessages: Record<string, string> = {
-      queued: "Preparing your personalized walkthrough...",
-      generating_script: "Writing your personalized script...",
+      queued: "Preparing voiceover for your walkthrough...",
+      generating_script: "Writing the narration script...",
       generating_audio: "Recording voiceover...",
       generating_captions: "Adding captions...",
     };
@@ -96,7 +114,7 @@ export function DashboardOnboardingVideo({ tierKey, tierName }: DashboardOnboard
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold mb-1">Building Your {tierName} Walkthrough</h3>
+              <h3 className="font-semibold mb-1">Preparing {tierName} Walkthrough</h3>
               <p className="text-sm text-muted-foreground mb-2">
                 {video?.status ? statusMessages[video.status] : "Starting..."}
               </p>
@@ -110,8 +128,8 @@ export function DashboardOnboardingVideo({ tierKey, tierName }: DashboardOnboard
     );
   }
 
-  // Ready - show the video player prominently
-  if (isReady && video?.audio_url) {
+  // Ready to show video player (when we have uploaded video)
+  if (hasUploadedVideo) {
     return (
       <div className="mb-8 relative">
         {/* Dismiss button */}

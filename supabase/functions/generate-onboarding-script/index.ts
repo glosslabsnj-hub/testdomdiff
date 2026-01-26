@@ -255,7 +255,7 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
 
 === CRITICAL RULES ===
 1. TARGET DURATION: ${targetDuration} seconds (${Math.round(targetDuration/60)} minutes) - this is a COMPREHENSIVE walkthrough
-2. PACING: Natural speaking pace, 140-160 words per minute. Don't rush.
+2. PACING: SLOW speaking pace, 120-130 words per minute. The user is following along with a screen recording, so give them time to see what you're describing.
 3. STRUCTURE: 
    - Opening welcome (20-30 sec)
    - Dashboard overview (30 sec)
@@ -265,8 +265,9 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
    - Strong call-to-action (15 sec)
 4. LANGUAGE: Simple, direct, no fluff. Max 12 words per sentence.
 5. PERSONALIZATION: Use "you" and "your" - make it personal
-6. PAUSES: Mark natural pauses with "..." 
+6. PAUSES: Mark natural pauses with "..." - ADD A "..." PAUSE BETWEEN EVERY MAJOR SECTION to give the user 2-3 seconds to see what's on screen before you move on.
 7. VISUAL SYNC: Each section should align with a screen_slide for visual sync
+8. BREATHING ROOM: After describing a screen or feature, pause with "..." to let the user absorb what they see.
 
 === OUTPUT FORMAT (valid JSON only) ===
 {
