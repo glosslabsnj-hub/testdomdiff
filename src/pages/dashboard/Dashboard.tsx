@@ -365,19 +365,19 @@ const Dashboard = () => {
     }
     
     if (isTransformation) {
-      // Gen Pop: Program-first, supporting features, then locked premium
+      // Gen Pop: The Sentence is primary focus, Yard Time moved near bottom (secondary workout library)
       return [
-        allTiles.startHere,
-        allTiles.program,
-        allTiles.workouts,
-        allTiles.discipline,
-        allTiles.nutrition,
-        allTiles.faith,
-        allTiles.checkIn,
-        allTiles.progress,
-        allTiles.photoGallery,
-        allTiles.skills,
-        allTiles.community,
+        allTiles.startHere,          // Intake Processing
+        allTiles.program,            // The Sentence - primary 12-week focus
+        allTiles.discipline,         // Lights On / Lights Out
+        allTiles.nutrition,          // Chow Hall
+        allTiles.faith,              // Chapel
+        allTiles.checkIn,            // Roll Call
+        allTiles.progress,           // Time Served
+        allTiles.photoGallery,       // Mugshots - visual tracking
+        allTiles.skills,             // Work Release
+        allTiles.community,          // The Yard (community)
+        allTiles.workouts,           // Yard Time - moved down (base feature)
         // Locked premium features
         lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!,
         lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!,
@@ -385,22 +385,22 @@ const Dashboard = () => {
       ];
     }
     
-    // Coaching (Free World): High-touch features prominent
+    // Coaching (Free World): VIP features right after orientation
     return [
-      allTiles.startHere,
-      allTiles.program,
-      allTiles.workouts,
-      allTiles.discipline,
-      allTiles.nutrition,
-      allTiles.faith,
-      allTiles.checkIn,
-      allTiles.progress,
-      allTiles.photoGallery,
-      allTiles.skills,
-      allTiles.community,
-      allTiles.messages,
-      allTiles.coaching,
-      allTiles.advancedSkills,
+      allTiles.startHere,       // Welcome Home
+      allTiles.coaching,        // Coaching Portal - VIP first
+      allTiles.messages,        // Direct Line - high-touch messaging
+      allTiles.program,         // Your Program
+      allTiles.workouts,        // Training Sessions
+      allTiles.discipline,      // Daily Structure
+      allTiles.nutrition,       // Meal Planning
+      allTiles.faith,           // Faith & Mindset
+      allTiles.checkIn,         // Weekly Report
+      allTiles.progress,        // Progress Report
+      allTiles.photoGallery,    // Photo Gallery
+      allTiles.skills,          // Career Building
+      allTiles.community,       // The Network
+      allTiles.advancedSkills,  // Entrepreneur Track
     ];
   };
   
