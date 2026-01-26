@@ -292,9 +292,8 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
    - What to do next (20-30 sec)
    - Strong closing / call-to-action (15 sec)
 5. LANGUAGE: Keep it real. Street talk but clear. Natural sentence length - not choppy.
-6. VISUAL SYNC: Add medium/long pauses when pointing to or demonstrating something visual
-7. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
-8. FLOW: Sound like a real person explaining, not a robot reading with pauses inserted
+6. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
+7. FLOW: Sound like a real person explaining, not a robot reading with pauses inserted
 
 === OUTPUT FORMAT (valid JSON only) ===
 {
@@ -303,17 +302,12 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
     {"text": "Caption text here.", "start": 0, "end": 3.5},
     {"text": "Next caption.", "start": 3.5, "end": 7.0}
   ],
-  "screen_slides": [
-    {"id": "dashboard-home", "screen": "dashboard-overview", "highlight_areas": [{"x": 15, "y": 10, "width": 30, "height": 25}], "start": 0, "end": 20, "zoom_level": 1.0}
-  ],
   "estimated_duration_seconds": ${targetDuration}
 }
 
 IMPORTANT:
-- caption_lines timing MUST sync with screen_slides timing
 - Total caption duration must equal estimated_duration_seconds
-- screen_slides must use the exact IDs and screens from the list above
-- highlight_areas should be {x, y, width, height} as percentages
+- Each caption line should be a natural spoken phrase (5-15 words)
 
 Generate the comprehensive walkthrough script now.`;
 
@@ -388,7 +382,6 @@ Generate the comprehensive walkthrough script now.`;
         .update({
           script_text: scriptData.script_text,
           caption_lines: scriptData.caption_lines,
-          screen_slides: scriptData.screen_slides || null,
           duration_seconds: scriptData.estimated_duration_seconds,
           status: "generating_audio",
         })

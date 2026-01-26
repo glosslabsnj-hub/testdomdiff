@@ -174,11 +174,6 @@ export default function TierOnboardingManager() {
                                 {video.voice_id === tier.expectedVoice ? "✓ Correct Voice" : "⚠ Wrong Voice"}
                               </Badge>
                             )}
-                            {video.screen_slides && Array.isArray(video.screen_slides) && video.screen_slides.length > 0 && (
-                              <Badge variant="outline" className="text-xs border-primary/30 text-primary">
-                                {video.screen_slides.length} slides
-                              </Badge>
-                            )}
                           </>
                         ) : (
                           <Badge variant="outline">Not Generated</Badge>
