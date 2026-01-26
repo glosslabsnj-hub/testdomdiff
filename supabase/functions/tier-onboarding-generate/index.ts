@@ -190,35 +190,70 @@ serve(async (req) => {
       .from("onboarding-assets")
       .getPublicUrl(srtPath);
 
-    // Step 4: Store duration estimate (actual audio duration would need audio analysis)
-    // For now, use the estimated duration from script word count
+    // Step 4: Store duration and SRT URL
     const durationSeconds = estimatedDuration;
 
-    // Mark as ready (video rendering would be Phase 2)
-    // For now, the system works with audio overlay on admin-uploaded walkthrough videos
-    const { data: finalVideo, error: finalError } = await supabase
+    await supabase
       .from("tier_onboarding_videos")
       .update({
-        status: "ready",
         captions_srt_url: srtUrlData.publicUrl,
         duration_seconds: durationSeconds,
-        // mp4_url would be set when video rendering is implemented
-        // thumbnail_url would be generated from video
       })
-      .eq("id", videoId)
-      .select()
-      .single();
+      .eq("id", videoId);
 
-    if (finalError) throw finalError;
+    // Step 5: Render video with Creatomate
+    console.log("Step 4: Rendering video...");
+    const renderResponse = await fetch(`${supabaseUrl}/functions/v1/render-onboarding-video`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify({ video_id: videoId }),
+    });
+
+    if (!renderResponse.ok) {
+      const renderError = await renderResponse.text();
+      console.error("Video rendering failed:", renderError);
+      
+      // Still mark as ready (audio works, video failed) - can use audio-only fallback
+      await supabase
+        .from("tier_onboarding_videos")
+        .update({ 
+          status: "ready", 
+          error: `Video render failed (audio available): ${renderError}` 
+        })
+        .eq("id", videoId);
+      
+      return new Response(
+        JSON.stringify({ 
+          warning: "Video render failed but audio is available",
+          details: renderError,
+          video_id: videoId,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const renderData = await renderResponse.json();
+    console.log("Video rendered successfully:", renderData.mp4_url);
+
+    // Fetch final video record
+    const { data: finalVideo } = await supabase
+      .from("tier_onboarding_videos")
+      .select("*")
+      .eq("id", videoId)
+      .single();
 
     console.log("Generation complete! Video ready:", videoId, "Duration:", durationSeconds, "s");
 
     return new Response(
       JSON.stringify({ 
         video: finalVideo, 
-        message: "Generation complete",
+        message: "Generation complete with video",
         duration_seconds: durationSeconds,
         word_count: scriptData.word_count,
+        mp4_url: renderData.mp4_url,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
