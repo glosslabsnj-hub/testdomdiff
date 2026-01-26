@@ -33,6 +33,7 @@ import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
 import { DashboardOnboardingVideo } from "@/components/DashboardOnboardingVideo";
+import { FirstLoginVideoModal } from "@/components/FirstLoginVideoModal";
 import { TodayFocusCard } from "@/components/dashboard/TodayFocusCard";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
 import {
@@ -136,6 +137,8 @@ const Dashboard = () => {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+  const [showFirstLoginVideo, setShowFirstLoginVideo] = useState(false);
+  const [firstLoginComplete, setFirstLoginComplete] = useState(false);
 
   // Calculate current week based on subscription start date
   const currentWeek = (() => {
@@ -147,6 +150,13 @@ const Dashboard = () => {
     }
     return 1;
   })();
+
+  // Check if first-login video should show
+  useEffect(() => {
+    if (profile && profile.first_login_video_watched === false && !firstLoginComplete) {
+      setShowFirstLoginVideo(true);
+    }
+  }, [profile, firstLoginComplete]);
 
   // Show welcome banner for new users (within 7 days of intake)
   useEffect(() => {
@@ -580,6 +590,19 @@ const Dashboard = () => {
         </div>
       </div>
       <OrientationModal />
+      
+      {/* First Login Video Modal - shows once on first access */}
+      {showFirstLoginVideo && profile && (
+        <FirstLoginVideoModal
+          tierKey={subscription?.plan_type || "membership"}
+          tierName={isCoaching ? "Free World" : isTransformation ? "General Population" : "Solitary Confinement"}
+          userId={profile.user_id}
+          onComplete={() => {
+            setShowFirstLoginVideo(false);
+            setFirstLoginComplete(true);
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 };
