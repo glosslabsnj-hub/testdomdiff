@@ -25,7 +25,7 @@ export default function CoachingClientList({
   loading,
 }: CoachingClientListProps) {
   return (
-    <div className="h-full flex flex-col bg-charcoal rounded-lg border border-border">
+    <div className="h-full flex flex-col bg-charcoal rounded-lg border border-border overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2 mb-3">

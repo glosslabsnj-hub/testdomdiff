@@ -211,6 +211,46 @@ export function useUpdateTemplate() {
 }
 
 // Assign a template to a client (copies structure to client_program_* tables)
+// Day order for program generation
+const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// Get workout day distribution based on days per week
+function getWorkoutDayDistribution(daysPerWeek: number): number[] {
+  switch (daysPerWeek) {
+    case 3:
+      return [0, 2, 4]; // Mon, Wed, Fri
+    case 4:
+      return [0, 1, 3, 4]; // Mon, Tue, Thu, Fri
+    case 5:
+      return [0, 1, 2, 4, 5]; // Mon, Tue, Wed, Fri, Sat
+    case 6:
+      return [0, 1, 2, 3, 4, 5]; // Mon-Sat
+    case 7:
+      return [0, 1, 2, 3, 4, 5, 6]; // All days
+    default:
+      return [0, 2, 4]; // Default to 3 days
+  }
+}
+
+// Get default workout names based on days per week and day index
+function getDefaultWorkoutNames(daysPerWeek: number): string[] {
+  switch (daysPerWeek) {
+    case 3:
+      return ["Full Body A", "Full Body B", "Full Body C"];
+    case 4:
+      return ["Upper Body A", "Lower Body A", "Upper Body B", "Lower Body B"];
+    case 5:
+      return ["Push", "Pull", "Legs", "Upper Body", "Lower Body"];
+    case 6:
+      return ["Push A", "Pull A", "Legs A", "Push B", "Pull B", "Legs B"];
+    case 7:
+      return ["Push", "Pull", "Legs", "Upper Body", "Lower Body", "Full Body", "Active Recovery"];
+    default:
+      return ["Full Body A", "Full Body B", "Full Body C"];
+  }
+}
+
+// Assign a template to a client (copies structure to client_program_* tables)
 export function useAssignTemplate() {
   const queryClient = useQueryClient();
 
@@ -220,14 +260,23 @@ export function useAssignTemplate() {
       templateId,
       suggestedCategoryId,
       matchScore,
+      trainingDaysPerWeek,
     }: {
       clientId: string;
       templateId: string;
       suggestedCategoryId?: string;
       matchScore?: number;
+      trainingDaysPerWeek?: number;
     }) => {
       // Get the current user as assigner
       const { data: { user } } = await supabase.auth.getUser();
+
+      // Get the template info
+      const { data: template } = await supabase
+        .from("program_templates")
+        .select("*")
+        .eq("id", templateId)
+        .single();
 
       // Record the assignment
       const { error: assignError } = await supabase
@@ -242,14 +291,12 @@ export function useAssignTemplate() {
 
       if (assignError) throw assignError;
 
-      // Get the template details
+      // Get the template weeks
       const { data: weeks } = await supabase
         .from("program_template_weeks")
         .select("*")
         .eq("template_id", templateId)
         .order("week_number");
-
-      if (!weeks) throw new Error("No weeks found for template");
 
       // Delete existing client program weeks
       await supabase
@@ -257,75 +304,122 @@ export function useAssignTemplate() {
         .delete()
         .eq("client_id", clientId);
 
-      // Copy weeks to client_program_weeks
-      for (const week of weeks) {
-        const { data: clientWeek, error: weekError } = await supabase
-          .from("client_program_weeks")
-          .insert({
-            client_id: clientId,
-            week_number: week.week_number,
-            title: week.title,
-            focus_description: week.focus_description,
-            phase: "custom",
-          })
-          .select()
-          .single();
-
-        if (weekError) throw weekError;
-
-        // Get days for this week
-        const { data: days } = await supabase
-          .from("program_template_days")
-          .select("*")
-          .eq("week_id", week.id)
-          .order("display_order");
-
-        if (!days) continue;
-
-        // Copy days to client_program_days
-        for (const day of days) {
-          const { data: clientDay, error: dayError } = await supabase
-            .from("client_program_days")
+      // If template has pre-built weeks, copy them
+      if (weeks && weeks.length > 0) {
+        for (const week of weeks) {
+          const { data: clientWeek, error: weekError } = await supabase
+            .from("client_program_weeks")
             .insert({
-              week_id: clientWeek.id,
-              day_of_week: day.day_of_week,
-              workout_name: day.workout_name,
-              workout_description: day.workout_description,
-              is_rest_day: day.is_rest_day,
-              display_order: day.display_order,
+              client_id: clientId,
+              week_number: week.week_number,
+              title: week.title,
+              focus_description: week.focus_description,
+              phase: "custom",
             })
             .select()
             .single();
 
-          if (dayError) throw dayError;
+          if (weekError) throw weekError;
 
-          // Get exercises for this day
-          const { data: exercises } = await supabase
-            .from("program_template_exercises")
+          // Get days for this week
+          const { data: days } = await supabase
+            .from("program_template_days")
             .select("*")
-            .eq("day_id", day.id)
+            .eq("week_id", week.id)
             .order("display_order");
 
-          if (!exercises || exercises.length === 0) continue;
+          if (!days) continue;
 
-          // Copy exercises to client_program_exercises
-          const clientExercises = exercises.map((ex) => ({
-            day_id: clientDay.id,
-            section_type: ex.section_type || "main",
-            exercise_name: ex.exercise_name,
-            sets: ex.sets,
-            reps_or_time: ex.reps_or_time,
-            rest: ex.rest,
-            notes: ex.notes,
-            demo_url: ex.demo_url,
-            display_order: ex.display_order,
-          }));
+          // Copy days to client_program_days
+          for (const day of days) {
+            const { data: clientDay, error: dayError } = await supabase
+              .from("client_program_days")
+              .insert({
+                week_id: clientWeek.id,
+                day_of_week: day.day_of_week,
+                workout_name: day.workout_name,
+                workout_description: day.workout_description,
+                is_rest_day: day.is_rest_day,
+                display_order: day.display_order,
+              })
+              .select()
+              .single();
 
-          const { error: exercisesError } = await supabase
-            .from("client_program_exercises")
-            .insert(clientExercises);
+            if (dayError) throw dayError;
 
-          if (exercisesError) throw exercisesError;
+            // Get exercises for this day
+            const { data: exercises } = await supabase
+              .from("program_template_exercises")
+              .select("*")
+              .eq("day_id", day.id)
+              .order("display_order");
+
+            if (!exercises || exercises.length === 0) continue;
+
+            // Copy exercises to client_program_exercises
+            const clientExercises = exercises.map((ex) => ({
+              day_id: clientDay.id,
+              section_type: ex.section_type || "main",
+              exercise_name: ex.exercise_name,
+              sets: ex.sets,
+              reps_or_time: ex.reps_or_time,
+              rest: ex.rest,
+              notes: ex.notes,
+              demo_url: ex.demo_url,
+              display_order: ex.display_order,
+            }));
+
+            const { error: exercisesError } = await supabase
+              .from("client_program_exercises")
+              .insert(clientExercises);
+
+            if (exercisesError) throw exercisesError;
+          }
+        }
+      } else {
+        // No pre-built weeks - generate 4-week structure
+        const daysPerWeek = template?.days_per_week || trainingDaysPerWeek || 4;
+        const workoutDayIndices = getWorkoutDayDistribution(daysPerWeek);
+        const workoutNames = getDefaultWorkoutNames(daysPerWeek);
+
+        for (let weekNum = 1; weekNum <= 4; weekNum++) {
+          // Create week
+          const { data: clientWeek, error: weekError } = await supabase
+            .from("client_program_weeks")
+            .insert({
+              client_id: clientId,
+              week_number: weekNum,
+              title: `Week ${weekNum}`,
+              focus_description: weekNum === 1 ? "Foundation Phase" : weekNum === 2 ? "Building Phase" : weekNum === 3 ? "Progression Phase" : "Peak Phase",
+              phase: "custom",
+            })
+            .select()
+            .single();
+
+          if (weekError) throw weekError;
+
+          // Create 7 days with appropriate workout/rest distribution
+          let workoutIndex = 0;
+          for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+            const isWorkoutDay = workoutDayIndices.includes(dayIndex);
+            const workoutName = isWorkoutDay
+              ? workoutNames[workoutIndex % workoutNames.length]
+              : "Rest Day";
+
+            if (isWorkoutDay) workoutIndex++;
+
+            const { error: dayError } = await supabase
+              .from("client_program_days")
+              .insert({
+                week_id: clientWeek.id,
+                day_of_week: DAY_ORDER[dayIndex],
+                workout_name: workoutName,
+                is_rest_day: !isWorkoutDay,
+                display_order: dayIndex,
+              });
+
+            if (dayError) throw dayError;
+          }
         }
       }
 
