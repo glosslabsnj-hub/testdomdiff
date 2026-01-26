@@ -50,7 +50,7 @@ export default function FreeWorldHub() {
           description="When you add coaching clients, they'll appear here for management."
         />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-280px)] min-h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)] overflow-hidden">
           {/* Client Sidebar */}
           <div className="lg:col-span-3">
             <CoachingClientList

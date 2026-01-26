@@ -100,6 +100,7 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
       templateId: selectedTemplateId,
       suggestedCategoryId: recommendedCategory?.category.id,
       matchScore: recommendedCategory?.score,
+      trainingDaysPerWeek: client.training_days_per_week || 4,
     });
 
     // Reset state and notify parent
@@ -321,7 +322,7 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
                 </div>
-              ) : templateDetails ? (
+              ) : templateDetails && templateDetails.weeks.length > 0 ? (
                 <div className="space-y-4">
                   {templateDetails.weeks.map((week) => {
                     const weekDays = templateDetails.days.filter(d => d.week_id === week.id);
@@ -361,7 +362,22 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Unable to load preview</p>
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <p className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="font-medium text-foreground">Auto-generated 4-week program</span>
+                  </p>
+                  <p>
+                    Based on {clientName}'s {client.training_days_per_week || 4} training days/week, 
+                    the system will create a structured program with:
+                  </p>
+                  <ul className="list-disc list-inside pl-2 space-y-1">
+                    <li>4 progressive weeks</li>
+                    <li>{client.training_days_per_week || 4} workout days per week</li>
+                    <li>{7 - (client.training_days_per_week || 4)} rest days per week</li>
+                    <li>Placeholder workouts ready for customization</li>
+                  </ul>
+                </div>
               )}
             </CardContent>
           </Card>

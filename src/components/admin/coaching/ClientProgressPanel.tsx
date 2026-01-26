@@ -140,7 +140,7 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
