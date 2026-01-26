@@ -1,9 +1,9 @@
 // Service Worker for Push Notifications & Caching
 // Redeemed Strength - Faith-Based Fitness
 
-const CACHE_NAME = "redeemed-strength-v2";
-const STATIC_CACHE = "rs-static-v1";
-const DYNAMIC_CACHE = "rs-dynamic-v1";
+const CACHE_NAME = "redeemed-strength-v3";
+const STATIC_CACHE = "rs-static-v2";
+const DYNAMIC_CACHE = "rs-dynamic-v2";
 
 // Assets to pre-cache
 const STATIC_ASSETS = [
@@ -51,13 +51,22 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (request.method !== "GET") return;
 
-  // Skip Supabase API calls - always network
+  // Skip Supabase API calls - always network (including storage/audio files)
   if (url.hostname.includes("supabase")) return;
 
   // Skip chrome-extension and other non-http
   if (!url.protocol.startsWith("http")) return;
 
-  // Static assets - cache first
+  // Skip audio/video files - always fetch fresh (prevents stale onboarding audio)
+  if (
+    request.destination === "audio" ||
+    request.destination === "video" ||
+    url.pathname.match(/\.(mp3|mp4|webm|wav|ogg|m4a)$/)
+  ) {
+    return;
+  }
+
+  // Static assets - cache first (excluding audio/video)
   if (
     request.destination === "image" ||
     request.destination === "font" ||
