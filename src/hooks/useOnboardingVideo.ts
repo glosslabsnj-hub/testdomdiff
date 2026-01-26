@@ -47,10 +47,19 @@ function parseScreenSlides(data: Json | null): ScreenSlide[] | null {
   return data as unknown as ScreenSlide[];
 }
 
-function transformVideoData(data: any): OnboardingVideo | null {
+function transformVideoData(data: any, configVersion?: number): OnboardingVideo | null {
   if (!data) return null;
+  
+  // Add cache-busting to audio_url to prevent stale cached audio
+  let audioUrl = data.audio_url;
+  if (audioUrl && data.updated_at) {
+    const cacheBuster = new Date(data.updated_at).getTime();
+    audioUrl = `${audioUrl}?v=${configVersion || 1}&t=${cacheBuster}`;
+  }
+  
   return {
     ...data,
+    audio_url: audioUrl,
     caption_lines: parseCaptionLines(data.caption_lines),
     screen_slides: parseScreenSlides(data.screen_slides),
   } as OnboardingVideo;
@@ -89,7 +98,7 @@ export function useOnboardingVideo(tierKey: string) {
         .maybeSingle();
 
       if (error) throw error;
-      return transformVideoData(data);
+      return transformVideoData(data, configVersion);
     },
     enabled: !!tierKey && !!configVersion,
     refetchInterval: (query) => {
@@ -180,7 +189,7 @@ export function useTierOnboardingVideos() {
 
   // Get all onboarding videos
   const { data: videos, isLoading, refetch } = useQuery({
-    queryKey: ["all-onboarding-videos"],
+    queryKey: ["all-onboarding-videos", configVersion],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("tier_onboarding_videos")
@@ -188,7 +197,7 @@ export function useTierOnboardingVideos() {
         .order("tier_key");
 
       if (error) throw error;
-      return (data || []).map(transformVideoData).filter(Boolean) as OnboardingVideo[];
+      return (data || []).map(d => transformVideoData(d, d.tier_config_version)).filter(Boolean) as OnboardingVideo[];
     },
     refetchInterval: (query) => {
       // Poll while any video is generating
