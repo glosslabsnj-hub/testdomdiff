@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,54 @@ const passwordSchema = z.object({
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
+
+// Sub-component for subscription refresh
+function RefreshSubscriptionButton() {
+  const { refreshSubscription } = useAuth();
+  const { toast } = useToast();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshSubscription();
+      toast({
+        title: "Subscription refreshed",
+        description: "Your subscription status has been updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh subscription. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleRefresh}
+      disabled={isRefreshing}
+      className="w-full gap-2"
+    >
+      {isRefreshing ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Checking...
+        </>
+      ) : (
+        <>
+          <RefreshCw className="h-4 w-4" />
+          Refresh Subscription Status
+        </>
+      )}
+    </Button>
+  );
+}
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -838,6 +886,10 @@ export default function Settings() {
                   {profile?.user_id?.slice(0, 8)}...
                 </span>
               </div>
+              
+              <Separator className="my-3" />
+              
+              <RefreshSubscriptionButton />
             </CardContent>
           </Card>
 

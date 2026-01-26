@@ -275,11 +275,11 @@ export function AnimatedRoutes() {
           }
         />
 
-        {/* Admin routes */}
+        {/* Admin routes - require admin role */}
         <Route
           path="/admin"
           element={
-            <ProtectedRoute requireIntake={false}>
+            <ProtectedRoute requireIntake={false} requireAdmin={true}>
               <PageTransition><AdminDashboard /></PageTransition>
             </ProtectedRoute>
           }
@@ -287,7 +287,7 @@ export function AnimatedRoutes() {
         <Route
           path="/admin/audit"
           element={
-            <ProtectedRoute requireIntake={false}>
+            <ProtectedRoute requireIntake={false} requireAdmin={true}>
               <PageTransition><AuditReport /></PageTransition>
             </ProtectedRoute>
           }
