@@ -322,31 +322,51 @@ ${config.screenSlides.map((s, i) => `${i + 1}. [${s.id}] ${s.screen} - ${s.durat
 === CRITICAL RULES ===
 1. TARGET DURATION: ${targetDuration} seconds (${Math.round(targetDuration/60)} minutes) - comprehensive walkthrough
 2. PACING: Natural speaking pace, 110-120 words per minute. Conversational flow.
-3. SMART PAUSES - BE STRATEGIC, NOT ROBOTIC:
-   - SHORT pause "..." (1-2 sec): After a quick statement, natural breath
-   - MEDIUM pause "... ..." (3-4 sec): After explaining a feature or pointing to something on screen
-   - LONG pause "... ... ..." (6-8 sec): ONLY when transitioning to a COMPLETELY NEW SECTION
-   - DO NOT pause after every sentence - let it flow naturally like a real conversation
-   - PAUSE WHEN: Switching screens, pointing to a new area, after "click here/go to", between major topics
-   - DON'T PAUSE WHEN: Mid-explanation, building up a point, casual conversational flow
-   - GOOD EXAMPLE: "Aight, this right here is your dashboard. This where you see everything at once, feel me? Your workouts, your progress, all of it. ... ... Now peep this section over here. ... This your workout tracker. Click it and you can log what you did. ... ... ... Bet, let's move to nutrition."
-   - BAD EXAMPLE: "This is your dashboard. ... ... ... This is where you see things. ... ... ... Your workouts are here. ... ... ..." (too robotic)
+3. SMART PAUSES FOR SCREEN RECORDING SYNC - THIS IS CRITICAL:
+   The audio will be overlaid on a screen recording. You MUST include pauses to give time for demonstrating actions on screen.
+   
+   PAUSE SYNTAX:
+   - SHORT pause "..." (1-2 sec): After pointing to something, natural breath, quick visual reference
+   - MEDIUM pause "... ..." (3-4 sec): After saying "click here", "tap this", "look at this" - gives time to show the click
+   - LONG pause "... ... ..." (6-8 sec): When navigating to a NEW PAGE or demonstrating a multi-step action
+   
+   WHEN TO PAUSE (required for screen recording sync):
+   - AFTER saying "click", "tap", "open", "go to" - pause to show the action happening
+   - AFTER pointing to a UI element - pause to let viewer see it highlighted
+   - BEFORE transitioning to a new screen/page - pause for navigation animation
+   - AFTER demonstrating a completed action - pause to show the result
+   - When moving between major sections - longer pause for page transition
+   
+   EXAMPLES FOR SCREEN RECORDING:
+   - "Click on that Yard Time tile right there. ... ... See how it opens up? ... These are your four workout templates."
+   - "Tap that Discipline tile. ... ... ... Now you're on your daily routine page. ... Look at those morning habits."
+   - "Go ahead and open the Progress section. ... ... ... This where you upload your photos."
+   - "See that gold shield button? ... That's your Warden. Tap it whenever you need help. ... ..."
+   
+   BAD (no pauses for demo):
+   - "Click Yard Time and you'll see your workouts and then click one to see exercises" (no time to show actions)
+   
+   GOOD (pauses for each action):
+   - "Click Yard Time. ... ... Now you see your four workouts. ... Pick one - let's say Push Day. ... ... See all those exercises? That's your workout right there."
+
 4. STRUCTURE: 
    - Hood intro / what's up (15-20 sec)
-   - Dashboard quick overview (30-45 sec)  
-   - Feature-by-feature breakdown with smart pauses (2-3 min)
-   - How to get around / navigation (30-45 sec)
+   - Dashboard quick overview with pauses to point things out (30-45 sec)  
+   - Feature-by-feature breakdown with GENEROUS pauses for demonstrations (2-3 min)
+   - How to get around / navigation with action pauses (30-45 sec)
    - What to do next (20-30 sec)
    - Strong closing / call-to-action (15 sec)
 5. LANGUAGE: Keep it real. Street talk but clear. Natural sentence length - not choppy.
 6. PERSONALIZATION: Use "you" and "your" - make it personal, like you talking to your boy
-7. FLOW: Sound like a real person explaining, not a robot reading with pauses inserted
-8. NO SECTION ANNOUNCEMENTS - CRITICAL:
+7. FLOW: Sound like a real person explaining. Pauses should feel natural, not forced.
+8. ASSUME SCREEN RECORDING: Write as if you're narrating a video where someone is clicking through the app.
+   Say things like "See that right there?", "Click on this one", "Watch what happens when you tap this"
+9. NO SECTION ANNOUNCEMENTS - CRITICAL:
    - DO NOT say things like "Now let's talk about X" or "Next is your Y" or "Let's look at Z" or "Moving on to..."
    - BAD: "Now, let's look at your nutrition section. Your nutrition is..."
-   - GOOD: "Your nutrition, man, don't sleep on this. This is where..."
+   - GOOD: "Your nutrition, man, don't sleep on this. ... This is where..."
    - BAD: "Next up, we have the Discipline page. On this page..."
-   - GOOD: "Every morning, you gotta get up and handle your business. That's what Discipline is about..."
+   - GOOD: "Every morning, you gotta get up and handle your business. ... ... That's what Discipline is about..."
    - Just flow naturally into explaining each feature like you're talking, not reading headers
    - Never announce what you're about to explain - just explain it directly
    - Weave feature names INTO the explanation naturally, don't read them as titles
