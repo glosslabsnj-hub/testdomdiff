@@ -38,6 +38,7 @@ import SkillBuilding from "@/pages/dashboard/SkillBuilding";
 import AdvancedSkills from "@/pages/dashboard/AdvancedSkills";
 import DirectMessages from "@/pages/dashboard/DirectMessages";
 import Settings from "@/pages/dashboard/Settings";
+import Help from "@/pages/dashboard/Help";
 
 // Legal pages
 import Terms from "@/pages/legal/Terms";
@@ -244,6 +245,14 @@ export function AnimatedRoutes() {
           element={
             <ProtectedRoute>
               <PageTransition><Settings /></PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/help"
+          element={
+            <ProtectedRoute>
+              <PageTransition><Help /></PageTransition>
             </ProtectedRoute>
           }
         />

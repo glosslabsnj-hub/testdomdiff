@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Images,
+  HelpCircle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -257,10 +258,29 @@ export function DashboardSidebar() {
         {renderGroup("Growth", growthItems)}
         {premiumItems.length > 0 && renderGroup("Premium", premiumItems)}
         
-        {/* Settings at bottom */}
+        {/* Settings and Help at bottom */}
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive("/dashboard/help")}
+                  tooltip={collapsed ? "Help / CO Desk" : undefined}
+                >
+                  <Link
+                    to="/dashboard/help"
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+                      isActive("/dashboard/help") && "bg-primary/10 text-primary",
+                      !isActive("/dashboard/help") && "hover:bg-muted/50"
+                    )}
+                  >
+                    <HelpCircle className="w-5 h-5" />
+                    {!collapsed && <span className="text-sm font-medium">{isCoaching ? "Support" : "CO Desk"}</span>}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
