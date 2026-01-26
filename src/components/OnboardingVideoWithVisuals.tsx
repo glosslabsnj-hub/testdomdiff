@@ -5,10 +5,13 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Support both string and object formats for highlight areas
+type HighlightArea = string | { x: number; y: number; width: number; height: number };
+
 interface ScreenSlide {
   id: string;
   screen: string;
-  highlight_areas?: string[];
+  highlight_areas?: HighlightArea[];
   start: number;
   end: number;
   zoom_level?: number;
@@ -245,27 +248,63 @@ export function OnboardingVideoWithVisuals({
               </p>
             </motion.div>
 
-            {/* Highlight areas animation */}
-            {currentSlide?.highlight_areas?.map((area, idx) => (
-              <motion.div
-                key={`${currentSlide.id}-${area}-${idx}`}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ 
-                  opacity: [0.3, 0.6, 0.3],
-                  scale: [1, 1.05, 1],
-                }}
-                transition={{ 
-                  duration: 1.5, 
-                  repeat: Infinity, 
-                  delay: idx * 0.2 
-                }}
-                className="absolute bottom-20 left-1/2 -translate-x-1/2"
-              >
-                <div className="px-4 py-2 rounded-full bg-primary/20 border border-primary/40 backdrop-blur-sm">
-                  <span className="text-sm text-primary">{area.replace(/-/g, ' ')}</span>
-                </div>
-              </motion.div>
-            ))}
+            {/* Highlight areas animation - now uses object format {x, y, width, height} */}
+            {currentSlide?.highlight_areas?.filter(Boolean).map((area, idx) => {
+              // Handle both old string format and new object format
+              if (!area) return null;
+              const isObjectFormat = typeof area === 'object' && 'x' in area;
+              
+              if (isObjectFormat) {
+                // New object format with position data
+                const areaObj = area as { x: number; y: number; width: number; height: number };
+                return (
+                  <motion.div
+                    key={`${currentSlide.id}-highlight-${idx}`}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ 
+                      opacity: [0.4, 0.7, 0.4],
+                      scale: [1, 1.02, 1],
+                    }}
+                    transition={{ 
+                      duration: 2, 
+                      repeat: Infinity, 
+                      delay: idx * 0.3 
+                    }}
+                    className="absolute border-2 border-primary rounded-lg pointer-events-none"
+                    style={{
+                      left: `${areaObj.x}%`,
+                      top: `${areaObj.y}%`,
+                      width: `${areaObj.width}%`,
+                      height: `${areaObj.height}%`,
+                      boxShadow: '0 0 20px rgba(212, 175, 55, 0.4)',
+                    }}
+                  />
+                );
+              }
+              
+              // Old string format - display as label
+              const areaStr = String(area);
+              return (
+                <motion.div
+                  key={`${currentSlide.id}-${areaStr}-${idx}`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ 
+                    opacity: [0.3, 0.6, 0.3],
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{ 
+                    duration: 1.5, 
+                    repeat: Infinity, 
+                    delay: idx * 0.2 
+                  }}
+                  className="absolute bottom-20 left-1/2 -translate-x-1/2"
+                >
+                  <div className="px-4 py-2 rounded-full bg-primary/20 border border-primary/40 backdrop-blur-sm">
+                    <span className="text-sm text-primary">{areaStr.replace(/-/g, ' ')}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
 
             {/* Background branding */}
             <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
