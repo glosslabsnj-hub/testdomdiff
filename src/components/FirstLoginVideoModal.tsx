@@ -81,34 +81,51 @@ export function FirstLoginVideoModal({
     return () => clearInterval(timer);
   }, [isOpen]);
 
-  // Sync audio with walkthrough video
+  // Sync audio with walkthrough video - audio is source of truth
   useEffect(() => {
-    if (playbackPhase !== "walkthrough") return;
+    if (playbackPhase !== "walkthrough" || !onboardingAudio?.audio_url) return;
     
     const syncInterval = setInterval(() => {
-      if (walkthroughVideoRef.current && audioRef.current) {
-        const videoCurrent = walkthroughVideoRef.current.currentTime;
-        const audioCurrent = audioRef.current.currentTime;
-        const diff = Math.abs(videoCurrent - audioCurrent);
-        
-        if (diff > 0.5) {
-          walkthroughVideoRef.current.currentTime = audioRef.current.currentTime;
-        }
+      const video = walkthroughVideoRef.current;
+      const audio = audioRef.current;
+      
+      if (!video || !audio) return;
+      if (video.paused || audio.paused) return;
+      
+      const videoCurrent = video.currentTime;
+      const audioCurrent = audio.currentTime;
+      const diff = Math.abs(videoCurrent - audioCurrent);
+      
+      // Sync video to audio if more than 0.3s out of sync
+      if (diff > 0.3) {
+        console.log("[FirstLoginVideoModal] Syncing video to audio", { videoCurrent, audioCurrent, diff });
+        video.currentTime = audioCurrent;
       }
-    }, 1000);
+    }, 500);
 
     return () => clearInterval(syncInterval);
-  }, [playbackPhase]);
+  }, [playbackPhase, onboardingAudio?.audio_url]);
 
   const handleWelcomeVideoEnd = () => {
+    console.log("[FirstLoginVideoModal] Welcome video ended");
     if (videos?.walkthrough_video_url) {
       setPlaybackPhase("walkthrough");
       setTimeout(() => {
-        walkthroughVideoRef.current?.play();
-        if (audioRef.current && onboardingAudio?.audio_url) {
-          audioRef.current.play();
+        console.log("[FirstLoginVideoModal] Starting walkthrough playback", {
+          hasVideo: !!walkthroughVideoRef.current,
+          hasAudio: !!audioRef.current,
+          audioUrl: onboardingAudio?.audio_url,
+        });
+        
+        if (walkthroughVideoRef.current) {
+          walkthroughVideoRef.current.currentTime = 0;
+          walkthroughVideoRef.current.play().catch(console.error);
         }
-      }, 500);
+        if (audioRef.current && onboardingAudio?.audio_url) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.play().catch(console.error);
+        }
+      }, 300);
     } else {
       handleComplete();
     }
