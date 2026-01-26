@@ -327,15 +327,15 @@ export function OnboardingVideoPlayer({
     <Card className={cn("mb-8 bg-charcoal overflow-hidden", borderClass)}>
       <CardContent className="p-0">
         <div className="relative">
-          {/* Keep audio element mounted to improve mobile reliability */}
-          {hasAiAudio && onboardingData?.audio_url && (
-            <audio
-              ref={audioRef}
-              src={onboardingData.audio_url}
-              onEnded={handleWalkthroughEnd}
-              preload="auto"
-            />
-          )}
+          {/* ALWAYS mount audio element for mobile reliability - src updates when data loads */}
+          <audio
+            ref={audioRef}
+            src={onboardingData?.audio_url || ""}
+            onEnded={handleWalkthroughEnd}
+            preload="auto"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => !needsAudioTap && setIsPlaying(false)}
+          />
 
           {/* Welcome Video (Phase 1) */}
           {playbackPhase === "welcome" && welcomeVideoUrl && (
