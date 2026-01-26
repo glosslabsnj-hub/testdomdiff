@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-import { Lock, ArrowRight, ArrowLeft } from "lucide-react";
+import { Lock, ArrowRight, ArrowLeft, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useCoachingSpots } from "@/hooks/useCoachingSpots";
 
 interface UpgradePromptProps {
   feature: string;
@@ -8,6 +10,8 @@ interface UpgradePromptProps {
 }
 
 const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptProps) => {
+  const coachingSpots = useCoachingSpots();
+
   const upgradeDetails = {
     transformation: {
       name: "General Population",
@@ -39,6 +43,22 @@ const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptP
 
   const upgrade = upgradeDetails[upgradeTo];
 
+  // Scarcity messaging
+  const getScarcityMessage = () => {
+    if (upgradeTo === "coaching" && !coachingSpots.loading) {
+      if (coachingSpots.availableSpots <= 0) {
+        return { type: "sold-out", message: "Currently full - join waitlist" };
+      }
+      if (coachingSpots.availableSpots <= 3) {
+        return { type: "urgent", message: `Only ${coachingSpots.availableSpots} spot${coachingSpots.availableSpots > 1 ? 's' : ''} left!` };
+      }
+      return { type: "limited", message: `${coachingSpots.availableSpots} of ${coachingSpots.totalSpots} spots available` };
+    }
+    return null;
+  };
+
+  const scarcity = getScarcityMessage();
+
   return (
     <div className="min-h-screen bg-background">
       <div className="section-container py-12">
@@ -62,25 +82,53 @@ const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptP
             This feature is only available for {upgrade.name} members. Upgrade to unlock access and take your transformation to the next level.
           </p>
 
-          <div className="bg-card p-8 rounded-lg border border-border mb-8">
-            <p className="text-xs text-primary uppercase tracking-wider mb-2">Upgrade to</p>
-            <h2 className="headline-card text-2xl mb-4">{upgrade.name}</h2>
-            <p className="text-3xl font-display text-primary mb-6">{upgrade.price}</p>
+          <div className="bg-card p-8 rounded-lg border border-border mb-8 relative overflow-hidden">
+            {/* Scarcity Banner */}
+            {scarcity && scarcity.type !== "sold-out" && (
+              <div className={`absolute top-0 left-0 right-0 py-2 px-4 text-center text-sm font-medium ${
+                scarcity.type === "urgent" 
+                  ? "bg-destructive/20 text-destructive border-b border-destructive/30" 
+                  : "bg-primary/10 text-primary border-b border-primary/30"
+              }`}>
+                <div className="flex items-center justify-center gap-2">
+                  {scarcity.type === "urgent" ? (
+                    <Clock className="w-4 h-4" />
+                  ) : (
+                    <Users className="w-4 h-4" />
+                  )}
+                  {scarcity.message}
+                </div>
+              </div>
+            )}
 
-            <ul className="space-y-3 text-left mb-8">
-              {upgrade.benefits.map((benefit, i) => (
-                <li key={i} className="flex items-center gap-3 text-muted-foreground">
-                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                  {benefit}
-                </li>
-              ))}
-            </ul>
+            <div className={scarcity && scarcity.type !== "sold-out" ? "pt-8" : ""}>
+              <p className="text-xs text-primary uppercase tracking-wider mb-2">Upgrade to</p>
+              <h2 className="headline-card text-2xl mb-4">{upgrade.name}</h2>
+              
+              {upgradeTo === "coaching" && (
+                <Badge variant="outline" className="mb-4 border-crimson text-crimson">
+                  Limited to 10 Men
+                </Badge>
+              )}
+              
+              <p className="text-3xl font-display text-primary mb-6">{upgrade.price}</p>
 
-            <Button variant="gold" size="lg" className="w-full" asChild>
-              <Link to={upgrade.href}>
-                Upgrade Now <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
+              <ul className="space-y-3 text-left mb-8">
+                {upgrade.benefits.map((benefit, i) => (
+                  <li key={i} className="flex items-center gap-3 text-muted-foreground">
+                    <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
+
+              <Button variant="gold" size="lg" className="w-full" asChild>
+                <Link to={upgrade.href}>
+                  {scarcity?.type === "sold-out" ? "Join Waitlist" : "Upgrade Now"} 
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           <p className="text-sm text-muted-foreground">
