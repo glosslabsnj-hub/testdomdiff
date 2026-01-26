@@ -1,124 +1,77 @@
 
-# Add Manual Audio Upload for Walkthrough Videos
+# Fix: Onboarding.tsx Not Using Manual Audio Uploads
 
-## Overview
+## Root Cause
 
-Add the ability to upload a custom audio file for each tier's walkthrough video directly in the admin dashboard. This gives you full control over the audio narration, bypassing the AI-generated audio system when needed.
+The `Onboarding.tsx` page (the mandatory fullscreen orientation for new users) is NOT fetching the manually-uploaded audio from `program_welcome_videos.walkthrough_audio_url`. Instead, it only fetches the AI-generated audio from `tier_onboarding_videos`.
 
----
-
-## Architecture Decision
-
-**Two options for storing manual audio:**
-
-| Option | Pros | Cons |
-|--------|------|------|
-| A. Add to `program_welcome_videos` table | Simpler, co-located with walkthrough video | Different from AI audio location |
-| B. Add to `tier_onboarding_videos` table | Audio stays together (AI + manual) | Requires migration + more complex logic |
-
-**Recommended: Option A** - Add `walkthrough_audio_url` column to `program_welcome_videos` table. This keeps the manual uploads together (video + audio) and is simpler to implement.
-
----
-
-## Database Changes
-
-Add a new column to `program_welcome_videos`:
-
-```sql
-ALTER TABLE program_welcome_videos 
-ADD COLUMN walkthrough_audio_url TEXT;
-```
-
----
-
-## Storage
-
-Use the existing `tier-walkthroughs` bucket (already public) to store audio files alongside walkthrough videos.
-
-**File path pattern:** `{tierKey}/audio-{timestamp}.mp3`
-
----
-
-## UI Changes (WelcomeVideosManager.tsx)
-
-Add an audio upload section inside the "Walkthrough Video" tab for each tier:
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│  Walkthrough Video Tab                                  │
-├─────────────────────────────────────────────────────────┤
-│  [Screen Recording Walkthrough]                         │
-│  📹 Video Preview (if uploaded)                         │
-│  📤 Upload Walkthrough Video                            │
-│  🔗 Or paste video URL                                  │
-│                                                         │
-│  ─────────────────────────────────────────             │
-│                                                         │
-│  [Narration Audio] NEW                                 │
-│  🔊 Audio Preview (if uploaded)                        │
-│  📤 Upload Audio File (MP3/WAV)                        │
-│  🔗 Or paste audio URL                                  │
-│  ℹ️ Overrides AI-generated audio when set              │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Changes:**
-- Add `handleAudioUpload` function (similar to `handleFileUpload`)
-- Add audio preview player when audio exists
-- Add audio file input accepting `.mp3, .wav, .m4a`
-- Add text input for direct audio URL paste
-- Add helper text explaining this overrides AI audio
-
----
-
-## Player Logic Changes (OnboardingVideoPlayer.tsx)
-
-Modify the audio source priority:
-
-```text
-1. Manual audio (walkthrough_audio_url) - if uploaded, use this
-2. AI-generated audio (tier_onboarding_videos.audio_url) - fallback
-3. No audio - silent video playback
-```
-
-**Code change:**
+**Current query in Onboarding.tsx (line 47):**
 ```typescript
-// Fetch from program_welcome_videos now includes audio
-const { data, error } = await supabase
-  .from("program_welcome_videos")
-  .select("video_url, walkthrough_video_url, walkthrough_audio_url")
-  .eq("plan_type", tierKey)
-  .single();
-
-// Audio source priority
-const audioUrl = walkthroughAudioUrl || onboardingData?.audio_url;
+.select("video_url, walkthrough_video_url")  // ← MISSING walkthrough_audio_url
 ```
 
+Meanwhile, `OnboardingVideoPlayer.tsx` (used in dashboard/StartHere) correctly fetches:
+```typescript
+.select("video_url, walkthrough_video_url, walkthrough_audio_url")
+```
+
+This means:
+- **Admin preview (using OnboardingVideoPlayer):** Plays manual audio (correct voice)
+- **New user onboarding (using Onboarding.tsx):** Plays AI audio (wrong voice)
+
 ---
 
-## Files to Modify
+## Fix
 
-| File | Change |
-|------|--------|
-| `src/components/admin/WelcomeVideosManager.tsx` | Add audio upload UI, audio preview, handleAudioUpload function |
-| `src/components/OnboardingVideoPlayer.tsx` | Fetch and use manual audio, priority logic |
-| Database Migration | Add `walkthrough_audio_url` column |
+Update `Onboarding.tsx` to:
+1. Fetch `walkthrough_audio_url` from `program_welcome_videos`
+2. Use manual audio as priority, falling back to AI audio only if no manual upload exists
 
 ---
 
-## Audio Upload Details
+## Technical Changes
 
-**Accepted formats:** MP3, WAV, M4A, AAC  
-**Max file size:** 50MB (audio files are typically small)  
-**Storage bucket:** `tier-walkthroughs` (already exists and is public)
+### File: `src/pages/Onboarding.tsx`
+
+**Change 1:** Update the query to include `walkthrough_audio_url` (line 47)
+
+```typescript
+// Before:
+.select("video_url, walkthrough_video_url")
+
+// After:
+.select("video_url, walkthrough_video_url, walkthrough_audio_url")
+```
+
+**Change 2:** Add priority logic to use manual audio first (around line 70-90)
+
+```typescript
+// Determine effective audio URL (manual takes priority over AI-generated)
+const effectiveAudioUrl = videos?.walkthrough_audio_url || onboardingAudio?.audio_url;
+```
+
+**Change 3:** Update all audio source references to use `effectiveAudioUrl` instead of `onboardingAudio?.audio_url`
+
+This includes:
+- Line 105: Sync interval check
+- Line 129: Audio priming check
+- Line 157: Audio playback check
+- Line 273: Audio element src
+
+---
+
+## Also Fix: FirstLoginVideoModal.tsx
+
+Same issue likely exists there. Need to verify and apply the same fix if needed.
 
 ---
 
 ## Summary
 
-This gives you two ways to set walkthrough audio:
+| Component | Current Behavior | Fixed Behavior |
+|-----------|-----------------|----------------|
+| `Onboarding.tsx` | AI audio only | Manual → AI fallback |
+| `OnboardingVideoPlayer.tsx` | Manual → AI fallback | No change needed |
+| `FirstLoginVideoModal.tsx` | Needs verification | Manual → AI fallback |
 
-1. **AI-Generated (current):** Use the TierOnboardingManager to generate script + ElevenLabs audio
-2. **Manual Upload (new):** Upload your own pre-recorded audio file in WelcomeVideosManager
-
-Manual uploads take priority, so you can override any tier's AI audio by simply uploading a file.
+After this fix, all users (admin and regular) will hear the same manually-uploaded audio that you recorded with the correct voice and script.
