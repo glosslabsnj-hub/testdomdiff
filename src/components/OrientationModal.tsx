@@ -24,15 +24,53 @@ interface OrientationStep {
   items: { label: string; description: string }[];
 }
 
-const prisonSteps: OrientationStep[] = [
+// Steps for Solitary Confinement (membership tier) - ONLY their features
+const solitarySteps: OrientationStep[] = [
   {
-    title: "Understanding Your Cell Block",
-    description: "Here's how things work inside these walls",
+    title: "Your Cell Operations",
+    description: "Here's what you have access to in Solitary Confinement",
+    icon: Play,
+    items: [
+      { label: "Intake Processing", description: "Your orientation hub - start here to get set up" },
+      { label: "Yard Time", description: "4 bodyweight workout templates - no equipment needed" },
+      { label: "Lights On/Out", description: "Morning and evening discipline routines" },
+      { label: "Roll Call", description: "Weekly check-ins to track your progress" },
+    ],
+  },
+  {
+    title: "Daily Cell Block Routine",
+    description: "Structure builds discipline, discipline builds freedom",
+    icon: Clock,
+    items: [
+      { label: "Morning Routine", description: "Wake up with purpose - cold shower, prayer, movement" },
+      { label: "Evening Routine", description: "Wind down right - reflection, gratitude, rest" },
+      { label: "Time Served", description: "Track progress photos and measurements" },
+      { label: "Basic Nutrition", description: "Simple meal guidance for your goals" },
+    ],
+  },
+  {
+    title: "Upgrading Your Status",
+    description: "Ready for more? Here's what's waiting in Gen Pop",
+    icon: Users,
+    items: [
+      { label: "The Sentence", description: "Upgrade to unlock the 12-week structured program" },
+      { label: "Chapel", description: "Faith lessons and spiritual growth - Gen Pop only" },
+      { label: "The Yard", description: "Community with your brothers - Gen Pop only" },
+      { label: "Chow Hall", description: "Complete meal plans with macros - Gen Pop only" },
+    ],
+  },
+];
+
+// Steps for Gen Pop (transformation tier) - their full features
+const genPopSteps: OrientationStep[] = [
+  {
+    title: "Welcome to Gen Pop",
+    description: "You've got access to the full program. Here's how it works.",
     icon: Play,
     items: [
       { label: "Intake Processing", description: "Your orientation hub - start here to get set up" },
       { label: "The Sentence", description: "Your 12-week transformation program" },
-      { label: "Yard Time", description: "Access your workout templates and training" },
+      { label: "Yard Time", description: "Access your workout library and training" },
       { label: "Roll Call", description: "Weekly check-ins to track compliance" },
     ],
   },
@@ -42,8 +80,8 @@ const prisonSteps: OrientationStep[] = [
     icon: Clock,
     items: [
       { label: "Lights On/Out", description: "Morning and evening routines to stay disciplined" },
-      { label: "Chow Hall", description: "Nutrition plans and meal guidance" },
-      { label: "Chapel", description: "Faith lessons and spiritual growth" },
+      { label: "Chow Hall", description: "Complete nutrition plans with macros and recipes" },
+      { label: "Chapel", description: "Weekly faith lessons and spiritual growth" },
       { label: "Time Served", description: "Track your progress over 12 weeks" },
     ],
   },
@@ -53,8 +91,8 @@ const prisonSteps: OrientationStep[] = [
     icon: Users,
     items: [
       { label: "The Yard", description: "Connect with other inmates on the same journey" },
-      { label: "The Warden", description: "Your AI coach - tap the shield icon anytime for guidance" },
-      { label: "Progress Photos", description: "Document your transformation privately or share wins" },
+      { label: "The Warden", description: "Your AI coach - tap the shield icon anytime" },
+      { label: "Progress Photos", description: "Document your transformation" },
       { label: "Work Release", description: "Skill-building for life on the outside" },
     ],
   },
@@ -102,7 +140,11 @@ export default function OrientationModal() {
   const [currentStep, setCurrentStep] = useState(0);
 
   const isCoaching = subscription?.plan_type === "coaching";
-  const steps = isCoaching ? coachingSteps : prisonSteps;
+  const isTransformation = subscription?.plan_type === "transformation";
+  const isMembership = subscription?.plan_type === "membership" || (!isCoaching && !isTransformation);
+  
+  // Select steps based on tier
+  const steps = isCoaching ? coachingSteps : (isMembership ? solitarySteps : genPopSteps);
 
   // Check if user should see orientation
   useEffect(() => {
