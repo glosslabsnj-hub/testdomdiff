@@ -299,7 +299,7 @@ Generate the comprehensive walkthrough script now.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: "You are an expert script writer for fitness coaching onboarding videos. Output only valid JSON with comprehensive, detailed content." },
           { role: "user", content: prompt },
@@ -318,11 +318,14 @@ Generate the comprehensive walkthrough script now.`;
     }
 
     const data = await response.json();
+    console.log("AI response structure:", JSON.stringify(data).substring(0, 500));
+    
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
+      console.error("Empty AI response. Full response:", JSON.stringify(data));
       return new Response(
-        JSON.stringify({ error: "No content in AI response" }),
+        JSON.stringify({ error: "No content in AI response", details: JSON.stringify(data) }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
