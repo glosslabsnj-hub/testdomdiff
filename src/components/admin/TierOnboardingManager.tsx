@@ -8,10 +8,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTierOnboardingVideos } from "@/hooks/useOnboardingVideo";
 import { cn } from "@/lib/utils";
 
-// Voice IDs for reference
+// Voice IDs for reference - all tiers use the same professional mentor voice
 const VOICE_IDS = {
-  onboarding: "YtCzf4XXIC5vu5YfIjoP",
-  po: "4bOoBAdJb8z9qH6OY0IA",
+  mentor: "rAjfUfM1BSLyNwE8ckhm", // P.O. / Professional Mentor voice for all tiers
 };
 
 const TIERS = [
@@ -21,8 +20,8 @@ const TIERS = [
     description: "Self-serve bodyweight training",
     color: "text-muted-foreground",
     bgColor: "bg-muted/20",
-    expectedVoice: VOICE_IDS.onboarding,
-    voiceLabel: "Onboarding Voice",
+    expectedVoice: VOICE_IDS.mentor,
+    voiceLabel: "Mentor Voice",
   },
   {
     key: "transformation",
@@ -30,8 +29,8 @@ const TIERS = [
     description: "12-week structured program",
     color: "text-primary",
     bgColor: "bg-primary/20",
-    expectedVoice: VOICE_IDS.onboarding,
-    voiceLabel: "Onboarding Voice",
+    expectedVoice: VOICE_IDS.mentor,
+    voiceLabel: "Mentor Voice",
   },
   {
     key: "coaching",
@@ -39,8 +38,8 @@ const TIERS = [
     description: "Premium 1:1 coaching",
     color: "text-green-400",
     bgColor: "bg-green-500/20",
-    expectedVoice: VOICE_IDS.po,
-    voiceLabel: "P.O. Voice",
+    expectedVoice: VOICE_IDS.mentor,
+    voiceLabel: "Mentor Voice",
   },
 ];
 
