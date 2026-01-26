@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Play,
@@ -17,10 +16,9 @@ import {
   Lock,
   Settings,
   Home,
-  ChevronLeft,
-  ChevronRight,
   Images,
   HelpCircle,
+  Sparkles,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,7 +29,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
@@ -62,18 +59,43 @@ export function DashboardSidebar() {
       icon: Home,
     },
     {
-      title: isCoaching ? "Welcome Home" : "Intake",
+      title: isCoaching ? "Orientation" : "Intake",
       subtitle: "Start Here",
       href: "/dashboard/start-here",
       icon: Play,
     },
+  ];
+
+  // Coaching-specific custom program
+  const coachingProgramItems: NavItem[] = isCoaching ? [
     {
-      title: isCoaching ? "Your Program" : "The Sentence",
+      title: "Custom Program",
+      subtitle: "Your Plan",
+      href: "/dashboard/custom-program",
+      icon: Sparkles,
+      premium: true,
+    },
+    {
+      title: "12-Week Program",
+      subtitle: "Foundation",
+      href: "/dashboard/program",
+      icon: Calendar,
+    },
+  ] : [];
+
+  // Non-coaching program items
+  const programItems: NavItem[] = !isCoaching ? [
+    {
+      title: "The Sentence",
       subtitle: "12-Week",
       href: "/dashboard/program",
       icon: Calendar,
       locked: isMembership,
     },
+  ] : [];
+
+  // Training items
+  const trainingItems: NavItem[] = [
     {
       title: isCoaching ? "Training" : isMembership ? "Yard Time" : "Workout Library",
       subtitle: isMembership ? "Bodyweight" : "All Workouts",
@@ -88,21 +110,20 @@ export function DashboardSidebar() {
     },
   ];
 
-  // Lifestyle items - Solitary only has basic nutrition, not full Chow Hall or Chapel
+  // Lifestyle items
   const lifestyleItems: NavItem[] = [
     {
       title: isCoaching ? "Meal Planning" : isMembership ? "Basic Nutrition" : "Chow Hall",
       subtitle: isMembership ? "Basics" : "Nutrition",
       href: "/dashboard/nutrition",
       icon: Utensils,
-      // Solitary has basic nutrition access, not locked
     },
     {
       title: isCoaching ? "Faith & Mindset" : "Chapel",
       subtitle: "Faith",
       href: "/dashboard/faith",
       icon: BookOpen,
-      locked: isMembership, // Chapel is Gen Pop+ only
+      locked: isMembership,
     },
   ];
 
@@ -228,20 +249,24 @@ export function DashboardSidebar() {
     );
   };
 
-  const renderGroup = (label: string, items: NavItem[]) => (
-    <SidebarGroup key={label}>
-      {!collapsed && (
-        <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground/70 px-3 mb-1">
-          {label}
-        </SidebarGroupLabel>
-      )}
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map(renderNavItem)}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
+  const renderGroup = (label: string, items: NavItem[]) => {
+    if (items.length === 0) return null;
+    
+    return (
+      <SidebarGroup key={label}>
+        {!collapsed && (
+          <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground/70 px-3 mb-1">
+            {label}
+          </SidebarGroupLabel>
+        )}
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {items.map(renderNavItem)}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  };
 
   return (
     <Sidebar
@@ -252,10 +277,26 @@ export function DashboardSidebar() {
       collapsible="icon"
     >
       <SidebarContent className="py-4">
+        {/* Main - Core nav */}
         {renderGroup("Main", coreItems)}
+        
+        {/* Program - Coaching gets custom + 12-week, others get just 12-week or locked */}
+        {isCoaching && renderGroup("Your Program", coachingProgramItems)}
+        {!isCoaching && renderGroup("Program", programItems)}
+        
+        {/* Training */}
+        {renderGroup("Training", trainingItems)}
+        
+        {/* Lifestyle */}
         {renderGroup("Lifestyle", lifestyleItems)}
+        
+        {/* Accountability */}
         {renderGroup("Accountability", accountabilityItems)}
+        
+        {/* Growth */}
         {renderGroup("Growth", growthItems)}
+        
+        {/* Premium - Coaching only */}
         {premiumItems.length > 0 && renderGroup("Premium", premiumItems)}
         
         {/* Settings and Help at bottom */}

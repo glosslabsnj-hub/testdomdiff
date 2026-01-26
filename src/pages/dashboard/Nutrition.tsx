@@ -27,8 +27,8 @@ const MEAL_TYPE_ORDER = ["breakfast", "lunch", "dinner", "snack"] as const;
 const Nutrition = () => {
   const { assignedPlan, userCalories, loading } = useMealPlanAssignment();
   const { profile } = useAuth();
-  const { isMembership } = useEffectiveSubscription();
-  const { 
+  const { isMembership, isCoaching } = useEffectiveSubscription();
+  const {
     addFeedback, 
     removeFeedback, 
     getMealFeedback, 
@@ -42,6 +42,12 @@ const Nutrition = () => {
   const [selectedDay, setSelectedDay] = useState("1");
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [mealToSwap, setMealToSwap] = useState<MealPlanMeal | null>(null);
+
+  // Get all meals from the plan for swap options - must be before early return
+  const allMeals = useMemo(() => {
+    if (!assignedPlan) return [];
+    return assignedPlan.days.flatMap(day => day.meals);
+  }, [assignedPlan]);
 
   // Membership users get basic nutrition plan
   if (isMembership) {
@@ -59,12 +65,6 @@ const Nutrition = () => {
       return next;
     });
   };
-
-  // Get all meals from the plan for swap options
-  const allMeals = useMemo(() => {
-    if (!assignedPlan) return [];
-    return assignedPlan.days.flatMap(day => day.meals);
-  }, [assignedPlan]);
 
   // Generate shopping list from all meals in the week
   const generateShoppingList = () => {
@@ -161,10 +161,16 @@ const Nutrition = () => {
 
         <div className="mb-8">
           <h1 className="headline-section mb-2">
-            Chow <span className="text-primary">Hall</span>
+            {isCoaching ? (
+              <>Meal <span className="text-primary">Planning</span></>
+            ) : (
+              <>Chow <span className="text-primary">Hall</span></>
+            )}
           </h1>
           <p className="text-muted-foreground">
-            Your tray is ready. Personalized nutrition based on your goal and body composition.
+            {isCoaching 
+              ? "Your personalized nutrition plan. Fuel for your transformation."
+              : "Your tray is ready. Personalized nutrition based on your goal and body composition."}
           </p>
         </div>
 

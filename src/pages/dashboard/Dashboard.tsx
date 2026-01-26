@@ -17,7 +17,6 @@ import {
   Lock,
   AlertTriangle,
   Info,
-  X,
   Sparkles,
   Camera,
   ChevronDown
@@ -36,6 +35,7 @@ import OnboardingTooltip from "@/components/OnboardingTooltip";
 import { DashboardOnboardingVideo } from "@/components/DashboardOnboardingVideo";
 import { RollCallToday } from "@/components/dashboard/RollCallToday";
 import { WeekSentenceCard } from "@/components/dashboard/WeekSentenceCard";
+import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
 import {
   Tooltip,
   TooltipContent,
@@ -326,6 +326,15 @@ const Dashboard = () => {
       color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
       isNew: false,
     },
+    customProgram: {
+      icon: Sparkles,
+      title: "Custom Program",
+      subtitle: "Your Personal Plan",
+      description: "Your personalized training program designed specifically for you by Dom.",
+      href: "/dashboard/custom-program",
+      color: "dashboard-tile border-primary/50 bg-gradient-to-br from-primary/10 to-transparent",
+      isNew: true,
+    },
   };
 
   // Define locked tiles for Solitary users (Gen Pop features)
@@ -389,12 +398,13 @@ const Dashboard = () => {
       ];
     }
     
-    // Coaching (Free World): VIP features right after orientation
+    // Coaching (Free World): Custom program first, then VIP features
     return [
       allTiles.startHere,       // Welcome Home
-      allTiles.coaching,        // Coaching Portal - VIP first
+      allTiles.customProgram,   // Custom Program - primary focus for coaching
+      allTiles.coaching,        // Coaching Portal - VIP access
       allTiles.messages,        // Direct Line - high-touch messaging
-      allTiles.program,         // Your Program
+      allTiles.program,         // 12-Week Program (fallback while custom is being built)
       allTiles.workouts,        // Training Sessions
       allTiles.discipline,      // Daily Structure
       allTiles.nutrition,       // Meal Planning
@@ -432,30 +442,8 @@ const Dashboard = () => {
           />
         )}
 
-        {/* Welcome Banner for New Users */}
-        {showWelcomeBanner && (
-          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/20 to-primary/5 border border-primary/30 relative animate-fade-in">
-            <button 
-              onClick={dismissWelcomeBanner}
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            <div className="flex items-start gap-4 pr-8">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">
-                  {isCoaching ? "Welcome aboard." : getWeekSpecificGreeting(currentWeek)}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {getWeekSpecificMessage(currentWeek, isCoaching, isMembership)}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Compact Welcome Card - replaces verbose welcome banner */}
+        <DashboardWelcomeCard userName={profile?.first_name || undefined} />
 
         {/* Roll Call Today - Single CTA Widget */}
         <RollCallToday />
@@ -464,27 +452,20 @@ const Dashboard = () => {
         <div className="mb-8">
           <WardenBrief />
         </div>
+
         {/* Week Schedule Card */}
         <WeekSentenceCard />
 
-        {/* Weekly Progress Summary */}
-        <WeeklyProgressCard />
-
-        {/* Transformation Progress Widget */}
-        <TransformationWidget />
-
-        <OnboardingTooltip tooltipId="dashboard" position="bottom">
-          <div className="mb-8">
-            <h1 className="headline-section mb-2">
-              Your <span className="text-primary">{isCoaching ? "Dashboard" : "Cell Block"}</span>
-            </h1>
-            <p className="text-muted-foreground">
-              {isCoaching 
-                ? "Access your programs, track your progress, and stay focused."
-                : "Access your templates, track your progress, and stay disciplined."}
-            </p>
-          </div>
-        </OnboardingTooltip>
+        <div className="mb-8">
+          <h2 className="headline-section mb-2">
+            Your <span className="text-primary">{isCoaching ? "Dashboard" : "Cell Block"}</span>
+          </h2>
+          <p className="text-muted-foreground">
+            {isCoaching 
+              ? "Access your programs, track your progress, and stay focused."
+              : "Access your templates, track your progress, and stay disciplined."}
+          </p>
+        </div>
 
         {/* Progressive Disclosure - Week 1 users see fewer tiles initially */}
         {(() => {

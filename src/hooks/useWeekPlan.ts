@@ -99,7 +99,11 @@ export function useWeekPlan() {
           title: isCoaching 
             ? `Training Day ${workoutDays.indexOf(dayOfWeek) + 1}`
             : (dayLabels[dayOfWeek as keyof typeof dayLabels] || "Workout"),
-          href: isMembership ? "/dashboard/workouts" : "/dashboard/program",
+          href: isMembership 
+            ? "/dashboard/workouts" 
+            : isCoaching 
+              ? "/dashboard/custom-program" 
+              : "/dashboard/program",
           duration: "45 min",
         };
       } else {
