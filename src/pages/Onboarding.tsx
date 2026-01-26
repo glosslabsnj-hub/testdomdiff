@@ -38,13 +38,13 @@ const Onboarding = () => {
     }
   }, [profile, navigate]);
 
-  // Fetch video URLs
+  // Fetch video URLs (including manual audio)
   const { data: videos, isLoading } = useQuery({
     queryKey: ["onboarding-videos", tierKey],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("program_welcome_videos")
-        .select("video_url, walkthrough_video_url")
+        .select("video_url, walkthrough_video_url, walkthrough_audio_url")
         .eq("plan_type", tierKey)
         .single();
       
@@ -89,6 +89,9 @@ const Onboarding = () => {
     enabled: !!configVersion,
   });
 
+  // Determine effective audio URL (manual takes priority over AI-generated)
+  const effectiveAudioUrl = videos?.walkthrough_audio_url || onboardingAudio?.audio_url;
+
   // Show skip button after 30 seconds of playback
   useEffect(() => {
     if (!isPlaying) return;
@@ -102,7 +105,7 @@ const Onboarding = () => {
 
   // Sync audio with walkthrough video - audio is source of truth
   useEffect(() => {
-    if (playbackPhase !== "walkthrough" || !onboardingAudio?.audio_url) return;
+    if (playbackPhase !== "walkthrough" || !effectiveAudioUrl) return;
     
     const syncInterval = setInterval(() => {
       const video = walkthroughVideoRef.current;
@@ -122,11 +125,11 @@ const Onboarding = () => {
     }, 500);
 
     return () => clearInterval(syncInterval);
-  }, [playbackPhase, onboardingAudio?.audio_url]);
+  }, [playbackPhase, effectiveAudioUrl]);
 
   // Prime audio on first user tap to unlock mobile autoplay
   const primeAudioForMobile = () => {
-    if (audioPrimed || !audioRef.current || !onboardingAudio?.audio_url) return;
+    if (audioPrimed || !audioRef.current || !effectiveAudioUrl) return;
     
     const audio = audioRef.current;
     const previousMuted = audio.muted;
@@ -154,7 +157,7 @@ const Onboarding = () => {
       walkthroughVideoRef.current.play().catch(console.error);
     }
     
-    if (audioRef.current && onboardingAudio?.audio_url) {
+    if (audioRef.current && effectiveAudioUrl) {
       audioRef.current.currentTime = 0;
       try {
         await audioRef.current.play();
@@ -270,7 +273,7 @@ const Onboarding = () => {
       {/* Always mount audio element for mobile reliability */}
       <audio
         ref={audioRef}
-        src={onboardingAudio?.audio_url || ""}
+        src={effectiveAudioUrl || ""}
         preload="auto"
         onEnded={handleWalkthroughEnd}
         onPlay={() => setIsPlaying(true)}
