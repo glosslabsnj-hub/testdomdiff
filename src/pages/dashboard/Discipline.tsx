@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useMilestones } from "@/hooks/useMilestones";
 import { useCustomRoutines } from "@/hooks/useCustomRoutines";
+import { useRoutineTimeOverrides } from "@/hooks/useRoutineTimeOverrides";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -56,6 +57,9 @@ const Discipline = () => {
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(
     (profile as any)?.discipline_template_id || null
   );
+
+  // Time overrides hook
+  const { getTime, saveTimeOverride } = useRoutineTimeOverrides(currentTemplateId);
 
   const today = format(new Date(), "EEEE, MMMM d");
   const compliance = getTodayCompliance();
@@ -216,10 +220,12 @@ const Discipline = () => {
                     key={item.id}
                     id={item.id}
                     actionText={item.action_text}
-                    timeSlot={item.time_slot}
+                    timeSlot={getTime(item.display_order, item.time_slot)}
+                    displayOrder={item.display_order}
                     completed={isRoutineCompleted(item.id)}
                     completionTime={getCompletionTime(item.id)}
                     onToggle={toggleRoutineCompletion}
+                    onSaveTime={saveTimeOverride}
                   />
                 ))}
                 {morningCustomRoutines.map((item) => (
@@ -262,10 +268,12 @@ const Discipline = () => {
                     key={item.id}
                     id={item.id}
                     actionText={item.action_text}
-                    timeSlot={item.time_slot}
+                    timeSlot={getTime(item.display_order, item.time_slot)}
+                    displayOrder={item.display_order}
                     completed={isRoutineCompleted(item.id)}
                     completionTime={getCompletionTime(item.id)}
                     onToggle={toggleRoutineCompletion}
+                    onSaveTime={saveTimeOverride}
                   />
                 ))}
                 {eveningCustomRoutines.map((item) => (

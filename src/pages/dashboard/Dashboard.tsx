@@ -27,7 +27,7 @@ import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
 import OrientationModal from "@/components/OrientationModal";
-import { WardenBrief } from "@/components/warden";
+import { WardenBrief, WardenTip } from "@/components/warden";
 import { TransformationWidget } from "@/components/TransformationWidget";
 import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
@@ -443,13 +443,15 @@ const Dashboard = () => {
         {/* Compact Welcome Card - replaces verbose welcome banner */}
         <DashboardWelcomeCard userName={profile?.first_name || undefined} />
 
-        {/* Today's Focus Card - combines roll call missions + week strip */}
-        <TodayFocusCard />
-
-        {/* The Warden's Weekly Brief (collapsed by default) */}
-        <div className="mb-6">
-          <WardenBrief />
-        </div>
+        {/* Simple Warden Tip */}
+        <WardenTip 
+          tip={isCoaching 
+            ? "You're on the outside now. Stay disciplined, stay focused, stay free."
+            : isMembership
+              ? "This is your daily grind. Yard time, discipline, nutrition — lock it in."
+              : "Every rep, every routine, every choice — it all adds up. Stay the course."}
+          className="mb-6"
+        />
 
         {/* Section Header - Tier-aware */}
         <div className="mb-6">
