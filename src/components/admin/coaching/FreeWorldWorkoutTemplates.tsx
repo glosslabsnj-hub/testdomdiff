@@ -1,17 +1,21 @@
-import { useState } from "react";
-import { Dumbbell, ChevronDown, ChevronRight, Edit2, Save, X, Plus } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Dumbbell, ChevronDown, ChevronRight, Edit2, Save, X, Plus, Clock, Flame, Heart, Wind } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useTemplateCategories,
   useProgramTemplates,
   useTemplateDetails,
   type TemplateCategory,
   type ProgramTemplate,
+  type TemplateExercise,
 } from "@/hooks/useProgramTemplates";
 
 export default function FreeWorldWorkoutTemplates() {
@@ -195,9 +199,6 @@ function TemplateRow({
             <Badge variant="secondary" className="text-xs">
               {template.days_per_week || 4} days/week
             </Badge>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-              <Edit2 className="w-3 h-3" />
-            </Button>
           </div>
         </div>
       </CollapsibleTrigger>
@@ -219,17 +220,18 @@ function TemplateRow({
   );
 }
 
-function TemplateDetailsView({
-  details,
-}: {
+interface TemplateDetailsProps {
   details: {
     template: ProgramTemplate;
     weeks: Array<{ id: string; week_number: number; title: string | null; focus_description: string | null }>;
-    days: Array<{ id: string; week_id: string | null; day_of_week: string; workout_name: string; is_rest_day: boolean | null }>;
-    exercises: Array<{ id: string; day_id: string | null; exercise_name: string; sets: string | null; reps_or_time: string | null }>;
+    days: Array<{ id: string; week_id: string | null; day_of_week: string; workout_name: string; is_rest_day: boolean | null; display_order: number | null }>;
+    exercises: TemplateExercise[];
   };
-}) {
+}
+
+function TemplateDetailsView({ details }: TemplateDetailsProps) {
   const [expandedWeeks, setExpandedWeeks] = useState<Set<number>>(new Set([1]));
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
 
   const toggleWeek = (weekNum: number) => {
     const next = new Set(expandedWeeks);
@@ -241,8 +243,20 @@ function TemplateDetailsView({
     setExpandedWeeks(next);
   };
 
+  const toggleDay = (dayId: string) => {
+    const next = new Set(expandedDays);
+    if (next.has(dayId)) {
+      next.delete(dayId);
+    } else {
+      next.add(dayId);
+    }
+    setExpandedDays(next);
+  };
+
   const getDaysForWeek = (weekId: string) => {
-    return details.days.filter((d) => d.week_id === weekId);
+    return details.days
+      .filter((d) => d.week_id === weekId)
+      .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
   };
 
   const getExercisesForDay = (dayId: string) => {
@@ -266,7 +280,7 @@ function TemplateDetailsView({
           onOpenChange={() => toggleWeek(week.week_number)}
         >
           <CollapsibleTrigger asChild>
-            <div className="flex items-center gap-2 cursor-pointer hover:text-purple-400 transition-colors">
+            <div className="flex items-center gap-2 cursor-pointer hover:text-purple-400 transition-colors p-2 rounded hover:bg-muted/30">
               {expandedWeeks.has(week.week_number) ? (
                 <ChevronDown className="w-4 h-4" />
               ) : (
@@ -275,49 +289,298 @@ function TemplateDetailsView({
               <span className="font-medium text-sm">
                 Week {week.week_number}: {week.title || week.focus_description || "Training Week"}
               </span>
+              <Badge variant="outline" className="text-xs ml-auto">
+                {getDaysForWeek(week.id).filter(d => !d.is_rest_day).length} training days
+              </Badge>
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="ml-6 mt-2 space-y-2">
               {getDaysForWeek(week.id).map((day) => (
-                <div
+                <DayCard
                   key={day.id}
-                  className={`p-2 rounded text-sm ${
-                    day.is_rest_day ? "bg-muted/30 text-muted-foreground" : "bg-muted/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">
-                      {day.day_of_week}: {day.workout_name}
-                    </span>
-                    {!day.is_rest_day && (
-                      <span className="text-xs text-muted-foreground">
-                        {getExercisesForDay(day.id).length} exercises
-                      </span>
-                    )}
-                  </div>
-                  {!day.is_rest_day && getExercisesForDay(day.id).length > 0 && (
-                    <div className="mt-2 pl-4 text-xs text-muted-foreground space-y-1">
-                      {getExercisesForDay(day.id)
-                        .slice(0, 4)
-                        .map((ex) => (
-                          <div key={ex.id}>
-                            • {ex.exercise_name} — {ex.sets}×{ex.reps_or_time}
-                          </div>
-                        ))}
-                      {getExercisesForDay(day.id).length > 4 && (
-                        <div className="text-muted-foreground/70">
-                          +{getExercisesForDay(day.id).length - 4} more...
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                  day={day}
+                  exercises={getExercisesForDay(day.id)}
+                  isExpanded={expandedDays.has(day.id)}
+                  onToggle={() => toggleDay(day.id)}
+                />
               ))}
             </div>
           </CollapsibleContent>
         </Collapsible>
       ))}
+    </div>
+  );
+}
+
+interface DayCardProps {
+  day: { id: string; day_of_week: string; workout_name: string; is_rest_day: boolean | null };
+  exercises: TemplateExercise[];
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+function DayCard({ day, exercises, isExpanded, onToggle }: DayCardProps) {
+  if (day.is_rest_day) {
+    return (
+      <div className="p-3 rounded-lg bg-muted/20 text-muted-foreground text-sm">
+        <span className="font-medium">{day.day_of_week}:</span> Rest Day
+      </div>
+    );
+  }
+
+  // Group exercises by section
+  const warmupExercises = exercises.filter(e => e.section_type === "warmup");
+  const mainExercises = exercises.filter(e => e.section_type === "main" || !e.section_type);
+  const finisherExercises = exercises.filter(e => e.section_type === "finisher");
+  const cooldownExercises = exercises.filter(e => e.section_type === "cooldown");
+
+  return (
+    <Collapsible open={isExpanded} onOpenChange={onToggle}>
+      <CollapsibleTrigger asChild>
+        <div className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isExpanded ? (
+                <ChevronDown className="w-4 h-4 text-purple-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              )}
+              <span className="font-medium text-sm">
+                {day.day_of_week}: {day.workout_name}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">
+                {exercises.length} exercises
+              </Badge>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => e.stopPropagation()}>
+                <Edit2 className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="ml-6 mt-3 space-y-4 pb-2">
+          {/* Warmup Section */}
+          {warmupExercises.length > 0 && (
+            <ExerciseSection
+              title="Warm-Up"
+              icon={<Wind className="w-4 h-4" />}
+              exercises={warmupExercises}
+              colorClass="text-amber-400"
+            />
+          )}
+
+          {/* Main Workout Section */}
+          {mainExercises.length > 0 && (
+            <ExerciseSection
+              title="Main Workout"
+              icon={<Dumbbell className="w-4 h-4" />}
+              exercises={mainExercises}
+              colorClass="text-primary"
+            />
+          )}
+
+          {/* Finisher Section */}
+          {finisherExercises.length > 0 && (
+            <ExerciseSection
+              title="Finisher"
+              icon={<Flame className="w-4 h-4" />}
+              exercises={finisherExercises}
+              colorClass="text-destructive"
+            />
+          )}
+
+          {/* Cooldown Section */}
+          {cooldownExercises.length > 0 && (
+            <ExerciseSection
+              title="Cool-Down"
+              icon={<Heart className="w-4 h-4" />}
+              exercises={cooldownExercises}
+              colorClass="text-blue-400"
+            />
+          )}
+
+          {exercises.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No exercises defined yet
+            </p>
+          )}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+interface ExerciseSectionProps {
+  title: string;
+  icon: React.ReactNode;
+  exercises: TemplateExercise[];
+  colorClass: string;
+}
+
+function ExerciseSection({ title, icon, exercises, colorClass }: ExerciseSectionProps) {
+  return (
+    <div>
+      <div className={`flex items-center gap-2 text-xs uppercase tracking-wider ${colorClass} mb-2`}>
+        {icon}
+        <span>{title}</span>
+      </div>
+      <div className="space-y-1">
+        {exercises
+          .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+          .map((exercise) => (
+            <ExerciseRow key={exercise.id} exercise={exercise} />
+          ))}
+      </div>
+    </div>
+  );
+}
+
+function ExerciseRow({ exercise }: { exercise: TemplateExercise }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    exercise_name: exercise.exercise_name,
+    sets: exercise.sets || "",
+    reps_or_time: exercise.reps_or_time || "",
+    rest: exercise.rest || "",
+    notes: exercise.notes || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("program_template_exercises")
+        .update({
+          exercise_name: editData.exercise_name,
+          sets: editData.sets || null,
+          reps_or_time: editData.reps_or_time || null,
+          rest: editData.rest || null,
+          notes: editData.notes || null,
+        })
+        .eq("id", exercise.id);
+
+      if (error) throw error;
+      toast.success("Exercise updated");
+      queryClient.invalidateQueries({ queryKey: ["template-details"] });
+      setIsEditing(false);
+    } catch (err: unknown) {
+      toast.error("Failed to update: " + (err instanceof Error ? err.message : "Unknown error"));
+    } finally {
+      setSaving(false);
+    }
+  }, [editData, exercise.id, queryClient]);
+
+  const handleCancel = () => {
+    setEditData({
+      exercise_name: exercise.exercise_name,
+      sets: exercise.sets || "",
+      reps_or_time: exercise.reps_or_time || "",
+      rest: exercise.rest || "",
+      notes: exercise.notes || "",
+    });
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="p-3 rounded-lg bg-charcoal border border-purple-500/50 space-y-2">
+        <div className="grid grid-cols-12 gap-2">
+          <div className="col-span-5">
+            <Input
+              value={editData.exercise_name}
+              onChange={(e) => setEditData({ ...editData, exercise_name: e.target.value })}
+              placeholder="Exercise name"
+              className="h-8 text-sm"
+            />
+          </div>
+          <div className="col-span-2">
+            <Input
+              value={editData.sets}
+              onChange={(e) => setEditData({ ...editData, sets: e.target.value })}
+              placeholder="Sets"
+              className="h-8 text-sm text-center"
+            />
+          </div>
+          <div className="col-span-2">
+            <Input
+              value={editData.reps_or_time}
+              onChange={(e) => setEditData({ ...editData, reps_or_time: e.target.value })}
+              placeholder="Reps"
+              className="h-8 text-sm text-center"
+            />
+          </div>
+          <div className="col-span-2">
+            <Input
+              value={editData.rest}
+              onChange={(e) => setEditData({ ...editData, rest: e.target.value })}
+              placeholder="Rest"
+              className="h-8 text-sm text-center"
+            />
+          </div>
+          <div className="col-span-1 flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-green-400 hover:text-green-300"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              <Save className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              onClick={handleCancel}
+              disabled={saving}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        <Input
+          value={editData.notes}
+          onChange={(e) => setEditData({ ...editData, notes: e.target.value })}
+          placeholder="Notes (optional)"
+          className="h-8 text-sm"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="group flex items-center justify-between p-2 rounded hover:bg-muted/30 cursor-pointer transition-colors"
+      onClick={() => setIsEditing(true)}
+    >
+      <div className="flex-1 min-w-0">
+        <span className="text-sm font-medium">{exercise.exercise_name}</span>
+        {exercise.notes && (
+          <span className="text-xs text-muted-foreground ml-2">({exercise.notes})</span>
+        )}
+      </div>
+      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <span className="tabular-nums">{exercise.sets} sets</span>
+        <span className="tabular-nums">{exercise.reps_or_time}</span>
+        {exercise.rest && <span className="tabular-nums">{exercise.rest} rest</span>}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditing(true);
+          }}
+        >
+          <Edit2 className="w-3 h-3" />
+        </Button>
+      </div>
     </div>
   );
 }
