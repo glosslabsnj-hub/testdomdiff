@@ -277,8 +277,13 @@ export function useAssignTemplate() {
         .select("*")
         .eq("id", templateId)
         .single();
+      // Delete any existing assignment first (prevent duplicates)
+      await supabase
+        .from("client_template_assignments")
+        .delete()
+        .eq("client_id", clientId);
 
-      // Record the assignment
+      // Record the new assignment
       const { error: assignError } = await supabase
         .from("client_template_assignments")
         .insert({
