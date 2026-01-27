@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Utensils, ChevronDown, ChevronRight, Edit2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +12,31 @@ import {
   type NutritionTemplateCategory,
   type NutritionTemplateWithCategory,
 } from "@/hooks/useNutritionTemplates";
+import { type ClientWithSubscription } from "@/hooks/useClientAnalytics";
+import ClientRecommendationBanner from "./ClientRecommendationBanner";
 
-export default function FreeWorldNutritionTemplates() {
+interface FreeWorldNutritionTemplatesProps {
+  selectedClient?: ClientWithSubscription | null;
+}
+
+export default function FreeWorldNutritionTemplates({ selectedClient }: FreeWorldNutritionTemplatesProps) {
   const { data: categories = [], isLoading: categoriesLoading } = useNutritionTemplateCategories();
   const { data: templates = [], isLoading: templatesLoading } = useNutritionTemplates();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandedTemplates, setExpandedTemplates] = useState<Set<string>>(new Set());
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
+  const handleViewRecommended = useCallback((categoryId: string | null) => {
+    if (!categoryId) return;
+    const next = new Set(expandedCategories);
+    next.add(categoryId);
+    setExpandedCategories(next);
+    // Scroll to category
+    setTimeout(() => {
+      const element = document.getElementById(`nutrition-category-${categoryId}`);
+      element?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }, [expandedCategories]);
 
   const toggleCategory = (categoryId: string) => {
     const next = new Set(expandedCategories);
@@ -81,6 +99,14 @@ export default function FreeWorldNutritionTemplates() {
         </div>
       ) : (
         <ScrollArea className="flex-1 min-h-0">
+          {/* Client Recommendation Banner */}
+          {selectedClient && (
+            <ClientRecommendationBanner
+              client={selectedClient}
+              type="nutrition"
+              onViewRecommended={handleViewRecommended}
+            />
+          )}
           <div className="space-y-2 pr-4 pb-8">
             {categories.map((category) => (
               <NutritionCategoryAccordion

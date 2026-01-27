@@ -52,7 +52,7 @@ export default function FreeWorldHub() {
             <Users className="w-4 h-4 mr-2" />
             Clients
           </TabsTrigger>
-          <TabsTrigger value="workouts" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
+        <TabsTrigger value="workouts" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400">
             <Dumbbell className="w-4 h-4 mr-2" />
             Workout Templates
           </TabsTrigger>
@@ -119,12 +119,12 @@ export default function FreeWorldHub() {
 
         {/* Workout Templates Tab */}
         <TabsContent value="workouts" className="flex-1 min-h-0 overflow-hidden mt-4">
-          <FreeWorldWorkoutTemplates />
+          <FreeWorldWorkoutTemplates selectedClient={selectedClient} />
         </TabsContent>
 
         {/* Nutrition Templates Tab */}
         <TabsContent value="nutrition" className="flex-1 min-h-0 overflow-hidden mt-4">
-          <FreeWorldNutritionTemplates />
+          <FreeWorldNutritionTemplates selectedClient={selectedClient} />
         </TabsContent>
       </Tabs>
     </div>
