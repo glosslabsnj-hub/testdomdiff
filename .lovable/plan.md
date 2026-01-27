@@ -1,267 +1,206 @@
 
-# Add Template Library Tabs to Free World Hub
+# Transform All Workout Templates to Dom's High-Intensity Style
 
-## Overview
-Transform the Free World admin section into a comprehensive coaching command center with three sub-tabs:
-1. **Clients** - The existing client management split-pane (keep as-is)
-2. **Workout Templates** - Library of 50 workout programs, organized by category, expandable and editable
-3. **Nutrition Templates** - Library of 50 four-week nutrition plans, categorized and matched to user intake, editable
-
----
-
-## Part 1: Restructure FreeWorldHub with Sub-Tabs
-
-### File: `src/components/admin/FreeWorldHub.tsx`
-
-**Changes:**
-- Add internal tabs at the top: `Clients | Workout Templates | Nutrition Templates`
-- Default to "Clients" tab (existing functionality)
-- Import and render new components for the template tabs
-
-```
-Layout:
-┌─────────────────────────────────────────────────────────────┐
-│ Free World Coaching                        [Add Client]     │
-├─────────────────────────────────────────────────────────────┤
-│ [Clients] [Workout Templates] [Nutrition Templates]         │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  (Tab content area)                                         │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+## Dom's Training Philosophy (from your answers)
+- **Rep Range**: 20-30+ reps (very high endurance-focused)
+- **Set Volume**: 3-5 sets per exercise
+- **Intensity Technique**: AMRAP finishers at end of each workout
+- **Rest Periods**: 45-60 seconds (short, keeps heart rate elevated)
 
 ---
 
-## Part 2: Workout Templates Tab (New Component)
+## Current Problem
 
-### File: `src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx`
+The existing exercise pools in `populate-program-templates/index.ts` use **standard gym programming**:
+- Beginner: 8-12 reps, 60s rest
+- Intermediate: 6-10 reps, 90s rest  
+- Advanced: 4-8 reps, 120s rest
 
-**Features:**
-- Display all 50 workout templates organized by the 5 categories
-- Accordion-style category sections (Beginner Basics, Foundation Builder, etc.)
-- Each template is expandable to show:
-  - 4-week structure with day/workout names
-  - Exercise list for each workout day
-- Inline editing capability for exercises, sets, reps, notes
-- Uses existing `useProgramTemplates` and `useTemplateDetails` hooks
-
-**UI Structure:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│ 🏋️ Workout Template Library                  [Add Template] │
-│ 50 pre-built 4-week programs organized by experience level │
-├─────────────────────────────────────────────────────────────┤
-│ ▼ Beginner Basics (10 templates)                           │
-│   ├─ Total Body Foundations                                │
-│   │    ├─ Week 1: Foundation Phase                         │
-│   │    │   ├─ Monday: Full Body A (6 exercises)           │
-│   │    │   ├─ Tuesday: Rest Day                            │
-│   │    │   └─ ...                                          │
-│   │    ├─ Week 2: Building Phase                           │
-│   │    └─ ...                                              │
-│   ├─ Bodyweight Beginnings                                 │
-│   └─ ...                                                    │
-├─────────────────────────────────────────────────────────────┤
-│ ▶ Foundation Builder (10 templates)                        │
-│ ▶ Intermediate Growth (10 templates)                       │
-│ ▶ Advanced Performance (10 templates)                      │
-│ ▶ Athletic Conditioning (10 templates)                     │
-└─────────────────────────────────────────────────────────────┘
-```
+This doesn't match Dom's prison-style, high-intensity approach at all.
 
 ---
 
-## Part 3: Nutrition Templates Tab (New Component)
+## Implementation Plan
 
-### Database Changes Required
+### 1. Rewrite Exercise Pools with Dom's Style
 
-**New Table: `nutrition_template_categories`**
-- Similar structure to `program_template_categories`
-- Categories based on goal type + activity level:
-  1. Fat Loss - Aggressive
-  2. Fat Loss - Moderate
-  3. Recomposition - Standard
-  4. Muscle Building - Lean
-  5. Muscle Building - Mass
+Replace all exercise definitions with high-rep, short-rest versions adapted by difficulty level:
 
-**Modify Table: `meal_plan_templates`**
-- Add column: `category_id` (foreign key to new categories table)
-- Add column: `difficulty` (beginner/intermediate/advanced meal prep complexity)
+| Category | Rep Range | Sets | Rest | Finisher Style |
+|----------|-----------|------|------|----------------|
+| Beginner Basics | 20-25 reps | 3-4 sets | 60s | AMRAP 60 sec |
+| Foundation Builder | 20-30 reps | 3-4 sets | 50s | AMRAP 90 sec |
+| Intermediate Growth | 25-30 reps | 4 sets | 45s | AMRAP 2 min |
+| Advanced Performance | 25-35 reps | 4-5 sets | 45s | AMRAP 3 min |
+| Athletic Conditioning | 30+ reps | 4-5 sets | 30s | AMRAP to failure |
 
-**Expand Templates:**
-- Currently: 30 templates (10 per goal)
-- Target: 50 templates
-- Add 20 more templates distributed across categories
+### 2. Add Dedicated AMRAP Finisher Section
 
-### File: `src/components/admin/coaching/FreeWorldNutritionTemplates.tsx`
+Currently the "finisher" section is just 1 core exercise. For Dom's style, we need:
 
-**Features:**
-- Display all 50 nutrition templates organized by 5 categories
-- Each template shows:
-  - 7-day rotation (expandable)
-  - 4 meals per day with macros
-  - Full recipe details when expanded
-- Matching score based on user intake (TDEE calculation)
-- Inline editing for meals, macros, ingredients
-- Uses existing `useMealPlanTemplates` hooks (extended)
-
-**UI Structure:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│ 🍽️ Nutrition Template Library               [Add Template] │
-│ 50 complete meal plans organized by goal and activity      │
-├─────────────────────────────────────────────────────────────┤
-│ ▼ Fat Loss - Aggressive (10 templates)                     │
-│   ├─ 1400-1600 cal - Low Carb Focus                        │
-│   │    ├─ Day 1: Monday                                    │
-│   │    │   ├─ Breakfast: Protein Omelette (450 cal)       │
-│   │    │   ├─ Lunch: Grilled Chicken Salad (380 cal)      │
-│   │    │   ├─ Dinner: Salmon with Vegetables (520 cal)    │
-│   │    │   └─ Snack: Greek Yogurt (150 cal)               │
-│   │    ├─ Day 2: Tuesday                                   │
-│   │    └─ ...                                              │
-│   └─ ...                                                    │
-├─────────────────────────────────────────────────────────────┤
-│ ▶ Fat Loss - Moderate (10 templates)                       │
-│ ▶ Recomposition (10 templates)                             │
-│ ▶ Muscle Building - Lean (10 templates)                    │
-│ ▶ Muscle Building - Mass (10 templates)                    │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Part 4: Nutrition Template Assignment for Clients
-
-### File: `src/components/admin/coaching/NutritionTemplateAssignment.tsx`
-
-**Features:**
-- Similar flow to workout `TemplateAssignment.tsx`
-- Calculate TDEE from client intake data
-- Recommend a nutrition category based on:
-  - Goal (fat loss, muscle, recomp)
-  - Activity level
-  - Calculated calorie needs
-- Preview the 7-day meal rotation before assignment
-- Assign template to client (copy to client-specific tables)
-
-### New Hook: `src/hooks/useNutritionTemplates.ts`
-
-- `useNutritionTemplateCategories()` - fetch categories
-- `useNutritionTemplates(categoryId?)` - fetch templates
-- `useNutritionTemplateDetails(templateId)` - get full days/meals
-- `useAssignNutritionTemplate()` - copy template to client
-
----
-
-## Part 5: Edge Function to Populate Additional Nutrition Templates
-
-### File: `supabase/functions/populate-nutrition-templates/index.ts`
-
-**Purpose:**
-- Create 20 additional nutrition templates to reach 50 total
-- Populate with realistic 7-day meal rotations
-- 4 meals per day with proper macro distribution
-- Varied recipes based on goal type
-
-**Meal Generation Logic:**
 ```typescript
-const MEAL_POOLS = {
-  fatLoss: {
-    breakfast: ["Protein Omelette", "Greek Yogurt Bowl", "Egg White Scramble", ...],
-    lunch: ["Grilled Chicken Salad", "Turkey Lettuce Wraps", ...],
-    dinner: ["Baked Salmon", "Lean Beef Stir-Fry", ...],
-    snack: ["Protein Shake", "Celery with Almond Butter", ...]
-  },
-  muscleBuilding: {
-    breakfast: ["Power Oatmeal", "Eggs & Toast", "Breakfast Burrito", ...],
-    lunch: ["Chicken & Rice Bowl", "Beef Tacos", ...],
-    dinner: ["Steak & Potatoes", "Pasta with Meat Sauce", ...],
-    snack: ["Mass Gainer Shake", "PB&J Sandwich", ...]
-  },
-  // ...
+// New finisher pool - AMRAP style
+const AMRAP_FINISHERS = {
+  beginner: [
+    { name: "AMRAP: Burpees", duration: "60s", notes: "As many as possible in 60 seconds" },
+    { name: "AMRAP: Push-ups + Squats", duration: "60s", notes: "Alternate 5 and 5 until time" },
+    { name: "AMRAP: Mountain Climbers", duration: "60s", notes: "Go until you can't" },
+  ],
+  intermediate: [
+    { name: "AMRAP: Burpees + Tuck Jumps", duration: "90s", notes: "10 burpees, 10 tucks, repeat" },
+    { name: "AMRAP: Devil's Press", duration: "90s", notes: "Burpee into dumbbell snatch" },
+    { name: "AMRAP: Prison Cell Complex", duration: "2 min", notes: "Push-ups, squats, lunges - no rest" },
+  ],
+  advanced: [
+    { name: "AMRAP: The Yard Sprint", duration: "3 min", notes: "10 burpees, 20 squats, 30 push-ups - repeat" },
+    { name: "AMRAP: Iron Will", duration: "3 min", notes: "5 pull-ups, 10 dips, 15 squats - until failure" },
+    { name: "AMRAP: Solitary Confinement", duration: "4 min", notes: "Cell-sized chaos - everything you've got" },
+  ],
 };
 ```
 
+### 3. Update Rep Scheme Examples
+
+**Before (Current):**
+```typescript
+{ name: "Push-ups", sets: "3", reps: "8-12", rest: "60s" }
+{ name: "Barbell Bench Press", sets: "4", reps: "8-10", rest: "90s" }
+```
+
+**After (Dom's Style):**
+```typescript
+{ name: "Push-ups", sets: "4", reps: "25-30", rest: "45s", notes: "Chest to deck, full lockout" }
+{ name: "DB Bench Press", sets: "4", reps: "20-25", rest: "50s", notes: "No rest at top, constant tension" }
+```
+
+### 4. Create New Edge Function to Update All Exercises
+
+Since templates are already populated, we need an edge function that:
+1. Fetches all existing `program_template_exercises`
+2. Updates each exercise with Dom's style based on its category
+3. Adds AMRAP finisher to each workout day that doesn't have one
+
+**File:** `supabase/functions/update-to-dom-style/index.ts`
+
+```typescript
+// Transformation logic:
+// 1. Map category → difficulty level
+// 2. Update all exercises: sets → 3-5, reps → 20-30+, rest → 45-60s
+// 3. Add AMRAP finisher if missing
+// 4. Update notes with intensity cues
+```
+
+### 5. Category-Specific Adaptations
+
+Each category gets the same high-intensity philosophy, but adapted:
+
+**Beginner Basics:**
+- Focus on bodyweight movements
+- 20-25 reps (building capacity)
+- 3-4 sets with 60s rest
+- Shorter AMRAP finishers (60s)
+- Notes emphasize form over speed
+
+**Foundation Builder:**
+- Mix of bodyweight + light weights
+- 20-30 reps
+- 3-4 sets with 50s rest
+- 90s AMRAP finishers
+- Notes encourage pushing limits
+
+**Intermediate Growth:**
+- More complex movements
+- 25-30 reps
+- 4 sets with 45s rest
+- 2-minute AMRAP finishers
+- Notes add intensity cues ("no breaks", "grind it out")
+
+**Advanced Performance:**
+- Compound movements with weight
+- 25-35 reps (or until failure)
+- 4-5 sets with 45s rest
+- 3-minute AMRAP finishers
+- Notes: "Iron sharpens iron", "embrace the burn"
+
+**Athletic Conditioning:**
+- Explosive/plyometric focus
+- 30+ reps or timed intervals
+- 4-5 sets with 30s rest
+- AMRAP to failure
+- Notes: "Leave nothing in the tank"
+
 ---
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx` | Workout template library with expandable categories |
-| `src/components/admin/coaching/FreeWorldNutritionTemplates.tsx` | Nutrition template library with expandable categories |
-| `src/components/admin/coaching/NutritionTemplateAssignment.tsx` | Assign nutrition templates to clients |
-| `src/hooks/useNutritionTemplates.ts` | Hooks for nutrition template CRUD and assignment |
-| `supabase/functions/populate-nutrition-templates/index.ts` | Populate additional nutrition templates |
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/components/admin/FreeWorldHub.tsx` | Add internal tabs for Clients/Workouts/Nutrition |
-| `src/components/admin/coaching/ClientProgressPanel.tsx` | Add "Nutrition" sub-tab for client nutrition assignment |
-| `src/components/admin/coaching/index.ts` | Export new components |
+| `supabase/functions/populate-program-templates/index.ts` | Replace all exercise pools with Dom's high-rep style, add AMRAP finisher pools |
+| New: `supabase/functions/update-to-dom-style/index.ts` | Edge function to transform all existing exercises to new style |
 
 ---
 
-## Database Migrations
+## Database Updates
 
-### Migration 1: Create nutrition template categories
+The edge function will update the `program_template_exercises` table with:
+- `sets`: "3" → "4" or "4-5" depending on category
+- `reps_or_time`: "8-12" → "20-30" based on difficulty
+- `rest`: "60s"/"90s" → "45s"/"50s"/"60s" based on difficulty
+- `notes`: Add intensity cues ("No rest", "Push through", "Failure is the goal")
+- Add new rows for AMRAP finishers where missing
 
-```sql
-CREATE TABLE nutrition_template_categories (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  description TEXT,
-  target_profile TEXT,
-  icon TEXT,
-  display_order INT DEFAULT 0,
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+---
 
--- Seed the 5 categories
-INSERT INTO nutrition_template_categories (name, description, target_profile, display_order) VALUES
-  ('Fat Loss - Aggressive', 'High deficit, low carb focus', 'Rapid fat loss', 1),
-  ('Fat Loss - Moderate', 'Sustainable deficit', 'Steady fat loss', 2),
-  ('Recomposition', 'Maintenance calories', 'Build muscle, lose fat', 3),
-  ('Muscle Building - Lean', 'Slight surplus', 'Clean bulk', 4),
-  ('Muscle Building - Mass', 'High surplus', 'Maximum muscle gain', 5);
+## Example Transformed Workout
+
+**Before:**
+```
+Week 1 - Monday: Full Body A
+├─ Warm-Up
+│   ├─ Jumping Jacks: 2×30, 0s rest
+│   └─ Bodyweight Squats: 2×15, 0s rest
+├─ Main Workout
+│   ├─ Push-ups: 3×8-12, 60s rest
+│   ├─ DB Row: 3×10-12, 60s rest
+│   ├─ Goblet Squat: 3×10-12, 60s rest
+│   └─ Leg Press: 3×12-15, 60s rest
+├─ Finisher
+│   └─ Plank: 3×30-45s, 30s rest
+└─ Cool-Down
+    └─ (none)
 ```
 
-### Migration 2: Add category to meal_plan_templates
-
-```sql
-ALTER TABLE meal_plan_templates 
-ADD COLUMN category_id UUID REFERENCES nutrition_template_categories(id);
-
-ALTER TABLE meal_plan_templates 
-ADD COLUMN difficulty TEXT DEFAULT 'intermediate';
-
--- Update existing templates with categories based on goal_type
+**After (Dom's Style):**
+```
+Week 1 - Monday: Full Body Assault
+├─ Warm-Up
+│   ├─ Burpee Complex: 2×15, 0s rest - "Get the blood pumping"
+│   └─ Prisoner Squats: 2×25, 0s rest - "Hands behind head, deep"
+├─ Main Workout
+│   ├─ Push-ups: 4×25-30, 45s rest - "Chest to deck, no resting at top"
+│   ├─ DB Row: 4×20-25, 45s rest - "Control the weight, feel every rep"
+│   ├─ Goblet Squat: 4×25-30, 50s rest - "Ass to grass, no shortcuts"
+│   └─ Walking Lunges: 4×20 each, 50s rest - "Burn is where growth happens"
+├─ Finisher
+│   └─ AMRAP: Push-up + Squat Blitz: 90 seconds - "10 push-ups, 10 squats, repeat until time. No quitting."
+└─ Cool-Down
+    └─ Static Stretches: 5 min - "You earned this"
 ```
 
 ---
 
-## Implementation Order
+## Implementation Steps
 
-1. **Database migrations** - Create category table, add columns to templates
-2. **Restructure FreeWorldHub** - Add the three internal tabs
-3. **Create FreeWorldWorkoutTemplates** - Workout library with editing
-4. **Create FreeWorldNutritionTemplates** - Nutrition library with editing
-5. **Create hooks for nutrition templates** - CRUD operations
-6. **Run populate edge function** - Add remaining 20 nutrition templates
-7. **Add NutritionTemplateAssignment** - Client assignment workflow
-8. **Add Nutrition tab to ClientProgressPanel** - Per-client nutrition management
+1. **Create the update edge function** with Dom's exercise definitions
+2. **Run the function** to transform all 50 templates
+3. **Update the populate function** so any new templates use Dom's style by default
+4. **Test in admin dashboard** - verify exercises show correct high-rep schemes
 
 ---
 
 ## Technical Notes
 
-- Reuse existing accordion/collapsible patterns from `ProgramTemplateManager`
-- Workout templates already have full data (33 templates with exercises)
-- Nutrition templates have 30 with full meals - need 20 more
-- Both template types use the same category-based recommendation algorithm
-- Purple accent color scheme maintained for all Free World UI
+- All updates are reversible (exercise data stored in database)
+- The edge function will log what it changes for audit purposes
+- AMRAP finishers will be added as `section_type: "finisher"` with appropriate display order
+- Cool-down section will be added if missing (static stretches)
