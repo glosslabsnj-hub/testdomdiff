@@ -1,0 +1,219 @@
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  Users,
+  ClipboardCheck,
+  MessageSquare,
+  BookOpen,
+  Layers,
+  CreditCard,
+  FileText,
+  BarChart3,
+  Settings,
+  ScrollText,
+  Package,
+  ChevronLeft,
+  ChevronRight,
+  Crown,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export type AdminSection = 
+  | "command"
+  | "users"
+  | "check-ins"
+  | "support"
+  | "content"
+  | "tiers"
+  | "payments"
+  | "intake"
+  | "commissary"
+  | "analytics"
+  | "settings"
+  | "logs";
+
+interface NavItem {
+  id: AdminSection;
+  label: string;
+  icon: React.ElementType;
+  badge?: number;
+  badgeColor?: string;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+interface AdminSidebarProps {
+  activeSection: AdminSection;
+  onSectionChange: (section: AdminSection) => void;
+  pendingCheckIns?: number;
+  pendingSupportTickets?: number;
+  coachingClients?: number;
+  pendingOrders?: number;
+}
+
+export default function AdminSidebar({
+  activeSection,
+  onSectionChange,
+  pendingCheckIns = 0,
+  pendingSupportTickets = 0,
+  coachingClients = 0,
+  pendingOrders = 0,
+}: AdminSidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const navGroups: NavGroup[] = [
+    {
+      title: "Overview",
+      items: [
+        { id: "command", label: "Command Center", icon: LayoutDashboard },
+      ],
+    },
+    {
+      title: "People",
+      items: [
+        { id: "users", label: "Users", icon: Users },
+        { 
+          id: "check-ins", 
+          label: "Check-Ins", 
+          icon: ClipboardCheck, 
+          badge: pendingCheckIns,
+          badgeColor: "bg-destructive text-destructive-foreground"
+        },
+        { 
+          id: "support", 
+          label: "Support", 
+          icon: MessageSquare,
+          badge: pendingSupportTickets,
+          badgeColor: "bg-yellow-500/20 text-yellow-400"
+        },
+        {
+          id: "intake",
+          label: "Intake & Forms",
+          icon: FileText,
+        },
+      ],
+    },
+    {
+      title: "Content",
+      items: [
+        { id: "content", label: "Programs & Content", icon: BookOpen },
+        { id: "tiers", label: "Tiers & Access", icon: Layers },
+      ],
+    },
+    {
+      title: "Business",
+      items: [
+        { id: "payments", label: "Payments & Revenue", icon: CreditCard },
+        { 
+          id: "commissary", 
+          label: "Commissary", 
+          icon: Package,
+          badge: pendingOrders,
+          badgeColor: "bg-yellow-500/20 text-yellow-400"
+        },
+        { id: "analytics", label: "Analytics", icon: BarChart3 },
+      ],
+    },
+    {
+      title: "System",
+      items: [
+        { id: "settings", label: "Settings", icon: Settings },
+        { id: "logs", label: "Logs & Safety", icon: ScrollText },
+      ],
+    },
+  ];
+
+  return (
+    <div
+      className={cn(
+        "h-full bg-charcoal border-r border-border flex flex-col transition-all duration-300",
+        collapsed ? "w-16" : "w-56"
+      )}
+    >
+      {/* Header */}
+      <div className="p-3 border-b border-border flex items-center justify-between">
+        {!collapsed && (
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Crown className="w-4 h-4 text-primary" />
+            </div>
+            <span className="font-semibold text-sm">Admin</span>
+          </div>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          {collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+
+      {/* Navigation */}
+      <ScrollArea className="flex-1">
+        <div className="p-2 space-y-4">
+          {navGroups.map((group, groupIndex) => (
+            <div key={group.title}>
+              {!collapsed && (
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
+                  {group.title}
+                </h3>
+              )}
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.id;
+                  
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => onSectionChange(item.id)}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors",
+                        collapsed ? "justify-center" : "",
+                        isActive
+                          ? "bg-primary/20 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                      title={collapsed ? item.label : undefined}
+                    >
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && (
+                        <>
+                          <span className="flex-1 text-left truncate">{item.label}</span>
+                          {item.badge && item.badge > 0 && (
+                            <Badge className={cn("text-xs h-5 min-w-5 p-0 flex items-center justify-center", item.badgeColor)}>
+                              {item.badge > 9 ? "9+" : item.badge}
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                      {collapsed && item.badge && item.badge > 0 && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {groupIndex < navGroups.length - 1 && !collapsed && (
+                <Separator className="mt-3" />
+              )}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+}
