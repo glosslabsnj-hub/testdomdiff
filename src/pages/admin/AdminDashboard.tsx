@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Sidebar & Sections
 import AdminSidebar, { type AdminSection } from "@/components/admin/AdminSidebar";
+import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
 
 // Section Components
 import CommandCenterCollapsible from "@/components/admin/CommandCenterCollapsible";
@@ -43,6 +45,7 @@ import { useAdminCheckIns } from "@/hooks/useAdminCheckIns";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { isAdmin, isLoading: adminLoading } = useAdminCheck();
   const { analytics: leadAnalytics, isLoading: leadsLoading } = useChatLeadAnalytics();
   const { checkIns } = useAdminCheckIns();
@@ -204,21 +207,35 @@ export default function AdminDashboard() {
 
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
-      <Header />
-      <main className="flex-1 min-h-0 overflow-hidden flex pt-16">
-        {/* Left Sidebar Navigation */}
-        <AdminSidebar 
+      {/* Desktop header only */}
+      <div className="hidden md:block">
+        <Header />
+      </div>
+      
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col md:flex-row md:pt-16">
+        {/* Mobile Header with Drawer */}
+        <AdminMobileHeader
           activeSection={activeSection}
           onSectionChange={setActiveSection}
           pendingCheckIns={pendingCheckIns}
           coachingClients={coachingClients}
         />
 
+        {/* Desktop Sidebar - Hidden on Mobile */}
+        <div className="hidden md:block">
+          <AdminSidebar 
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
+            pendingCheckIns={pendingCheckIns}
+            coachingClients={coachingClients}
+          />
+        </div>
+
         {/* Main Content Area */}
         <div className="flex-1 min-w-0 overflow-y-auto">
-          <div className="p-6">
-            {/* Back to Dashboard link */}
-            <div className="flex items-center gap-4 mb-6">
+          <div className="p-4 md:p-6">
+            {/* Desktop Back to Dashboard link - Hidden on Mobile */}
+            <div className="hidden md:flex items-center gap-4 mb-6">
               <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>

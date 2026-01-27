@@ -290,6 +290,8 @@ const Intake = () => {
               <Input
                 id="phone"
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={formData.phone}
                 onChange={(e) => updateForm("phone", e.target.value)}
                 className={cn(
@@ -310,7 +312,9 @@ const Intake = () => {
                 <Label htmlFor="age" className="text-sm font-medium">Age <span className="text-destructive">*</span></Label>
                 <Input
                   id="age"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={formData.age}
                   onChange={(e) => updateForm("age", e.target.value)}
                   className={cn(
@@ -347,7 +351,9 @@ const Intake = () => {
                 <Label htmlFor="weight" className="text-sm font-medium">Weight <span className="text-destructive">*</span></Label>
                 <Input
                   id="weight"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
+                  pattern="[0-9]*\.?[0-9]*"
                   value={formData.weight}
                   onChange={(e) => updateForm("weight", e.target.value)}
                   className={cn(

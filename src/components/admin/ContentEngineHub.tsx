@@ -8,14 +8,14 @@ import { useContentEngine, type ContentCategory, type ContentMode, type ContentS
 import ContentCard from "./content-engine/ContentCard";
 import ContentGeneratorModal from "./content-engine/ContentGeneratorModal";
 
-const categories: { value: ContentCategory | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "faith", label: "Faith" },
-  { value: "discipline", label: "Discipline" },
-  { value: "training", label: "Training" },
-  { value: "transformations", label: "Transformations" },
-  { value: "authority", label: "Authority" },
-  { value: "platform", label: "Platform" },
+const categories: { value: ContentCategory | "all"; label: string; short: string }[] = [
+  { value: "all", label: "All", short: "All" },
+  { value: "faith", label: "Faith", short: "Faith" },
+  { value: "discipline", label: "Discipline", short: "Disc" },
+  { value: "training", label: "Training", short: "Train" },
+  { value: "transformations", label: "Transformations", short: "Trans" },
+  { value: "authority", label: "Authority", short: "Auth" },
+  { value: "platform", label: "Platform", short: "Plat" },
 ];
 
 const statusFilters: { value: ContentStatus | "all"; label: string }[] = [
@@ -74,37 +74,44 @@ export default function ContentEngineHub() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="space-y-4">
-        {/* Mode Toggle */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <span className="text-sm font-medium text-muted-foreground">Mode:</span>
-          <ToggleGroup
-            type="single"
-            value={mode}
-            onValueChange={(v) => v && setMode(v as ContentMode | "all")}
-            className="justify-start"
-          >
-            <ToggleGroupItem value="all" className="text-xs">
-              All
-            </ToggleGroupItem>
-            <ToggleGroupItem value="done_for_you" className="text-xs">
-              Done-For-You
-            </ToggleGroupItem>
-            <ToggleGroupItem value="freestyle" className="text-xs">
-              Freestyle
-            </ToggleGroupItem>
-          </ToggleGroup>
+      {/* Filters - Mobile Optimized */}
+      <div className="space-y-3">
+        {/* Mode & Status Toggles - Stack on mobile */}
+        <div className="flex flex-col gap-3">
+          {/* Mode Toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground shrink-0">Mode:</span>
+            <ToggleGroup
+              type="single"
+              value={mode}
+              onValueChange={(v) => v && setMode(v as ContentMode | "all")}
+              className="flex-1 justify-start"
+            >
+              <ToggleGroupItem value="all" className="text-xs h-8 px-2 sm:px-3">
+                All
+              </ToggleGroupItem>
+              <ToggleGroupItem value="done_for_you" className="text-xs h-8 px-2 sm:px-3">
+                <span className="hidden sm:inline">Done-For-You</span>
+                <span className="sm:hidden">DFY</span>
+              </ToggleGroupItem>
+              <ToggleGroupItem value="freestyle" className="text-xs h-8 px-2 sm:px-3">
+                <span className="hidden sm:inline">Freestyle</span>
+                <span className="sm:hidden">Free</span>
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
 
-          <div className="sm:ml-auto">
+          {/* Status Toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground shrink-0">Status:</span>
             <ToggleGroup
               type="single"
               value={status}
               onValueChange={(v) => v && setStatus(v as ContentStatus | "all")}
-              className="justify-start"
+              className="flex-1 justify-start"
             >
               {statusFilters.map((s) => (
-                <ToggleGroupItem key={s.value} value={s.value} className="text-xs">
+                <ToggleGroupItem key={s.value} value={s.value} className="text-xs h-8 px-2 sm:px-3">
                   {s.label}
                 </ToggleGroupItem>
               ))}
@@ -112,19 +119,22 @@ export default function ContentEngineHub() {
           </div>
         </div>
 
-        {/* Category Tabs */}
+        {/* Category Tabs - Horizontal scroll on mobile */}
         <Tabs value={category} onValueChange={(v) => setCategory(v as ContentCategory | "all")}>
-          <TabsList className="bg-charcoal border border-border flex-wrap h-auto gap-1 p-1">
-            {categories.map((cat) => (
-              <TabsTrigger
-                key={cat.value}
-                value={cat.value}
-                className="text-xs data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400"
-              >
-                {cat.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="bg-charcoal border border-border inline-flex h-auto gap-1 p-1 min-w-max">
+              {categories.map((cat) => (
+                <TabsTrigger
+                  key={cat.value}
+                  value={cat.value}
+                  className="text-xs h-8 px-2 sm:px-3 data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400"
+                >
+                  <span className="hidden sm:inline">{cat.label}</span>
+                  <span className="sm:hidden">{cat.short}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
         </Tabs>
       </div>
 
