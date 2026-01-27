@@ -11,6 +11,7 @@ import {
   Loader2,
   FileText,
   ClipboardList,
+  Sparkles,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,14 +25,21 @@ import ClientGoalsTab from "./ClientGoalsTab";
 import ClientMessagesTab from "./ClientMessagesTab";
 import ImprovedProgramTab from "./ImprovedProgramTab";
 import ClientIntakeTab from "./ClientIntakeTab";
-import ClientRecommendationsCard from "./ClientRecommendationsCard";
+import ClientTemplatesTab from "./ClientTemplatesTab";
 
 interface ClientProgressPanelProps {
   client: ClientWithSubscription;
   onUpdate: () => void;
+  onBrowseWorkouts?: () => void;
+  onBrowseNutrition?: () => void;
 }
 
-export default function ClientProgressPanel({ client, onUpdate }: ClientProgressPanelProps) {
+export default function ClientProgressPanel({ 
+  client, 
+  onUpdate,
+  onBrowseWorkouts,
+  onBrowseNutrition,
+}: ClientProgressPanelProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const { data: progress, loading } = useClientProgress(client.user_id);
 
@@ -105,11 +113,25 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
             Overview
           </TabsTrigger>
           <TabsTrigger
+            value="templates"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Templates
+          </TabsTrigger>
+          <TabsTrigger
             value="intake"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
           >
             <ClipboardList className="w-4 h-4 mr-2" />
             Intake
+          </TabsTrigger>
+          <TabsTrigger
+            value="program"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Program
           </TabsTrigger>
           <TabsTrigger
             value="sessions"
@@ -123,7 +145,7 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
           >
             <Target className="w-4 h-4 mr-2" />
-            Goals & Actions
+            Goals
           </TabsTrigger>
           <TabsTrigger
             value="messages"
@@ -131,13 +153,6 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
           >
             <MessageSquare className="w-4 h-4 mr-2" />
             Messages
-          </TabsTrigger>
-          <TabsTrigger
-            value="program"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Program
           </TabsTrigger>
         </TabsList>
 
@@ -148,19 +163,26 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="p-4 pb-28 space-y-4">
-              {/* Recommendations Card at Top */}
-              <ClientRecommendationsCard 
-                client={client} 
-                onTemplateAssigned={onUpdate}
-              />
-              
+            <div className="p-4 pb-28">
               <TabsContent value="overview" className="m-0">
                 <ClientOverviewTab client={client} progress={progress} />
               </TabsContent>
 
+              <TabsContent value="templates" className="m-0">
+                <ClientTemplatesTab 
+                  client={client} 
+                  onTemplateAssigned={onUpdate}
+                  onBrowseWorkouts={onBrowseWorkouts}
+                  onBrowseNutrition={onBrowseNutrition}
+                />
+              </TabsContent>
+
               <TabsContent value="intake" className="m-0">
                 <ClientIntakeTab client={client} />
+              </TabsContent>
+
+              <TabsContent value="program" className="m-0">
+                <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
 
               <TabsContent value="sessions" className="m-0">
@@ -173,10 +195,6 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
 
               <TabsContent value="messages" className="m-0">
                 <ClientMessagesTab clientId={client.user_id} />
-              </TabsContent>
-
-              <TabsContent value="program" className="m-0">
-                <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
             </div>
           )}
