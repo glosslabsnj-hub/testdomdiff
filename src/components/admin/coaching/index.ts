@@ -12,3 +12,4 @@ export { default as TemplateAssignment } from "./TemplateAssignment";
 export { default as ImprovedProgramTab } from "./ImprovedProgramTab";
 export { default as FreeWorldWorkoutTemplates } from "./FreeWorldWorkoutTemplates";
 export { default as FreeWorldNutritionTemplates } from "./FreeWorldNutritionTemplates";
+export { default as ClientRecommendationBanner } from "./ClientRecommendationBanner";
