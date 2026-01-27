@@ -1,301 +1,250 @@
 
-# Admin Dashboard Reorganization & Client Experience Enhancement
 
-## Summary
+# Content Engine - Implementation Plan
 
-This plan implements three major improvements:
+## What We're Building
 
-1. **Move "Intake & Forms" from People to Coaching** - Relocate to the Free World section for better workflow
-2. **Consolidate client subtabs** - Merge "Programs" and "Program Details" into one streamlined "Programs" tab
-3. **Enhance client dashboard Custom Program tile** - Replace "In Progress" message with two distinct tabs (Training/Nutrition) showing full week-by-week expandable content
+A dedicated admin section that turns Dom's lifestyle and platform into a content machine. The system will:
 
----
-
-## Part 1: Admin Sidebar Reorganization
-
-### Current State
-The "Intake & Forms" item is under the "People" category in the sidebar.
-
-### New Design
-Move "Intake & Forms" from "People" to "Coaching" category, below "Free World":
-
-```
-COACHING
-├── 👑 Free World
-└── 📝 Intake & Forms
-```
-
-### File Changes
-**`src/components/admin/AdminSidebar.tsx`**
-- Remove `intake` from the "People" items array
-- Add `intake` to the "Coaching" items array after "freeworld"
+1. **Generate fresh content ideas** using AI, tailored to Dom's brand voice
+2. **Organize content by category** matching the mission (Faith, Discipline, Training, etc.)
+3. **Support two creation modes**: Done-For-You scripts and Freestyle Frameworks
+4. **Store approved content** for reuse while tracking what's been posted
+5. **Provide clear, actionable output** that anyone could follow
 
 ---
 
-## Part 2: Client Subtab Consolidation
+## User Experience Overview
 
-### Current State
-ClientProgressPanel has 7 tabs:
-- Programs (assignment + recommendations)
-- Overview
-- Intake
-- Program Details (view assigned program weeks/days)
-- Sessions
-- Goals
-- Messages
+### Navigation
+A new "Content Engine" item will appear in the Admin Sidebar under a new "Growth" category (matching the brand's orange/fire color). Clicking it opens the full Content Engine view.
 
-### Problems
-- "Programs" and "Program Details" are confusing - should be one tab
-- Admin has to jump between tabs to assign AND view the program
-- "Program Details" doesn't include nutrition view
+### Main Interface Layout
 
-### New Design
-Merge into 5 streamlined tabs:
-
-```
-[ Programs ] [ Overview ] [ Intake ] [ Sessions ] [ Goals ] [ Messages ]
-     ↑
- DEFAULT - Shows assignment + full program view in one place
-```
-
-### New "Programs" Tab Structure
-
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  PROGRAMS                                                                       │
-│                                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────────────┐
-│  │  [ 🏋️ Training ]  [ 🍽️ Nutrition ]                    Toggle view          │
-│  └─────────────────────────────────────────────────────────────────────────────┘
-│                                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────────────┐
-│  │  CURRENT ASSIGNMENT                                                         │
-│  │  ┌─────────────────────────────────────────────────────────────────────────┐│
-│  │  │ ✓ Intermediate Push/Pull/Legs               [Change] [View Details]    ││
-│  │  │   5 days/week • Standard difficulty                                     ││
-│  │  └─────────────────────────────────────────────────────────────────────────┘│
-│  │                                                                             │
-│  │  OR if not assigned:                                                        │
-│  │  ┌─────────────────────────────────────────────────────────────────────────┐│
-│  │  │ ⚠️ No training program assigned                                         ││
-│  │  │ [AI Recommendation Card with Assign button]                             ││
-│  │  │ [Browse All Templates]                                                  ││
-│  │  └─────────────────────────────────────────────────────────────────────────┘│
-│  └─────────────────────────────────────────────────────────────────────────────┘
-│                                                                                 │
-│  ┌─────────────────────────────────────────────────────────────────────────────┐
-│  │  PROGRAM PREVIEW                                                            │
-│  │                                                                             │
-│  │  [Week 1] [Week 2] [Week 3] [Week 4]  <-- Horizontal week tabs              │
-│  │                                                                             │
-│  │  ▼ MONDAY: Push Day A                                                       │
-│  │    ├── Warmup (3 exercises)                                                 │
-│  │    ├── Main Work (5 exercises)                                              │
-│  │    └── Finisher (2 exercises)                                               │
-│  │                                                                             │
-│  │  ▶ TUESDAY: Pull Day A                                                      │
-│  │  ▶ WEDNESDAY: Legs A                                                        │
-│  │  ...                                                                        │
-│  └─────────────────────────────────────────────────────────────────────────────┘
-│                                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────┘
+```text
++------------------------------------------+
+|  CONTENT ENGINE                          |
+|  "Your daily content playbook"           |
++------------------------------------------+
+|                                          |
+|  [ Generate Fresh Ideas ]    [ My Saved ]|
+|                                          |
+|  MODE:  [Done-For-You] [Freestyle]       |
+|                                          |
++------------------------------------------+
+|  CATEGORIES (pill tabs)                  |
+|  [Faith] [Discipline] [Training]         |
+|  [Transformations] [Authority] [Platform]|
++------------------------------------------+
+|                                          |
+|  CONTENT CARDS                           |
+|  +------------------------------------+  |
+|  | "The Comeback Mindset"             |  |
+|  | Platform: IG Reels, TikTok, Shorts |  |
+|  | Format: Talking to camera          |  |
+|  |                                    |  |
+|  | HOOK: "Most men don't fail..."     |  |
+|  | [View Full Script] [Mark as Used]  |  |
+|  +------------------------------------+  |
+|                                          |
++------------------------------------------+
 ```
 
-When toggled to "Nutrition":
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  CURRENT ASSIGNMENT                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────────────┐│
-│  │ ✓ Fat Loss GF 1800                             [Change] [View Details]     ││
-│  │   1600-1900 cal • 180g protein                                              ││
-│  └─────────────────────────────────────────────────────────────────────────────┘│
-│                                                                                 │
-│  MEAL PLAN PREVIEW                                                              │
-│  [Week 1] [Week 2] [Week 3] [Week 4]                                           │
-│                                                                                 │
-│  ▼ DAY 1: Monday                                                                │
-│    Breakfast: Greek Yogurt Bowl      320 cal | 35g P                           │
-│    Lunch: Grilled Chicken Salad      450 cal | 45g P                           │
-│    Dinner: Baked Salmon              520 cal | 48g P                           │
-│    Snack: Protein Shake              180 cal | 30g P                           │
-│                                                                                 │
-│  ▶ DAY 2: Tuesday                                                               │
-│  ▶ DAY 3: Wednesday                                                             │
-│  ...                                                                            │
-└─────────────────────────────────────────────────────────────────────────────────┘
-```
+### Content Card Details (Expanded View)
+
+Each card expands to show:
+
+| Field | Description |
+|-------|-------------|
+| **Title** | Clear post name |
+| **Platforms** | Icons: IG, TikTok, YouTube, X |
+| **Format** | How to film it (talking head, workout clip, voiceover, screen walkthrough) |
+| **Hook** | First 1-2 attention-grabbing lines |
+| **Talking Points** | 3-5 bullet points to cover |
+| **Filming Tips** | Plain-language shooting instructions |
+| **CTA** | What to say at the end (links back to platform) |
+| **Status** | Fresh / Used / Favorite |
 
 ---
 
-## Part 3: Enhanced Client Dashboard Custom Program Tile
+## How Content Generation Works
 
-### Current State
-When no program is assigned, clients see "In Progress - Your Program is Being Built."
-When assigned, they see a toggle between Workouts and Nutrition views.
+### Generate Fresh Ideas Flow
 
-### Problem
-The current implementation works but needs better structure to match the 12-week program experience with full expandable days showing:
-- Instructions
-- Tips
-- Video demos (if provided)
-- Completion tracking
+1. Dom clicks **"Generate Fresh Ideas"**
+2. Selects a category (or "Surprise Me")
+3. Selects the mode: Done-For-You or Freestyle
+4. AI generates 3-5 content ideas using the brand voice
+5. Dom reviews each idea:
+   - **Save** → Adds to library
+   - **Regenerate** → Get a new version
+   - **Skip** → Dismiss
 
-### New Design: Two Distinct Tabs
+### Brand Voice System Prompt
 
-Replace the toggle with proper tabs that mirror the 12-week program experience:
-
-```
-YOUR CUSTOM PROGRAM
-[ 🏋️ Training Program ]  [ 🍽️ Nutrition Plan ]
-
-─────────────────────────────────────────────────────────
-TRAINING PROGRAM (when tab active)
-
-▼ Week 1: Foundation
-├── ▼ MONDAY: Push Day A                    [✓ Complete]
-│   ├── WARMUP
-│   │   • Arm Circles       2×30 sec
-│   │   • Band Pull Aparts  2×15
-│   ├── MAIN WORK
-│   │   • Bench Press       4×8-10     90s rest
-│   │     ↳ Instructions: Keep shoulder blades pinched...
-│   │     ↳ Tips: Don't flare elbows past 45 degrees
-│   │     ↳ 🎥 Watch Demo
-│   │   • Incline DB Press  3×10-12    60s rest
-│   │   ...
-│   ├── FINISHER
-│   │   • Push-up Burnout   2×Max
-│   │
-├── ▶ TUESDAY: Pull Day A
-├── ▶ WEDNESDAY: Legs A
-├── ▶ THURSDAY: Rest Day
-...
-
-▶ Week 2: Build
-▶ Week 3: Peak
-▶ Week 4: Deload
-
-─────────────────────────────────────────────────────────
-NUTRITION PLAN (when tab active)
-
-▼ Week 1
-├── ▼ DAY 1: Monday                         [✓ Followed]
-│   ├── BREAKFAST: Greek Yogurt Power Bowl
-│   │   320 cal | 35g P | 25g C | 12g F
-│   │   ↳ Ingredients: Greek yogurt, berries, honey...
-│   │   ↳ Instructions: Mix yogurt with honey...
-│   │   ↳ Tips: Prep the night before for grab-n-go
-│   ├── LUNCH: Grilled Chicken Salad
-│   │   450 cal | 45g P | 20g C | 22g F
-│   │   ...
-│   ├── DINNER: Baked Salmon & Veggies
-│   ├── SNACK: Protein Shake
-│
-├── ▶ DAY 2: Tuesday
-├── ▶ DAY 3: Wednesday
-...
-
-[ 🛒 View Week 1 Grocery List ]
-
-▶ Week 2
-▶ Week 3
-▶ Week 4
-```
-
-### Key Features
-1. **Week-level collapsibles** - Expand each week to see all days
-2. **Day-level collapsibles** - Expand each day to see full workout/meal details
-3. **Exercise details inline** - Show instructions, tips, and video demo button
-4. **Meal details inline** - Show ingredients, instructions, and tips
-5. **Completion buttons** - Mark days as complete (Training = "SERVED", Nutrition = "Followed")
-6. **Grocery list** - Available per week for nutrition tab
+The AI will use a carefully crafted system prompt that captures Dom's voice:
+- Masculine, disciplined, grounded
+- Faith-based but not preachy
+- Direct and real, no influencer gimmicks
+- References prison metaphors and redemption themes
+- Uses "iron sharpens iron" mentality
 
 ---
 
-## Part 4: Technical Implementation
+## Content Categories
 
-### Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/admin/coaching/UnifiedProgramsTab.tsx` | New merged Programs tab with Training/Nutrition toggle and inline preview |
-| `src/components/dashboard/WorkoutProgramView.tsx` | Enhanced workout view for Custom Program page with full exercise details |
-
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/admin/AdminSidebar.tsx` | Move "Intake" from People to Coaching |
-| `src/components/admin/coaching/ClientProgressPanel.tsx` | Remove "Program Details" tab, keep "Programs" as merged experience |
-| `src/components/admin/coaching/ClientProgramsTab.tsx` | Rename to UnifiedProgramsTab, add inline program preview with full week/day/exercise structure |
-| `src/pages/dashboard/CustomProgram.tsx` | Replace ToggleGroup with proper Tabs, enhance workout view to show instructions/tips/videos |
-| `src/components/dashboard/NutritionDayCard.tsx` | Ensure meal instructions/tips are visible when expanded |
-| `src/components/dashboard/NutritionMealItem.tsx` | Add expanded view with ingredients and instructions |
-
-### Component Changes Summary
-
-**AdminSidebar.tsx Changes:**
-```typescript
-// Move from People group
-{
-  title: "People",
-  items: [
-    { id: "users", ... },
-    { id: "check-ins", ... },
-    { id: "support", ... },
-    // REMOVE: { id: "intake", ... }
-  ],
-},
-
-// Add to Coaching group
-{
-  title: "Coaching",
-  items: [
-    { id: "freeworld", ... },
-    { id: "intake", label: "Intake & Forms", icon: FileText },  // ADD
-  ],
-},
-```
-
-**ClientProgressPanel.tsx Changes:**
-- Remove the "details" tab (Program Details)
-- Keep only: programs, overview, intake, sessions, goals, messages
-- The "Programs" tab will now show both assignment AND preview
-
-**ClientProgramsTab.tsx Enhancement:**
-- Add a "Program Preview" section below the assignment cards
-- Show week tabs with expandable days
-- Show exercise/meal details when expanded
-- Toggle between Training and Nutrition views
-
-**CustomProgram.tsx Enhancement:**
-- Replace `ToggleGroup` with `Tabs` for cleaner UX
-- Enhance the workout view (currently DayCard) to show:
-  - Exercise instructions
-  - Form tips
-  - Video demo button (opens in dialog)
-- Ensure parity with 12-week program experience
+| Category | Theme | Example Content |
+|----------|-------|-----------------|
+| **Faith & Redemption** | Who you were vs. who you're becoming | "God didn't waste your past" |
+| **Discipline & Structure** | Daily routines, accountability | "5AM isn't the answer. Consistency is." |
+| **Workout & Training** | Follow-along, progress over perfection | "Train with me: Prison-style push day" |
+| **Transformations** | Member wins, mindset shifts | "He lost 40lbs but gained his family back" |
+| **Education & Authority** | Teaching concepts, breaking down mistakes | "Why motivation is a lie" |
+| **Platform-Led** | Inside the system, feature walkthroughs | "This is what Solitary members get" |
 
 ---
 
-## Part 5: Execution Order
+## Two Content Modes
 
-1. **Update AdminSidebar.tsx** - Move Intake to Coaching category
-2. **Update ClientProgressPanel.tsx** - Remove "Program Details" tab
-3. **Enhance ClientProgramsTab.tsx** - Add inline program preview with week/day/exercise details
-4. **Enhance CustomProgram.tsx** - Replace toggle with tabs, add exercise instructions/tips/video
-5. **Enhance NutritionMealItem.tsx** - Add expandable view with full recipe details
-6. **Test & Polish** - Verify assignment flow, preview accuracy, and client dashboard experience
+### Mode 1: Done-For-You Posts
+Complete, ready-to-record scripts:
+- Exact hook written out
+- Word-for-word talking points
+- Specific filming instructions
+- Ready CTA with link reference
+
+### Mode 2: Freestyle Frameworks
+Fill-in-the-blank structure:
+- Hook formula: "Most men [problem]. Here's why [solution]..."
+- Prompt questions to spark ideas
+- Flexible talking point structure
+- CTA guidance (not exact wording)
 
 ---
 
-## Summary of Changes
+## Data Storage
 
-| Area | Before | After |
-|------|--------|-------|
-| Sidebar: Intake location | People category | Coaching category |
-| Client subtabs | 7 tabs (Programs, Overview, Intake, Program Details, Sessions, Goals, Messages) | 6 tabs (Programs, Overview, Intake, Sessions, Goals, Messages) |
-| Programs tab | Assignment only | Assignment + full program preview with week/day/exercise details |
-| Custom Program tile | Toggle between Workouts/Nutrition | Proper tabs with full expandable content |
-| Workout details | Basic sets/reps display | Full instructions, tips, and video demos |
-| Nutrition details | Basic meal list | Full ingredients, instructions, and tips |
+### New Database Table: `content_engine_posts`
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| id | uuid | Primary key |
+| category | text | faith, discipline, training, etc. |
+| mode | text | done_for_you or freestyle |
+| title | text | Post title |
+| platforms | text[] | Array of platform names |
+| format | text | Filming format type |
+| hook | text | Opening hook |
+| talking_points | jsonb | Array of bullet points |
+| filming_tips | text | How to shoot it |
+| cta | text | Call to action |
+| status | text | fresh, used, favorite |
+| created_at | timestamp | When generated |
+| used_at | timestamp | When marked as used |
+
+---
+
+## Files to Create
+
+### 1. Admin Sidebar Update
+**File:** `src/components/admin/AdminSidebar.tsx`
+- Add "Content Engine" to the navigation under a new "Growth" category
+- Use `Flame` or `Megaphone` icon
+- Orange/fire color accent
+
+### 2. Content Engine Hub
+**File:** `src/components/admin/ContentEngineHub.tsx`
+- Main container component
+- Header with generate button
+- Mode toggle (Done-For-You / Freestyle)
+- Category tabs
+- Content card grid
+
+### 3. Content Card Component
+**File:** `src/components/admin/content-engine/ContentCard.tsx`
+- Collapsed: Title, platforms, hook preview
+- Expanded: Full details, actions
+- Status badges (Fresh, Used, Favorite)
+
+### 4. Content Generator Modal
+**File:** `src/components/admin/content-engine/ContentGeneratorModal.tsx`
+- Category selector
+- Mode selector
+- Generated ideas display
+- Save/Regenerate/Skip actions
+
+### 5. Content Engine Hook
+**File:** `src/hooks/useContentEngine.ts`
+- CRUD operations for content posts
+- Filter by category, mode, status
+- Mark as used/favorite
+
+### 6. AI Generation Edge Function
+**File:** `supabase/functions/generate-content-ideas/index.ts`
+- Receives category + mode
+- Uses brand voice system prompt
+- Returns 3-5 structured content ideas
+- Uses Lovable AI (Gemini)
+
+---
+
+## Technical Details
+
+### Edge Function: Content Generation
+
+The function will:
+1. Accept category and mode parameters
+2. Use a brand-voice system prompt
+3. Call Lovable AI with structured output (tool calling)
+4. Return JSON with:
+   - title
+   - platforms array
+   - format
+   - hook
+   - talking_points array
+   - filming_tips
+   - cta
+
+### RLS Policies
+
+- Only admins can read/write to `content_engine_posts`
+- Policy: `auth.uid() IN (SELECT user_id FROM user_roles WHERE role = 'admin')`
+
+---
+
+## UI Styling
+
+Following existing admin patterns:
+- **Background:** `bg-charcoal` cards with `border-border`
+- **Active states:** Orange/fire color for Content Engine theme
+- **Icons:** Platform-specific (Instagram, TikTok, YouTube, X)
+- **Badges:** Status indicators matching existing badge styles
+- **Buttons:** `variant="gold"` for primary actions
+
+---
+
+## Implementation Order
+
+1. **Database:** Create `content_engine_posts` table with RLS
+2. **Sidebar:** Add Content Engine navigation item
+3. **Dashboard:** Wire up the new section in AdminDashboard.tsx
+4. **Hub Component:** Build the main Content Engine interface
+5. **Hook:** Create useContentEngine for data operations
+6. **Edge Function:** Build AI content generation
+7. **Generator Modal:** Create the generate flow UI
+8. **Content Cards:** Build card display and interactions
+
+---
+
+## What This Delivers
+
+| Pain Point | Solution |
+|------------|----------|
+| "What should I post?" | Category-organized ideas on demand |
+| "How should I say it?" | Done-For-You scripts with exact wording |
+| "Where does this lead?" | Every post has a CTA back to the platform |
+| "I don't want to sound like a marketer" | Brand voice baked into AI generation |
+| "I need flexibility sometimes" | Toggle to Freestyle mode for structure without scripts |
+
+The Content Engine becomes Dom's daily content coach, removing all friction between "I should post" and actually recording.
+
