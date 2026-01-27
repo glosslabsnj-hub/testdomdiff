@@ -13,6 +13,34 @@ interface ClientNutritionProfile {
   meal_prep_preference?: string | null;
 }
 
+/**
+ * Parse dietary restrictions from comma-separated string to array
+ */
+function parseDietaryRestrictions(restrictions: string | null | undefined): string[] {
+  if (!restrictions) return [];
+  return restrictions
+    .split(",")
+    .map((r) => r.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/**
+ * Map intake form values to dietary tags used in templates
+ */
+function mapRestrictionToTag(restriction: string): string | null {
+  const mapping: Record<string, string> = {
+    "gluten-free": "gluten-free",
+    "gluten free": "gluten-free",
+    "dairy-free": "dairy-free",
+    "dairy free": "dairy-free",
+    "vegetarian": "vegetarian",
+    "keto": "keto",
+    "keto/low-carb": "keto",
+    "low-carb": "keto",
+  };
+  return mapping[restriction.toLowerCase()] || null;
+}
+
 interface NutritionTemplateScore {
   template: NutritionTemplateWithCategory;
   score: number;
@@ -77,10 +105,29 @@ export function useNutritionTemplateSuggestion(
       return { recommendation: null, scoredTemplates: [], isLoading: false };
     }
 
+    // Parse dietary restrictions from profile
+    const clientRestrictions = parseDietaryRestrictions(profile.dietary_restrictions);
+    const clientDietaryTags = clientRestrictions
+      .map(mapRestrictionToTag)
+      .filter((tag): tag is string => tag !== null);
+
     // Filter templates in the recommended category
-    const categoryTemplates = templates.filter(
+    let categoryTemplates = templates.filter(
       (t) => t.category_id === recommendedCategory.id
     );
+
+    // If client has dietary restrictions, prefer templates with matching dietary_tags
+    if (clientDietaryTags.length > 0) {
+      const dietaryMatches = categoryTemplates.filter((t) => {
+        const templateTags = (t as NutritionTemplateWithCategory & { dietary_tags?: string[] }).dietary_tags || [];
+        return clientDietaryTags.some((tag) => templateTags.includes(tag));
+      });
+      
+      // Use dietary matches if available, otherwise fall back to all templates
+      if (dietaryMatches.length > 0) {
+        categoryTemplates = dietaryMatches;
+      }
+    }
 
     if (categoryTemplates.length === 0) {
       return { recommendation: null, scoredTemplates: [], isLoading: false };

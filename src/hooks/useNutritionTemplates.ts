@@ -49,11 +49,13 @@ export interface NutritionMealPlanMeal {
   notes: string | null;
   image_url: string | null;
   display_order: number | null;
+  ingredients?: Array<{ item: string; amount: string; notes?: string }> | null;
 }
 
 export interface NutritionTemplateWithCategory extends NutritionMealPlanTemplate {
   category_id: string | null;
   difficulty: string | null;
+  dietary_tags?: string[] | null;
   category?: NutritionTemplateCategory;
 }
 
@@ -131,7 +133,7 @@ export function useNutritionTemplateDetails(templateId: string | null) {
       const dayIds = days.map((d) => d.id);
       const { data: meals, error: mealsError } = await supabase
         .from("meal_plan_meals")
-        .select("id, day_id, meal_type, meal_name, calories, protein_g, carbs_g, fats_g, prep_time_min, cook_time_min, servings, instructions, notes, image_url, display_order")
+        .select("id, day_id, meal_type, meal_name, calories, protein_g, carbs_g, fats_g, prep_time_min, cook_time_min, servings, instructions, notes, image_url, display_order, ingredients")
         .in("day_id", dayIds)
         .order("display_order");
 

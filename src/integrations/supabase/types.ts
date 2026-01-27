@@ -196,6 +196,70 @@ export type Database = {
           },
         ]
       }
+      client_nutrition_assignments: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          client_id: string
+          id: string
+          notes: string | null
+          template_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          client_id: string
+          id?: string
+          notes?: string | null
+          template_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          client_id?: string
+          id?: string
+          notes?: string | null
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_nutrition_assignments_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_nutrition_completions: {
+        Row: {
+          completed_at: string | null
+          day_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          day_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          day_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_nutrition_completions_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plan_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_program_days: {
         Row: {
           created_at: string | null
@@ -1225,6 +1289,7 @@ export type Database = {
           daily_fats_g: number
           daily_protein_g: number
           description: string | null
+          dietary_tags: string[] | null
           difficulty: string | null
           display_order: number | null
           goal_type: string
@@ -1242,6 +1307,7 @@ export type Database = {
           daily_fats_g: number
           daily_protein_g: number
           description?: string | null
+          dietary_tags?: string[] | null
           difficulty?: string | null
           display_order?: number | null
           goal_type: string
@@ -1259,6 +1325,7 @@ export type Database = {
           daily_fats_g?: number
           daily_protein_g?: number
           description?: string | null
+          dietary_tags?: string[] | null
           difficulty?: string | null
           display_order?: number | null
           goal_type?: string
