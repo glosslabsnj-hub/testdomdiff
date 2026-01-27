@@ -19,6 +19,12 @@ export function FloatingActionStack() {
   const location = useLocation();
   const [quickActionExpanded, setQuickActionExpanded] = useState(false);
 
+  // Don't show FABs on admin pages (they obstruct admin controls)
+  const isAdminPage = location.pathname.startsWith("/admin");
+  if (isAdminPage) {
+    return null;
+  }
+
   // Don't show Quick Actions on the discipline page (it has its own FAB)
   const isDisciplinePage = location.pathname.startsWith("/dashboard/discipline");
 

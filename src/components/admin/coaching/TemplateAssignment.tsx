@@ -382,28 +382,30 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
             </CardContent>
           </Card>
 
-          {/* Assign Button */}
-          <Button
-            onClick={handleAssign}
-            disabled={assignTemplate.isPending}
-            className="w-full"
-            size="lg"
-          >
-            {assignTemplate.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Assigning to {clientName}...
-              </>
-            ) : (
-              <>
-                <Target className="w-4 h-4 mr-2" />
-                Assign "{selectedTemplate.name}" to {clientName}
-              </>
-            )}
-          </Button>
-          <p className="text-xs text-center text-muted-foreground">
-            This will replace any existing program and sync to their dashboard
-          </p>
+          {/* Sticky Assign Button */}
+          <div className="sticky bottom-0 -mx-4 px-4 py-3 bg-charcoal/95 backdrop-blur-sm border-t border-border">
+            <Button
+              onClick={handleAssign}
+              disabled={assignTemplate.isPending}
+              className="w-full"
+              size="lg"
+            >
+              {assignTemplate.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Assigning to {clientName}...
+                </>
+              ) : (
+                <>
+                  <Target className="w-4 h-4 mr-2" />
+                  Assign "{selectedTemplate.name}" to {clientName}
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-center text-muted-foreground mt-2">
+              This will replace any existing program and sync to their dashboard
+            </p>
+          </div>
         </div>
       )}
     </div>

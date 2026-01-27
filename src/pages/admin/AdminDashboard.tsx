@@ -63,9 +63,9 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen overflow-hidden bg-background flex flex-col">
       <Header />
-      <main className="flex-1 section-container py-8 pt-24">
+      <main className="flex-1 min-h-0 overflow-hidden flex flex-col section-container pt-24 pb-4">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Consolidated Tabs - 4 Main Hubs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           <TabsList className="bg-charcoal border border-border flex-wrap h-auto gap-1 p-1.5 w-full justify-start">
             <TabsTrigger value="command" className="text-xs sm:text-sm px-3">
               <TrendingUp className="h-4 w-4 mr-2" />
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
           </TabsList>
 
           {/* Command Center - Overview + Leads */}
-          <TabsContent value="command" className="space-y-6">
+          <TabsContent value="command" className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-2">
             {/* Revenue Analytics */}
             <RevenueAnalytics />
 
@@ -266,24 +266,22 @@ export default function AdminDashboard() {
           </TabsContent>
 
           {/* People Hub - Clients + Check-Ins */}
-          <TabsContent value="people">
+          <TabsContent value="people" className="flex-1 min-h-0 overflow-y-auto pr-2">
             <PeopleHub />
           </TabsContent>
 
           {/* Free World Hub - Coaching Clients */}
-          <TabsContent value="freeworld">
+          <TabsContent value="freeworld" className="flex-1 min-h-0 overflow-hidden">
             <FreeWorldHub />
           </TabsContent>
 
           {/* Commissary Hub - Products + Orders */}
-
-          {/* Commissary Hub - Products + Orders */}
-          <TabsContent value="commissary">
+          <TabsContent value="commissary" className="flex-1 min-h-0 overflow-y-auto pr-2">
             <CommissaryHub />
           </TabsContent>
 
-          {/* Content CMS - Unchanged */}
-          <TabsContent value="content" className="space-y-6">
+          {/* Content CMS */}
+          <TabsContent value="content" className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-2">
             <div className="flex flex-col md:flex-row gap-6">
               <ContentNavigation 
                 activeSection={contentSection} 
@@ -306,7 +304,7 @@ export default function AdminDashboard() {
           </TabsContent>
 
           {/* Settings Hub */}
-          <TabsContent value="settings" className="space-y-6">
+          <TabsContent value="settings" className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-xl font-semibold text-foreground">Site Settings</h2>
@@ -323,7 +321,6 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </main>
-      <Footer />
     </div>
   );
 }
