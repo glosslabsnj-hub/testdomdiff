@@ -34,7 +34,8 @@ export type AdminSection =
   | "commissary"
   | "analytics"
   | "settings"
-  | "logs";
+  | "logs"
+  | "freeworld";
 
 interface NavItem {
   id: AdminSection;
@@ -67,6 +68,16 @@ export default function AdminSidebar({
   pendingOrders = 0,
 }: AdminSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+
+  // Define category colors
+  const categoryColors: Record<string, string> = {
+    "Overview": "text-primary",
+    "People": "text-blue-400",
+    "Coaching": "text-purple-400",
+    "Content": "text-green-400",
+    "Business": "text-amber-400",
+    "System": "text-muted-foreground",
+  };
 
   const navGroups: NavGroup[] = [
     {
@@ -101,6 +112,18 @@ export default function AdminSidebar({
       ],
     },
     {
+      title: "Coaching",
+      items: [
+        { 
+          id: "freeworld", 
+          label: "Free World", 
+          icon: Crown,
+          badge: coachingClients > 0 ? coachingClients : undefined,
+          badgeColor: "bg-purple-500/20 text-purple-400"
+        },
+      ],
+    },
+    {
       title: "Content",
       items: [
         { id: "content", label: "Programs & Content", icon: BookOpen },
@@ -129,6 +152,9 @@ export default function AdminSidebar({
       ],
     },
   ];
+
+  // Helper to get icon color for a group
+  const getIconColor = (groupTitle: string) => categoryColors[groupTitle] || "text-muted-foreground";
 
   return (
     <div
@@ -175,24 +201,25 @@ export default function AdminSidebar({
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeSection === item.id;
+                  const iconColor = getIconColor(group.title);
                   
                   return (
                     <button
                       key={item.id}
                       onClick={() => onSectionChange(item.id)}
                       className={cn(
-                        "w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors",
+                        "w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors relative",
                         collapsed ? "justify-center" : "",
                         isActive
-                          ? "bg-primary/20 text-primary"
+                          ? cn("bg-muted/50", iconColor)
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                       title={collapsed ? item.label : undefined}
                     >
-                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      <Icon className={cn("h-4 w-4 flex-shrink-0", iconColor)} />
                       {!collapsed && (
                         <>
-                          <span className="flex-1 text-left truncate">{item.label}</span>
+                          <span className={cn("flex-1 text-left truncate", isActive && iconColor)}>{item.label}</span>
                           {item.badge && item.badge > 0 && (
                             <Badge className={cn("text-xs h-5 min-w-5 p-0 flex items-center justify-center", item.badgeColor)}>
                               {item.badge > 9 ? "9+" : item.badge}

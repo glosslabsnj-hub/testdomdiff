@@ -24,6 +24,7 @@ import ClientGoalsTab from "./ClientGoalsTab";
 import ClientMessagesTab from "./ClientMessagesTab";
 import ImprovedProgramTab from "./ImprovedProgramTab";
 import ClientIntakeTab from "./ClientIntakeTab";
+import ClientRecommendationsCard from "./ClientRecommendationsCard";
 
 interface ClientProgressPanelProps {
   client: ClientWithSubscription;
@@ -147,7 +148,13 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="p-4 pb-28">
+            <div className="p-4 pb-28 space-y-4">
+              {/* Recommendations Card at Top */}
+              <ClientRecommendationsCard 
+                client={client} 
+                onTemplateAssigned={onUpdate}
+              />
+              
               <TabsContent value="overview" className="m-0">
                 <ClientOverviewTab client={client} progress={progress} />
               </TabsContent>
