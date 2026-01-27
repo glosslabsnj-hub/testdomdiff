@@ -1,143 +1,267 @@
 
-## Objective (what “fixed” means)
-Inside **Admin → Free World → select client → Program tab**:
-1) The page should **not** scroll the entire browser window to reach program/template content.
-2) The **Program tab** should have a **reliable internal scroll area** so you can view:
-   - all templates in the recommended category
-   - the full 4-week preview
-   - the “Assign Template” button (fully visible and clickable)
-3) No “bottom-right floating UI” (Warden/Quick Action) should cover critical admin controls.
+# Add Template Library Tabs to Free World Hub
+
+## Overview
+Transform the Free World admin section into a comprehensive coaching command center with three sub-tabs:
+1. **Clients** - The existing client management split-pane (keep as-is)
+2. **Workout Templates** - Library of 50 workout programs, organized by category, expandable and editable
+3. **Nutrition Templates** - Library of 50 four-week nutrition plans, categorized and matched to user intake, editable
 
 ---
 
-## What I found (audit summary)
-### A) Admin page is designed like a marketing page (Header + big Footer)
-- `AdminDashboard` uses the **public Header** (fixed) + **public Footer** (tall).  
-- That alone creates “whole screen scroll” behavior and makes the Free World hub feel cramped because you’re fighting page scroll + internal scroll.
+## Part 1: Restructure FreeWorldHub with Sub-Tabs
 
-### B) FreeWorldHub height math is fighting its own header
-- `FreeWorldHub` currently renders a header block **above** a grid that has a viewport height (`h-[calc(100vh-220px)]`).  
-- Header height + grid height often exceeds the visible area, so the browser window scrolls.
-
-### C) Client tabs use `absolute inset-0` panels (high risk for scroll bugs)
-- In `ClientProgressPanel`, all `TabsContent` are `absolute inset-0 overflow-y-auto`.  
-- This is fragile when nested in fixed-height containers and tends to create “tiny scroll windows” or clipped bottoms (exactly what you’re seeing).
-
-### D) Fixed-position overlays can cover the “Assign” button
-- Logged-in users see `WardenChat` / `GlobalQuickAction` from `FloatingActionStack` (fixed positions).  
-- On admin screens, these are not needed and can sit on top of the bottom of the Program tab, hiding the final button.
-
----
-
-## Implementation plan (what I will change)
-
-### 1) Make AdminDashboard an “app shell” (stop whole-window scrolling on admin)
-**File:** `src/pages/admin/AdminDashboard.tsx`
+### File: `src/components/admin/FreeWorldHub.tsx`
 
 **Changes:**
-- Convert the admin page wrapper from “document scroll” to “contained scroll”:
-  - set the root wrapper to something like: `h-screen overflow-hidden flex flex-col`
-  - keep the fixed `Header` (already fixed)
-  - make `<main>` a flex column with `min-h-0` so it can host scroll containers correctly.
-- Remove or suppress the big public `<Footer />` for `/admin` (recommended).
-  - Admin should feel like a dashboard, not a marketing page.
-  - This alone removes a huge portion of accidental page scrolling.
+- Add internal tabs at the top: `Clients | Workout Templates | Nutrition Templates`
+- Default to "Clients" tab (existing functionality)
+- Import and render new components for the template tabs
 
-**Result:** Admin route behaves like a real dashboard; the Free World hub can own its scroll behavior.
-
----
-
-### 2) Make the Admin tabs layout height-aware (each tab scrolls where appropriate)
-**File:** `src/pages/admin/AdminDashboard.tsx`
-
-**Changes:**
-- Turn the Tabs container into a vertical layout:
-  - Tabs root: `className="flex-1 flex flex-col min-h-0"`
-- Give each top-level `TabsContent` one of these patterns:
-  - For long “report-like” tabs (Command Center, Content CMS): `flex-1 min-h-0 overflow-y-auto`
-  - For Free World: `flex-1 min-h-0 overflow-hidden` (because we want split-pane internal scrolling, not page scrolling)
-
-**Result:** Scrolling is predictable: you scroll inside the active admin tab content, not the whole page.
+```
+Layout:
+┌─────────────────────────────────────────────────────────────┐
+│ Free World Coaching                        [Add Client]     │
+├─────────────────────────────────────────────────────────────┤
+│ [Clients] [Workout Templates] [Nutrition Templates]         │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  (Tab content area)                                         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### 3) Fix FreeWorldHub split-pane to use “fill parent” instead of viewport math
-**File:** `src/components/admin/FreeWorldHub.tsx`
+## Part 2: Workout Templates Tab (New Component)
 
-**Changes:**
-- Replace the current “header + fixed-height grid” approach with:
-  - `div className="h-full flex flex-col min-h-0"` wrapper
-  - header becomes `flex-none`
-  - split-pane grid becomes `flex-1 min-h-0 overflow-hidden`
-- Remove `h-[calc(100vh-220px)]` entirely and use `h-full`/flex sizing.
+### File: `src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx`
 
-**Result:** Free World hub never forces page scroll; it fills whatever space the Admin tabs give it.
+**Features:**
+- Display all 50 workout templates organized by the 5 categories
+- Accordion-style category sections (Beginner Basics, Foundation Builder, etc.)
+- Each template is expandable to show:
+  - 4-week structure with day/workout names
+  - Exercise list for each workout day
+- Inline editing capability for exercises, sets, reps, notes
+- Uses existing `useProgramTemplates` and `useTemplateDetails` hooks
 
----
-
-### 4) Rebuild ClientProgressPanel tabs to use flex scrolling (remove absolute panels)
-**File:** `src/components/admin/coaching/ClientProgressPanel.tsx`
-
-**Changes:**
-- Remove the `relative` + `absolute inset-0` tab panel strategy.
-- Use the stable pattern:
-  - Tabs root: `flex-1 flex flex-col min-h-0`
-  - After TabsList: a wrapper `div className="flex-1 min-h-0 overflow-y-auto"`
-  - Inside wrapper, keep `TabsContent` in normal flow (`m-0 p-4` etc)
-- Add consistent bottom padding to the scroll area: `pb-28` (or similar) so even if any overlay exists, your last button is still reachable.
-
-**Result:** Program tab scroll works reliably; no clipped bottoms.
-
----
-
-### 5) Make the “Assign Template” action unmissable (sticky action bar)
-**File:** `src/components/admin/coaching/TemplateAssignment.tsx`
-
-**Changes:**
-- Wrap the Assign button area in a `sticky bottom-0` container with a subtle background and border.
-- Keep the preview scrollable above it.
-- This guarantees the CTA is always visible even with long 4-week previews.
-
-**Result:** You never “lose” the assign button at the bottom of the preview.
+**UI Structure:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 🏋️ Workout Template Library                  [Add Template] │
+│ 50 pre-built 4-week programs organized by experience level │
+├─────────────────────────────────────────────────────────────┤
+│ ▼ Beginner Basics (10 templates)                           │
+│   ├─ Total Body Foundations                                │
+│   │    ├─ Week 1: Foundation Phase                         │
+│   │    │   ├─ Monday: Full Body A (6 exercises)           │
+│   │    │   ├─ Tuesday: Rest Day                            │
+│   │    │   └─ ...                                          │
+│   │    ├─ Week 2: Building Phase                           │
+│   │    └─ ...                                              │
+│   ├─ Bodyweight Beginnings                                 │
+│   └─ ...                                                    │
+├─────────────────────────────────────────────────────────────┤
+│ ▶ Foundation Builder (10 templates)                        │
+│ ▶ Intermediate Growth (10 templates)                       │
+│ ▶ Advanced Performance (10 templates)                      │
+│ ▶ Athletic Conditioning (10 templates)                     │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### 6) Disable floating Warden/Quick Action UI on /admin routes
-**File:** `src/components/FloatingActionStack.tsx` (primary)
-- Add a route guard: if `location.pathname.startsWith("/admin")`, return `null`.
+## Part 3: Nutrition Templates Tab (New Component)
 
-(Optionally also guard inside `WardenChat` if needed, but best is stopping it at the stack.)
+### Database Changes Required
 
-**Result:** Admin tools are not obstructed by coaching/user UX overlays.
+**New Table: `nutrition_template_categories`**
+- Similar structure to `program_template_categories`
+- Categories based on goal type + activity level:
+  1. Fat Loss - Aggressive
+  2. Fat Loss - Moderate
+  3. Recomposition - Standard
+  4. Muscle Building - Lean
+  5. Muscle Building - Mass
+
+**Modify Table: `meal_plan_templates`**
+- Add column: `category_id` (foreign key to new categories table)
+- Add column: `difficulty` (beginner/intermediate/advanced meal prep complexity)
+
+**Expand Templates:**
+- Currently: 30 templates (10 per goal)
+- Target: 50 templates
+- Add 20 more templates distributed across categories
+
+### File: `src/components/admin/coaching/FreeWorldNutritionTemplates.tsx`
+
+**Features:**
+- Display all 50 nutrition templates organized by 5 categories
+- Each template shows:
+  - 7-day rotation (expandable)
+  - 4 meals per day with macros
+  - Full recipe details when expanded
+- Matching score based on user intake (TDEE calculation)
+- Inline editing for meals, macros, ingredients
+- Uses existing `useMealPlanTemplates` hooks (extended)
+
+**UI Structure:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 🍽️ Nutrition Template Library               [Add Template] │
+│ 50 complete meal plans organized by goal and activity      │
+├─────────────────────────────────────────────────────────────┤
+│ ▼ Fat Loss - Aggressive (10 templates)                     │
+│   ├─ 1400-1600 cal - Low Carb Focus                        │
+│   │    ├─ Day 1: Monday                                    │
+│   │    │   ├─ Breakfast: Protein Omelette (450 cal)       │
+│   │    │   ├─ Lunch: Grilled Chicken Salad (380 cal)      │
+│   │    │   ├─ Dinner: Salmon with Vegetables (520 cal)    │
+│   │    │   └─ Snack: Greek Yogurt (150 cal)               │
+│   │    ├─ Day 2: Tuesday                                   │
+│   │    └─ ...                                              │
+│   └─ ...                                                    │
+├─────────────────────────────────────────────────────────────┤
+│ ▶ Fat Loss - Moderate (10 templates)                       │
+│ ▶ Recomposition (10 templates)                             │
+│ ▶ Muscle Building - Lean (10 templates)                    │
+│ ▶ Muscle Building - Mass (10 templates)                    │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Validation checklist (how we’ll confirm it’s fixed)
-1) Go to `/admin` → Free World tab: page should **not** show long window scrolling just to use Free World tools.
-2) Select a client → Program tab:
-   - Scroll through template list: scroll stays inside the panel.
-   - Select a template → preview expands:
-     - You can scroll the preview fully.
-     - “Assign Template” is always reachable (preferably sticky).
-3) Test at multiple viewport sizes:
-   - Desktop (1366×768)
-   - Smaller laptop height (e.g., 768×700-ish)
-   - Mobile width (390×844) if you use admin on phone.
-4) Confirm no overlapping:
-   - Warden/QuickAction does not appear on admin pages.
-   - No bottom content is hidden.
+## Part 4: Nutrition Template Assignment for Clients
+
+### File: `src/components/admin/coaching/NutritionTemplateAssignment.tsx`
+
+**Features:**
+- Similar flow to workout `TemplateAssignment.tsx`
+- Calculate TDEE from client intake data
+- Recommend a nutrition category based on:
+  - Goal (fat loss, muscle, recomp)
+  - Activity level
+  - Calculated calorie needs
+- Preview the 7-day meal rotation before assignment
+- Assign template to client (copy to client-specific tables)
+
+### New Hook: `src/hooks/useNutritionTemplates.ts`
+
+- `useNutritionTemplateCategories()` - fetch categories
+- `useNutritionTemplates(categoryId?)` - fetch templates
+- `useNutritionTemplateDetails(templateId)` - get full days/meals
+- `useAssignNutritionTemplate()` - copy template to client
 
 ---
 
-## Scope control / non-goals (to keep this fast and correct)
-- This plan focuses on **layout + scroll containment + button visibility** for Free World admin.
-- It does not change the program assignment logic (your 4-week template assignment system remains as-is).
+## Part 5: Edge Function to Populate Additional Nutrition Templates
+
+### File: `supabase/functions/populate-nutrition-templates/index.ts`
+
+**Purpose:**
+- Create 20 additional nutrition templates to reach 50 total
+- Populate with realistic 7-day meal rotations
+- 4 meals per day with proper macro distribution
+- Varied recipes based on goal type
+
+**Meal Generation Logic:**
+```typescript
+const MEAL_POOLS = {
+  fatLoss: {
+    breakfast: ["Protein Omelette", "Greek Yogurt Bowl", "Egg White Scramble", ...],
+    lunch: ["Grilled Chicken Salad", "Turkey Lettuce Wraps", ...],
+    dinner: ["Baked Salmon", "Lean Beef Stir-Fry", ...],
+    snack: ["Protein Shake", "Celery with Almond Butter", ...]
+  },
+  muscleBuilding: {
+    breakfast: ["Power Oatmeal", "Eggs & Toast", "Breakfast Burrito", ...],
+    lunch: ["Chicken & Rice Bowl", "Beef Tacos", ...],
+    dinner: ["Steak & Potatoes", "Pasta with Meat Sauce", ...],
+    snack: ["Mass Gainer Shake", "PB&J Sandwich", ...]
+  },
+  // ...
+};
+```
 
 ---
 
-## Files expected to change
-- `src/pages/admin/AdminDashboard.tsx`
-- `src/components/admin/FreeWorldHub.tsx`
-- `src/components/admin/coaching/ClientProgressPanel.tsx`
-- `src/components/admin/coaching/TemplateAssignment.tsx`
-- `src/components/FloatingActionStack.tsx`
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx` | Workout template library with expandable categories |
+| `src/components/admin/coaching/FreeWorldNutritionTemplates.tsx` | Nutrition template library with expandable categories |
+| `src/components/admin/coaching/NutritionTemplateAssignment.tsx` | Assign nutrition templates to clients |
+| `src/hooks/useNutritionTemplates.ts` | Hooks for nutrition template CRUD and assignment |
+| `supabase/functions/populate-nutrition-templates/index.ts` | Populate additional nutrition templates |
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/components/admin/FreeWorldHub.tsx` | Add internal tabs for Clients/Workouts/Nutrition |
+| `src/components/admin/coaching/ClientProgressPanel.tsx` | Add "Nutrition" sub-tab for client nutrition assignment |
+| `src/components/admin/coaching/index.ts` | Export new components |
+
+---
+
+## Database Migrations
+
+### Migration 1: Create nutrition template categories
+
+```sql
+CREATE TABLE nutrition_template_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  target_profile TEXT,
+  icon TEXT,
+  display_order INT DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Seed the 5 categories
+INSERT INTO nutrition_template_categories (name, description, target_profile, display_order) VALUES
+  ('Fat Loss - Aggressive', 'High deficit, low carb focus', 'Rapid fat loss', 1),
+  ('Fat Loss - Moderate', 'Sustainable deficit', 'Steady fat loss', 2),
+  ('Recomposition', 'Maintenance calories', 'Build muscle, lose fat', 3),
+  ('Muscle Building - Lean', 'Slight surplus', 'Clean bulk', 4),
+  ('Muscle Building - Mass', 'High surplus', 'Maximum muscle gain', 5);
+```
+
+### Migration 2: Add category to meal_plan_templates
+
+```sql
+ALTER TABLE meal_plan_templates 
+ADD COLUMN category_id UUID REFERENCES nutrition_template_categories(id);
+
+ALTER TABLE meal_plan_templates 
+ADD COLUMN difficulty TEXT DEFAULT 'intermediate';
+
+-- Update existing templates with categories based on goal_type
+```
+
+---
+
+## Implementation Order
+
+1. **Database migrations** - Create category table, add columns to templates
+2. **Restructure FreeWorldHub** - Add the three internal tabs
+3. **Create FreeWorldWorkoutTemplates** - Workout library with editing
+4. **Create FreeWorldNutritionTemplates** - Nutrition library with editing
+5. **Create hooks for nutrition templates** - CRUD operations
+6. **Run populate edge function** - Add remaining 20 nutrition templates
+7. **Add NutritionTemplateAssignment** - Client assignment workflow
+8. **Add Nutrition tab to ClientProgressPanel** - Per-client nutrition management
+
+---
+
+## Technical Notes
+
+- Reuse existing accordion/collapsible patterns from `ProgramTemplateManager`
+- Workout templates already have full data (33 templates with exercises)
+- Nutrition templates have 30 with full meals - need 20 more
+- Both template types use the same category-based recommendation algorithm
+- Purple accent color scheme maintained for all Free World UI
