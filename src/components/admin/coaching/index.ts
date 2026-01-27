@@ -10,3 +10,5 @@ export { default as ClientProgramEditor } from "./ClientProgramEditor";
 export { default as ClientIntakeTab } from "./ClientIntakeTab";
 export { default as TemplateAssignment } from "./TemplateAssignment";
 export { default as ImprovedProgramTab } from "./ImprovedProgramTab";
+export { default as FreeWorldWorkoutTemplates } from "./FreeWorldWorkoutTemplates";
+export { default as FreeWorldNutritionTemplates } from "./FreeWorldNutritionTemplates";
