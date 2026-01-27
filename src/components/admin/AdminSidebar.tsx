@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Crown,
+  Flame,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,8 @@ export type AdminSection =
   | "analytics"
   | "settings"
   | "logs"
-  | "freeworld";
+  | "freeworld"
+  | "content-engine";
 
 interface NavItem {
   id: AdminSection;
@@ -76,6 +78,7 @@ export default function AdminSidebar({
     "Coaching": "text-purple-400",
     "Content": "text-green-400",
     "Business": "text-amber-400",
+    "Growth": "text-orange-400",
     "System": "text-muted-foreground",
   };
 
@@ -142,6 +145,12 @@ export default function AdminSidebar({
           badgeColor: "bg-yellow-500/20 text-yellow-400"
         },
         { id: "analytics", label: "Analytics", icon: BarChart3 },
+      ],
+    },
+    {
+      title: "Growth",
+      items: [
+        { id: "content-engine", label: "Content Engine", icon: Flame },
       ],
     },
     {
