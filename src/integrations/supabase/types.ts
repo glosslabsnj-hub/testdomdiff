@@ -842,6 +842,57 @@ export type Database = {
           },
         ]
       }
+      content_engine_posts: {
+        Row: {
+          category: string
+          created_at: string
+          cta: string | null
+          filming_tips: string | null
+          format: string | null
+          hook: string
+          id: string
+          mode: string
+          platforms: string[]
+          status: string
+          talking_points: Json
+          title: string
+          updated_at: string
+          used_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          cta?: string | null
+          filming_tips?: string | null
+          format?: string | null
+          hook: string
+          id?: string
+          mode: string
+          platforms?: string[]
+          status?: string
+          talking_points?: Json
+          title: string
+          updated_at?: string
+          used_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          cta?: string | null
+          filming_tips?: string | null
+          format?: string | null
+          hook?: string
+          id?: string
+          mode?: string
+          platforms?: string[]
+          status?: string
+          talking_points?: Json
+          title?: string
+          updated_at?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       daily_devotionals: {
         Row: {
           challenge: string
