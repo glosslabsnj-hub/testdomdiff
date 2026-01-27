@@ -23,7 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
 import { useToast } from "@/hooks/use-toast";
-import { useTTS } from "@/hooks/useTTS";
+import { useSermonTTS } from "@/hooks/useSermonTTS";
 import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -36,7 +36,7 @@ const Faith = () => {
   const { user } = useAuth();
   const { subscription, isMembership } = useEffectiveSubscription();
   const { toast } = useToast();
-  const tts = useTTS();
+  const tts = useSermonTTS();
   const { streak } = useDailyDiscipline();
   
   // Calculate current week from subscription start date
