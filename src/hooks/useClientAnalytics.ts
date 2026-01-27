@@ -33,6 +33,13 @@ interface ClientProfile {
   long_term_goals: string | null;
   nutrition_style: string | null;
   biggest_obstacle: string | null;
+  // New intake fields for template matching
+  goal_type: string | null;
+  dietary_restrictions: string | null;
+  meal_prep_preference: string | null;
+  food_dislikes: string | null;
+  training_style: string | null;
+  session_length_preference: string | null;
 }
 
 interface Subscription {

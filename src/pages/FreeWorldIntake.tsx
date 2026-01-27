@@ -66,6 +66,41 @@ const EXPERIENCE_OPTIONS = [
 const SLEEP_OPTIONS = ["Poor", "Fair", "Good", "Excellent"];
 const STRESS_OPTIONS = ["Low", "Moderate", "High"];
 
+const GOAL_TYPE_OPTIONS = [
+  { value: "Lose fat", label: "Lose Fat", description: "Primary focus on fat loss" },
+  { value: "Build muscle", label: "Build Muscle", description: "Primary focus on muscle gain" },
+  { value: "Both - lose fat and build muscle", label: "Recomposition", description: "Lose fat while building muscle" },
+];
+
+const DIETARY_RESTRICTIONS = [
+  "No restrictions",
+  "Gluten-free",
+  "Dairy-free",
+  "Vegetarian",
+  "Keto/Low-carb",
+  "Other",
+];
+
+const MEAL_PREP_OPTIONS = [
+  { value: "fresh", label: "Fresh meals daily", description: "I can cook fresh each day" },
+  { value: "batch", label: "Batch cooking", description: "I prefer cooking 2-3 times per week" },
+  { value: "quick", label: "Quick meals", description: "I need 15-minute meals" },
+];
+
+const TRAINING_STYLE_OPTIONS = [
+  "Strength/Powerlifting",
+  "Bodybuilding/Hypertrophy",
+  "Functional Fitness",
+  "Cardio/Conditioning",
+  "Mixed",
+];
+
+const SESSION_LENGTH_OPTIONS = [
+  { value: "30-45", label: "30-45 minutes" },
+  { value: "45-60", label: "45-60 minutes" },
+  { value: "60-90", label: "60-90 minutes" },
+];
+
 interface FormData {
   // Step 1: Profile
   first_name: string;
@@ -83,12 +118,18 @@ interface FormData {
   experience: string;
   previous_training: string;
   injuries: string;
+  training_style: string[];
+  session_length_preference: string;
   // Step 4: Health & Lifestyle
   sleep_quality: string;
   stress_level: string;
   medical_conditions: string;
   nutrition_style: string;
+  dietary_restrictions: string[];
+  meal_prep_preference: string;
+  food_dislikes: string;
   // Step 5: Goals & Mindset
+  goal_type: string;
   goal: string;
   short_term_goals: string;
   long_term_goals: string;
@@ -117,10 +158,16 @@ export default function FreeWorldIntake() {
     experience: "",
     previous_training: "",
     injuries: "",
+    training_style: [],
+    session_length_preference: "",
     sleep_quality: "",
     stress_level: "",
     medical_conditions: "",
     nutrition_style: "",
+    dietary_restrictions: [],
+    meal_prep_preference: "",
+    food_dislikes: "",
+    goal_type: "",
     goal: "",
     short_term_goals: "",
     long_term_goals: "",
@@ -142,6 +189,32 @@ export default function FreeWorldIntake() {
     }));
   };
 
+  const toggleTrainingStyle = (item: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      training_style: prev.training_style.includes(item)
+        ? prev.training_style.filter((e) => e !== item)
+        : [...prev.training_style, item],
+    }));
+  };
+
+  const toggleDietaryRestriction = (item: string) => {
+    setFormData((prev) => {
+      // If "No restrictions" is selected, clear other selections
+      if (item === "No restrictions") {
+        return { ...prev, dietary_restrictions: [item] };
+      }
+      // If another option is selected, remove "No restrictions"
+      const filtered = prev.dietary_restrictions.filter((e) => e !== "No restrictions");
+      return {
+        ...prev,
+        dietary_restrictions: filtered.includes(item)
+          ? filtered.filter((e) => e !== item)
+          : [...filtered, item],
+      };
+    });
+  };
+
   const canProceed = () => {
     switch (currentStep) {
       case 1:
@@ -153,7 +226,7 @@ export default function FreeWorldIntake() {
       case 4:
         return formData.sleep_quality && formData.stress_level;
       case 5:
-        return formData.goal && formData.motivation;
+        return formData.goal_type && formData.goal && formData.motivation;
       case 6:
         return true;
       case 7:
@@ -187,10 +260,16 @@ export default function FreeWorldIntake() {
           experience: formData.experience,
           previous_training: formData.previous_training,
           injuries: formData.injuries,
+          training_style: formData.training_style.join(", "),
+          session_length_preference: formData.session_length_preference,
           sleep_quality: formData.sleep_quality,
           stress_level: formData.stress_level,
           medical_conditions: formData.medical_conditions,
           nutrition_style: formData.nutrition_style,
+          dietary_restrictions: formData.dietary_restrictions.join(", "),
+          meal_prep_preference: formData.meal_prep_preference,
+          food_dislikes: formData.food_dislikes,
+          goal_type: formData.goal_type,
           goal: formData.goal,
           short_term_goals: formData.short_term_goals,
           long_term_goals: formData.long_term_goals,
@@ -518,6 +597,56 @@ export default function FreeWorldIntake() {
                     rows={2}
                   />
                 </div>
+
+                <div>
+                  <Label className="text-base">Preferred Training Style</Label>
+                  <p className="text-sm text-muted-foreground mb-2">Select all that apply</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {TRAINING_STYLE_OPTIONS.map((item) => (
+                      <div
+                        key={item}
+                        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
+                          formData.training_style.includes(item)
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-muted-foreground"
+                        }`}
+                        onClick={() => toggleTrainingStyle(item)}
+                      >
+                        <Checkbox
+                          checked={formData.training_style.includes(item)}
+                          onCheckedChange={() => toggleTrainingStyle(item)}
+                        />
+                        <span className="ml-2 text-sm">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-base">Preferred Session Length</Label>
+                  <RadioGroup
+                    value={formData.session_length_preference}
+                    onValueChange={(val) => updateField("session_length_preference", val)}
+                    className="grid grid-cols-3 gap-2 mt-2"
+                  >
+                    {SESSION_LENGTH_OPTIONS.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`flex items-center justify-center p-3 rounded-lg border cursor-pointer transition-colors ${
+                          formData.session_length_preference === option.value
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-muted-foreground"
+                        }`}
+                        onClick={() => updateField("session_length_preference", option.value)}
+                      >
+                        <RadioGroupItem value={option.value} id={`session-${option.value}`} className="sr-only" />
+                        <Label htmlFor={`session-${option.value}`} className="cursor-pointer text-sm">
+                          {option.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
               </div>
             )}
 
@@ -586,6 +715,68 @@ export default function FreeWorldIntake() {
                     rows={3}
                   />
                 </div>
+
+                <div>
+                  <Label className="text-base">Dietary Restrictions</Label>
+                  <p className="text-sm text-muted-foreground mb-2">Select all that apply</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DIETARY_RESTRICTIONS.map((item) => (
+                      <div
+                        key={item}
+                        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
+                          formData.dietary_restrictions.includes(item)
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-muted-foreground"
+                        }`}
+                        onClick={() => toggleDietaryRestriction(item)}
+                      >
+                        <Checkbox
+                          checked={formData.dietary_restrictions.includes(item)}
+                          onCheckedChange={() => toggleDietaryRestriction(item)}
+                        />
+                        <span className="ml-2 text-sm">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-base">Meal Prep Preference</Label>
+                  <RadioGroup
+                    value={formData.meal_prep_preference}
+                    onValueChange={(val) => updateField("meal_prep_preference", val)}
+                    className="space-y-2 mt-2"
+                  >
+                    {MEAL_PREP_OPTIONS.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
+                          formData.meal_prep_preference === option.value
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-muted-foreground"
+                        }`}
+                        onClick={() => updateField("meal_prep_preference", option.value)}
+                      >
+                        <RadioGroupItem value={option.value} id={`meal-${option.value}`} />
+                        <Label htmlFor={`meal-${option.value}`} className="ml-3 cursor-pointer flex-1">
+                          <span className="font-medium">{option.label}</span>
+                          <span className="text-muted-foreground"> - {option.description}</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label htmlFor="food_dislikes">Foods You Won't Eat</Label>
+                  <Textarea
+                    id="food_dislikes"
+                    value={formData.food_dislikes}
+                    onChange={(e) => updateField("food_dislikes", e.target.value)}
+                    placeholder="Any foods you absolutely won't eat? (allergies, texture issues, strong dislikes)"
+                    rows={2}
+                  />
+                </div>
               </div>
             )}
 
@@ -600,12 +791,42 @@ export default function FreeWorldIntake() {
                 </div>
 
                 <div>
-                  <Label htmlFor="goal">Primary Goal *</Label>
+                  <Label className="text-base">Primary Goal Type *</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    This helps us select the right program and nutrition plan
+                  </p>
+                  <RadioGroup
+                    value={formData.goal_type}
+                    onValueChange={(val) => updateField("goal_type", val)}
+                    className="space-y-2 mt-2"
+                  >
+                    {GOAL_TYPE_OPTIONS.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`flex items-center p-4 rounded-lg border cursor-pointer transition-colors ${
+                          formData.goal_type === option.value
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-muted-foreground"
+                        }`}
+                        onClick={() => updateField("goal_type", option.value)}
+                      >
+                        <RadioGroupItem value={option.value} id={`goal-type-${option.value}`} />
+                        <Label htmlFor={`goal-type-${option.value}`} className="ml-3 cursor-pointer flex-1">
+                          <span className="font-bold">{option.label}</span>
+                          <span className="text-muted-foreground ml-2">- {option.description}</span>
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label htmlFor="goal">Goal Details *</Label>
                   <Input
                     id="goal"
                     value={formData.goal}
                     onChange={(e) => updateField("goal", e.target.value)}
-                    placeholder="Lose 30 lbs, build muscle, get stronger..."
+                    placeholder="Be specific: lose 30 lbs, bench 225, run a 5K..."
                   />
                 </div>
 

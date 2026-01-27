@@ -1514,6 +1514,7 @@ export type Database = {
           body_fat_estimate: string | null
           created_at: string
           dashboard_video_watched: boolean | null
+          dietary_restrictions: string | null
           discipline_template_id: string | null
           display_name: string | null
           display_name_preference: string | null
@@ -1523,13 +1524,16 @@ export type Database = {
           faith_commitment: boolean | null
           first_login_video_watched: boolean | null
           first_name: string | null
+          food_dislikes: string | null
           goal: string | null
+          goal_type: string | null
           height: string | null
           id: string
           injuries: string | null
           intake_completed_at: string | null
           last_name: string | null
           long_term_goals: string | null
+          meal_prep_preference: string | null
           medical_conditions: string | null
           motivation: string | null
           nutrition_style: string | null
@@ -1537,6 +1541,7 @@ export type Database = {
           orientation_dismissed: boolean | null
           phone: string | null
           previous_training: string | null
+          session_length_preference: string | null
           setup_wizard_completed: boolean | null
           setup_wizard_step: number | null
           short_term_goals: string | null
@@ -1544,6 +1549,7 @@ export type Database = {
           sleep_time: string | null
           stress_level: string | null
           training_days_per_week: number | null
+          training_style: string | null
           updated_at: string
           user_id: string
           wake_time: string | null
@@ -1557,6 +1563,7 @@ export type Database = {
           body_fat_estimate?: string | null
           created_at?: string
           dashboard_video_watched?: boolean | null
+          dietary_restrictions?: string | null
           discipline_template_id?: string | null
           display_name?: string | null
           display_name_preference?: string | null
@@ -1566,13 +1573,16 @@ export type Database = {
           faith_commitment?: boolean | null
           first_login_video_watched?: boolean | null
           first_name?: string | null
+          food_dislikes?: string | null
           goal?: string | null
+          goal_type?: string | null
           height?: string | null
           id?: string
           injuries?: string | null
           intake_completed_at?: string | null
           last_name?: string | null
           long_term_goals?: string | null
+          meal_prep_preference?: string | null
           medical_conditions?: string | null
           motivation?: string | null
           nutrition_style?: string | null
@@ -1580,6 +1590,7 @@ export type Database = {
           orientation_dismissed?: boolean | null
           phone?: string | null
           previous_training?: string | null
+          session_length_preference?: string | null
           setup_wizard_completed?: boolean | null
           setup_wizard_step?: number | null
           short_term_goals?: string | null
@@ -1587,6 +1598,7 @@ export type Database = {
           sleep_time?: string | null
           stress_level?: string | null
           training_days_per_week?: number | null
+          training_style?: string | null
           updated_at?: string
           user_id: string
           wake_time?: string | null
@@ -1600,6 +1612,7 @@ export type Database = {
           body_fat_estimate?: string | null
           created_at?: string
           dashboard_video_watched?: boolean | null
+          dietary_restrictions?: string | null
           discipline_template_id?: string | null
           display_name?: string | null
           display_name_preference?: string | null
@@ -1609,13 +1622,16 @@ export type Database = {
           faith_commitment?: boolean | null
           first_login_video_watched?: boolean | null
           first_name?: string | null
+          food_dislikes?: string | null
           goal?: string | null
+          goal_type?: string | null
           height?: string | null
           id?: string
           injuries?: string | null
           intake_completed_at?: string | null
           last_name?: string | null
           long_term_goals?: string | null
+          meal_prep_preference?: string | null
           medical_conditions?: string | null
           motivation?: string | null
           nutrition_style?: string | null
@@ -1623,6 +1639,7 @@ export type Database = {
           orientation_dismissed?: boolean | null
           phone?: string | null
           previous_training?: string | null
+          session_length_preference?: string | null
           setup_wizard_completed?: boolean | null
           setup_wizard_step?: number | null
           short_term_goals?: string | null
@@ -1630,6 +1647,7 @@ export type Database = {
           sleep_time?: string | null
           stress_level?: string | null
           training_days_per_week?: number | null
+          training_style?: string | null
           updated_at?: string
           user_id?: string
           wake_time?: string | null
