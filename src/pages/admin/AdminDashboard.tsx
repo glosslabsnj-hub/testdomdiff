@@ -8,9 +8,7 @@ import Header from "@/components/Header";
 import AdminSidebar, { type AdminSection } from "@/components/admin/AdminSidebar";
 
 // Section Components
-import RevenueAnalytics from "@/components/admin/RevenueAnalytics";
-import AdminQuickActions from "@/components/admin/AdminQuickActions";
-import ClientHealthAlertsPanel from "@/components/admin/ClientHealthAlertsPanel";
+import CommandCenterCollapsible from "@/components/admin/CommandCenterCollapsible";
 import PeopleHub from "@/components/admin/PeopleHub";
 import FreeWorldHub from "@/components/admin/FreeWorldHub";
 import CommissaryHub from "@/components/admin/CommissaryHub";
@@ -41,10 +39,6 @@ import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { useAdminCheckIns } from "@/hooks/useAdminCheckIns";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MessageSquare } from "lucide-react";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -82,14 +76,16 @@ export default function AdminDashboard() {
   const renderSectionContent = () => {
     switch (activeSection) {
       case "command":
-        return <CommandCenterContent 
-          clientAnalytics={clientAnalytics}
-          clientsLoading={clientsLoading}
-          leadAnalytics={leadAnalytics}
-          leadsLoading={leadsLoading}
-          pendingCheckIns={pendingCheckIns}
-          onNavigate={setActiveSection}
-        />;
+        return (
+          <CommandCenterCollapsible
+            clientAnalytics={clientAnalytics}
+            clientsLoading={clientsLoading}
+            leadAnalytics={leadAnalytics}
+            leadsLoading={leadsLoading}
+            pendingCheckIns={pendingCheckIns}
+            onNavigate={setActiveSection}
+          />
+        );
       
       case "users":
         return (
@@ -155,6 +151,13 @@ export default function AdminDashboard() {
       
       case "tiers":
         return <TiersAccessManager />;
+      
+      case "freeworld":
+        return (
+          <div className="h-full">
+            <FreeWorldHub />
+          </div>
+        );
       
       case "payments":
         return <PaymentsHub />;
@@ -240,186 +243,3 @@ function SectionHeader({ title, description }: { title: string; description: str
   );
 }
 
-// Command Center Content Component
-function CommandCenterContent({ 
-  clientAnalytics, 
-  clientsLoading, 
-  leadAnalytics, 
-  leadsLoading,
-  pendingCheckIns,
-  onNavigate,
-}: {
-  clientAnalytics: ReturnType<typeof useClientAnalytics>['analytics'];
-  clientsLoading: boolean;
-  leadAnalytics: ReturnType<typeof useChatLeadAnalytics>['analytics'];
-  leadsLoading: boolean;
-  pendingCheckIns: number;
-  onNavigate: (section: AdminSection) => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <SectionHeader 
-        title="Command Center" 
-        description="Your business at a glance. Click any card to dive deeper."
-      />
-
-      {/* Revenue Analytics */}
-      <RevenueAnalytics />
-
-      {/* Top Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card 
-          className="bg-charcoal border-border hover-lift cursor-pointer"
-          onClick={() => onNavigate("users")}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Clients</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-primary">
-              {clientsLoading ? "..." : clientAnalytics?.totalClients || 0}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-charcoal border-border hover-lift">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Active Subscriptions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-success">
-              {clientsLoading ? "..." : clientAnalytics?.activeClients || 0}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-charcoal border-border hover-lift">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-foreground">
-              {leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}
-            </div>
-          </CardContent>
-        </Card>
-        <Card 
-          className="bg-charcoal border-border hover-lift cursor-pointer"
-          onClick={() => onNavigate("check-ins")}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Pending Check-Ins</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-foreground">
-              {pendingCheckIns}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <AdminQuickActions 
-        onNavigate={(tab) => {
-          if (tab === "clients") onNavigate("users");
-          else if (tab === "checkins") onNavigate("check-ins");
-          else if (tab === "coaching") onNavigate("intake");
-          else if (tab === "content") onNavigate("content");
-          else if (tab === "commissary") onNavigate("commissary");
-        }} 
-        pendingCheckIns={pendingCheckIns}
-      />
-
-      {/* Active Subscriptions by Program */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-blue-400">Solitary Confinement</CardTitle>
-            <p className="text-xs text-muted-foreground">Monthly Membership</p>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-blue-400">
-              {clientsLoading ? "..." : clientAnalytics?.clientsByPlan.membership || 0}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">active members</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-primary">General Population</CardTitle>
-            <p className="text-xs text-muted-foreground">12-Week Program</p>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-primary">
-              {clientsLoading ? "..." : clientAnalytics?.clientsByPlan.transformation || 0}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">active members</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-purple-400">Free World</CardTitle>
-            <p className="text-xs text-muted-foreground">1:1 Coaching</p>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-purple-400">
-              {clientsLoading ? "..." : clientAnalytics?.clientsByPlan.coaching || 0}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">active members</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Client Health Alerts */}
-      <ClientHealthAlertsPanel />
-
-      {/* Lead Stats */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-muted-foreground" />
-          Lead Analytics
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="bg-charcoal border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Total Leads</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">
-                {leadsLoading ? "..." : leadAnalytics?.totalLeads || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-charcoal border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Avg Messages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">
-                {leadsLoading ? "..." : leadAnalytics?.avgMessageCount?.toFixed(1) || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-charcoal border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Conversions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-success">
-                {leadsLoading ? "..." : leadAnalytics?.conversions || 0}
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-charcoal border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Conversion Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">
-                {leadsLoading || !leadAnalytics?.totalLeads ? "..." : `${Math.min(100, Math.round(((leadAnalytics?.conversions || 0) / leadAnalytics.totalLeads) * 100))}%`}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
