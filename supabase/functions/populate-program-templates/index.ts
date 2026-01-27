@@ -19,198 +19,244 @@ function getWorkoutDayIndices(daysPerWeek: number): number[] {
   }
 }
 
-// Exercise pools by difficulty level
+// ============================================
+// DOM'S HIGH-INTENSITY EXERCISE POOLS
+// 20-30+ reps, 3-5 sets, 45-60s rest, AMRAP finishers
+// ============================================
+
 const EXERCISE_POOLS = {
   beginner: {
     push: [
-      { name: "Push-ups", sets: "3", reps: "8-12", rest: "60s", notes: "Keep core tight, lower chest to floor" },
-      { name: "DB Bench Press", sets: "3", reps: "10-12", rest: "60s", notes: "Control the descent, press through chest" },
-      { name: "Overhead Press", sets: "3", reps: "10", rest: "60s", notes: "Brace core, press straight up" },
-      { name: "Incline DB Press", sets: "3", reps: "10-12", rest: "60s", notes: "30-degree angle, full range of motion" },
-      { name: "DB Shoulder Press", sets: "3", reps: "10", rest: "60s", notes: "Seated or standing, control the weight" },
-      { name: "Tricep Dips (Bench)", sets: "3", reps: "10-15", rest: "45s", notes: "Keep elbows close, lower with control" },
+      { name: "Push-ups", sets: "4", reps: "20-25", rest: "60s", notes: "Chest to deck, full lockout. No resting at the top." },
+      { name: "Incline Push-ups", sets: "4", reps: "25-30", rest: "60s", notes: "Hands elevated, full range. Build the foundation." },
+      { name: "Diamond Push-ups", sets: "3", reps: "15-20", rest: "60s", notes: "Hands close, elbows in. Feel the tricep burn." },
+      { name: "Pike Push-ups", sets: "3", reps: "15-20", rest: "60s", notes: "Hips high, head down. Shoulder burner." },
+      { name: "Wide Push-ups", sets: "4", reps: "20-25", rest: "60s", notes: "Hands wide, chest focus. Control the descent." },
+      { name: "Wall Push-ups", sets: "3", reps: "25-30", rest: "45s", notes: "Perfect for pre-exhaust. Don't underestimate these." },
     ],
     pull: [
-      { name: "Lat Pulldown", sets: "3", reps: "10-12", rest: "60s", notes: "Pull to upper chest, squeeze lats" },
-      { name: "DB Row", sets: "3", reps: "10-12", rest: "60s", notes: "Pull elbow back, squeeze shoulder blade" },
-      { name: "Cable Row", sets: "3", reps: "10-12", rest: "60s", notes: "Sit tall, pull to belly button" },
-      { name: "Face Pulls", sets: "3", reps: "15", rest: "45s", notes: "Pull to face, externally rotate" },
-      { name: "Assisted Pull-ups", sets: "3", reps: "8-10", rest: "60s", notes: "Full hang, pull chin over bar" },
-      { name: "Bicep Curls", sets: "3", reps: "12", rest: "45s", notes: "Control the negative, no swinging" },
+      { name: "Inverted Rows", sets: "4", reps: "20-25", rest: "60s", notes: "Pull chest to bar, squeeze shoulder blades. Control every rep." },
+      { name: "Australian Pull-ups", sets: "4", reps: "20-25", rest: "60s", notes: "Bodyweight rows, feet elevated for challenge. No swinging." },
+      { name: "Doorframe Rows", sets: "3", reps: "20-25", rest: "60s", notes: "Use what you got. Squeeze at the top." },
+      { name: "Resistance Band Rows", sets: "4", reps: "25-30", rest: "45s", notes: "High reps, constant tension. Build that back." },
+      { name: "Negative Pull-ups", sets: "3", reps: "8-10", rest: "60s", notes: "Jump up, lower slow as possible. Build strength to earn full reps." },
+      { name: "Towel Rows", sets: "4", reps: "20-25", rest: "60s", notes: "Grip the towel, pull hard. Prison ingenuity." },
     ],
     legs: [
-      { name: "Goblet Squat", sets: "3", reps: "10-12", rest: "60s", notes: "Knees track over toes, depth matters" },
-      { name: "Leg Press", sets: "3", reps: "12-15", rest: "60s", notes: "Full range, don't lock knees" },
-      { name: "Romanian Deadlift", sets: "3", reps: "10-12", rest: "60s", notes: "Hinge at hips, slight knee bend" },
-      { name: "Walking Lunges", sets: "3", reps: "10 each", rest: "60s", notes: "Step long, knee over ankle" },
-      { name: "Leg Curl", sets: "3", reps: "12-15", rest: "45s", notes: "Squeeze hamstrings at top" },
-      { name: "Calf Raises", sets: "3", reps: "15-20", rest: "45s", notes: "Full stretch, pause at top" },
+      { name: "Prisoner Squats", sets: "4", reps: "25-30", rest: "60s", notes: "Hands behind head, ass to grass. No shortcuts." },
+      { name: "Walking Lunges", sets: "4", reps: "20 each", rest: "60s", notes: "Stride long, knee low. The burn is where growth happens." },
+      { name: "Step-ups", sets: "4", reps: "20 each", rest: "60s", notes: "Drive through the heel, full extension. Alternate legs." },
+      { name: "Squat Jumps", sets: "3", reps: "15-20", rest: "60s", notes: "Explode up, land soft. Repeat until failure." },
+      { name: "Reverse Lunges", sets: "4", reps: "20 each", rest: "60s", notes: "Step back, drive forward. Control the motion." },
+      { name: "Wall Sits", sets: "3", reps: "45-60s", rest: "45s", notes: "Back flat, thighs parallel. Embrace the shake." },
     ],
     core: [
-      { name: "Plank", sets: "3", reps: "30-45s", rest: "30s", notes: "Straight line from head to heels" },
-      { name: "Dead Bug", sets: "3", reps: "10 each", rest: "30s", notes: "Keep lower back pressed to floor" },
-      { name: "Bird Dog", sets: "3", reps: "10 each", rest: "30s", notes: "Opposite arm/leg, maintain balance" },
-      { name: "Pallof Press", sets: "3", reps: "10 each", rest: "30s", notes: "Resist rotation, brace core" },
-      { name: "Mountain Climbers", sets: "3", reps: "20 each", rest: "30s", notes: "Keep hips level, quick feet" },
-      { name: "Russian Twist", sets: "3", reps: "15 each", rest: "30s", notes: "Rotate from core, not arms" },
+      { name: "Plank", sets: "3", reps: "45-60s", rest: "30s", notes: "Straight line head to heels. No sagging, no quitting." },
+      { name: "Mountain Climbers", sets: "4", reps: "30 each", rest: "30s", notes: "Quick feet, hips low. Cardio and core combined." },
+      { name: "Dead Bug", sets: "3", reps: "20 each", rest: "30s", notes: "Lower back pressed to floor. Control is key." },
+      { name: "Flutter Kicks", sets: "3", reps: "30 each", rest: "30s", notes: "Legs straight, lower back down. Burn through it." },
+      { name: "Bicycle Crunches", sets: "3", reps: "25 each", rest: "30s", notes: "Elbow to opposite knee, full rotation." },
+      { name: "Leg Raises", sets: "3", reps: "20", rest: "30s", notes: "Slow on the way down. Core stays tight." },
     ],
     warmup: [
-      { name: "Jumping Jacks", sets: "2", reps: "30", rest: "0s", notes: "Get the heart rate up" },
-      { name: "Bodyweight Squats", sets: "2", reps: "15", rest: "0s", notes: "Full depth, controlled" },
-      { name: "Arm Circles", sets: "2", reps: "20 each", rest: "0s", notes: "Forward then backward" },
-      { name: "Hip Circles", sets: "2", reps: "10 each", rest: "0s", notes: "Open up the hips" },
-      { name: "Leg Swings", sets: "2", reps: "10 each", rest: "0s", notes: "Front to back, side to side" },
-      { name: "Cat-Cow Stretch", sets: "2", reps: "10", rest: "0s", notes: "Flow with breath" },
+      { name: "Jumping Jacks", sets: "2", reps: "30", rest: "0s", notes: "Get the blood pumping, wake up the body." },
+      { name: "Prisoner Squats", sets: "2", reps: "20", rest: "0s", notes: "Hands behind head, warm up those legs." },
+      { name: "Arm Circles", sets: "2", reps: "20 each", rest: "0s", notes: "Small to big, forward then backward." },
+      { name: "High Knees", sets: "2", reps: "30 each", rest: "0s", notes: "Drive those knees, pump the arms." },
+      { name: "Butt Kicks", sets: "2", reps: "30 each", rest: "0s", notes: "Heels to glutes, quick feet." },
+      { name: "Hip Circles", sets: "2", reps: "15 each", rest: "0s", notes: "Open up those hips, get mobile." },
     ],
   },
   intermediate: {
     push: [
-      { name: "Barbell Bench Press", sets: "4", reps: "8-10", rest: "90s", notes: "Arch back, drive feet into floor" },
-      { name: "Military Press", sets: "4", reps: "8-10", rest: "90s", notes: "Strict form, no leg drive" },
-      { name: "Dips", sets: "3", reps: "10-12", rest: "60s", notes: "Lean forward for chest, upright for triceps" },
-      { name: "Cable Flyes", sets: "3", reps: "12-15", rest: "60s", notes: "Slight bend in elbows, squeeze chest" },
-      { name: "Close-Grip Bench Press", sets: "3", reps: "10-12", rest: "60s", notes: "Hands shoulder-width, elbows tucked" },
-      { name: "Lateral Raises", sets: "3", reps: "12-15", rest: "45s", notes: "Lead with pinkies, control descent" },
+      { name: "Push-ups", sets: "4", reps: "25-30", rest: "50s", notes: "Chest to deck, no resting at top. Constant tension." },
+      { name: "Diamond Push-ups", sets: "4", reps: "20-25", rest: "50s", notes: "Hands together, tricep destroyer. Grind it out." },
+      { name: "Decline Push-ups", sets: "4", reps: "20-25", rest: "50s", notes: "Feet elevated, upper chest focus. No breaks." },
+      { name: "Archer Push-ups", sets: "3", reps: "15 each", rest: "50s", notes: "One arm extended, other does the work. Build to one-arm." },
+      { name: "Pike Push-ups", sets: "4", reps: "20-25", rest: "50s", notes: "Hips high, shoulders burning. Embrace it." },
+      { name: "Explosive Push-ups", sets: "3", reps: "15-20", rest: "50s", notes: "Push hard, hands leave ground. Power building." },
     ],
     pull: [
-      { name: "Pull-ups", sets: "4", reps: "6-10", rest: "90s", notes: "Dead hang to chin over bar" },
-      { name: "Barbell Row", sets: "4", reps: "8-10", rest: "90s", notes: "45-degree torso, pull to lower chest" },
-      { name: "T-Bar Row", sets: "3", reps: "10-12", rest: "60s", notes: "Neutral grip, squeeze lats" },
-      { name: "Chin-ups", sets: "3", reps: "8-10", rest: "60s", notes: "Supinated grip, bicep emphasis" },
-      { name: "Seated Cable Row", sets: "3", reps: "10-12", rest: "60s", notes: "Pull to sternum, hold contraction" },
-      { name: "Hammer Curls", sets: "3", reps: "10-12", rest: "45s", notes: "Neutral grip, brachialis focus" },
+      { name: "Pull-ups", sets: "4", reps: "Max reps", rest: "60s", notes: "Dead hang to chin over bar. Whatever you've got, give it." },
+      { name: "Chin-ups", sets: "4", reps: "Max reps", rest: "60s", notes: "Underhand grip, bicep emphasis. Pull until failure." },
+      { name: "Inverted Rows", sets: "4", reps: "25-30", rest: "50s", notes: "Feet elevated for challenge. Squeeze at the top." },
+      { name: "Wide-Grip Pull-ups", sets: "3", reps: "Max reps", rest: "60s", notes: "Hands wide, lat focus. Every rep counts." },
+      { name: "Commando Pull-ups", sets: "3", reps: "10 each", rest: "50s", notes: "Alternate sides at the top. Core stays tight." },
+      { name: "Towel Pull-ups", sets: "3", reps: "Max reps", rest: "60s", notes: "Grip the towel, build forearm strength. Prison style." },
     ],
     legs: [
-      { name: "Back Squat", sets: "4", reps: "6-8", rest: "120s", notes: "Below parallel, drive through heels" },
-      { name: "Deadlift", sets: "4", reps: "5-6", rest: "120s", notes: "Hinge at hips, bar close to body" },
-      { name: "Bulgarian Split Squat", sets: "3", reps: "10 each", rest: "60s", notes: "Rear foot elevated, vertical torso" },
-      { name: "Leg Curl", sets: "3", reps: "10-12", rest: "60s", notes: "Control eccentric, squeeze at top" },
-      { name: "Leg Extension", sets: "3", reps: "12-15", rest: "45s", notes: "Pause at top, squeeze quads" },
-      { name: "Standing Calf Raises", sets: "4", reps: "12-15", rest: "45s", notes: "Full stretch, pause at top" },
+      { name: "Prisoner Squats", sets: "4", reps: "30-35", rest: "50s", notes: "Ass to grass, hands behind head. No shortcuts, full depth." },
+      { name: "Jump Squats", sets: "4", reps: "20-25", rest: "50s", notes: "Explode up, land soft, repeat. Power and endurance." },
+      { name: "Bulgarian Split Squats", sets: "4", reps: "20 each", rest: "50s", notes: "Rear foot elevated. Single leg strength builder." },
+      { name: "Pistol Squat Progressions", sets: "3", reps: "10-15 each", rest: "60s", notes: "Work toward the full pistol. Use assist if needed." },
+      { name: "Walking Lunges", sets: "4", reps: "25 each", rest: "50s", notes: "Stride long, knee low. The legs should be screaming." },
+      { name: "Box Jumps", sets: "4", reps: "15-20", rest: "50s", notes: "Step down, explode up. Build explosive power." },
     ],
     core: [
-      { name: "Hanging Leg Raise", sets: "3", reps: "10-12", rest: "45s", notes: "Control the swing, lift with abs" },
-      { name: "Ab Wheel Rollout", sets: "3", reps: "8-12", rest: "45s", notes: "Brace core, maintain tension" },
-      { name: "Cable Crunch", sets: "3", reps: "12-15", rest: "45s", notes: "Crunch ribs to hips" },
-      { name: "Side Plank", sets: "3", reps: "30s each", rest: "30s", notes: "Stack hips, maintain straight line" },
-      { name: "Weighted Plank", sets: "3", reps: "45-60s", rest: "45s", notes: "Add plate on back for challenge" },
-      { name: "Woodchops", sets: "3", reps: "12 each", rest: "45s", notes: "Rotate through core, not arms" },
+      { name: "Hanging Leg Raises", sets: "4", reps: "15-20", rest: "45s", notes: "From dead hang, legs to bar. Control the swing." },
+      { name: "Plank", sets: "3", reps: "60-90s", rest: "30s", notes: "Straight line, no sagging. Mental and physical challenge." },
+      { name: "V-Ups", sets: "4", reps: "20-25", rest: "30s", notes: "Hands to toes, body forms a V. Full extension." },
+      { name: "Russian Twists", sets: "4", reps: "30 each", rest: "30s", notes: "Feet off ground, rotate from core. Oblique burner." },
+      { name: "Hollow Body Hold", sets: "3", reps: "45-60s", rest: "30s", notes: "Lower back pressed down, arms overhead. Don't break." },
+      { name: "Windshield Wipers (Floor)", sets: "3", reps: "15 each", rest: "45s", notes: "Legs together, rotate side to side. Core control." },
     ],
     warmup: [
-      { name: "Jump Rope", sets: "2", reps: "60s", rest: "0s", notes: "Light bouncing, stay on toes" },
-      { name: "Bodyweight Squats", sets: "2", reps: "15", rest: "0s", notes: "Full depth, tempo controlled" },
-      { name: "Band Pull-Aparts", sets: "2", reps: "15", rest: "0s", notes: "Squeeze shoulder blades" },
-      { name: "World's Greatest Stretch", sets: "1", reps: "5 each", rest: "0s", notes: "Flow through each position" },
-      { name: "Glute Bridges", sets: "2", reps: "10", rest: "0s", notes: "Squeeze glutes at top" },
-      { name: "Arm Swings", sets: "2", reps: "20", rest: "0s", notes: "Dynamic, increasing range" },
+      { name: "Burpees", sets: "2", reps: "10", rest: "0s", notes: "Chest to floor, explosive jump. Wake up the system." },
+      { name: "Prisoner Squats", sets: "2", reps: "20", rest: "0s", notes: "Full depth, hands behind head. Get those legs ready." },
+      { name: "Jumping Jacks", sets: "2", reps: "40", rest: "0s", notes: "Arms overhead, feet wide. Keep moving." },
+      { name: "Hip Circles", sets: "2", reps: "15 each", rest: "0s", notes: "Open up the hips, prepare for battle." },
+      { name: "Arm Swings", sets: "2", reps: "20", rest: "0s", notes: "Dynamic, increasing range. Loosen up." },
+      { name: "High Knees", sets: "2", reps: "40 each", rest: "0s", notes: "Drive knees high, pump arms. Heart rate up." },
     ],
   },
   advanced: {
     push: [
-      { name: "Pause Bench Press", sets: "4", reps: "5-6", rest: "120s", notes: "2-sec pause at chest, explosive up" },
-      { name: "Push Press", sets: "4", reps: "6-8", rest: "90s", notes: "Dip and drive, lock out overhead" },
-      { name: "Weighted Dips", sets: "4", reps: "8-10", rest: "90s", notes: "Add weight, control descent" },
-      { name: "Incline Barbell Press", sets: "4", reps: "8-10", rest: "90s", notes: "30-degree angle, touch upper chest" },
-      { name: "Decline Bench Press", sets: "3", reps: "8-10", rest: "75s", notes: "Target lower chest" },
-      { name: "Arnold Press", sets: "3", reps: "10-12", rest: "60s", notes: "Rotate through full range" },
+      { name: "Push-ups", sets: "5", reps: "30-35", rest: "45s", notes: "Chest to deck, full lockout. No mercy on yourself." },
+      { name: "Archer Push-ups", sets: "4", reps: "20 each", rest: "45s", notes: "One arm working, one extended. Build to one-arm." },
+      { name: "One-Arm Push-up Progressions", sets: "4", reps: "10-15 each", rest: "45s", notes: "Wide stance, work toward full one-arm. Iron sharpens iron." },
+      { name: "Explosive Clap Push-ups", sets: "4", reps: "15-20", rest: "45s", notes: "Explode, clap, land soft. Power building." },
+      { name: "Decline Diamond Push-ups", sets: "4", reps: "25-30", rest: "45s", notes: "Feet elevated, hands close. Tricep destroyer." },
+      { name: "Pseudo Planche Push-ups", sets: "4", reps: "15-20", rest: "45s", notes: "Hands by hips, lean forward. Advanced movement." },
     ],
     pull: [
-      { name: "Weighted Pull-ups", sets: "4", reps: "6-8", rest: "120s", notes: "Add weight progressively" },
-      { name: "Pendlay Row", sets: "4", reps: "5-6", rest: "90s", notes: "Dead stop each rep, explosive pull" },
-      { name: "Meadows Row", sets: "3", reps: "10-12", rest: "60s", notes: "Landmine setup, great lat stretch" },
-      { name: "Chest-Supported Row", sets: "3", reps: "10-12", rest: "60s", notes: "No momentum, pure back work" },
-      { name: "Weighted Chin-ups", sets: "3", reps: "6-8", rest: "90s", notes: "Full range, controlled negative" },
-      { name: "Barbell Curl", sets: "3", reps: "8-10", rest: "60s", notes: "Strict form, no body English" },
+      { name: "Weighted Pull-ups", sets: "5", reps: "15-20", rest: "45s", notes: "Add weight, still hit reps. No excuses." },
+      { name: "Muscle-up Progressions", sets: "4", reps: "8-12", rest: "60s", notes: "Explosive pull, push over. Build to the full movement." },
+      { name: "Commando Pull-ups", sets: "4", reps: "15 each", rest: "45s", notes: "Alternate sides at top. Core stays locked." },
+      { name: "L-Sit Pull-ups", sets: "4", reps: "12-15", rest: "45s", notes: "Legs extended, pull to chest. Core and back." },
+      { name: "Wide Pull-ups", sets: "4", reps: "20-25", rest: "45s", notes: "Hands wide, lat focus. Every rep full range." },
+      { name: "Typewriter Pull-ups", sets: "3", reps: "10 each", rest: "45s", notes: "Pull up, move side to side. Control is everything." },
     ],
     legs: [
-      { name: "Pause Squats", sets: "4", reps: "4-6", rest: "150s", notes: "2-sec pause in hole, drive up" },
-      { name: "Deficit Deadlift", sets: "4", reps: "4-6", rest: "150s", notes: "Stand on 2-4 inch platform" },
-      { name: "Front Squat", sets: "4", reps: "6-8", rest: "120s", notes: "Elbows high, upright torso" },
-      { name: "Hip Thrust", sets: "4", reps: "8-10", rest: "90s", notes: "Pause at top, squeeze glutes" },
-      { name: "Nordic Curl", sets: "3", reps: "6-8", rest: "90s", notes: "Control the eccentric, assist up" },
-      { name: "Single-Leg RDL", sets: "3", reps: "8 each", rest: "60s", notes: "Balance and hamstring focus" },
+      { name: "Pistol Squats", sets: "4", reps: "15-20 each", rest: "45s", notes: "Full depth, one leg. True leg strength." },
+      { name: "Jump Squats", sets: "5", reps: "25-30", rest: "45s", notes: "Explode every rep, land soft. Power endurance." },
+      { name: "Shrimp Squats", sets: "4", reps: "12-15 each", rest: "45s", notes: "Hold rear foot, drop knee to ground. Advanced movement." },
+      { name: "Plyometric Lunges", sets: "4", reps: "20 each", rest: "45s", notes: "Switch in the air, land soft. Explosive legs." },
+      { name: "Deck Squats", sets: "4", reps: "15-20", rest: "45s", notes: "Roll back, explode forward to standing. Mobility and power." },
+      { name: "Single-Leg Box Jumps", sets: "4", reps: "12 each", rest: "45s", notes: "One leg, explosive power. Step down safe." },
     ],
     core: [
-      { name: "Dragon Flag", sets: "3", reps: "6-8", rest: "60s", notes: "Control both phases, full tension" },
-      { name: "Hanging Windshield Wipers", sets: "3", reps: "8-10", rest: "60s", notes: "Keep legs straight, rotate fully" },
-      { name: "Ab Wheel (Standing)", sets: "3", reps: "6-8", rest: "60s", notes: "Full extension, maintain plank" },
-      { name: "L-Sit Hold", sets: "3", reps: "20-30s", rest: "45s", notes: "Parallettes or floor" },
-      { name: "Weighted Decline Sit-up", sets: "3", reps: "10-12", rest: "45s", notes: "Hold plate at chest" },
-      { name: "Pallof Press (Heavy)", sets: "3", reps: "10 each", rest: "45s", notes: "Increase resistance, resist rotation" },
+      { name: "Dragon Flags", sets: "4", reps: "10-15", rest: "45s", notes: "Control both phases, full tension. No cheating." },
+      { name: "Hanging Windshield Wipers", sets: "4", reps: "12 each", rest: "45s", notes: "Legs straight, rotate fully. Core control." },
+      { name: "L-Sit Hold", sets: "4", reps: "30-45s", rest: "30s", notes: "Legs parallel to ground, arms locked. Don't drop." },
+      { name: "Ab Wheel Rollouts", sets: "4", reps: "15-20", rest: "45s", notes: "Full extension, maintain plank. Slow and controlled." },
+      { name: "Human Flag Progressions", sets: "3", reps: "10-15s each", rest: "60s", notes: "Work toward the full flag. Advanced core and obliques." },
+      { name: "Planche Lean Hold", sets: "3", reps: "30-45s", rest: "45s", notes: "Lean forward, shoulders over hands. Build to full planche." },
     ],
     warmup: [
-      { name: "Rowing Machine", sets: "1", reps: "3 min", rest: "0s", notes: "Easy pace, full body warm-up" },
-      { name: "Dynamic Hip Openers", sets: "2", reps: "10 each", rest: "0s", notes: "90/90 transitions, flow" },
-      { name: "Shoulder Dislocates", sets: "2", reps: "10", rest: "0s", notes: "Band or PVC, overhead mobility" },
-      { name: "Cossack Squat", sets: "2", reps: "8 each", rest: "0s", notes: "Side-to-side, hip mobility" },
-      { name: "Spiderman Lunge w/ Reach", sets: "2", reps: "6 each", rest: "0s", notes: "Open hip, rotate and reach" },
-      { name: "Light Muscle Snatch", sets: "2", reps: "8", rest: "0s", notes: "PVC or empty bar, overhead path" },
+      { name: "Burpee Complex", sets: "2", reps: "15", rest: "0s", notes: "Burpee with push-up, squat jump at top. Full body activation." },
+      { name: "Prisoner Squats", sets: "2", reps: "25", rest: "0s", notes: "Hands behind head, full depth. Wake up those legs." },
+      { name: "Dynamic Hip Openers", sets: "2", reps: "15 each", rest: "0s", notes: "90/90 transitions, flow through positions." },
+      { name: "Arm Circles to Shoulder Dislocates", sets: "2", reps: "15", rest: "0s", notes: "Band or towel, overhead mobility." },
+      { name: "Spiderman Lunges", sets: "2", reps: "10 each", rest: "0s", notes: "Deep lunge, elbow to floor. Hip opener." },
+      { name: "Jumping Jacks to Tuck Jumps", sets: "2", reps: "20 + 10", rest: "0s", notes: "Get the blood pumping, explosive finish." },
     ],
   },
   conditioning: {
     hiit: [
-      { name: "Burpees", sets: "4", reps: "10", rest: "30s", notes: "Chest to floor, explosive jump" },
-      { name: "Box Jumps", sets: "4", reps: "10", rest: "30s", notes: "Land soft, step down" },
-      { name: "Kettlebell Swings", sets: "4", reps: "15", rest: "30s", notes: "Hip hinge, glute drive" },
-      { name: "Battle Ropes", sets: "4", reps: "30s", rest: "30s", notes: "Alternating waves, stay low" },
-      { name: "Sprint Intervals", sets: "6", reps: "20s", rest: "40s", notes: "Max effort each sprint" },
-      { name: "Bike Sprints", sets: "8", reps: "15s", rest: "45s", notes: "All-out effort, high resistance" },
+      { name: "Burpees", sets: "5", reps: "30+", rest: "30s", notes: "Chest to floor, explosive jump. Maximum effort every rep." },
+      { name: "Squat Jumps", sets: "5", reps: "30+", rest: "30s", notes: "Ass to grass, explode up. Don't slow down." },
+      { name: "Mountain Climbers", sets: "5", reps: "40+ each", rest: "30s", notes: "Quick feet, hips low. Sprint it out." },
+      { name: "Tuck Jumps", sets: "5", reps: "25+", rest: "30s", notes: "Knees to chest, land soft. Repeat to failure." },
+      { name: "Sprint in Place", sets: "5", reps: "45s", rest: "30s", notes: "Maximum speed, pump those arms. Leave nothing." },
+      { name: "Jumping Lunges", sets: "5", reps: "30+ each", rest: "30s", notes: "Switch in air, land soft. Leg burner." },
     ],
     circuits: [
-      { name: "Mountain Climbers", sets: "3", reps: "20 each", rest: "15s", notes: "Quick feet, hips low" },
-      { name: "Squat Jumps", sets: "3", reps: "12", rest: "15s", notes: "Depth before explosion" },
-      { name: "Med Ball Slams", sets: "3", reps: "10", rest: "15s", notes: "Full extension, slam hard" },
-      { name: "Renegade Rows", sets: "3", reps: "10 each", rest: "15s", notes: "Row in plank position" },
-      { name: "Tuck Jumps", sets: "3", reps: "8", rest: "20s", notes: "Knees to chest, land soft" },
-      { name: "Plank Shoulder Taps", sets: "3", reps: "20", rest: "15s", notes: "Minimize hip sway" },
+      { name: "Prison Cell Complex", sets: "4", reps: "5 rounds", rest: "30s", notes: "10 push-ups, 20 squats, 10 lunges each. No rest between exercises." },
+      { name: "The Yard Sprint", sets: "4", reps: "3 min AMRAP", rest: "60s", notes: "10 burpees, 20 squats, 30 mountain climbers. Repeat." },
+      { name: "Iron Will Circuit", sets: "4", reps: "4 rounds", rest: "30s", notes: "Max pull-ups, 20 dips, 30 squats. Push through." },
+      { name: "Lockdown Ladder", sets: "3", reps: "1-10 ladder", rest: "30s", notes: "1 burpee, 1 squat, up to 10 each. Then back down." },
+      { name: "Death Row", sets: "4", reps: "To failure", rest: "45s", notes: "Push-ups to failure, squats to failure, lunges to failure." },
+      { name: "Solitary Confinement", sets: "3", reps: "5 min AMRAP", rest: "60s", notes: "20 each: push-ups, squats, lunges, mountain climbers." },
     ],
     cardio: [
-      { name: "Rowing Intervals", sets: "5", reps: "500m", rest: "60s", notes: "Consistent splits, strong finish" },
-      { name: "Assault Bike", sets: "8", reps: "20s", rest: "40s", notes: "Arms and legs, max effort" },
-      { name: "Sled Push", sets: "6", reps: "40m", rest: "60s", notes: "Drive through legs, stay low" },
-      { name: "Farmer's Walk", sets: "4", reps: "60m", rest: "45s", notes: "Heavy weight, tall posture" },
-      { name: "Jump Rope Double-Unders", sets: "5", reps: "30", rest: "30s", notes: "Wrist flicks, stay tight" },
-      { name: "Stair Sprints", sets: "8", reps: "30s", rest: "45s", notes: "Quick feet, pump arms" },
+      { name: "High Knees", sets: "5", reps: "60s", rest: "20s", notes: "Drive knees high, maximum speed. Empty the tank." },
+      { name: "Jumping Jacks", sets: "5", reps: "100", rest: "20s", notes: "Arms overhead, feet wide. Keep the pace." },
+      { name: "Burpee Broad Jumps", sets: "5", reps: "15-20", rest: "30s", notes: "Burpee, jump forward. Cover ground." },
+      { name: "Shadow Boxing", sets: "5", reps: "60s", rest: "20s", notes: "Combinations, stay light on feet. Fight the air." },
+      { name: "Stair Runs", sets: "5", reps: "10 rounds", rest: "30s", notes: "Sprint up, walk down. Repeat until done." },
+      { name: "Jump Rope (Invisible)", sets: "5", reps: "100", rest: "20s", notes: "Quick feet, wrist flicks. No rope needed." },
     ],
     warmup: [
-      { name: "Jump Rope", sets: "1", reps: "3 min", rest: "0s", notes: "Light and easy, get moving" },
-      { name: "High Knees", sets: "2", reps: "30s", rest: "0s", notes: "Quick feet, drive knees" },
-      { name: "Butt Kicks", sets: "2", reps: "30s", rest: "0s", notes: "Heels to glutes" },
-      { name: "Inchworms", sets: "2", reps: "6", rest: "0s", notes: "Walk out to plank, walk back" },
-      { name: "Lateral Shuffles", sets: "2", reps: "20m each", rest: "0s", notes: "Stay low, quick feet" },
-      { name: "A-Skips", sets: "2", reps: "20m", rest: "0s", notes: "Drive knee, dorsiflex ankle" },
+      { name: "Burpees", sets: "2", reps: "15", rest: "0s", notes: "Full body wake-up call. Chest to floor." },
+      { name: "High Knees", sets: "2", reps: "40 each", rest: "0s", notes: "Quick feet, drive knees. Get the heart pumping." },
+      { name: "Butt Kicks", sets: "2", reps: "40 each", rest: "0s", notes: "Heels to glutes, quick tempo." },
+      { name: "Jumping Jacks", sets: "2", reps: "50", rest: "0s", notes: "Arms overhead, feet wide. Keep moving." },
+      { name: "Squat to Stretch", sets: "2", reps: "15", rest: "0s", notes: "Deep squat, arms overhead. Open up." },
+      { name: "Lateral Shuffles", sets: "2", reps: "20 each", rest: "0s", notes: "Stay low, quick feet. Warm up lateral movement." },
     ],
   },
+};
+
+// AMRAP Finisher pools by difficulty
+const AMRAP_FINISHERS = {
+  beginner: [
+    { name: "AMRAP: Burpees", duration: "60 sec", notes: "As many as possible in 60 seconds. Chest to floor, explosive jump." },
+    { name: "AMRAP: Push-up + Squat Combo", duration: "60 sec", notes: "Alternate 5 push-ups, 5 squats. Repeat until time." },
+    { name: "AMRAP: Mountain Climbers", duration: "60 sec", notes: "Quick feet, hands planted. Go until you can't." },
+    { name: "AMRAP: Jumping Jacks", duration: "60 sec", notes: "Arms overhead, feet wide. Keep pace consistent." },
+    { name: "AMRAP: High Knees", duration: "60 sec", notes: "Drive knees to chest, pump arms. Don't slow down." },
+    { name: "AMRAP: Bodyweight Squats", duration: "60 sec", notes: "Ass to grass, explode up. Count your reps." },
+  ],
+  intermediate: [
+    { name: "AMRAP: Burpees + Tuck Jumps", duration: "90 sec", notes: "10 burpees, 10 tuck jumps. Repeat until time. No quitting." },
+    { name: "AMRAP: Prison Cell Complex", duration: "2 min", notes: "5 push-ups, 10 squats, 5 lunges each leg. No rest between rounds." },
+    { name: "AMRAP: Devil's Burpees", duration: "90 sec", notes: "Burpee with push-up at bottom, jump at top. Maximum effort." },
+    { name: "AMRAP: Plank to Push-up Ladder", duration: "90 sec", notes: "1 push-up, hold plank 5 sec. 2 push-ups, hold 5 sec. Keep climbing." },
+    { name: "AMRAP: Squat Jump + Lunge Combo", duration: "90 sec", notes: "5 squat jumps, 10 alternating lunges. Repeat until failure." },
+    { name: "AMRAP: The Grinder", duration: "2 min", notes: "10 push-ups, 10 squats, 10 mountain climbers. No breaks." },
+  ],
+  advanced: [
+    { name: "AMRAP: The Yard Sprint", duration: "3 min", notes: "10 burpees, 20 squats, 30 push-ups. Repeat until time. Leave nothing." },
+    { name: "AMRAP: Iron Will", duration: "3 min", notes: "5 pull-ups (or max), 10 dips, 15 squats. Until failure. No excuses." },
+    { name: "AMRAP: Solitary Confinement", duration: "4 min", notes: "Cell-sized chaos. 20 push-ups, 20 squats, 20 lunges, 20 mountain climbers. Repeat." },
+    { name: "AMRAP: Prison Break", duration: "3 min", notes: "15 burpees, 15 squat jumps, 15 tuck jumps. Maximum violence of action." },
+    { name: "AMRAP: The Warden's Challenge", duration: "4 min", notes: "10 diamond push-ups, 20 jump squats, 30 mountain climbers. Beat your count." },
+    { name: "AMRAP: Lockdown Ladder", duration: "3 min", notes: "1-2-3-4-5 burpees with push-ups between each set. Keep climbing." },
+  ],
+  conditioning: [
+    { name: "AMRAP: Sprint to Failure", duration: "5 min", notes: "20 burpees, 30 squat jumps, 40 mountain climbers. Repeat until you drop." },
+    { name: "AMRAP: Total Body Destruction", duration: "4 min", notes: "Every 30 seconds: 5 burpees. Fill remaining time with high knees. No rest." },
+    { name: "AMRAP: The Executioner", duration: "5 min", notes: "10 burpees, 10 tuck jumps, 10 push-ups, 10 squat jumps. Repeat to failure." },
+    { name: "AMRAP: Cardio Carnage", duration: "4 min", notes: "30 mountain climbers, 20 squat jumps, 10 burpees. Leave everything on the floor." },
+    { name: "AMRAP: Death Row", duration: "5 min", notes: "Every exercise to failure, one after another. Push-ups, squats, lunges, burpees." },
+    { name: "AMRAP: Final Rep", duration: "4 min", notes: "As many rounds as possible: 5 burpees, 10 push-ups, 15 squats, 20 lunges." },
+  ],
 };
 
 // Workout split configurations
 const SPLIT_CONFIGS = {
   fullbody: {
-    3: ["Full Body A", "Full Body B", "Full Body C"],
-    4: ["Full Body A", "Full Body B", "Full Body C", "Full Body D"],
+    3: ["Full Body Assault A", "Full Body Assault B", "Full Body Assault C"],
+    4: ["Full Body Assault A", "Full Body Assault B", "Full Body Assault C", "Full Body Assault D"],
   },
   upperlower: {
-    4: ["Upper Body A", "Lower Body A", "Upper Body B", "Lower Body B"],
-    5: ["Upper Body A", "Lower Body A", "Upper Body B", "Lower Body B", "Full Body"],
-    6: ["Upper Body A", "Lower Body A", "Upper Body B", "Lower Body B", "Upper Body C", "Lower Body C"],
+    4: ["Upper Body Blitz A", "Lower Body Grind A", "Upper Body Blitz B", "Lower Body Grind B"],
+    5: ["Upper Body Blitz A", "Lower Body Grind A", "Upper Body Blitz B", "Lower Body Grind B", "Full Body Assault"],
+    6: ["Upper Body Blitz A", "Lower Body Grind A", "Upper Body Blitz B", "Lower Body Grind B", "Upper Body Blitz C", "Lower Body Grind C"],
   },
   ppl: {
-    3: ["Push", "Pull", "Legs"],
-    5: ["Push", "Pull", "Legs", "Upper Body", "Lower Body"],
+    3: ["Push Day", "Pull Day", "Leg Day"],
+    5: ["Push Day", "Pull Day", "Leg Day", "Upper Body Blitz", "Lower Body Grind"],
     6: ["Push A", "Pull A", "Legs A", "Push B", "Pull B", "Legs B"],
   },
   bodypart: {
-    5: ["Chest & Triceps", "Back & Biceps", "Legs", "Shoulders & Arms", "Full Body"],
-    6: ["Chest", "Back", "Legs", "Shoulders", "Arms", "Core & Cardio"],
+    5: ["Chest & Triceps", "Back & Biceps", "Leg Destruction", "Shoulders & Arms", "Full Body Assault"],
+    6: ["Chest Blitz", "Back Attack", "Leg Destruction", "Shoulders", "Arms Assault", "Core & Cardio"],
+  },
+  conditioning: {
+    3: ["HIIT Assault", "Circuit Grind", "Cardio Carnage"],
+    4: ["HIIT Assault A", "Circuit Grind", "Cardio Carnage", "HIIT Assault B"],
+    5: ["HIIT Assault A", "Circuit Grind A", "Cardio Carnage", "HIIT Assault B", "Circuit Grind B"],
+    6: ["HIIT Assault A", "Circuit Grind A", "Cardio Carnage A", "HIIT Assault B", "Circuit Grind B", "Cardio Carnage B"],
   },
 };
 
-// Week progression modifiers
+// Week progression modifiers for Dom's style
 const WEEK_PROGRESSIONS = [
-  { title: "Foundation Phase", focusDescription: "Build movement patterns and establish baseline", setsModifier: 0, repsModifier: 0 },
-  { title: "Building Phase", focusDescription: "Increase volume and work capacity", setsModifier: 1, repsModifier: 0 },
-  { title: "Progression Phase", focusDescription: "Push intensity and challenge limits", setsModifier: 1, repsModifier: 2 },
-  { title: "Peak Phase", focusDescription: "Test strength and consolidate gains", setsModifier: 0, repsModifier: -2 },
+  { title: "Foundation Phase", focusDescription: "Build movement patterns, establish the grind. Focus on form, push the reps.", setsModifier: 0, repsModifier: 0 },
+  { title: "Building Phase", focusDescription: "Increase volume, push your limits. More sets, less rest, more burn.", setsModifier: 1, repsModifier: 5 },
+  { title: "Progression Phase", focusDescription: "Maximum intensity, test your will. Push through the pain barrier.", setsModifier: 1, repsModifier: 5 },
+  { title: "Peak Phase", focusDescription: "Consolidate gains, prove your strength. Leave nothing on the table.", setsModifier: 0, repsModifier: 0 },
 ];
 
 // Template-specific configurations
@@ -283,7 +329,38 @@ function getTemplateConfig(templateName: string, daysPerWeek: number, categoryNa
   return { split: "upperlower", workoutTypes };
 }
 
-function getDifficultyPool(difficulty: string): keyof typeof EXERCISE_POOLS {
+function getDifficultyPool(difficulty: string, categoryName: string): keyof typeof EXERCISE_POOLS {
+  // Category overrides
+  if (categoryName?.includes("Athletic") || categoryName?.includes("Conditioning")) {
+    return "conditioning";
+  }
+  if (categoryName?.includes("Advanced") || categoryName?.includes("Performance")) {
+    return "advanced";
+  }
+  if (categoryName?.includes("Intermediate") || categoryName?.includes("Growth") || categoryName?.includes("Foundation")) {
+    return "intermediate";
+  }
+  
+  // Fallback to difficulty
+  switch (difficulty?.toLowerCase()) {
+    case "beginner": return "beginner";
+    case "intermediate": return "intermediate";
+    case "advanced": return "advanced";
+    default: return "beginner";
+  }
+}
+
+function getFinisherPool(difficulty: string, categoryName: string): keyof typeof AMRAP_FINISHERS {
+  if (categoryName?.includes("Athletic") || categoryName?.includes("Conditioning")) {
+    return "conditioning";
+  }
+  if (categoryName?.includes("Advanced") || categoryName?.includes("Performance")) {
+    return "advanced";
+  }
+  if (categoryName?.includes("Intermediate") || categoryName?.includes("Growth") || categoryName?.includes("Foundation")) {
+    return "intermediate";
+  }
+  
   switch (difficulty?.toLowerCase()) {
     case "beginner": return "beginner";
     case "intermediate": return "intermediate";
@@ -296,7 +373,8 @@ function generateExercisesForWorkout(
   pool: typeof EXERCISE_POOLS[keyof typeof EXERCISE_POOLS],
   muscleGroups: string[],
   weekNum: number,
-  workoutIndex: number
+  workoutIndex: number,
+  finisherPoolKey: keyof typeof AMRAP_FINISHERS
 ): Array<{
   section_type: string;
   exercise_name: string;
@@ -347,18 +425,18 @@ function generateExercisesForWorkout(
     for (let i = 0; i < numExercises && exercises.filter(e => e.section_type === "main").length < 5; i++) {
       const exercise = groupPool[(startIdx + i) % groupPool.length];
       
-      // Apply progression
+      // Apply progression - Dom's style: add reps as weeks progress
       let sets = parseInt(exercise.sets) + progression.setsModifier;
       let reps = exercise.reps;
       if (reps.includes("-")) {
         const [min, max] = reps.split("-").map(r => parseInt(r));
-        const newMin = Math.max(4, min + progression.repsModifier);
-        const newMax = Math.max(6, max + progression.repsModifier);
+        const newMin = min + progression.repsModifier;
+        const newMax = max + progression.repsModifier;
         reps = `${newMin}-${newMax}`;
-      } else if (!reps.includes("s") && !reps.includes("each") && !reps.includes("m")) {
+      } else if (!reps.includes("s") && !reps.includes("each") && !reps.includes("m") && !reps.includes("+") && !reps.includes("Max")) {
         const num = parseInt(reps);
         if (!isNaN(num)) {
-          reps = String(Math.max(4, num + progression.repsModifier));
+          reps = String(num + progression.repsModifier);
         }
       }
       
@@ -374,17 +452,16 @@ function generateExercisesForWorkout(
     }
   }
   
-  // Add finisher/core exercise (1)
-  const poolWithCore = pool as Record<string, typeof warmups>;
-  const corePool = poolWithCore.core || EXERCISE_POOLS.beginner.core;
-  const coreExercise = corePool[(workoutIndex + weekNum) % corePool.length];
+  // Add AMRAP finisher (Dom's signature style)
+  const finisherPool = AMRAP_FINISHERS[finisherPoolKey];
+  const finisher = finisherPool[(workoutIndex + weekNum) % finisherPool.length];
   exercises.push({
     section_type: "finisher",
-    exercise_name: coreExercise.name,
-    sets: coreExercise.sets,
-    reps_or_time: coreExercise.reps,
-    rest: coreExercise.rest,
-    notes: coreExercise.notes,
+    exercise_name: finisher.name,
+    sets: "1",
+    reps_or_time: finisher.duration,
+    rest: "0s",
+    notes: finisher.notes,
     display_order: order++,
   });
   
@@ -398,8 +475,8 @@ function getWorkoutName(split: string, daysPerWeek: number, workoutIndex: number
     return names[workoutIndex % names.length];
   }
   
-  // Fallback names
-  const fallbacks = ["Workout A", "Workout B", "Workout C", "Workout D", "Workout E", "Workout F"];
+  // Fallback names (Dom's style)
+  const fallbacks = ["Assault A", "Grind B", "Blitz C", "Destruction D", "Mayhem E", "Carnage F"];
   return fallbacks[workoutIndex % fallbacks.length];
 }
 
@@ -453,7 +530,8 @@ Deno.serve(async (req) => {
         const difficulty = template.difficulty || "beginner";
         
         const templateConfig = getTemplateConfig(template.name, daysPerWeek, categoryName);
-        const exercisePool = EXERCISE_POOLS[getDifficultyPool(difficulty)];
+        const exercisePool = EXERCISE_POOLS[getDifficultyPool(difficulty, categoryName)];
+        const finisherPoolKey = getFinisherPool(difficulty, categoryName);
         const workoutDayIndices = getWorkoutDayIndices(daysPerWeek);
 
         console.log(`Populating ${template.name}: ${daysPerWeek} days/week, ${categoryName}, ${difficulty}`);
@@ -484,7 +562,7 @@ Deno.serve(async (req) => {
             
             const workoutName = isWorkoutDay
               ? getWorkoutName(templateConfig.split, daysPerWeek, workoutIndex)
-              : "Rest Day";
+              : "Rest & Recovery";
 
             const { data: day, error: dayError } = await supabase
               .from("program_template_days")
@@ -493,8 +571,8 @@ Deno.serve(async (req) => {
                 day_of_week: dayName,
                 workout_name: workoutName,
                 workout_description: isWorkoutDay
-                  ? `${progression.title} - ${workoutName}`
-                  : "Recovery and active rest",
+                  ? `${progression.title} - ${workoutName}. Leave nothing in the tank.`
+                  : "Active recovery. Stretch, hydrate, prepare for battle.",
                 is_rest_day: !isWorkoutDay,
                 display_order: dayIndex,
               })
@@ -510,7 +588,8 @@ Deno.serve(async (req) => {
                 exercisePool,
                 muscleGroups,
                 weekNum,
-                workoutIndex
+                workoutIndex,
+                finisherPoolKey
               );
 
               if (exercises.length > 0) {
@@ -544,7 +623,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Populated ${results.populated} templates, skipped ${results.skipped} (already populated)`,
+        message: `Populated ${results.populated} templates with Dom's high-intensity style, skipped ${results.skipped} (already populated)`,
         results,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
