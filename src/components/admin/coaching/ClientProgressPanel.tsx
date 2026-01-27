@@ -9,7 +9,6 @@ import {
   Mail,
   Phone,
   Loader2,
-  FileText,
   ClipboardList,
   Dumbbell,
   Utensils,
@@ -28,7 +27,6 @@ import ClientOverviewTab from "./ClientOverviewTab";
 import ClientSessionsTab from "./ClientSessionsTab";
 import ClientGoalsTab from "./ClientGoalsTab";
 import ClientMessagesTab from "./ClientMessagesTab";
-import ImprovedProgramTab from "./ImprovedProgramTab";
 import ClientIntakeTab from "./ClientIntakeTab";
 import ClientProgramsTab from "./ClientProgramsTab";
 
@@ -201,13 +199,6 @@ export default function ClientProgressPanel({
             Intake
           </TabsTrigger>
           <TabsTrigger
-            value="details"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Program Details
-          </TabsTrigger>
-          <TabsTrigger
             value="sessions"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
           >
@@ -253,10 +244,6 @@ export default function ClientProgressPanel({
 
               <TabsContent value="intake" className="m-0">
                 <ClientIntakeTab client={client} />
-              </TabsContent>
-
-              <TabsContent value="details" className="m-0">
-                <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
 
               <TabsContent value="sessions" className="m-0">
