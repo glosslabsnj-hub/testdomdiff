@@ -3029,13 +3029,20 @@ Deno.serve(async (req) => {
 
       templatesCreated++;
 
-      // Track used meals for variety
-      const usedMeals = new Set<string>();
+      // Track used meals for variety (reset each week for more variety)
       const targetCalories = (config.min + config.max) / 2;
 
-      // Create 7 days
-      for (let dayNum = 1; dayNum <= 7; dayNum++) {
-        const dayName = DAY_NAMES[dayNum - 1];
+      // Create 28 days (4 weeks)
+      for (let dayNum = 1; dayNum <= 28; dayNum++) {
+        const weekNum = Math.ceil(dayNum / 7);
+        const dayOfWeek = ((dayNum - 1) % 7);
+        const dayName = `Week ${weekNum} - ${DAY_NAMES[dayOfWeek]}`;
+        
+        // Reset used meals each week for variety within the week
+        const usedMeals = new Set<string>();
+        if (dayOfWeek === 0) {
+          usedMeals.clear();
+        }
 
         const { data: day, error: dayError } = await supabase
           .from("meal_plan_days")
@@ -3057,7 +3064,7 @@ Deno.serve(async (req) => {
         // Select meals for this day
         const dayMeals = selectMealsForDay(targetCalories, config.p, usedMeals);
 
-        // Track used meals
+        // Track used meals within the week
         usedMeals.add(dayMeals.breakfast.meal_name);
         usedMeals.add(dayMeals.lunch.meal_name);
         usedMeals.add(dayMeals.dinner.meal_name);
@@ -3099,7 +3106,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      console.log(`Created template "${config.name}" with 7 days and 28 meals`);
+      console.log(`Created template "${config.name}" with 28 days (4 weeks) and 112 meals`);
     }
 
     return new Response(
