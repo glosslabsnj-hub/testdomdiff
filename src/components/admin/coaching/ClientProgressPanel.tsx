@@ -11,12 +11,17 @@ import {
   Loader2,
   FileText,
   ClipboardList,
-  Sparkles,
+  Dumbbell,
+  Utensils,
+  Check,
+  X,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import type { ClientWithSubscription } from "@/hooks/useClientAnalytics";
 import { useClientProgress } from "@/hooks/useClientProgress";
 import ClientOverviewTab from "./ClientOverviewTab";
@@ -25,7 +30,7 @@ import ClientGoalsTab from "./ClientGoalsTab";
 import ClientMessagesTab from "./ClientMessagesTab";
 import ImprovedProgramTab from "./ImprovedProgramTab";
 import ClientIntakeTab from "./ClientIntakeTab";
-import ClientTemplatesTab from "./ClientTemplatesTab";
+import ClientProgramsTab from "./ClientProgramsTab";
 
 interface ClientProgressPanelProps {
   client: ClientWithSubscription;
@@ -40,14 +45,44 @@ export default function ClientProgressPanel({
   onBrowseWorkouts,
   onBrowseNutrition,
 }: ClientProgressPanelProps) {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("programs");
   const { data: progress, loading } = useClientProgress(client.user_id);
+
+  // Fetch assignment status for header badges
+  const { data: workoutAssignment } = useQuery({
+    queryKey: ["client-workout-assignment", client.user_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("client_template_assignments")
+        .select("id, template:program_templates(name)")
+        .eq("client_id", client.user_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: nutritionAssignment } = useQuery({
+    queryKey: ["client-nutrition-assignment", client.user_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("client_nutrition_assignments")
+        .select("id, template:meal_plan_templates(name)")
+        .eq("client_id", client.user_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const fullName = `${client.first_name || ""} ${client.last_name || ""}`.trim() || "Client";
   const initials = fullName.slice(0, 2).toUpperCase();
   const startDate = client.activeSubscription?.started_at
     ? format(new Date(client.activeSubscription.started_at), "MMMM d, yyyy")
     : "—";
+
+  const hasWorkout = !!workoutAssignment?.template;
+  const hasNutrition = !!nutritionAssignment?.template;
 
   return (
     <div className="h-full flex flex-col bg-charcoal rounded-lg border border-border overflow-hidden">
@@ -87,12 +122,51 @@ export default function ClientProgressPanel({
               </span>
             </div>
 
-            {client.goal && (
-              <p className="mt-2 text-sm text-muted-foreground">
-                <Target className="w-3.5 h-3.5 inline mr-1" />
-                {client.goal}
-              </p>
-            )}
+            {/* Assignment Status Badges */}
+            <div className="flex items-center gap-2 mt-2">
+              <Badge
+                variant="outline"
+                className={`text-xs ${
+                  hasWorkout
+                    ? "border-green-500/50 text-green-500 bg-green-500/10"
+                    : "border-amber-500/50 text-amber-500 bg-amber-500/10"
+                }`}
+              >
+                <Dumbbell className="w-3 h-3 mr-1" />
+                {hasWorkout ? (
+                  <>
+                    <Check className="w-3 h-3 mr-1" />
+                    Training
+                  </>
+                ) : (
+                  <>
+                    <X className="w-3 h-3 mr-1" />
+                    No Training
+                  </>
+                )}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={`text-xs ${
+                  hasNutrition
+                    ? "border-green-500/50 text-green-500 bg-green-500/10"
+                    : "border-amber-500/50 text-amber-500 bg-amber-500/10"
+                }`}
+              >
+                <Utensils className="w-3 h-3 mr-1" />
+                {hasNutrition ? (
+                  <>
+                    <Check className="w-3 h-3 mr-1" />
+                    Nutrition
+                  </>
+                ) : (
+                  <>
+                    <X className="w-3 h-3 mr-1" />
+                    No Nutrition
+                  </>
+                )}
+              </Badge>
+            </div>
           </div>
 
           <Button variant="goldOutline" size="sm" className="flex-shrink-0">
@@ -106,18 +180,18 @@ export default function ClientProgressPanel({
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
         <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 overflow-x-auto flex-none">
           <TabsTrigger
+            value="programs"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+          >
+            <Target className="w-4 h-4 mr-2" />
+            Programs
+          </TabsTrigger>
+          <TabsTrigger
             value="overview"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
           >
             <TrendingUp className="w-4 h-4 mr-2" />
             Overview
-          </TabsTrigger>
-          <TabsTrigger
-            value="templates"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Templates
           </TabsTrigger>
           <TabsTrigger
             value="intake"
@@ -127,11 +201,11 @@ export default function ClientProgressPanel({
             Intake
           </TabsTrigger>
           <TabsTrigger
-            value="program"
+            value="details"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
           >
             <FileText className="w-4 h-4 mr-2" />
-            Program
+            Program Details
           </TabsTrigger>
           <TabsTrigger
             value="sessions"
@@ -164,24 +238,24 @@ export default function ClientProgressPanel({
             </div>
           ) : (
             <div className="p-4 pb-28">
-              <TabsContent value="overview" className="m-0">
-                <ClientOverviewTab client={client} progress={progress} />
-              </TabsContent>
-
-              <TabsContent value="templates" className="m-0">
-                <ClientTemplatesTab 
-                  client={client} 
+              <TabsContent value="programs" className="m-0">
+                <ClientProgramsTab
+                  client={client}
                   onTemplateAssigned={onUpdate}
                   onBrowseWorkouts={onBrowseWorkouts}
                   onBrowseNutrition={onBrowseNutrition}
                 />
               </TabsContent>
 
+              <TabsContent value="overview" className="m-0">
+                <ClientOverviewTab client={client} progress={progress} />
+              </TabsContent>
+
               <TabsContent value="intake" className="m-0">
                 <ClientIntakeTab client={client} />
               </TabsContent>
 
-              <TabsContent value="program" className="m-0">
+              <TabsContent value="details" className="m-0">
                 <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
 

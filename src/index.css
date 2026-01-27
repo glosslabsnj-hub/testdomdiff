@@ -66,6 +66,10 @@
     --destructive: 0 65% 50%;
     --destructive-foreground: 210 5% 95%;
     
+    /* Success state */
+    --success: 142 70% 45%;
+    --success-foreground: 210 5% 95%;
+    
     /* Warning state */
     --warning: 45 90% 50%;
     --warning-foreground: 210 8% 5%;
