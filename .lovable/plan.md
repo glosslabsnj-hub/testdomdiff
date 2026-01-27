@@ -1,252 +1,355 @@
 
-# Free World Admin Hub: Client Suggestions & 100 Nutrition Templates
+# Free World Admin Hub: Template-Level Recommendations, Enhanced Intake & Editable Nutrition
 
 ## Summary
-This plan implements three key features:
-1. **Client-aware template tabs** - When a client is selected and you switch to Workout Templates or Nutrition Templates, a sticky banner shows the recommended template for that client
-2. **Fix nutrition template categories** - Reassign the existing 30 templates to their correct goal categories
-3. **Create 100 detailed nutrition templates** - Populate the library with comprehensive meal plans across 5 goal categories with detailed recipes, cooking instructions, and swappable meals
+This plan implements five major features:
+1. **Template-level recommendations** - Instead of just recommending a category, the system will recommend a specific template within that category based on calorie matching (nutrition) and intensity/equipment matching (workouts)
+2. **Enhanced intake form** - Add key fields to capture calorie-relevant data and standardize goal selection for accurate template matching
+3. **Editable nutrition templates** - Full inline editing for templates, days, and meals in the admin view
+4. **Expandable meals with ingredients/instructions** - Each meal card expands to show detailed recipe instructions and ingredient lists
+5. **Weekly grocery lists** - Auto-generated shopping lists aggregated per week from meal ingredients
 
 ---
 
-## Part 1: Client Suggestion Banners
+## Part 1: Template-Level Recommendations
 
-When a client is selected in the Clients tab and the admin switches to Workout Templates or Nutrition Templates, a persistent banner will appear at the top showing:
-- Client name and photo
-- Recommended category based on their intake data
-- Match quality score (Excellent/Good/Fair)
-- Quick-assign button
+### Current State
+- Workout: Recommends a **category** (e.g., "Foundation Builder") but not a specific template
+- Nutrition: Recommends a **category** (e.g., "Fat Loss - Moderate") but not a specific template
 
-### For Workout Templates
-Use existing `useTemplateSuggestion` hook with client data to calculate recommendation.
+### Solution
 
-### For Nutrition Templates  
-Use existing `calculateNutritionCategory` function with client's:
-- Goal (maps to category)
-- Weight, height, age (TDEE calculation)
-- Activity level (calorie adjustment)
+**For Nutrition Templates:**
+Create a `calculateRecommendedNutritionTemplate` function that:
+1. Takes the client's target calories from `calculateNutritionCategory`
+2. Finds all templates in the recommended category
+3. Scores each template by how close its `calorie_range_min/max` midpoint is to the target
+4. Returns the best-matching template
 
-The banner will include:
-- "Recommended for [Client Name]: [Category Name]" text
-- "[Target Calories] cal/day" badge
-- "View Recommended" button that scrolls to and expands that category
+Scoring formula:
+```
+score = 100 - (Math.abs(targetCalories - templateMidpoint) / 50)
+```
+
+**For Workout Templates:**
+Create a `calculateRecommendedWorkoutTemplate` function that:
+1. Takes the recommended category
+2. Scores templates within that category based on:
+   - Equipment match (40%): Compare client's `equipment` field to template's requirements
+   - Training days match (30%): Compare `training_days_per_week` to template's `days_per_week`
+   - Intensity match (30%): Map body composition + experience to intensity level
+
+### Banner Update
+The `ClientRecommendationBanner` will be updated to show:
+- Recommended **category** (as before)
+- Recommended **template** name with "Best Match" badge
+- "View Template" button scrolls directly to that template and auto-expands it
 
 ---
 
-## Part 2: Fix Existing Template Categories
+## Part 2: Enhanced Free World Intake Form
 
-Current state: All 30 templates are incorrectly assigned to the "Recomposition" category.
+The current intake collects useful data but has gaps that affect recommendation accuracy:
 
-Fix via SQL update to properly assign templates based on their goal_type:
-- "Lose fat" templates → Fat Loss - Aggressive or Fat Loss - Moderate (based on calorie range)
-- "Build muscle" templates → Muscle Building - Lean or Muscle Building - Mass (based on calorie range)
-- "Both - lose fat and build muscle" templates → Recomposition
+### Changes to Goals Step
+
+**Current:** Free-text input for "Primary Goal"
+**Problem:** Users type anything ("lose 30 lbs", "get stronger") which doesn't map cleanly to categories
+
+**Solution:** Add a structured goal selector (radio group) with options:
+- "Lose fat" (maps to fat loss categories)
+- "Build muscle" (maps to muscle building categories)  
+- "Both - lose fat and build muscle" (maps to recomposition)
+
+Keep the free-text goal as a secondary "Goal Details" field for Dom to understand specifics.
+
+### New Nutrition-Specific Questions
+
+Add to Step 4 (Health & Lifestyle):
+
+**Dietary Restrictions** (checkboxes):
+- No restrictions
+- Gluten-free
+- Dairy-free
+- Vegetarian
+- Keto/Low-carb
+- Other
+
+**Meal Prep Preference** (radio):
+- "I can cook fresh meals daily"
+- "I prefer batch cooking 2-3 times per week"
+- "I need quick 15-minute meals"
+
+**Food Dislikes** (text field):
+- "Any foods you absolutely won't eat?"
+
+### New Workout-Specific Questions
+
+Add clarifying questions to Step 3 (Training Readiness):
+
+**Preferred Training Style** (checkboxes):
+- Strength/powerlifting
+- Bodybuilding/hypertrophy
+- Functional fitness
+- Cardio/conditioning
+- Mixed
+
+**Session Length Preference** (radio):
+- "30-45 minutes"
+- "45-60 minutes"  
+- "60-90 minutes"
+
+### Database Changes
+Add new columns to `profiles` table:
+- `goal_type` (text): Standardized goal mapping
+- `dietary_restrictions` (text): Comma-separated list
+- `meal_prep_preference` (text)
+- `food_dislikes` (text)
+- `training_style` (text): Comma-separated preferences
+- `session_length_preference` (text)
 
 ---
 
-## Part 3: Create 100 Nutrition Templates
+## Part 3: Editable Nutrition Templates
 
-### Category Distribution (Fat Loss focus as requested)
-| Category | Templates | Calorie Range |
-|----------|-----------|---------------|
-| Fat Loss - Aggressive | 30 | 1200-1800 |
-| Fat Loss - Moderate | 25 | 1800-2400 |
-| Recomposition | 15 | 2000-2600 |
-| Muscle Building - Lean | 15 | 2400-3200 |
-| Muscle Building - Mass | 15 | 3000-4000 |
-| **Total** | **100** | |
+### Template-Level Editing
+Enable inline editing for template metadata:
+- Name, description
+- Calorie range (min/max)
+- Daily macros (protein, carbs, fats)
+- Category assignment
 
-### Template Structure (each template)
-- **7 days** of meals (Monday-Sunday)
-- **4 meals per day**: Breakfast, Lunch, Dinner, Snack
-- **28 meals total per template** with full macro tracking
+### Day-Level Management
+- Edit day names
+- Reorder days within weeks
 
-### Meal Content (detailed recipes)
-Each meal will include:
-- Name, meal type, calories, protein/carbs/fats
-- Prep time, cook time, servings
-- Detailed ingredients list with amounts and notes
-- 10-15 step cooking instructions with:
-  - Exact temperatures
-  - Timing for each step
-  - Pro tips
-  - Dom-style motivation cues ("No shortcuts. Iron sharpens iron.")
-- Storage/reheating notes for meal prep
+### Meal-Level Editing (Expanded View)
+When a meal is expanded, show:
+- Meal name (editable)
+- Meal type dropdown (breakfast/lunch/dinner/snack)
+- Macros (calories, protein, carbs, fats) - all editable
+- Prep time, cook time, servings (editable)
+- Ingredients list (editable JSON array)
+- Instructions (editable textarea)
+- Notes (editable)
+- Image URL (editable)
 
-### Swappable Meals
-The existing swap system works by:
-1. Filtering available meals by same meal_type (breakfast, lunch, etc.)
-2. Sorting by calorie/protein similarity
-3. Marking "Good Match" when within 100 cal and 10g protein
+Changes save via `useUpdateNutritionMeal` mutation.
 
-Templates will include enough variety that each meal_type has 10+ swap options across the library.
+### UI Structure
+```
+Template Row
+├── Edit icon → Opens modal/inline form for template fields
+└── Expanded:
+    ├── Macro summary bar
+    └── Week 1
+        ├── Day 1: Monday
+        │   ├── Breakfast: Power Egg Scramble [Edit] [Expand]
+        │   │   └── Expanded:
+        │   │       ├── Macros (editable)
+        │   │       ├── Prep/Cook time
+        │   │       ├── Ingredients (editable list)
+        │   │       ├── Instructions (editable)
+        │   │       └── Notes
+        │   ├── Lunch: ...
+        │   └── ...
+```
+
+---
+
+## Part 4: Expandable Meals with Ingredients/Instructions
+
+### Current State
+Meals show as single-line items with basic info:
+`Breakfast: Power Egg Scramble` `420 cal • P35g C28g F18g`
+
+### Enhanced View
+Each meal becomes expandable with a collapsible content section:
+
+**Meal Header (collapsed)**
+- Meal name
+- Quick macros badge
+- Expand/collapse chevron
+- Edit icon
+
+**Meal Content (expanded)**
+- Prep time, cook time, servings badges
+- Ingredients list with checkboxes (for user view in dashboard)
+- Numbered cooking instructions (formatted with Dom-style motivation)
+- Chef's notes section
+
+### Ingredient Display Format
+```
+Ingredients (6 items):
+□ 3 large eggs
+□ 1 cup spinach, fresh
+□ ½ bell pepper, diced
+□ 1 tsp olive oil
+□ 1 slice whole wheat toast
+□ Salt and pepper to taste
+```
+
+### Instructions Display Format
+```
+1. Heat oil in pan over medium heat.
+2. Sauté peppers 2 min until softened.
+3. Add spinach, cook until wilted.
+4. Pour in eggs, scramble until done.
+5. Serve with toast. No shortcuts.
+```
+
+---
+
+## Part 5: Weekly Grocery Lists
+
+### Implementation Approach
+The `ingredients` column already exists as JSONB with structure:
+```json
+[
+  {"item": "Chicken breast", "amount": "6 oz"},
+  {"item": "Brown rice", "amount": "1/2 cup", "notes": "cooked"}
+]
+```
+
+### Grocery List Generation
+Create a function that:
+1. Takes all meals for a specific week (days 1-7, 8-14, 15-21, 22-28)
+2. Aggregates all ingredients by item name
+3. Combines amounts where logical (e.g., "6 oz chicken" x 3 = "18 oz chicken")
+4. Groups by category (Proteins, Vegetables, Grains, Dairy, Pantry)
+
+### UI Display
+Add a "Grocery List" tab per week:
+```
+Week 1 Grocery List
+────────────────────
+PROTEINS
+• Chicken breast: 2.5 lbs
+• Salmon fillet: 1.5 lbs
+• Ground beef (lean): 1 lb
+• Eggs: 2 dozen
+
+VEGETABLES
+• Broccoli: 4 cups
+• Spinach: 6 cups
+• Bell peppers: 4
+• Asparagus: 2 bunches
+
+GRAINS
+• Brown rice: 3 cups (dry)
+• Quinoa: 2 cups (dry)
+• Whole wheat bread: 1 loaf
+
+[Copy to Clipboard] [Print]
+```
+
+### Category Detection
+Use keyword matching to auto-categorize:
+- **Proteins**: chicken, beef, salmon, fish, eggs, turkey, pork
+- **Vegetables**: broccoli, spinach, peppers, asparagus, zucchini
+- **Grains**: rice, quinoa, bread, oats, pasta
+- **Dairy**: milk, cheese, yogurt, cottage cheese
+- **Pantry**: oil, salt, pepper, spices, sauce
 
 ---
 
 ## Technical Implementation
 
-### File Changes
+### Files to Create
+| File | Purpose |
+|------|---------|
+| `src/hooks/useNutritionSuggestion.ts` | Template-level nutrition recommendation logic |
+| `src/hooks/useWorkoutSuggestion.ts` | Template-level workout recommendation logic |
+| `src/components/admin/coaching/ExpandableMealCard.tsx` | Meal display with ingredients/instructions |
+| `src/components/admin/coaching/NutritionGroceryList.tsx` | Weekly grocery list generator/display |
+| `src/components/admin/coaching/NutritionTemplateEditor.tsx` | Inline editing for templates/meals |
 
-| File | Change |
-|------|--------|
-| `src/components/admin/FreeWorldHub.tsx` | Pass selectedClient to Workout/Nutrition template tabs |
-| `src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx` | Add ClientRecommendationBanner component |
-| `src/components/admin/coaching/FreeWorldNutritionTemplates.tsx` | Add ClientRecommendationBanner component |
-| New: `src/components/admin/coaching/ClientRecommendationBanner.tsx` | Shared banner component for both tabs |
-| `supabase/functions/populate-meal-plans/index.ts` | Major rewrite to generate 100 templates with detailed recipes |
+### Files to Modify
+| File | Changes |
+|------|---------|
+| `src/pages/FreeWorldIntake.tsx` | Add structured goal selector, dietary restrictions, meal prep, training style, session length |
+| `src/components/admin/coaching/ClientRecommendationBanner.tsx` | Show template-level recommendation, not just category |
+| `src/components/admin/coaching/FreeWorldNutritionTemplates.tsx` | Integrate expandable meals, editing, grocery lists |
+| `src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx` | Integrate template-level recommendations |
+| `src/hooks/useNutritionTemplates.ts` | Add template-level recommendation function, update meal interface for ingredients |
 
-### New Database Updates
-- Update existing template `category_id` to match their actual goal
-- Insert new templates with proper category assignment
-- Insert 7 days × 4 meals × 100 templates = 2,800 meals
-
----
-
-## Edge Function: populate-meal-plans (Rewrite)
-
-### Meal Pools (Expanded)
-The edge function will contain:
-- **20 Breakfast options** (ranging 250-600 cal)
-- **20 Lunch options** (ranging 400-800 cal)
-- **20 Dinner options** (ranging 400-900 cal)
-- **15 Snack options** (ranging 150-350 cal)
-
-### Detailed Recipe Format
-```typescript
-{
-  meal_name: "Iron Will Steak & Eggs",
-  meal_type: "breakfast",
-  calories: 520,
-  protein_g: 48,
-  carbs_g: 8,
-  fats_g: 34,
-  prep_time_min: 10,
-  cook_time_min: 15,
-  servings: 1,
-  ingredients: [
-    { item: "Ribeye steak", amount: "6 oz", notes: "room temperature" },
-    { item: "Whole eggs", amount: "3 large" },
-    { item: "Butter", amount: "1 tbsp" },
-    // ...
-  ],
-  instructions: `1. PREP: Pull steak from fridge 30 min before cooking. Pat dry with paper towels. Season generously with salt and pepper on both sides. No seasoning fear here.
-
-2. HEAT: Get your cast iron screaming hot over medium-high heat for 5 minutes. You want it smoking. That's the commitment.
-
-3. SEAR: Add butter, let it foam. Lay steak away from you to avoid splatter. Don't touch it for 3 minutes. Trust the process.
-
-4. FLIP: Only once. Another 3 minutes for medium-rare, 4 for medium. Use a meat thermometer if you're disciplined: 130°F medium-rare.
-
-5. REST: Remove steak to cutting board. Cover loosely with foil. 5 minutes minimum. This is where iron sharpens iron.
-
-6. EGGS: While steak rests, crack eggs into same pan with leftover butter. Season with salt.
-
-7. COOK EGGS: For over-easy: 2 minutes lid off, then 30 seconds lid on. Whites set, yolk runny.
-
-8. PLATE: Slice steak against the grain. Arrange with eggs. Pour any pan juices over steak.
-
-9. SERVE: Immediately. Cold food is for quitters.
-
-PRO TIP: Make multiple steaks for meal prep. Slice cold on salads. This meal built warriors.`,
-  notes: "High protein, low carb. Perfect for fat loss or muscle building. The ultimate breakfast of champions."
-}
+### Database Migration
+```sql
+-- Add new intake fields to profiles
+ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS goal_type text,
+ADD COLUMN IF NOT EXISTS dietary_restrictions text,
+ADD COLUMN IF NOT EXISTS meal_prep_preference text,
+ADD COLUMN IF NOT EXISTS food_dislikes text,
+ADD COLUMN IF NOT EXISTS training_style text,
+ADD COLUMN IF NOT EXISTS session_length_preference text;
 ```
 
-### Template Generation Logic
-1. Calculate target macros for each calorie range
-2. Select meals that sum closest to daily targets
-3. Ensure variety (no duplicate meals in same week)
-4. Scale portions to hit exact macro targets
+---
+
+## Recommendation Algorithm Details
+
+### Nutrition Template Selection
+
+**Inputs:**
+- Client's calculated target calories (from TDEE + goal adjustment)
+- Recommended category (from goal mapping)
+
+**Process:**
+1. Filter templates by category_id
+2. For each template, calculate fit score:
+   ```
+   templateMidpoint = (calorie_range_min + calorie_range_max) / 2
+   calorieDistance = Math.abs(targetCalories - templateMidpoint)
+   score = Math.max(0, 100 - (calorieDistance / 10))
+   ```
+3. Return template with highest score
+
+**Example:**
+- Client target: 1850 cal
+- Template "Fat Loss - Standard" (1800-2000 cal): midpoint 1900, distance 50, score 95
+- Template "Fat Loss - Standard Low" (1600-1800 cal): midpoint 1700, distance 150, score 85
+- Result: Recommend "Fat Loss - Standard"
+
+### Workout Template Selection
+
+**Inputs:**
+- Client's equipment list
+- Training days per week
+- Experience level
+- Body composition
+
+**Process:**
+1. Filter templates by recommended category_id
+2. For each template, calculate composite score:
+   - Equipment overlap: Count matching equipment items / total template requirements
+   - Days alignment: 100 if exact match, -10 per day difference
+   - Intensity match: Map experience + body fat to 1-3 intensity scale, compare to template
+3. Return template with highest combined score
 
 ---
 
-## Client Recommendation Banner Component
+## User Flow Examples
 
-```typescript
-interface ClientRecommendationBannerProps {
-  client: ClientWithSubscription;
-  type: "workout" | "nutrition";
-  onViewRecommended: (categoryId: string) => void;
-}
-```
+### Admin Views Client "John" in Nutrition Templates Tab
 
-### Workout Recommendation
-Uses `useTemplateSuggestion` hook (already exists):
-- Experience level → category match
-- Body fat estimate → intensity level
-- Training days → program structure
+**Before:**
+- Banner: "Recommended for John: Fat Loss - Moderate" 
+- Button: "View Recommended" → scrolls to category
 
-### Nutrition Recommendation
-Uses `calculateNutritionCategory` (already exists) + enhancements:
-- TDEE calculation from profile data
-- Goal mapping to category
-- Calorie range matching to specific template
+**After:**
+- Banner: "Recommended for John: Fat Loss - Moderate"
+- Sub-banner: "Best Template: Fat Loss - Standard (1800-2000 cal)" with "Excellent Match" badge
+- Button: "View Template" → scrolls to AND expands that specific template
+- Template shows auto-expanded Week 1 → Day 1 with expandable meals
+- Each meal has [Expand] button showing ingredients + instructions
+- Week header has [Grocery List] button
 
-Banner displays:
-- Purple accent styling (matches Free World theme)
-- Client avatar + name
-- "Recommended: [Category Name]"
-- "[TDEE] cal/day TDEE → [Target] cal target"
-- "View Recommended" button
+### Admin Edits a Meal
 
----
-
-## Execution Order
-
-1. **Create banner component** (new file)
-2. **Update FreeWorldHub** to pass client to template tabs
-3. **Update FreeWorldWorkoutTemplates** to show banner
-4. **Update FreeWorldNutritionTemplates** to show banner
-5. **SQL migration** to fix existing category assignments
-6. **Rewrite edge function** with 75 meals and 100 template configs
-7. **Run edge function** to populate database
-
----
-
-## Meal Categories by Goal
-
-### Fat Loss - Aggressive (1200-1800 cal)
-- Low carb focus
-- High protein for muscle preservation
-- Smaller portions, nutrient-dense
-- Example template names: "Iron Discipline 1400", "Lean & Mean 1600"
-
-### Fat Loss - Moderate (1800-2400 cal)
-- Balanced macros
-- Sustainable deficit
-- Moderate carbs around training
-- Example: "Steady Burn 2000", "Active Cut 2200"
-
-### Recomposition (2000-2600 cal)
-- Maintenance calories
-- High protein
-- Carb cycling friendly
-- Example: "Body Forge 2200", "Recomp Standard 2400"
-
-### Muscle Building - Lean (2400-3200 cal)
-- Slight surplus
-- Clean food focus
-- Higher carbs
-- Example: "Clean Gains 2600", "Lean Mass 3000"
-
-### Muscle Building - Mass (3000-4000 cal)
-- Aggressive surplus
-- Maximum protein
-- Higher calorie density
-- Example: "Mass Protocol 3400", "Beast Mode 3800"
-
----
-
-## Swappable Meal Variety
-
-Each meal type will have multiple options with similar macros:
-
-### Breakfast Examples (all ~400 cal, ~35g protein)
-- Power Egg Scramble
-- Protein Oatmeal Bowl
-- Breakfast Burrito
-- Steak & Eggs
-- Greek Yogurt Parfait
-- Cottage Cheese Power Bowl
-
-This ensures the swap dialog always shows "Good Match" options within 100 cal and 10g protein of the original meal.
+1. Navigate to template → expand week → expand day → expand meal
+2. Click "Edit" on meal
+3. Form shows all fields with current values
+4. Change protein from 35g to 40g, update instructions
+5. Click "Save" → mutation fires → success toast
+6. UI updates immediately with new values
