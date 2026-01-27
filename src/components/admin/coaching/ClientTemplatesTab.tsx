@@ -41,6 +41,8 @@ export default function ClientTemplatesTab({
           template:program_templates(id, name, days_per_week, difficulty)
         `)
         .eq("client_id", client.user_id)
+        .order("assigned_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
       if (error) throw error;
       return data;

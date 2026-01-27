@@ -54,6 +54,8 @@ export default function ClientProgressPanel({
         .from("client_template_assignments")
         .select("id, template:program_templates(name)")
         .eq("client_id", client.user_id)
+        .order("assigned_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
       if (error) throw error;
       return data;
