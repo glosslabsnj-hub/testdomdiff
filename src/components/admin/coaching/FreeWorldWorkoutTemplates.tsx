@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { Dumbbell, ChevronDown, ChevronRight, Edit2, Save, X, Plus, Clock, Flame, Heart, Wind } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { Dumbbell, ChevronDown, ChevronRight, Edit2, Save, X, Plus, Clock, Flame, Heart, Wind, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,9 @@ import {
   type ProgramTemplate,
   type TemplateExercise,
 } from "@/hooks/useProgramTemplates";
+import { useTemplateSuggestion, getMatchQuality } from "@/hooks/useTemplateSuggestion";
+import { useWorkoutTemplateSuggestion, getWorkoutMatchQuality } from "@/hooks/useWorkoutSuggestion";
 import { type ClientWithSubscription } from "@/hooks/useClientAnalytics";
-import ClientRecommendationBanner from "./ClientRecommendationBanner";
 
 interface FreeWorldWorkoutTemplatesProps {
   selectedClient?: ClientWithSubscription | null;
@@ -30,18 +31,52 @@ export default function FreeWorldWorkoutTemplates({ selectedClient }: FreeWorldW
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandedTemplates, setExpandedTemplates] = useState<Set<string>>(new Set());
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const templateRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const handleViewRecommended = useCallback((categoryId: string | null) => {
-    if (!categoryId) return;
-    const next = new Set(expandedCategories);
-    next.add(categoryId);
-    setExpandedCategories(next);
-    // Scroll to category
+  // Client profile for category recommendation
+  const clientProfile = selectedClient ? {
+    experience: selectedClient.experience,
+    body_fat_estimate: selectedClient.body_fat_estimate,
+    activity_level: selectedClient.activity_level,
+    training_days_per_week: selectedClient.training_days_per_week,
+    injuries: selectedClient.injuries,
+    goal: selectedClient.goal,
+    equipment: selectedClient.equipment,
+    training_style: selectedClient.training_style,
+    session_length_preference: selectedClient.session_length_preference,
+  } : null;
+
+  // Get recommended category first
+  const { recommendedCategory: categoryRecommendation } = useTemplateSuggestion(categories, clientProfile);
+  
+  // Then get recommended template within that category
+  const { recommendation: templateRecommendation } = useWorkoutTemplateSuggestion(
+    templates,
+    categories,
+    categoryRecommendation?.category || null,
+    clientProfile
+  );
+
+  const handleViewRecommended = useCallback(() => {
+    if (!templateRecommendation) return;
+    
+    // Expand the category
+    const nextCategories = new Set(expandedCategories);
+    nextCategories.add(templateRecommendation.category.id);
+    setExpandedCategories(nextCategories);
+    
+    // Expand the template
+    const nextTemplates = new Set(expandedTemplates);
+    nextTemplates.add(templateRecommendation.template.id);
+    setExpandedTemplates(nextTemplates);
+    setSelectedTemplateId(templateRecommendation.template.id);
+    
+    // Scroll to template after expansion
     setTimeout(() => {
-      const element = document.getElementById(`workout-category-${categoryId}`);
+      const element = templateRefs.current[templateRecommendation.template.id];
       element?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
-  }, [expandedCategories]);
+    }, 150);
+  }, [expandedCategories, expandedTemplates, templateRecommendation]);
 
   const toggleCategory = (categoryId: string) => {
     const next = new Set(expandedCategories);
@@ -70,6 +105,7 @@ export default function FreeWorldWorkoutTemplates({ selectedClient }: FreeWorldW
   };
 
   const loading = categoriesLoading || templatesLoading;
+  const clientName = selectedClient?.first_name || selectedClient?.email?.split("@")[0] || "Client";
 
   return (
     <div className="h-full flex flex-col min-h-0">
@@ -102,10 +138,11 @@ export default function FreeWorldWorkoutTemplates({ selectedClient }: FreeWorldW
       ) : (
         <ScrollArea className="flex-1 min-h-0">
           {/* Client Recommendation Banner */}
-          {selectedClient && (
-            <ClientRecommendationBanner
-              client={selectedClient}
-              type="workout"
+          {selectedClient && templateRecommendation && categoryRecommendation && (
+            <WorkoutRecommendationBanner
+              clientName={clientName}
+              categoryRecommendation={categoryRecommendation}
+              templateRecommendation={templateRecommendation}
               onViewRecommended={handleViewRecommended}
             />
           )}
@@ -125,6 +162,80 @@ export default function FreeWorldWorkoutTemplates({ selectedClient }: FreeWorldW
           </div>
         </ScrollArea>
       )}
+    </div>
+  );
+}
+
+// New Recommendation Banner Component
+function WorkoutRecommendationBanner({
+  clientName,
+  categoryRecommendation,
+  templateRecommendation,
+  onViewRecommended,
+}: {
+  clientName: string;
+  categoryRecommendation: {
+    category: TemplateCategory;
+    score: number;
+    reasons: string[];
+  };
+  templateRecommendation: {
+    category: TemplateCategory;
+    template: ProgramTemplate;
+    score: number;
+    reasons: string[];
+  };
+  onViewRecommended: () => void;
+}) {
+  const categoryQuality = getMatchQuality(categoryRecommendation.score);
+  const templateQuality = getWorkoutMatchQuality(templateRecommendation.score);
+
+  return (
+    <div className="mb-4 p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+            <span className="text-sm font-medium">Recommended for {clientName}:</span>
+          </div>
+          
+          {/* Category */}
+          <div className="text-sm text-muted-foreground mb-1">
+            Category: <span className="text-foreground">{categoryRecommendation.category.name}</span>
+            <Badge className={`text-xs ${categoryQuality.color} bg-transparent border ml-2`}>
+              {categoryQuality.label}
+            </Badge>
+          </div>
+          
+          {/* Template - Best Match */}
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-purple-400">{templateRecommendation.template.name}</span>
+            <Badge variant="secondary" className="text-xs">
+              {templateRecommendation.template.days_per_week || 4} days/week
+            </Badge>
+            <Badge className={`text-xs ${templateQuality.color} bg-transparent border`}>
+              {templateQuality.label}
+            </Badge>
+          </div>
+          
+          {/* Reasons */}
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mt-2">
+            {templateRecommendation.reasons.slice(0, 3).map((reason, i) => (
+              <span key={i}>• {reason}</span>
+            ))}
+          </div>
+        </div>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 shrink-0"
+          onClick={onViewRecommended}
+        >
+          <Dumbbell className="w-4 h-4 mr-2" />
+          View Template
+        </Button>
+      </div>
     </div>
   );
 }
