@@ -1,255 +1,168 @@
 
-# Free World Admin Hub: Template-Level Recommendations, Enhanced Intake & Editable Nutrition
+
+# Free World User Dashboard: Workout & Nutrition Toggle + Dietary Templates
 
 ## Summary
-This plan implements five major features:
-1. **Template-level recommendations** - Instead of just recommending a category, the system will recommend a specific template within that category based on calorie matching (nutrition) and intensity/equipment matching (workouts)
-2. **Enhanced intake form** - Add key fields to capture calorie-relevant data and standardize goal selection for accurate template matching
-3. **Editable nutrition templates** - Full inline editing for templates, days, and meals in the admin view
-4. **Expandable meals with ingredients/instructions** - Each meal card expands to show detailed recipe instructions and ingredient lists
-5. **Weekly grocery lists** - Auto-generated shopping lists aggregated per week from meal ingredients
+This plan implements two major features for the Free World (Coaching) user experience:
+1. **Dual-Program Toggle** - Add a toggle to the "Your Custom Program" tile allowing coaching clients to switch between their custom workout program and their custom nutrition program, both displayed as full 4-week views with completion tracking
+2. **Dietary Restriction Templates** - Create ~20 new nutrition templates specifically designed for dietary restrictions (Gluten-Free, Dairy-Free, Vegetarian, Keto) to align with the intake form questions
 
 ---
 
-## Part 1: Template-Level Recommendations
+## Part 1: Dual-Program Toggle in Custom Program Tile
 
 ### Current State
-- Workout: Recommends a **category** (e.g., "Foundation Builder") but not a specific template
-- Nutrition: Recommends a **category** (e.g., "Fat Loss - Moderate") but not a specific template
+The `CustomProgram.tsx` page displays:
+- **Program Tab**: 4-week custom workout program with day-level completion tracking
+- **Files Tab**: PDF/video uploads from coach
+
+Coaching clients currently access nutrition via a separate `/dashboard/nutrition` page, which uses auto-matching to a template based on TDEE.
 
 ### Solution
+Add a third-level toggle within the "Program" tab to switch between "Workouts" and "Nutrition" views. Both will use the same 4-week expandable structure with completion tracking.
 
-**For Nutrition Templates:**
-Create a `calculateRecommendedNutritionTemplate` function that:
-1. Takes the client's target calories from `calculateNutritionCategory`
-2. Finds all templates in the recommended category
-3. Scores each template by how close its `calorie_range_min/max` midpoint is to the target
-4. Returns the best-matching template
-
-Scoring formula:
+### UI Structure
 ```
-score = 100 - (Math.abs(targetCalories - templateMidpoint) / 50)
+Your Custom Program
+├── [Toggle: Workouts | Nutrition]  ← New top-level toggle
+├── Workouts View (current implementation)
+│   └── Week 1-4 → Days → Exercises
+└── Nutrition View (new)
+    └── Week 1-4 → Days → Meals (Breakfast, Lunch, Dinner, Snack)
 ```
 
-**For Workout Templates:**
-Create a `calculateRecommendedWorkoutTemplate` function that:
-1. Takes the recommended category
-2. Scores templates within that category based on:
-   - Equipment match (40%): Compare client's `equipment` field to template's requirements
-   - Training days match (30%): Compare `training_days_per_week` to template's `days_per_week`
-   - Intensity match (30%): Map body composition + experience to intensity level
+### Nutrition View Implementation
+The nutrition view will mirror the workout structure:
+- 4 collapsible week cards
+- Each week shows 7 days
+- Each day shows 4 meals with expandable details
+- Day-level completion tracking (mark entire day as "followed")
+- Week progress badge showing "X/7 days followed"
 
-### Banner Update
-The `ClientRecommendationBanner` will be updated to show:
-- Recommended **category** (as before)
-- Recommended **template** name with "Best Match" badge
-- "View Template" button scrolls directly to that template and auto-expands it
+### Data Source
+For coaching clients, nutrition will come from:
+1. **Admin-assigned template** - If Dom has manually assigned a nutrition template via the Free World Hub
+2. **Auto-matched template** - If no manual assignment, use the TDEE-based matching (current behavior)
+
+This requires checking for a `client_nutrition_assignment` record first, falling back to auto-matching.
+
+### Database Changes
+Create a new table for tracking nutrition assignments and day completions:
+
+```sql
+-- Track admin-assigned nutrition templates for coaching clients
+CREATE TABLE public.client_nutrition_assignments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  template_id UUID NOT NULL REFERENCES public.meal_plan_templates(id) ON DELETE CASCADE,
+  assigned_by UUID REFERENCES public.profiles(id),
+  assigned_at TIMESTAMPTZ DEFAULT now(),
+  notes TEXT,
+  UNIQUE(client_id)
+);
+
+-- Track daily nutrition completion for coaching clients
+CREATE TABLE public.client_nutrition_completions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  day_id UUID NOT NULL REFERENCES public.meal_plan_days(id) ON DELETE CASCADE,
+  completed_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id, day_id)
+);
+
+-- RLS policies
+ALTER TABLE public.client_nutrition_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.client_nutrition_completions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own assignments"
+  ON public.client_nutrition_assignments FOR SELECT
+  USING (client_id = auth.uid());
+
+CREATE POLICY "Admins can manage assignments"
+  ON public.client_nutrition_assignments FOR ALL
+  USING (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Users can manage their completions"
+  ON public.client_nutrition_completions FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### New Hook: useClientNutrition
+Create a hook that:
+1. Checks for admin-assigned template in `client_nutrition_assignments`
+2. Falls back to TDEE-based auto-matching
+3. Fetches all 28 days and meals for the template
+4. Tracks day-level completions
+5. Provides toggle functions for completion
+
+### UI Components
+Modify `CustomProgram.tsx` to include:
+- Toggle buttons at the top ("Workouts" / "Nutrition")
+- New `NutritionProgramView` component that renders:
+  - 4-week structure with collapsible cards
+  - Daily meal lists with expandable details
+  - Completion checkboxes at day level
+  - Macro summary per day
+  - Weekly grocery list button
 
 ---
 
-## Part 2: Enhanced Free World Intake Form
+## Part 2: Dietary Restriction Templates
 
-The current intake collects useful data but has gaps that affect recommendation accuracy:
-
-### Changes to Goals Step
-
-**Current:** Free-text input for "Primary Goal"
-**Problem:** Users type anything ("lose 30 lbs", "get stronger") which doesn't map cleanly to categories
-
-**Solution:** Add a structured goal selector (radio group) with options:
-- "Lose fat" (maps to fat loss categories)
-- "Build muscle" (maps to muscle building categories)  
-- "Both - lose fat and build muscle" (maps to recomposition)
-
-Keep the free-text goal as a secondary "Goal Details" field for Dom to understand specifics.
-
-### New Nutrition-Specific Questions
-
-Add to Step 4 (Health & Lifestyle):
-
-**Dietary Restrictions** (checkboxes):
-- No restrictions
+### Current State
+The intake form now captures:
 - Gluten-free
 - Dairy-free
 - Vegetarian
 - Keto/Low-carb
-- Other
 
-**Meal Prep Preference** (radio):
-- "I can cook fresh meals daily"
-- "I prefer batch cooking 2-3 times per week"
-- "I need quick 15-minute meals"
+However, the current 140 nutrition templates do not account for these restrictions.
 
-**Food Dislikes** (text field):
-- "Any foods you absolutely won't eat?"
+### Solution
+Create ~20 new templates specifically for dietary restrictions:
 
-### New Workout-Specific Questions
+| Category | Dietary Restriction | Calorie Range | Count |
+|----------|---------------------|---------------|-------|
+| Fat Loss - Aggressive | Gluten-Free | 1400-1800 | 2 |
+| Fat Loss - Moderate | Gluten-Free | 1800-2200 | 2 |
+| Recomposition | Gluten-Free | 2000-2400 | 2 |
+| Fat Loss - Aggressive | Dairy-Free | 1400-1800 | 2 |
+| Fat Loss - Moderate | Dairy-Free | 1800-2200 | 2 |
+| Fat Loss - Aggressive | Keto | 1200-1600 | 2 |
+| Muscle Building - Lean | Keto | 2000-2600 | 2 |
+| Fat Loss - Moderate | Vegetarian | 1600-2000 | 2 |
+| Recomposition | Vegetarian | 2000-2400 | 2 |
+| Muscle Building - Lean | Vegetarian | 2400-2800 | 2 |
 
-Add clarifying questions to Step 3 (Training Readiness):
+**Total: 20 new templates**
 
-**Preferred Training Style** (checkboxes):
-- Strength/powerlifting
-- Bodybuilding/hypertrophy
-- Functional fitness
-- Cardio/conditioning
-- Mixed
-
-**Session Length Preference** (radio):
-- "30-45 minutes"
-- "45-60 minutes"  
-- "60-90 minutes"
+### Template Naming Convention
+Templates will follow the pattern: `[Goal] - [Restriction] [Calories]`
+- "Fat Loss - Gluten Free 1600"
+- "Muscle Building - Vegetarian 2600"
+- "Keto Recomp 2200"
 
 ### Database Changes
-Add new columns to `profiles` table:
-- `goal_type` (text): Standardized goal mapping
-- `dietary_restrictions` (text): Comma-separated list
-- `meal_prep_preference` (text)
-- `food_dislikes` (text)
-- `training_style` (text): Comma-separated preferences
-- `session_length_preference` (text)
+Add a `dietary_tags` column to templates for filtering:
 
----
-
-## Part 3: Editable Nutrition Templates
-
-### Template-Level Editing
-Enable inline editing for template metadata:
-- Name, description
-- Calorie range (min/max)
-- Daily macros (protein, carbs, fats)
-- Category assignment
-
-### Day-Level Management
-- Edit day names
-- Reorder days within weeks
-
-### Meal-Level Editing (Expanded View)
-When a meal is expanded, show:
-- Meal name (editable)
-- Meal type dropdown (breakfast/lunch/dinner/snack)
-- Macros (calories, protein, carbs, fats) - all editable
-- Prep time, cook time, servings (editable)
-- Ingredients list (editable JSON array)
-- Instructions (editable textarea)
-- Notes (editable)
-- Image URL (editable)
-
-Changes save via `useUpdateNutritionMeal` mutation.
-
-### UI Structure
-```
-Template Row
-├── Edit icon → Opens modal/inline form for template fields
-└── Expanded:
-    ├── Macro summary bar
-    └── Week 1
-        ├── Day 1: Monday
-        │   ├── Breakfast: Power Egg Scramble [Edit] [Expand]
-        │   │   └── Expanded:
-        │   │       ├── Macros (editable)
-        │   │       ├── Prep/Cook time
-        │   │       ├── Ingredients (editable list)
-        │   │       ├── Instructions (editable)
-        │   │       └── Notes
-        │   ├── Lunch: ...
-        │   └── ...
+```sql
+ALTER TABLE public.meal_plan_templates
+ADD COLUMN IF NOT EXISTS dietary_tags TEXT[];
 ```
 
----
+### Edge Function Update
+Modify `populate-meal-plans` to include dietary-specific meal pools:
+- **Gluten-Free Meals**: No wheat, barley, rye (rice-based, potato-based)
+- **Dairy-Free Meals**: No milk, cheese, yogurt, cream (use almond milk, coconut cream)
+- **Keto Meals**: Under 20g net carbs per day (high fat, moderate protein)
+- **Vegetarian Meals**: No meat or fish (eggs, dairy, legumes allowed)
 
-## Part 4: Expandable Meals with Ingredients/Instructions
-
-### Current State
-Meals show as single-line items with basic info:
-`Breakfast: Power Egg Scramble` `420 cal • P35g C28g F18g`
-
-### Enhanced View
-Each meal becomes expandable with a collapsible content section:
-
-**Meal Header (collapsed)**
-- Meal name
-- Quick macros badge
-- Expand/collapse chevron
-- Edit icon
-
-**Meal Content (expanded)**
-- Prep time, cook time, servings badges
-- Ingredients list with checkboxes (for user view in dashboard)
-- Numbered cooking instructions (formatted with Dom-style motivation)
-- Chef's notes section
-
-### Ingredient Display Format
-```
-Ingredients (6 items):
-□ 3 large eggs
-□ 1 cup spinach, fresh
-□ ½ bell pepper, diced
-□ 1 tsp olive oil
-□ 1 slice whole wheat toast
-□ Salt and pepper to taste
-```
-
-### Instructions Display Format
-```
-1. Heat oil in pan over medium heat.
-2. Sauté peppers 2 min until softened.
-3. Add spinach, cook until wilted.
-4. Pour in eggs, scramble until done.
-5. Serve with toast. No shortcuts.
-```
-
----
-
-## Part 5: Weekly Grocery Lists
-
-### Implementation Approach
-The `ingredients` column already exists as JSONB with structure:
-```json
-[
-  {"item": "Chicken breast", "amount": "6 oz"},
-  {"item": "Brown rice", "amount": "1/2 cup", "notes": "cooked"}
-]
-```
-
-### Grocery List Generation
-Create a function that:
-1. Takes all meals for a specific week (days 1-7, 8-14, 15-21, 22-28)
-2. Aggregates all ingredients by item name
-3. Combines amounts where logical (e.g., "6 oz chicken" x 3 = "18 oz chicken")
-4. Groups by category (Proteins, Vegetables, Grains, Dairy, Pantry)
-
-### UI Display
-Add a "Grocery List" tab per week:
-```
-Week 1 Grocery List
-────────────────────
-PROTEINS
-• Chicken breast: 2.5 lbs
-• Salmon fillet: 1.5 lbs
-• Ground beef (lean): 1 lb
-• Eggs: 2 dozen
-
-VEGETABLES
-• Broccoli: 4 cups
-• Spinach: 6 cups
-• Bell peppers: 4
-• Asparagus: 2 bunches
-
-GRAINS
-• Brown rice: 3 cups (dry)
-• Quinoa: 2 cups (dry)
-• Whole wheat bread: 1 loaf
-
-[Copy to Clipboard] [Print]
-```
-
-### Category Detection
-Use keyword matching to auto-categorize:
-- **Proteins**: chicken, beef, salmon, fish, eggs, turkey, pork
-- **Vegetables**: broccoli, spinach, peppers, asparagus, zucchini
-- **Grains**: rice, quinoa, bread, oats, pasta
-- **Dairy**: milk, cheese, yogurt, cottage cheese
-- **Pantry**: oil, salt, pepper, spices, sauce
+### Recommendation Engine Update
+Modify `useNutritionSuggestion` to:
+1. Parse client's `dietary_restrictions` from profile
+2. Filter templates by matching `dietary_tags`
+3. Within filtered set, apply calorie-proximity scoring
+4. If no dietary matches, fall back to standard templates
 
 ---
 
@@ -258,98 +171,131 @@ Use keyword matching to auto-categorize:
 ### Files to Create
 | File | Purpose |
 |------|---------|
-| `src/hooks/useNutritionSuggestion.ts` | Template-level nutrition recommendation logic |
-| `src/hooks/useWorkoutSuggestion.ts` | Template-level workout recommendation logic |
-| `src/components/admin/coaching/ExpandableMealCard.tsx` | Meal display with ingredients/instructions |
-| `src/components/admin/coaching/NutritionGroceryList.tsx` | Weekly grocery list generator/display |
-| `src/components/admin/coaching/NutritionTemplateEditor.tsx` | Inline editing for templates/meals |
+| `src/hooks/useClientNutrition.ts` | Fetch assigned/matched nutrition template with 28 days, track completions |
+| `src/components/dashboard/NutritionProgramView.tsx` | 4-week nutrition display with completion tracking |
+| `src/components/dashboard/NutritionDayCard.tsx` | Expandable day with 4 meals |
+| `src/components/dashboard/NutritionMealItem.tsx` | Single meal with expand for ingredients/instructions |
 
 ### Files to Modify
 | File | Changes |
 |------|---------|
-| `src/pages/FreeWorldIntake.tsx` | Add structured goal selector, dietary restrictions, meal prep, training style, session length |
-| `src/components/admin/coaching/ClientRecommendationBanner.tsx` | Show template-level recommendation, not just category |
-| `src/components/admin/coaching/FreeWorldNutritionTemplates.tsx` | Integrate expandable meals, editing, grocery lists |
-| `src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx` | Integrate template-level recommendations |
-| `src/hooks/useNutritionTemplates.ts` | Add template-level recommendation function, update meal interface for ingredients |
+| `src/pages/dashboard/CustomProgram.tsx` | Add toggle between Workouts/Nutrition, integrate NutritionProgramView |
+| `src/hooks/useNutritionSuggestion.ts` | Add dietary restriction filtering |
+| `src/hooks/useNutritionTemplates.ts` | Update interface for dietary_tags |
+| `supabase/functions/populate-meal-plans/index.ts` | Add dietary-specific meal pools and 20 new templates |
 
-### Database Migration
-```sql
--- Add new intake fields to profiles
-ALTER TABLE public.profiles 
-ADD COLUMN IF NOT EXISTS goal_type text,
-ADD COLUMN IF NOT EXISTS dietary_restrictions text,
-ADD COLUMN IF NOT EXISTS meal_prep_preference text,
-ADD COLUMN IF NOT EXISTS food_dislikes text,
-ADD COLUMN IF NOT EXISTS training_style text,
-ADD COLUMN IF NOT EXISTS session_length_preference text;
+### Database Migrations
+1. Create `client_nutrition_assignments` table
+2. Create `client_nutrition_completions` table
+3. Add `dietary_tags` column to `meal_plan_templates`
+4. Set up RLS policies
+
+---
+
+## Nutrition Completion Tracking
+
+### How It Works
+Same pattern as workout completion:
+1. Each nutrition day has a "Mark Day Complete" button
+2. Clicking toggles the completion state in `client_nutrition_completions`
+3. Completed days show muted styling (similar to "Served" workouts)
+4. Week card shows progress badge: "5/7 days followed"
+5. All 4 weeks complete triggers "Nutrition Phase Complete" celebration
+
+### Visual Design
+Nutrition days will use:
+- Green accent for completed days (instead of red "Served" for workouts)
+- Checkmark icon on completed days
+- "Day Followed" badge instead of "Served"
+
+This differentiates nutrition from workouts visually while maintaining the same UX pattern.
+
+---
+
+## Dietary Template Meals
+
+### Gluten-Free Meal Examples
+**Breakfast**: Steak & Eggs (no toast), Sweet Potato Hash, Greek Yogurt Parfait (with GF granola)
+**Lunch**: Grilled Salmon with Rice, Bunless Burger with Sweet Potato Fries
+**Dinner**: Herb-Crusted Chicken with Quinoa, Shrimp Stir-Fry with Rice Noodles
+**Snacks**: Hard-boiled eggs, Nuts, Greek yogurt, Fruit
+
+### Dairy-Free Meal Examples
+**Breakfast**: Avocado Toast with Eggs, Turkey Sausage Hash, Oatmeal with Almond Milk
+**Lunch**: Chicken Salad (olive oil dressing), Beef Tacos with Guacamole
+**Dinner**: Grilled Fish with Vegetables, Coconut Curry Chicken
+**Snacks**: Almond butter with apple, Trail mix, Protein shake (plant-based)
+
+### Keto Meal Examples
+**Breakfast**: Bacon & Eggs with Avocado, Keto Coffee with MCT Oil
+**Lunch**: Cobb Salad (no croutons), Bunless Burger with Cheese
+**Dinner**: Ribeye with Asparagus, Salmon with Creamy Spinach
+**Snacks**: Cheese crisps, Olives, Pork rinds, Almonds
+
+### Vegetarian Meal Examples
+**Breakfast**: Veggie Omelet, Protein Oatmeal, Greek Yogurt with Nuts
+**Lunch**: Black Bean Burrito Bowl, Caprese Salad with Quinoa
+**Dinner**: Vegetable Stir-Fry with Tofu, Lentil Curry with Rice
+**Snacks**: Cottage cheese, Hummus with vegetables, Protein shake
+
+---
+
+## Edge Function: Dietary Template Generation
+
+The `populate-meal-plans` function will be updated to:
+
+1. Define dietary-specific meal pools (separate from standard meals)
+2. Create 20 new templates with proper `dietary_tags` array
+3. Assign to appropriate categories based on goal type
+4. Generate 28 days of compliant meals per template
+
+### Dietary Tags Structure
+```typescript
+dietary_tags: ["gluten-free"] // or ["dairy-free"], ["keto"], ["vegetarian"]
 ```
 
----
-
-## Recommendation Algorithm Details
-
-### Nutrition Template Selection
-
-**Inputs:**
-- Client's calculated target calories (from TDEE + goal adjustment)
-- Recommended category (from goal mapping)
-
-**Process:**
-1. Filter templates by category_id
-2. For each template, calculate fit score:
-   ```
-   templateMidpoint = (calorie_range_min + calorie_range_max) / 2
-   calorieDistance = Math.abs(targetCalories - templateMidpoint)
-   score = Math.max(0, 100 - (calorieDistance / 10))
-   ```
-3. Return template with highest score
-
-**Example:**
-- Client target: 1850 cal
-- Template "Fat Loss - Standard" (1800-2000 cal): midpoint 1900, distance 50, score 95
-- Template "Fat Loss - Standard Low" (1600-1800 cal): midpoint 1700, distance 150, score 85
-- Result: Recommend "Fat Loss - Standard"
-
-### Workout Template Selection
-
-**Inputs:**
-- Client's equipment list
-- Training days per week
-- Experience level
-- Body composition
-
-**Process:**
-1. Filter templates by recommended category_id
-2. For each template, calculate composite score:
-   - Equipment overlap: Count matching equipment items / total template requirements
-   - Days alignment: 100 if exact match, -10 per day difference
-   - Intensity match: Map experience + body fat to 1-3 intensity scale, compare to template
-3. Return template with highest combined score
+Templates with no dietary restrictions will have `dietary_tags: null` or `[]`.
 
 ---
 
-## User Flow Examples
+## User Flow
 
-### Admin Views Client "John" in Nutrition Templates Tab
+### Coaching Client Accesses Custom Program
 
-**Before:**
-- Banner: "Recommended for John: Fat Loss - Moderate" 
-- Button: "View Recommended" → scrolls to category
+1. Navigate to "Your Custom Program" tile
+2. See toggle: **[Workouts]** | [Nutrition]
+3. Default shows workouts (current behavior)
+4. Click "Nutrition" to switch view
 
-**After:**
-- Banner: "Recommended for John: Fat Loss - Moderate"
-- Sub-banner: "Best Template: Fat Loss - Standard (1800-2000 cal)" with "Excellent Match" badge
-- Button: "View Template" → scrolls to AND expands that specific template
-- Template shows auto-expanded Week 1 → Day 1 with expandable meals
-- Each meal has [Expand] button showing ingredients + instructions
-- Week header has [Grocery List] button
+### Nutrition View Experience
 
-### Admin Edits a Meal
+1. See 4-week structure with collapsible weeks
+2. Expand Week 1 to see Monday-Sunday
+3. Expand Monday to see Breakfast, Lunch, Dinner, Snack
+4. Click any meal to see ingredients and cooking instructions
+5. Click "Mark Day Complete" when finished
+6. Week progress updates: "1/7 days followed"
+7. Click "Week Grocery List" to see shopping list for that week
 
-1. Navigate to template → expand week → expand day → expand meal
-2. Click "Edit" on meal
-3. Form shows all fields with current values
-4. Change protein from 35g to 40g, update instructions
-5. Click "Save" → mutation fires → success toast
-6. UI updates immediately with new values
+### Admin Assigns Nutrition (if dietary restriction)
+
+1. In Free World Hub, select client
+2. Go to Nutrition Templates tab
+3. Banner shows: "Recommended: Fat Loss - Gluten Free 1600" (if client selected gluten-free in intake)
+4. Click "Assign Template" to confirm
+5. Client's dashboard instantly shows the assigned template
+
+---
+
+## Execution Order
+
+1. **Database Migration** - Create assignment and completion tables, add dietary_tags column
+2. **Create useClientNutrition hook** - Fetch assigned template, track completions
+3. **Create NutritionProgramView component** - 4-week expandable structure
+4. **Create NutritionDayCard/MealItem components** - Day and meal display
+5. **Update CustomProgram.tsx** - Add toggle and integrate nutrition view
+6. **Update useNutritionSuggestion** - Add dietary filtering logic
+7. **Update populate-meal-plans edge function** - Add dietary meal pools and templates
+8. **Deploy and run edge function** - Populate 20 new dietary templates
+9. **Update admin assignment flow** - Connect to client_nutrition_assignments table
+
