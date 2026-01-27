@@ -9,18 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminAuditLog } from "@/hooks/useAdminAuditLog";
+import ConfirmationModal from "@/components/admin/ConfirmationModal";
 import type { ClientWithSubscription } from "@/hooks/useClientAnalytics";
 import { addDays, format } from "date-fns";
 
@@ -39,12 +31,14 @@ const PLAN_LABELS: Record<PlanType, string> = {
 
 const SubscriptionManager = ({ client, onUpdate }: SubscriptionManagerProps) => {
   const { toast } = useToast();
+  const { logAction } = useAdminAuditLog();
   const [loading, setLoading] = useState(false);
   const [newPlan, setNewPlan] = useState<PlanType | "">("");
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showChangePlanDialog, setShowChangePlanDialog] = useState(false);
 
   const activeSub = client.activeSubscription;
+  const clientName = client.first_name || client.email;
 
   const handleCancelSubscription = async () => {
     if (!activeSub) return;
@@ -61,15 +55,27 @@ const SubscriptionManager = ({ client, onUpdate }: SubscriptionManagerProps) => 
 
       if (error) throw error;
 
+      // Log the action
+      await logAction.mutateAsync({
+        actionType: "subscription_cancel",
+        targetType: "subscription",
+        targetId: activeSub.id,
+        details: {
+          userName: clientName,
+          planType: activeSub.plan_type,
+        },
+      });
+
       toast({
         title: "Subscription Cancelled",
-        description: `${client.first_name || client.email}'s subscription has been cancelled.`,
+        description: `${clientName}'s subscription has been cancelled.`,
       });
       onUpdate();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : "Failed to cancel subscription";
       toast({
         title: "Error",
-        description: e.message || "Failed to cancel subscription",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -112,15 +118,28 @@ const SubscriptionManager = ({ client, onUpdate }: SubscriptionManagerProps) => 
 
       if (error) throw error;
 
+      // Log the action
+      await logAction.mutateAsync({
+        actionType: activeSub ? "subscription_modify" : "subscription_create",
+        targetType: "subscription",
+        targetId: client.user_id,
+        details: {
+          userName: clientName,
+          newPlan: PLAN_LABELS[newPlan],
+          previousPlan: activeSub ? PLAN_LABELS[activeSub.plan_type] : null,
+        },
+      });
+
       toast({
         title: "Plan Changed",
-        description: `${client.first_name || client.email} has been moved to ${PLAN_LABELS[newPlan]}.`,
+        description: `${clientName} has been moved to ${PLAN_LABELS[newPlan]}.`,
       });
       onUpdate();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : "Failed to change plan";
       toast({
         title: "Error",
-        description: e.message || "Failed to change plan",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -151,15 +170,27 @@ const SubscriptionManager = ({ client, onUpdate }: SubscriptionManagerProps) => 
 
       if (error) throw error;
 
+      // Log the action
+      await logAction.mutateAsync({
+        actionType: "subscription_create",
+        targetType: "subscription",
+        targetId: client.user_id,
+        details: {
+          userName: clientName,
+          planType: PLAN_LABELS[newPlan],
+        },
+      });
+
       toast({
         title: "Subscription Created",
-        description: `${client.first_name || client.email} now has ${PLAN_LABELS[newPlan]}.`,
+        description: `${clientName} now has ${PLAN_LABELS[newPlan]}.`,
       });
       onUpdate();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : "Failed to create subscription";
       toast({
         title: "Error",
-        description: e.message || "Failed to create subscription",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -261,48 +292,40 @@ const SubscriptionManager = ({ client, onUpdate }: SubscriptionManagerProps) => 
         </div>
       )}
 
-      {/* Cancel Dialog */}
-      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Subscription?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will immediately cancel {client.first_name || client.email}'s subscription.
-              They will lose access to premium features. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Keep Active</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleCancelSubscription}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Cancel Subscription
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Cancel Confirmation Modal */}
+      <ConfirmationModal
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        title="Cancel Subscription?"
+        description={`You are about to cancel ${clientName}'s subscription.`}
+        impacts={[
+          "User will lose access immediately",
+          "This action cannot be undone",
+          "User will need to re-subscribe to regain access",
+        ]}
+        confirmButtonText="Cancel Subscription"
+        confirmButtonVariant="destructive"
+        isLoading={loading}
+        onConfirm={handleCancelSubscription}
+      />
 
-      {/* Change Plan Dialog */}
-      <AlertDialog open={showChangePlanDialog} onOpenChange={setShowChangePlanDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Change Plan?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will cancel the current subscription and create a new one for {PLAN_LABELS[newPlan as PlanType]}.
-              {newPlan === "transformation" && " The 12-week period will start today."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleChangePlan}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Confirm Change
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Change Plan Confirmation Modal */}
+      <ConfirmationModal
+        open={showChangePlanDialog}
+        onOpenChange={setShowChangePlanDialog}
+        title="Change Plan?"
+        description={`You are about to move ${clientName} to ${newPlan ? PLAN_LABELS[newPlan as PlanType] : ""}.`}
+        impacts={
+          newPlan === "transformation" 
+            ? ["Current subscription will be cancelled", "New 12-week period starts today", "User will have 98 days of access"]
+            : ["Current subscription will be cancelled", "New plan takes effect immediately"]
+        }
+        confirmText="CHANGE"
+        confirmButtonText="Confirm Change"
+        confirmButtonVariant="gold"
+        isLoading={loading}
+        onConfirm={handleChangePlan}
+      />
     </div>
   );
 };
