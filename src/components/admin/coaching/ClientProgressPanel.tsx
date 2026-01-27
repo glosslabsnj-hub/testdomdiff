@@ -43,7 +43,7 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
   return (
     <div className="h-full flex flex-col bg-charcoal rounded-lg border border-border overflow-hidden">
       {/* Client Header */}
-      <div className="p-4 border-b border-border bg-gradient-to-r from-purple-500/10 to-transparent">
+      <div className="p-4 border-b border-border bg-gradient-to-r from-purple-500/10 to-transparent flex-none">
         <div className="flex items-start gap-4">
           <Avatar className="w-14 h-14">
             <AvatarImage src={client.avatar_url || undefined} />
@@ -95,7 +95,7 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 overflow-x-auto">
+        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 overflow-x-auto flex-none">
           <TabsTrigger
             value="overview"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
@@ -140,37 +140,38 @@ export default function ClientProgressPanel({ client, onUpdate }: ClientProgress
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 min-h-0 relative">
+        {/* Tab Content - Flex scroll container */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <>
-              <TabsContent value="overview" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
+            <div className="p-4 pb-28">
+              <TabsContent value="overview" className="m-0">
                 <ClientOverviewTab client={client} progress={progress} />
               </TabsContent>
 
-              <TabsContent value="intake" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
+              <TabsContent value="intake" className="m-0">
                 <ClientIntakeTab client={client} />
               </TabsContent>
 
-              <TabsContent value="sessions" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
+              <TabsContent value="sessions" className="m-0">
                 <ClientSessionsTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="goals" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
+              <TabsContent value="goals" className="m-0">
                 <ClientGoalsTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="messages" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
+              <TabsContent value="messages" className="m-0">
                 <ClientMessagesTab clientId={client.user_id} />
               </TabsContent>
 
-              <TabsContent value="program" className="m-0 absolute inset-0 overflow-y-auto p-4 data-[state=inactive]:hidden">
+              <TabsContent value="program" className="m-0">
                 <ImprovedProgramTab clientId={client.user_id} client={client} />
               </TabsContent>
-            </>
+            </div>
           )}
         </div>
       </Tabs>

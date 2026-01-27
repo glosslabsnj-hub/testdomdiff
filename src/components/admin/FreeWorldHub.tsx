@@ -20,9 +20,9 @@ export default function FreeWorldHub() {
   const coachingClients = analytics?.clients || [];
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col min-h-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-none py-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
             <Crown className="w-5 h-5 text-purple-400" />
@@ -42,17 +42,21 @@ export default function FreeWorldHub() {
 
       {/* Split-Pane Layout */}
       {loading ? (
-        <DashboardSkeleton variant="cards" count={3} />
+        <div className="flex-1 min-h-0">
+          <DashboardSkeleton variant="cards" count={3} />
+        </div>
       ) : coachingClients.length === 0 && !searchQuery ? (
-        <EmptyState
-          type="generic"
-          title="No coaching clients yet"
-          description="When you add coaching clients, they'll appear here for management."
-        />
+        <div className="flex-1 min-h-0 flex items-center justify-center">
+          <EmptyState
+            type="generic"
+            title="No coaching clients yet"
+            description="When you add coaching clients, they'll appear here for management."
+          />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)] overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
           {/* Client Sidebar */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 h-full overflow-y-auto">
             <CoachingClientList
               clients={coachingClients}
               selectedClient={selectedClient}
@@ -64,7 +68,7 @@ export default function FreeWorldHub() {
           </div>
 
           {/* Detail Panel */}
-          <div className="lg:col-span-9">
+          <div className="lg:col-span-9 h-full overflow-hidden">
             {selectedClient ? (
               <ClientProgressPanel
                 client={selectedClient}
