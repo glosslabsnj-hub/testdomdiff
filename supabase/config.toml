@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.tier-onboarding-generate]
 verify_jwt = false
+
+[functions.update-to-dom-style]
+verify_jwt = false
