@@ -2771,9 +2771,21 @@ PRO TIP: Cheaper than store-bought. Better macros. You control everything.`,
 ];
 
 // ============================================================
-// TEMPLATE CONFIGURATIONS (100 total)
+// TEMPLATE CONFIGURATIONS (120 total - 100 standard + 20 dietary)
 // ============================================================
-const TEMPLATE_CONFIGS = [
+interface TemplateConfig {
+  name: string;
+  goal: string;
+  category: string;
+  min: number;
+  max: number;
+  p: number;
+  c: number;
+  f: number;
+  dietary_tags?: string[];
+}
+
+const TEMPLATE_CONFIGS: TemplateConfig[] = [
   // FAT LOSS - AGGRESSIVE (30 templates, 1200-1800 cal)
   { name: "Iron Discipline 1200", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1200, max: 1300, p: 130, c: 80, f: 40 },
   { name: "Lockdown Lean 1300", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1300, max: 1400, p: 140, c: 85, f: 42 },
@@ -2883,6 +2895,35 @@ const TEMPLATE_CONFIGS = [
   { name: "Football Season 3500", goal: "Build muscle", category: "Muscle Building - Mass", min: 3500, max: 3600, p: 250, c: 440, f: 95 },
   { name: "Wrestling Weight 3300", goal: "Build muscle", category: "Muscle Building - Mass", min: 3300, max: 3400, p: 240, c: 400, f: 92 },
   { name: "Rugby Fuel 3650", goal: "Build muscle", category: "Muscle Building - Mass", min: 3650, max: 3750, p: 255, c: 455, f: 100 },
+
+  // DIETARY RESTRICTION TEMPLATES (20 templates)
+  // Gluten-Free Templates
+  { name: "Gluten Free Fat Loss 1600", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1550, max: 1650, p: 160, c: 115, f: 52, dietary_tags: ["gluten-free"] },
+  { name: "Gluten Free Cut 1800", goal: "Lose fat", category: "Fat Loss - Moderate", min: 1750, max: 1850, p: 175, c: 140, f: 58, dietary_tags: ["gluten-free"] },
+  { name: "Gluten Free Moderate 2000", goal: "Lose fat", category: "Fat Loss - Moderate", min: 1950, max: 2050, p: 185, c: 165, f: 62, dietary_tags: ["gluten-free"] },
+  { name: "Gluten Free Recomp 2200", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2150, max: 2250, p: 195, c: 195, f: 68, dietary_tags: ["gluten-free"] },
+  { name: "Gluten Free Muscle 2500", goal: "Build muscle", category: "Muscle Building - Lean", min: 2450, max: 2550, p: 205, c: 280, f: 72, dietary_tags: ["gluten-free"] },
+  
+  // Dairy-Free Templates
+  { name: "Dairy Free Shred 1500", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1450, max: 1550, p: 155, c: 105, f: 48, dietary_tags: ["dairy-free"] },
+  { name: "Dairy Free Cut 1700", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1650, max: 1750, p: 170, c: 120, f: 55, dietary_tags: ["dairy-free"] },
+  { name: "Dairy Free Moderate 1900", goal: "Lose fat", category: "Fat Loss - Moderate", min: 1850, max: 1950, p: 180, c: 155, f: 60, dietary_tags: ["dairy-free"] },
+  { name: "Dairy Free Recomp 2300", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2250, max: 2350, p: 200, c: 210, f: 70, dietary_tags: ["dairy-free"] },
+  { name: "Dairy Free Gains 2600", goal: "Build muscle", category: "Muscle Building - Lean", min: 2550, max: 2650, p: 210, c: 295, f: 75, dietary_tags: ["dairy-free"] },
+  
+  // Keto Templates
+  { name: "Keto Fat Loss 1400", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1350, max: 1450, p: 100, c: 25, f: 110, dietary_tags: ["keto"] },
+  { name: "Keto Shred 1600", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1550, max: 1650, p: 115, c: 30, f: 125, dietary_tags: ["keto"] },
+  { name: "Keto Moderate 1800", goal: "Lose fat", category: "Fat Loss - Moderate", min: 1750, max: 1850, p: 130, c: 35, f: 140, dietary_tags: ["keto"] },
+  { name: "Keto Recomp 2200", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2150, max: 2250, p: 150, c: 40, f: 175, dietary_tags: ["keto"] },
+  { name: "Keto Muscle 2500", goal: "Build muscle", category: "Muscle Building - Lean", min: 2450, max: 2550, p: 170, c: 45, f: 200, dietary_tags: ["keto"] },
+  
+  // Vegetarian Templates
+  { name: "Vegetarian Fat Loss 1600", goal: "Lose fat", category: "Fat Loss - Aggressive", min: 1550, max: 1650, p: 120, c: 160, f: 45, dietary_tags: ["vegetarian"] },
+  { name: "Vegetarian Cut 1900", goal: "Lose fat", category: "Fat Loss - Moderate", min: 1850, max: 1950, p: 135, c: 200, f: 55, dietary_tags: ["vegetarian"] },
+  { name: "Vegetarian Recomp 2200", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2150, max: 2250, p: 145, c: 250, f: 65, dietary_tags: ["vegetarian"] },
+  { name: "Vegetarian Recomp High 2400", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2350, max: 2450, p: 155, c: 280, f: 70, dietary_tags: ["vegetarian"] },
+  { name: "Vegetarian Muscle 2700", goal: "Build muscle", category: "Muscle Building - Lean", min: 2650, max: 2750, p: 165, c: 340, f: 78, dietary_tags: ["vegetarian"] },
 ];
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -3004,21 +3045,30 @@ Deno.serve(async (req) => {
       }
 
       // Create template
+      const templateData: Record<string, unknown> = {
+        name: config.name,
+        goal_type: config.goal,
+        category_id: categoryId,
+        calorie_range_min: config.min,
+        calorie_range_max: config.max,
+        daily_protein_g: config.p,
+        daily_carbs_g: config.c,
+        daily_fats_g: config.f,
+        description: config.dietary_tags 
+          ? `${config.category} ${config.dietary_tags[0]} plan targeting ${config.min}-${config.max} calories/day with ${config.p}g protein.`
+          : `${config.category} plan targeting ${config.min}-${config.max} calories/day with ${config.p}g protein. Designed for ${config.goal.toLowerCase()}.`,
+        is_active: true,
+        display_order: templatesCreated,
+      };
+      
+      // Add dietary_tags if present
+      if (config.dietary_tags) {
+        templateData.dietary_tags = config.dietary_tags;
+      }
+
       const { data: template, error: templateError } = await supabase
         .from("meal_plan_templates")
-        .insert({
-          name: config.name,
-          goal_type: config.goal,
-          category_id: categoryId,
-          calorie_range_min: config.min,
-          calorie_range_max: config.max,
-          daily_protein_g: config.p,
-          daily_carbs_g: config.c,
-          daily_fats_g: config.f,
-          description: `${config.category} plan targeting ${config.min}-${config.max} calories/day with ${config.p}g protein. Designed for ${config.goal.toLowerCase()}.`,
-          is_active: true,
-          display_order: templatesCreated
-        })
+        .insert(templateData)
         .select()
         .single();
 

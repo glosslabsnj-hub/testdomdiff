@@ -16,14 +16,17 @@ import {
   ChevronDown,
   ChevronRight,
   Trophy,
+  Utensils,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardBackLink from "@/components/DashboardBackLink";
+import NutritionProgramView from "@/components/dashboard/NutritionProgramView";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClientCustomPrograms, ClientCustomProgram } from "@/hooks/useClientCustomPrograms";
@@ -66,6 +69,7 @@ const CustomProgram = () => {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>([]);
   const [expandedDays, setExpandedDays] = useState<string[]>([]);
+  const [programView, setProgramView] = useState<"workouts" | "nutrition">("workouts");
   
   // Calculate days since signup
   const daysSinceSignup = subscription?.started_at
@@ -145,34 +149,65 @@ const CustomProgram = () => {
 
             {/* Program Tab */}
             <TabsContent value="program" className="space-y-6">
-              {isPhaseComplete ? (
-                <Card className="border-green-500/30 bg-gradient-to-br from-green-500/10 to-transparent">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
-                        <Trophy className="w-7 h-7 text-green-400" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-foreground">Phase Complete!</h3>
-                        <p className="text-muted-foreground">
-                          You've finished all 4 weeks of your custom program
+              {/* Workouts/Nutrition Toggle */}
+              <ToggleGroup 
+                type="single" 
+                value={programView} 
+                onValueChange={(value) => value && setProgramView(value as "workouts" | "nutrition")}
+                className="justify-start"
+              >
+                <ToggleGroupItem 
+                  value="workouts" 
+                  className="data-[state=on]:bg-primary/20 data-[state=on]:text-primary gap-2"
+                >
+                  <Dumbbell className="w-4 h-4" />
+                  Workouts
+                </ToggleGroupItem>
+                <ToggleGroupItem 
+                  value="nutrition" 
+                  className="data-[state=on]:bg-primary/20 data-[state=on]:text-primary gap-2"
+                >
+                  <Utensils className="w-4 h-4" />
+                  Nutrition
+                </ToggleGroupItem>
+              </ToggleGroup>
+
+              {/* Nutrition View */}
+              {programView === "nutrition" && (
+                <NutritionProgramView clientId={user?.id} />
+              )}
+
+              {/* Workouts View */}
+              {programView === "workouts" && (
+                <>
+                  {isPhaseComplete ? (
+                    <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-transparent">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
+                            <Trophy className="w-7 h-7 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-foreground">Phase Complete!</h3>
+                            <p className="text-muted-foreground">
+                              You've finished all 4 weeks of your custom program
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-muted-foreground mb-4">
+                          Message Dom to discuss your progress and get your next phase of training.
                         </p>
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground mb-4">
-                      Message Dom to discuss your progress and get your next phase of training.
-                    </p>
-                    <Button variant="gold" asChild>
-                      <Link to="/dashboard/messages">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Message Dom for Next Phase
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : !hasProgram ? (
-                <InProgressCard daysSinceSignup={daysSinceSignup} />
-              ) : (
+                        <Button variant="gold" asChild>
+                          <Link to="/dashboard/messages">
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Message Dom for Next Phase
+                          </Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ) : !hasProgram ? (
+                    <InProgressCard daysSinceSignup={daysSinceSignup} />
+                  ) : (
                 <div className="space-y-4">
                   {weeks.map((week) => {
                     const isExpanded = expandedWeeks.includes(week.id);
@@ -243,29 +278,31 @@ const CustomProgram = () => {
                     );
                   })}
                 </div>
-              )}
+                  )}
 
-              {/* Questions CTA */}
-              {hasProgram && !isPhaseComplete && (
-                <Card className="bg-charcoal border-border">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <MessageCircle className="w-6 h-6 text-primary" />
-                        <div>
-                          <h4 className="font-semibold text-foreground">Questions about your program?</h4>
-                          <p className="text-sm text-muted-foreground">Send Dom a message anytime</p>
+                  {/* Questions CTA */}
+                  {hasProgram && !isPhaseComplete && (
+                    <Card className="bg-charcoal border-border">
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <MessageCircle className="w-6 h-6 text-primary" />
+                            <div>
+                              <h4 className="font-semibold text-foreground">Questions about your program?</h4>
+                              <p className="text-sm text-muted-foreground">Send Dom a message anytime</p>
+                            </div>
+                          </div>
+                          <Button variant="goldOutline" asChild>
+                            <Link to="/dashboard/messages">
+                              <MessageCircle className="w-4 h-4 mr-2" />
+                              Message Dom
+                            </Link>
+                          </Button>
                         </div>
-                      </div>
-                      <Button variant="goldOutline" asChild>
-                        <Link to="/dashboard/messages">
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Message Dom
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
               )}
             </TabsContent>
 
