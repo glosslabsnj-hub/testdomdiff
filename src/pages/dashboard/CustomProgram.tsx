@@ -17,13 +17,14 @@ import {
   ChevronRight,
   Trophy,
   Utensils,
+  Play,
+  Info,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardBackLink from "@/components/DashboardBackLink";
 import NutritionProgramView from "@/components/dashboard/NutritionProgramView";
@@ -149,37 +150,32 @@ const CustomProgram = () => {
 
             {/* Program Tab */}
             <TabsContent value="program" className="space-y-6">
-              {/* Workouts/Nutrition Toggle */}
-              <ToggleGroup 
-                type="single" 
-                value={programView} 
-                onValueChange={(value) => value && setProgramView(value as "workouts" | "nutrition")}
-                className="justify-start"
-              >
-                <ToggleGroupItem 
-                  value="workouts" 
-                  className="data-[state=on]:bg-primary/20 data-[state=on]:text-primary gap-2"
-                >
-                  <Dumbbell className="w-4 h-4" />
-                  Workouts
-                </ToggleGroupItem>
-                <ToggleGroupItem 
-                  value="nutrition" 
-                  className="data-[state=on]:bg-primary/20 data-[state=on]:text-primary gap-2"
-                >
-                  <Utensils className="w-4 h-4" />
-                  Nutrition
-                </ToggleGroupItem>
-              </ToggleGroup>
+              {/* Training / Nutrition Tabs */}
+              <Tabs value={programView} onValueChange={(v) => setProgramView(v as "workouts" | "nutrition")}>
+                <TabsList className="grid w-full grid-cols-2 bg-charcoal border border-border">
+                  <TabsTrigger 
+                    value="workouts" 
+                    className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+                  >
+                    <Dumbbell className="w-4 h-4" />
+                    Training Program
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="nutrition" 
+                    className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+                  >
+                    <Utensils className="w-4 h-4" />
+                    Nutrition Plan
+                  </TabsTrigger>
+                </TabsList>
 
-              {/* Nutrition View */}
-              {programView === "nutrition" && (
-                <NutritionProgramView clientId={user?.id} />
-              )}
+                {/* Nutrition View */}
+                <TabsContent value="nutrition" className="mt-6">
+                  <NutritionProgramView clientId={user?.id} />
+                </TabsContent>
 
-              {/* Workouts View */}
-              {programView === "workouts" && (
-                <>
+                {/* Workouts View */}
+                <TabsContent value="workouts" className="mt-6">
                   {isPhaseComplete ? (
                     <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-transparent">
                       <CardContent className="p-6">
@@ -208,81 +204,81 @@ const CustomProgram = () => {
                   ) : !hasProgram ? (
                     <InProgressCard daysSinceSignup={daysSinceSignup} />
                   ) : (
-                <div className="space-y-4">
-                  {weeks.map((week) => {
-                    const isExpanded = expandedWeeks.includes(week.id);
-                    const completedDays = (week.days || []).filter(
-                      (d) => !d.is_rest_day && isDayCompleted(d.id)
-                    ).length;
-                    const totalWorkoutDays = (week.days || []).filter((d) => !d.is_rest_day).length;
-                    const weekComplete = completedDays === totalWorkoutDays && totalWorkoutDays > 0;
+                    <div className="space-y-4">
+                      {weeks.map((week) => {
+                        const isExpanded = expandedWeeks.includes(week.id);
+                        const completedDays = (week.days || []).filter(
+                          (d) => !d.is_rest_day && isDayCompleted(d.id)
+                        ).length;
+                        const totalWorkoutDays = (week.days || []).filter((d) => !d.is_rest_day).length;
+                        const weekComplete = completedDays === totalWorkoutDays && totalWorkoutDays > 0;
 
-                    return (
-                      <Card
-                        key={week.id}
-                        className={weekComplete ? "border-green-500/30 bg-green-500/5" : ""}
-                      >
-                        <Collapsible open={isExpanded} onOpenChange={() => toggleWeek(week.id)}>
-                          <CollapsibleTrigger asChild>
-                            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  {isExpanded ? (
-                                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                                  ) : (
-                                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                                  )}
-                                  <div>
-                                    <CardTitle className="text-lg">
-                                      {week.title || `Week ${week.week_number}`}
-                                    </CardTitle>
-                                    {week.focus_description && (
-                                      <p className="text-sm text-muted-foreground mt-1">
-                                        {week.focus_description}
-                                      </p>
-                                    )}
+                        return (
+                          <Card
+                            key={week.id}
+                            className={weekComplete ? "border-green-500/30 bg-green-500/5" : ""}
+                          >
+                            <Collapsible open={isExpanded} onOpenChange={() => toggleWeek(week.id)}>
+                              <CollapsibleTrigger asChild>
+                                <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      {isExpanded ? (
+                                        <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                                      ) : (
+                                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                      )}
+                                      <div>
+                                        <CardTitle className="text-lg">
+                                          {week.title || `Week ${week.week_number}`}
+                                        </CardTitle>
+                                        {week.focus_description && (
+                                          <p className="text-sm text-muted-foreground mt-1">
+                                            {week.focus_description}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                      {weekComplete ? (
+                                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                                          <CheckCircle className="w-3 h-3 mr-1" />
+                                          Complete
+                                        </Badge>
+                                      ) : (
+                                        <Badge variant="outline">
+                                          {completedDays}/{totalWorkoutDays} days
+                                        </Badge>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  {weekComplete ? (
-                                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                                      <CheckCircle className="w-3 h-3 mr-1" />
-                                      Complete
-                                    </Badge>
-                                  ) : (
-                                    <Badge variant="outline">
-                                      {completedDays}/{totalWorkoutDays} days
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </CardHeader>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <CardContent className="pt-0 space-y-3">
-                              {(week.days || []).map((day) => (
-                                <DayCard
-                                  key={day.id}
-                                  day={day}
-                                  weekNumber={week.week_number}
-                                  isCompleted={isDayCompleted(day.id)}
-                                  isExpanded={expandedDays.includes(day.id)}
-                                  onToggle={() => toggleDay(day.id)}
-                                  onComplete={() => toggleDayCompletion(day.id, week.week_number)}
-                                />
-                              ))}
-                            </CardContent>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </Card>
-                    );
-                  })}
-                </div>
+                                </CardHeader>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                <CardContent className="pt-0 space-y-3">
+                                  {(week.days || []).map((day) => (
+                                    <DayCard
+                                      key={day.id}
+                                      day={day}
+                                      weekNumber={week.week_number}
+                                      isCompleted={isDayCompleted(day.id)}
+                                      isExpanded={expandedDays.includes(day.id)}
+                                      onToggle={() => toggleDay(day.id)}
+                                      onComplete={() => toggleDayCompletion(day.id, week.week_number)}
+                                    />
+                                  ))}
+                                </CardContent>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          </Card>
+                        );
+                      })}
+                    </div>
                   )}
 
                   {/* Questions CTA */}
                   {hasProgram && !isPhaseComplete && (
-                    <Card className="bg-charcoal border-border">
+                    <Card className="bg-charcoal border-border mt-6">
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -302,8 +298,8 @@ const CustomProgram = () => {
                       </CardContent>
                     </Card>
                   )}
-                </>
-              )}
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             {/* Files Tab */}
@@ -582,29 +578,68 @@ function DayCard({ day, weekNumber, isCompleted, isExpanded, onToggle, onComplet
                   <h5 className="text-xs font-semibold uppercase text-muted-foreground mb-2">
                     {SECTION_LABELS[section] || section}
                   </h5>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {exercises.map((exercise) => (
                       <div
                         key={exercise.id}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-charcoal"
+                        className="p-3 rounded-lg bg-charcoal border border-border"
                       >
-                        <Dumbbell className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm">{exercise.exercise_name}</p>
-                          {(exercise.sets || exercise.reps_or_time) && (
-                            <p className="text-xs text-muted-foreground">
-                              {exercise.sets && `${exercise.sets} sets`}
-                              {exercise.sets && exercise.reps_or_time && " × "}
-                              {exercise.reps_or_time}
-                              {exercise.rest && ` • ${exercise.rest} rest`}
-                            </p>
-                          )}
-                          {exercise.notes && (
-                            <p className="text-xs text-muted-foreground mt-1 italic">
-                              {exercise.notes}
-                            </p>
-                          )}
+                        <div className="flex items-start gap-3">
+                          <Dumbbell className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm">{exercise.exercise_name}</p>
+                            {(exercise.sets || exercise.reps_or_time) && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {exercise.sets && `${exercise.sets} sets`}
+                                {exercise.sets && exercise.reps_or_time && " × "}
+                                {exercise.reps_or_time}
+                                {exercise.rest && ` • ${exercise.rest} rest`}
+                              </p>
+                            )}
+                          </div>
                         </div>
+
+                        {/* Instructions */}
+                        {exercise.instructions && (
+                          <div className="mt-3 pl-7 border-l-2 border-primary/20">
+                            <div className="flex items-start gap-2">
+                              <Info className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
+                              <div>
+                                <p className="text-xs font-medium text-primary mb-1">Instructions</p>
+                                <p className="text-xs text-muted-foreground whitespace-pre-line">
+                                  {exercise.instructions}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Notes/Tips */}
+                        {exercise.notes && (
+                          <div className="mt-3 pl-7 p-2 rounded bg-amber-500/10 border border-amber-500/20">
+                            <p className="text-xs text-amber-400">
+                              <span className="font-medium">💡 Tip:</span> {exercise.notes}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Video Demo */}
+                        {exercise.demo_url && (
+                          <div className="mt-3 pl-7">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs border-primary/30 text-primary hover:bg-primary/10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(exercise.demo_url!, "_blank");
+                              }}
+                            >
+                              <Play className="w-3 h-3 mr-1.5" />
+                              Watch Demo
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

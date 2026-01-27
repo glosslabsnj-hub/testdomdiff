@@ -104,11 +104,6 @@ export default function AdminSidebar({
           badge: pendingSupportTickets,
           badgeColor: "bg-yellow-500/20 text-yellow-400"
         },
-        {
-          id: "intake",
-          label: "Intake & Forms",
-          icon: FileText,
-        },
       ],
     },
     {
@@ -120,6 +115,11 @@ export default function AdminSidebar({
           icon: Crown,
           badge: coachingClients > 0 ? coachingClients : undefined,
           badgeColor: "bg-purple-500/20 text-purple-400"
+        },
+        {
+          id: "intake",
+          label: "Intake & Forms",
+          icon: FileText,
         },
       ],
     },
