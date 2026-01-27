@@ -1219,11 +1219,13 @@ export type Database = {
         Row: {
           calorie_range_max: number
           calorie_range_min: number
+          category_id: string | null
           created_at: string | null
           daily_carbs_g: number
           daily_fats_g: number
           daily_protein_g: number
           description: string | null
+          difficulty: string | null
           display_order: number | null
           goal_type: string
           id: string
@@ -1234,11 +1236,13 @@ export type Database = {
         Insert: {
           calorie_range_max: number
           calorie_range_min: number
+          category_id?: string | null
           created_at?: string | null
           daily_carbs_g: number
           daily_fats_g: number
           daily_protein_g: number
           description?: string | null
+          difficulty?: string | null
           display_order?: number | null
           goal_type: string
           id?: string
@@ -1249,11 +1253,13 @@ export type Database = {
         Update: {
           calorie_range_max?: number
           calorie_range_min?: number
+          category_id?: string | null
           created_at?: string | null
           daily_carbs_g?: number
           daily_fats_g?: number
           daily_protein_g?: number
           description?: string | null
+          difficulty?: string | null
           display_order?: number | null
           goal_type?: string
           id?: string
@@ -1261,7 +1267,15 @@ export type Database = {
           name?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "meal_plan_templates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "nutrition_template_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       nutrition_guidelines: {
         Row: {
@@ -1293,6 +1307,39 @@ export type Database = {
           is_active?: boolean | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      nutrition_template_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          target_profile: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          target_profile?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          target_profile?: string | null
         }
         Relationships: []
       }
