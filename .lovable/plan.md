@@ -1,205 +1,143 @@
 
+## Objective (what “fixed” means)
+Inside **Admin → Free World → select client → Program tab**:
+1) The page should **not** scroll the entire browser window to reach program/template content.
+2) The **Program tab** should have a **reliable internal scroll area** so you can view:
+   - all templates in the recommended category
+   - the full 4-week preview
+   - the “Assign Template” button (fully visible and clickable)
+3) No “bottom-right floating UI” (Warden/Quick Action) should cover critical admin controls.
 
-# Populate 50 Complete Free World Training Programs
+---
 
-## Understanding the Problem
+## What I found (audit summary)
+### A) Admin page is designed like a marketing page (Header + big Footer)
+- `AdminDashboard` uses the **public Header** (fixed) + **public Footer** (tall).  
+- That alone creates “whole screen scroll” behavior and makes the Free World hub feel cramped because you’re fighting page scroll + internal scroll.
 
-Currently:
-- **50 program templates exist** with names and metadata (days_per_week, difficulty, etc.)
-- **0 weeks/days/exercises** exist for any of them
-- When a template is "assigned," the system falls back to generating generic placeholder weeks
+### B) FreeWorldHub height math is fighting its own header
+- `FreeWorldHub` currently renders a header block **above** a grid that has a viewport height (`h-[calc(100vh-220px)]`).  
+- Header height + grid height often exceeds the visible area, so the browser window scrolls.
 
-What you need:
-- **Each of the 50 templates = a complete 4-week training program**
-- **Each week has 7 days** (workout days + rest days based on template's `days_per_week`)
-- **Each workout day has 5-8 exercises** with sets, reps, rest, and notes
-- **When assigned, the entire program copies to the client's dashboard**
+### C) Client tabs use `absolute inset-0` panels (high risk for scroll bugs)
+- In `ClientProgressPanel`, all `TabsContent` are `absolute inset-0 overflow-y-auto`.  
+- This is fragile when nested in fixed-height containers and tends to create “tiny scroll windows” or clipped bottoms (exactly what you’re seeing).
 
-## Solution: Database Seeding Edge Function
+### D) Fixed-position overlays can cover the “Assign” button
+- Logged-in users see `WardenChat` / `GlobalQuickAction` from `FloatingActionStack` (fixed positions).  
+- On admin screens, these are not needed and can sit on top of the bottom of the Program tab, hiding the final button.
 
-I'll create an edge function that populates all 50 templates with appropriate workout content based on their category, difficulty, and days_per_week settings.
+---
 
-### The 5 Categories & Their Exercise Focus
+## Implementation plan (what I will change)
 
-| Category | Experience | Workout Style |
-|----------|------------|---------------|
-| **Beginner Basics** | New to training | Full body, compound movements, lower volume |
-| **Foundation Builder** | Returning/some experience | Upper/Lower or Push/Pull, moderate volume |
-| **Intermediate Growth** | 1-3 years | PPL or body part splits, higher volume |
-| **Advanced Performance** | 3+ years | Periodized, advanced techniques |
-| **Athletic Conditioning** | Any level, conditioning focus | HIIT, circuits, metabolic training |
+### 1) Make AdminDashboard an “app shell” (stop whole-window scrolling on admin)
+**File:** `src/pages/admin/AdminDashboard.tsx`
 
-### Week Structure Per Template
+**Changes:**
+- Convert the admin page wrapper from “document scroll” to “contained scroll”:
+  - set the root wrapper to something like: `h-screen overflow-hidden flex flex-col`
+  - keep the fixed `Header` (already fixed)
+  - make `<main>` a flex column with `min-h-0` so it can host scroll containers correctly.
+- Remove or suppress the big public `<Footer />` for `/admin` (recommended).
+  - Admin should feel like a dashboard, not a marketing page.
+  - This alone removes a huge portion of accidental page scrolling.
 
-Each template will have:
-- **4 weeks** with progressive overload (volume/intensity increases each week)
-- **7 days per week** (workout days + rest days)
-- **Workout days** based on template's `days_per_week` setting (3-6)
+**Result:** Admin route behaves like a real dashboard; the Free World hub can own its scroll behavior.
 
-### Example: "Total Body Foundations" (Beginner, 3 days/week)
+---
 
-```
-Week 1 - Movement Mastery:
-  Monday - Full Body A (6 exercises)
-    Warmup: Jumping Jacks (2x30), Bodyweight Squats (2x15)
-    Main: Goblet Squat (3x10), DB Bench Press (3x10), DB Row (3x10)
-    Finisher: Plank (3x30s)
-  
-  Tuesday - Rest Day
-  
-  Wednesday - Full Body B (6 exercises)
-    Warmup: Arm Circles (2x20), Lunges (2x10)
-    Main: Romanian Deadlift (3x10), Overhead Press (3x10), Lat Pulldown (3x10)
-    Finisher: Dead Bug (3x10)
-  
-  Thursday - Rest Day
-  
-  Friday - Full Body C (6 exercises)
-    Warmup: Mountain Climbers (2x20), Hip Circles (2x10)
-    Main: Leg Press (3x12), Incline DB Press (3x10), Cable Row (3x10)
-    Finisher: Farmer Walks (3x40s)
-  
-  Saturday - Rest Day
-  Sunday - Rest Day
+### 2) Make the Admin tabs layout height-aware (each tab scrolls where appropriate)
+**File:** `src/pages/admin/AdminDashboard.tsx`
 
-Week 2 - Building Consistency (+1 set)
-Week 3 - Progressive Load (+2 reps)
-Week 4 - Peak Week (intensity focus)
-```
+**Changes:**
+- Turn the Tabs container into a vertical layout:
+  - Tabs root: `className="flex-1 flex flex-col min-h-0"`
+- Give each top-level `TabsContent` one of these patterns:
+  - For long “report-like” tabs (Command Center, Content CMS): `flex-1 min-h-0 overflow-y-auto`
+  - For Free World: `flex-1 min-h-0 overflow-hidden` (because we want split-pane internal scrolling, not page scrolling)
 
-## Implementation Approach
+**Result:** Scrolling is predictable: you scroll inside the active admin tab content, not the whole page.
 
-### Part 1: Create Exercise Library
+---
 
-First, I'll define exercise pools for each category/workout type:
+### 3) Fix FreeWorldHub split-pane to use “fill parent” instead of viewport math
+**File:** `src/components/admin/FreeWorldHub.tsx`
 
-```typescript
-const EXERCISE_POOLS = {
-  beginner: {
-    push: ["DB Bench Press", "Overhead Press", "Push-ups", "Incline DB Press"],
-    pull: ["Lat Pulldown", "DB Row", "Cable Row", "Face Pulls"],
-    legs: ["Goblet Squat", "Leg Press", "Romanian Deadlift", "Lunges"],
-    core: ["Plank", "Dead Bug", "Bird Dog", "Pallof Press"],
-    warmup: ["Jumping Jacks", "Bodyweight Squats", "Arm Circles", "Hip Circles"],
-  },
-  intermediate: {
-    push: ["Barbell Bench Press", "Military Press", "Dips", "Cable Flyes"],
-    pull: ["Pull-ups", "Barbell Row", "T-Bar Row", "Chin-ups"],
-    legs: ["Back Squat", "Deadlift", "Bulgarian Split Squat", "Leg Curl"],
-    core: ["Hanging Leg Raise", "Ab Wheel", "Cable Crunch", "Russian Twist"],
-  },
-  advanced: {
-    push: ["Pause Bench Press", "Push Press", "Weighted Dips", "Incline Barbell"],
-    pull: ["Weighted Pull-ups", "Pendlay Row", "Meadows Row", "Chest-Supported Row"],
-    legs: ["Pause Squats", "Deficit Deadlift", "Front Squat", "Hip Thrust"],
-  },
-  conditioning: {
-    hiit: ["Burpees", "Box Jumps", "Kettlebell Swings", "Battle Ropes"],
-    circuits: ["Mountain Climbers", "Squat Jumps", "Med Ball Slams", "Sprint Intervals"],
-  }
-};
-```
+**Changes:**
+- Replace the current “header + fixed-height grid” approach with:
+  - `div className="h-full flex flex-col min-h-0"` wrapper
+  - header becomes `flex-none`
+  - split-pane grid becomes `flex-1 min-h-0 overflow-hidden`
+- Remove `h-[calc(100vh-220px)]` entirely and use `h-full`/flex sizing.
 
-### Part 2: Edge Function to Populate Templates
+**Result:** Free World hub never forces page scroll; it fills whatever space the Admin tabs give it.
 
-Create `supabase/functions/populate-program-templates/index.ts`:
+---
 
-```typescript
-// For each of the 50 templates:
-// 1. Create 4 weeks in program_template_weeks
-// 2. Create 7 days per week in program_template_days
-// 3. Create 5-8 exercises per workout day in program_template_exercises
-```
+### 4) Rebuild ClientProgressPanel tabs to use flex scrolling (remove absolute panels)
+**File:** `src/components/admin/coaching/ClientProgressPanel.tsx`
 
-### Part 3: Program Generation Logic
+**Changes:**
+- Remove the `relative` + `absolute inset-0` tab panel strategy.
+- Use the stable pattern:
+  - Tabs root: `flex-1 flex flex-col min-h-0`
+  - After TabsList: a wrapper `div className="flex-1 min-h-0 overflow-y-auto"`
+  - Inside wrapper, keep `TabsContent` in normal flow (`m-0 p-4` etc)
+- Add consistent bottom padding to the scroll area: `pb-28` (or similar) so even if any overlay exists, your last button is still reachable.
 
-Each template generates its program based on:
-1. **Category** → determines exercise selection pool
-2. **days_per_week** → determines workout/rest distribution
-3. **difficulty** → determines volume (sets/reps)
-4. **Week number** → progressive overload adjustments
+**Result:** Program tab scroll works reliably; no clipped bottoms.
 
-### Workout Split Patterns
+---
 
-| Days/Week | Split Type | Day Pattern |
-|-----------|------------|-------------|
-| 3 | Full Body | Mon/Wed/Fri |
-| 4 | Upper/Lower | Mon-Upper, Tue-Lower, Thu-Upper, Fri-Lower |
-| 5 | PPL+Upper+Lower | Push/Pull/Legs/Upper/Lower |
-| 6 | PPL x2 | Push/Pull/Legs repeated |
+### 5) Make the “Assign Template” action unmissable (sticky action bar)
+**File:** `src/components/admin/coaching/TemplateAssignment.tsx`
 
-## Files to Create/Modify
+**Changes:**
+- Wrap the Assign button area in a `sticky bottom-0` container with a subtle background and border.
+- Keep the preview scrollable above it.
+- This guarantees the CTA is always visible even with long 4-week previews.
 
-| File | Purpose |
-|------|---------|
-| `supabase/functions/populate-program-templates/index.ts` | Edge function to seed all 50 templates with full programs |
+**Result:** You never “lose” the assign button at the bottom of the preview.
 
-### Edge Function Structure
+---
 
-```typescript
-// populate-program-templates/index.ts
+### 6) Disable floating Warden/Quick Action UI on /admin routes
+**File:** `src/components/FloatingActionStack.tsx` (primary)
+- Add a route guard: if `location.pathname.startsWith("/admin")`, return `null`.
 
-const TEMPLATES_BY_CATEGORY = {
-  "Beginner Basics": [
-    { name: "Total Body Foundations", split: "fullbody", exercises: [...] },
-    { name: "Bodyweight Beginnings", split: "fullbody", exercises: [...] },
-    // ... 8 more beginner templates
-  ],
-  "Foundation Builder": [...],
-  "Intermediate Growth": [...],
-  "Advanced Performance": [...],
-  "Athletic Conditioning": [...],
-};
+(Optionally also guard inside `WardenChat` if needed, but best is stopping it at the stack.)
 
-// For each template:
-async function populateTemplate(template, categoryData) {
-  // Create 4 weeks
-  for (let weekNum = 1; weekNum <= 4; weekNum++) {
-    const week = await createWeek(template.id, weekNum);
-    
-    // Create 7 days
-    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-      const isWorkoutDay = workoutDays.includes(dayIndex);
-      const day = await createDay(week.id, dayIndex, isWorkoutDay);
-      
-      if (isWorkoutDay) {
-        // Add 5-8 exercises based on workout type
-        const exercises = generateExercises(categoryData, dayType, weekNum);
-        await insertExercises(day.id, exercises);
-      }
-    }
-  }
-}
-```
+**Result:** Admin tools are not obstructed by coaching/user UX overlays.
 
-## Expected Result
+---
 
-After running the edge function:
+## Validation checklist (how we’ll confirm it’s fixed)
+1) Go to `/admin` → Free World tab: page should **not** show long window scrolling just to use Free World tools.
+2) Select a client → Program tab:
+   - Scroll through template list: scroll stays inside the panel.
+   - Select a template → preview expands:
+     - You can scroll the preview fully.
+     - “Assign Template” is always reachable (preferably sticky).
+3) Test at multiple viewport sizes:
+   - Desktop (1366×768)
+   - Smaller laptop height (e.g., 768×700-ish)
+   - Mobile width (390×844) if you use admin on phone.
+4) Confirm no overlapping:
+   - Warden/QuickAction does not appear on admin pages.
+   - No bottom content is hidden.
 
-1. **Each template has 4 weeks** with appropriate titles and focus descriptions
-2. **Each week has 7 days** properly labeled with workout names or "Rest Day"
-3. **Each workout day has 5-8 exercises** with:
-   - Section type (warmup/main/finisher)
-   - Exercise name
-   - Sets & reps (adjusted per week for progression)
-   - Rest periods
-   - Notes/coaching cues
+---
 
-4. **Template assignment copies everything** - when admin assigns a template, all weeks/days/exercises copy to the client's `client_program_*` tables
+## Scope control / non-goals (to keep this fast and correct)
+- This plan focuses on **layout + scroll containment + button visibility** for Free World admin.
+- It does not change the program assignment logic (your 4-week template assignment system remains as-is).
 
-## Admin Experience After Implementation
+---
 
-1. Open Free World tab → Select client
-2. Go to Program tab → See recommended category
-3. Select a template (e.g., "Total Body Foundations")
-4. **Preview shows actual exercises** (not empty/auto-generated)
-5. Click "Assign" → Full 4-week program copies to client
-6. Client sees complete program on their dashboard
-
-## Technical Notes
-
-- The edge function will be idempotent (can run multiple times safely)
-- It will check if a template already has weeks and skip if populated
-- Exercise selection will be deterministic based on template name/category
-- Progressive overload built into week-over-week set/rep changes
-
+## Files expected to change
+- `src/pages/admin/AdminDashboard.tsx`
+- `src/components/admin/FreeWorldHub.tsx`
+- `src/components/admin/coaching/ClientProgressPanel.tsx`
+- `src/components/admin/coaching/TemplateAssignment.tsx`
+- `src/components/FloatingActionStack.tsx`
