@@ -333,7 +333,7 @@ const Intake = () => {
                 <Label htmlFor="height" className="text-sm font-medium">Height <span className="text-destructive">*</span></Label>
                 <Input
                   id="height"
-                  placeholder="5'10"
+                  placeholder="5'10&quot; or 70 inches"
                   value={formData.height}
                   onChange={(e) => updateForm("height", e.target.value)}
                   className={cn(
@@ -341,8 +341,9 @@ const Intake = () => {
                     errors.height && "border-destructive focus:border-destructive"
                   )}
                   aria-invalid={!!errors.height}
-                  aria-describedby={errors.height ? "height-error" : undefined}
+                  aria-describedby={errors.height ? "height-error" : "height-hint"}
                 />
+                <p id="height-hint" className="text-xs text-muted-foreground">e.g., 5'10" or 70 inches</p>
                 {errors.height && (
                   <p id="height-error" className="text-sm text-destructive">{errors.height}</p>
                 )}

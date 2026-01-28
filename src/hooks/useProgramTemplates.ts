@@ -144,21 +144,29 @@ export function useTemplateDetails(templateId: string | null) {
 
       if (daysError) throw daysError;
 
-      // Get exercises for all days
+      // Get exercises for all days - handle potential pagination for large datasets
       const dayIds = days.map((d) => d.id);
-      const { data: exercises, error: exercisesError } = await supabase
-        .from("program_template_exercises")
-        .select("*")
-        .in("day_id", dayIds)
-        .order("display_order");
+      let allExercises: any[] = [];
+      
+      // Fetch in batches of 50 days to avoid hitting query limits
+      const BATCH_SIZE = 50;
+      for (let i = 0; i < dayIds.length; i += BATCH_SIZE) {
+        const batchDayIds = dayIds.slice(i, i + BATCH_SIZE);
+        const { data: exercises, error: exercisesError } = await supabase
+          .from("program_template_exercises")
+          .select("*")
+          .in("day_id", batchDayIds)
+          .order("display_order");
 
-      if (exercisesError) throw exercisesError;
+        if (exercisesError) throw exercisesError;
+        if (exercises) allExercises = [...allExercises, ...exercises];
+      }
 
       return {
         template: template as ProgramTemplate,
         weeks: weeks as TemplateWeek[],
         days: days as TemplateDay[],
-        exercises: exercises as TemplateExercise[],
+        exercises: allExercises as TemplateExercise[],
       };
     },
     enabled: !!templateId,

@@ -76,51 +76,95 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     ]);
   };
 
+  // Retry helper with exponential backoff
+  const withRetry = async <T,>(
+    fn: () => Promise<T>,
+    maxAttempts: number = 3,
+    baseDelayMs: number = 1000,
+    label: string
+  ): Promise<T> => {
+    let lastError: Error | null = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        lastError = error as Error;
+        console.warn(`[Auth] ${label} attempt ${attempt}/${maxAttempts} failed:`, error);
+        if (attempt < maxAttempts) {
+          const delay = baseDelayMs * Math.pow(2, attempt - 1);
+          await new Promise(resolve => window.setTimeout(resolve, delay));
+        }
+      }
+    }
+    throw lastError;
+  };
+
   const fetchProfile = async (userId: string) => {
     console.log("[Auth] fetchProfile start", userId);
 
-    const { data, error } = await withTimeout<any>(
-      supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
-      8000,
-      "fetchProfile"
-    );
+    try {
+      const { data, error } = await withRetry(
+        () => withTimeout<any>(
+          supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+          15000,
+          "fetchProfile"
+        ),
+        3,
+        1000,
+        "fetchProfile"
+      );
 
-    console.log("[Auth] fetchProfile done", { hasData: !!data, error: error ?? null });
+      console.log("[Auth] fetchProfile done", { hasData: !!data, error: error ?? null });
 
-    if (error) {
+      if (error) {
+        console.error("[Auth] Profile fetch error:", error);
+        setProfile(null);
+        return;
+      }
+
+      setProfile(data ? (data as Profile) : null);
+    } catch (error) {
+      console.error("[Auth] fetchProfile failed after retries:", error);
       setProfile(null);
-      return;
     }
-
-    setProfile(data ? (data as Profile) : null);
   };
 
   const fetchSubscription = async (userId: string) => {
     console.log("[Auth] fetchSubscription start", userId);
 
-    const { data, error } = await withTimeout<any>(
-      supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      8000,
-      "fetchSubscription"
-    );
+    try {
+      const { data, error } = await withRetry(
+        () => withTimeout<any>(
+          supabase
+            .from("subscriptions")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          15000,
+          "fetchSubscription"
+        ),
+        3,
+        1000,
+        "fetchSubscription"
+      );
 
-    console.log("[Auth] fetchSubscription done", {
-      hasData: !!data,
-      status: (data as any)?.status,
-      plan: (data as any)?.plan_type,
-      error: error ?? null,
-    });
+      console.log("[Auth] fetchSubscription done", {
+        hasData: !!data,
+        status: (data as any)?.status,
+        plan: (data as any)?.plan_type,
+        error: error ?? null,
+      });
 
-    if (!error && data) {
-      setSubscription(data as Subscription);
-    } else {
+      if (!error && data) {
+        setSubscription(data as Subscription);
+      } else {
+        setSubscription(null);
+      }
+    } catch (error) {
+      console.error("[Auth] fetchSubscription failed after retries:", error);
       setSubscription(null);
     }
   };
@@ -231,9 +275,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     })();
 
     // Safety net: never spin forever if something upstream hangs unexpectedly.
+    // Increased from 12s to 20s to accommodate 3 retry attempts with 15s timeout each
     const timeout = window.setTimeout(() => {
       safeSetLoading(false);
-    }, 12000);
+    }, 20000);
 
     return () => {
       mounted = false;
