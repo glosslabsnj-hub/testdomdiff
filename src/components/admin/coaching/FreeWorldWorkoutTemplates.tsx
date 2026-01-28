@@ -466,11 +466,19 @@ function DayCard({ day, exercises, isExpanded, onToggle }: DayCardProps) {
     );
   }
 
-  // Group exercises by section
-  const warmupExercises = exercises.filter(e => e.section_type === "warmup");
-  const mainExercises = exercises.filter(e => e.section_type === "main" || !e.section_type);
-  const finisherExercises = exercises.filter(e => e.section_type === "finisher");
-  const cooldownExercises = exercises.filter(e => e.section_type === "cooldown");
+  // Map 6-section premium format to 4-section simple display
+  const warmupExercises = exercises.filter(e => 
+    ["warmup", "activation", "mobility"].includes(e.section_type || "")
+  );
+  const mainExercises = exercises.filter(e => 
+    ["main", "strength", "accessory"].includes(e.section_type || "") || !e.section_type
+  );
+  const finisherExercises = exercises.filter(e => 
+    ["finisher", "conditioning"].includes(e.section_type || "")
+  );
+  const cooldownExercises = exercises.filter(e => 
+    ["cooldown", "recovery"].includes(e.section_type || "")
+  );
 
   return (
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
