@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Cross, Shield, Package } from "lucide-react";
+import { Menu, X, Cross, Shield, Package, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -9,9 +9,12 @@ import CartButton from "@/components/shop/CartButton";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { isAdmin } = useAdminCheck();
 
+  const handleLogout = async () => {
+    await signOut();
+  };
   // Base nav links (always shown)
   const navLinks = [
     { href: "/", label: "Home" },
@@ -70,9 +73,20 @@ const Header = () => {
               </Link>
             )}
             {user ? (
-              <Button variant="gold" size="default" asChild>
-                <Link to="/dashboard">My Dashboard</Link>
-              </Button>
+              <>
+                <Button variant="gold" size="default" asChild>
+                  <Link to="/dashboard">My Dashboard</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  className="text-crimson hover:text-crimson hover:bg-crimson/10"
+                  aria-label="Logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="ghost" size="default" asChild>
@@ -134,11 +148,25 @@ const Header = () => {
               </Link>
             )}
             {user ? (
-              <Button variant="gold" size="lg" className="mt-4" asChild>
-                <Link to="/dashboard" onClick={() => setIsOpen(false)}>
-                  My Dashboard
-                </Link>
-              </Button>
+              <>
+                <Button variant="gold" size="lg" className="mt-4" asChild>
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                    My Dashboard
+                  </Link>
+                </Button>
+                <Button
+                  variant="crimson"
+                  size="lg"
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="ghost" size="lg" className="mt-4" asChild>
