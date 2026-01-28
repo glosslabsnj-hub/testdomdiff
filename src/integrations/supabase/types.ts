@@ -342,6 +342,7 @@ export type Database = {
           demo_url: string | null
           display_order: number | null
           exercise_name: string
+          form_tips: string | null
           id: string
           instructions: string | null
           notes: string | null
@@ -352,6 +353,7 @@ export type Database = {
           section_type: string
           sets: string | null
           updated_at: string | null
+          video_url: string | null
         }
         Insert: {
           coach_notes?: string | null
@@ -360,6 +362,7 @@ export type Database = {
           demo_url?: string | null
           display_order?: number | null
           exercise_name: string
+          form_tips?: string | null
           id?: string
           instructions?: string | null
           notes?: string | null
@@ -370,6 +373,7 @@ export type Database = {
           section_type?: string
           sets?: string | null
           updated_at?: string | null
+          video_url?: string | null
         }
         Update: {
           coach_notes?: string | null
@@ -378,6 +382,7 @@ export type Database = {
           demo_url?: string | null
           display_order?: number | null
           exercise_name?: string
+          form_tips?: string | null
           id?: string
           instructions?: string | null
           notes?: string | null
@@ -388,6 +393,7 @@ export type Database = {
           section_type?: string
           sets?: string | null
           updated_at?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -2017,7 +2023,9 @@ export type Database = {
           demo_url: string | null
           display_order: number | null
           exercise_name: string
+          form_tips: string | null
           id: string
+          instructions: string | null
           notes: string | null
           progression_notes: string | null
           reps_or_time: string | null
@@ -2026,6 +2034,7 @@ export type Database = {
           section_type: string | null
           sets: string | null
           updated_at: string | null
+          video_url: string | null
         }
         Insert: {
           coach_notes?: string | null
@@ -2034,7 +2043,9 @@ export type Database = {
           demo_url?: string | null
           display_order?: number | null
           exercise_name: string
+          form_tips?: string | null
           id?: string
+          instructions?: string | null
           notes?: string | null
           progression_notes?: string | null
           reps_or_time?: string | null
@@ -2043,6 +2054,7 @@ export type Database = {
           section_type?: string | null
           sets?: string | null
           updated_at?: string | null
+          video_url?: string | null
         }
         Update: {
           coach_notes?: string | null
@@ -2051,7 +2063,9 @@ export type Database = {
           demo_url?: string | null
           display_order?: number | null
           exercise_name?: string
+          form_tips?: string | null
           id?: string
+          instructions?: string | null
           notes?: string | null
           progression_notes?: string | null
           reps_or_time?: string | null
@@ -2060,6 +2074,7 @@ export type Database = {
           section_type?: string | null
           sets?: string | null
           updated_at?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
