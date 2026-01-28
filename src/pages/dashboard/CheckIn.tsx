@@ -14,6 +14,28 @@ import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
 import DashboardBackLink from "@/components/DashboardBackLink";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
+import DashboardLayout from "@/components/DashboardLayout";
+import { z } from "zod";
+
+// Validation schema for check-in form
+const checkInSchema = z.object({
+  weight: z.string().optional().refine(val => !val || (!isNaN(parseFloat(val)) && parseFloat(val) > 0 && parseFloat(val) < 1000), {
+    message: "Enter a valid weight (1-999 lbs)"
+  }),
+  waist: z.string().optional().refine(val => !val || (!isNaN(parseFloat(val)) && parseFloat(val) > 0 && parseFloat(val) < 100), {
+    message: "Enter a valid waist measurement (1-99 inches)"
+  }),
+  steps_avg: z.string().optional().refine(val => !val || (!isNaN(parseInt(val)) && parseInt(val) >= 0 && parseInt(val) < 100000), {
+    message: "Enter a valid step count (0-99,999)"
+  }),
+  workouts_completed: z.string().optional().refine(val => !val || (!isNaN(parseInt(val)) && parseInt(val) >= 0 && parseInt(val) <= 14), {
+    message: "Enter a valid workout count (0-14)"
+  }),
+  wins: z.string().max(1000, "Wins must be less than 1000 characters").optional(),
+  struggles: z.string().max(1000, "Struggles must be less than 1000 characters").optional(),
+  changes: z.string().max(500, "Changes must be less than 500 characters").optional(),
+  faith_reflection: z.string().max(1000, "Faith reflection must be less than 1000 characters").optional(),
+});
 
 const CheckIn = () => {
   const { checkIns, loading, submitCheckIn, getCurrentWeekNumber } = useCheckIns();
@@ -23,6 +45,7 @@ const CheckIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const isCoaching = subscription?.plan_type === "coaching";
   const currentWeek = getCurrentWeekNumber();
@@ -64,7 +87,32 @@ const CheckIn = () => {
     return success;
   };
 
+  const validateForm = (): boolean => {
+    const result = checkInSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setValidationErrors(errors);
+      return false;
+    }
+    setValidationErrors({});
+    return true;
+  };
+
   const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast({
+        title: "Please fix the errors",
+        description: "Check the highlighted fields and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await submitCheckIn(formData);
@@ -84,6 +132,7 @@ const CheckIn = () => {
         changes: "",
         faith_reflection: "",
       });
+      setValidationErrors({});
     } catch (err: any) {
       toast({
         title: "Error",
@@ -97,17 +146,17 @@ const CheckIn = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <DashboardLayout>
         <div className="section-container py-12">
           <DashboardBackLink className="mb-8" />
           <DashboardSkeleton variant="detail" />
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <DashboardLayout>
       <div className="section-container py-12">
         <DashboardBackLink className="mb-8" />
 
@@ -189,90 +238,110 @@ const CheckIn = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-1">
                   <Label>Weight (lbs)</Label>
                   <Input
-                    className="bg-charcoal"
+                    className={`bg-charcoal ${validationErrors.weight ? 'border-destructive' : ''}`}
                     placeholder="Current weight"
                     type="number"
                     step="0.1"
                     value={formData.weight}
                     onChange={(e) => handleChange("weight", e.target.value)}
                   />
+                  {validationErrors.weight && (
+                    <p className="text-xs text-destructive">{validationErrors.weight}</p>
+                  )}
                 </div>
-                <div>
+                <div className="space-y-1">
                   <Label>Waist (inches)</Label>
                   <Input
-                    className="bg-charcoal"
+                    className={`bg-charcoal ${validationErrors.waist ? 'border-destructive' : ''}`}
                     placeholder="Waist measurement"
                     type="number"
                     step="0.1"
                     value={formData.waist}
                     onChange={(e) => handleChange("waist", e.target.value)}
                   />
+                  {validationErrors.waist && (
+                    <p className="text-xs text-destructive">{validationErrors.waist}</p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-1">
                   <Label>Avg Daily Steps</Label>
                   <Input
-                    className="bg-charcoal"
+                    className={`bg-charcoal ${validationErrors.steps_avg ? 'border-destructive' : ''}`}
                     placeholder="Average steps"
                     type="number"
                     value={formData.steps_avg}
                     onChange={(e) => handleChange("steps_avg", e.target.value)}
                   />
+                  {validationErrors.steps_avg && (
+                    <p className="text-xs text-destructive">{validationErrors.steps_avg}</p>
+                  )}
                 </div>
-                <div>
+                <div className="space-y-1">
                   <Label>Workouts Completed</Label>
                   <Input
-                    className="bg-charcoal"
+                    className={`bg-charcoal ${validationErrors.workouts_completed ? 'border-destructive' : ''}`}
                     placeholder="# of workouts"
                     type="number"
                     value={formData.workouts_completed}
                     onChange={(e) => handleChange("workouts_completed", e.target.value)}
                   />
+                  {validationErrors.workouts_completed && (
+                    <p className="text-xs text-destructive">{validationErrors.workouts_completed}</p>
+                  )}
                 </div>
               </div>
-              <div>
+              <div className="space-y-1">
                 <Label>This Week's Wins</Label>
                 <Textarea
-                  className="bg-charcoal"
+                  className={`bg-charcoal ${validationErrors.wins ? 'border-destructive' : ''}`}
                   rows={3}
                   placeholder="What went well this week?"
                   value={formData.wins}
                   onChange={(e) => handleChange("wins", e.target.value)}
+                  maxLength={1000}
                 />
+                <p className="text-xs text-muted-foreground text-right">{formData.wins?.length || 0}/1000</p>
               </div>
-              <div>
+              <div className="space-y-1">
                 <Label>Struggles</Label>
                 <Textarea
-                  className="bg-charcoal"
+                  className={`bg-charcoal ${validationErrors.struggles ? 'border-destructive' : ''}`}
                   rows={3}
                   placeholder="What was hard this week?"
                   value={formData.struggles}
                   onChange={(e) => handleChange("struggles", e.target.value)}
+                  maxLength={1000}
                 />
+                <p className="text-xs text-muted-foreground text-right">{formData.struggles?.length || 0}/1000</p>
               </div>
-              <div>
+              <div className="space-y-1">
                 <Label>What Changes Next Week?</Label>
                 <Textarea
-                  className="bg-charcoal"
+                  className={`bg-charcoal ${validationErrors.changes ? 'border-destructive' : ''}`}
                   rows={2}
                   placeholder="What adjustments will you make?"
                   value={formData.changes}
                   onChange={(e) => handleChange("changes", e.target.value)}
+                  maxLength={500}
                 />
+                <p className="text-xs text-muted-foreground text-right">{formData.changes?.length || 0}/500</p>
               </div>
-              <div>
+              <div className="space-y-1">
                 <Label>Faith Reflection (Optional)</Label>
                 <Textarea
-                  className="bg-charcoal"
+                  className={`bg-charcoal ${validationErrors.faith_reflection ? 'border-destructive' : ''}`}
                   rows={2}
                   placeholder="How did you honor God this week?"
                   value={formData.faith_reflection}
                   onChange={(e) => handleChange("faith_reflection", e.target.value)}
+                  maxLength={1000}
                 />
+                <p className="text-xs text-muted-foreground text-right">{formData.faith_reflection?.length || 0}/1000</p>
               </div>
 
               {/* Weekly Progress Photo (Optional) */}
@@ -315,7 +384,7 @@ const CheckIn = () => {
                   ) : (
                     <Send className="w-4 h-4" />
                   )}
-                  Report In
+                  Submit Weekly Check-In
                 </Button>
               </div>
               
@@ -340,12 +409,12 @@ const CheckIn = () => {
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              Report In
+              Submit Weekly Check-In
             </Button>
           </StickyMobileFooter>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

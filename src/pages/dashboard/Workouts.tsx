@@ -9,6 +9,7 @@ import EmptyState from "@/components/EmptyState";
 import AddToCalendarButton from "@/components/AddToCalendarButton";
 import { addMinutes } from "@/lib/calendarUtils";
 import DashboardBackLink from "@/components/DashboardBackLink";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
@@ -19,7 +20,7 @@ const Workouts = () => {
   const visibleTemplates = templates.filter(t => t.is_active && t.is_bodyweight);
 
   return (
-    <div className="min-h-screen bg-background">
+    <DashboardLayout>
       <div className="section-container py-12">
         <DashboardBackLink className="mb-8" />
 
@@ -108,33 +109,18 @@ const Workouts = () => {
           </>
         )}
 
-        {/* Week Builder Section */}
+        {/* Week Builder Section - Coming Soon */}
         <div className="bg-card p-8 rounded-lg border border-border">
-          <h2 className="headline-card mb-4">Your Weekly Schedule</h2>
-          <p className="text-muted-foreground mb-6">
-            Build your own weekly workout schedule using the templates above.
+          <h2 className="headline-card mb-4">Weekly Schedule Builder</h2>
+          <p className="text-muted-foreground mb-4">
+            A custom weekly schedule builder is coming soon. For now, follow the structured program or use these templates as standalone workouts.
           </p>
-          
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-6">
-            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div
-                key={day}
-                className="p-4 rounded-lg bg-charcoal border border-border text-center"
-              >
-                <p className="text-sm font-bold mb-2">{day}</p>
-                <div className="h-16 border-2 border-dashed border-border rounded flex items-center justify-center">
-                  <Dumbbell className="w-6 h-6 text-muted-foreground" />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-xs text-muted-foreground">
-            Assign workouts to each day of the week. Rest on Sundays.
+          <p className="text-xs text-primary">
+            💡 Tip: Use the 12-week program in "The Sentence" for a structured training plan.
           </p>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
