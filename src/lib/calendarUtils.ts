@@ -141,6 +141,39 @@ END:VCALENDAR`;
 };
 
 /**
+ * Generate a weekly workout schedule ICS file
+ */
+export const generateWeeklyScheduleICS = (events: CalendarEvent[]): string => {
+  const vEvents = events.map((event) => {
+    const uid = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${event.id || "workout"}@redeemedstrength.com`;
+    
+    const fullDescription = [
+      event.description || "",
+      "",
+      "---",
+      "Redeemed Strength - Iron Pile Training",
+    ].filter(Boolean).join("\\n");
+
+    return `BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatDateForICS(new Date())}
+DTSTART:${formatDateForICS(event.startTime)}
+DTEND:${formatDateForICS(event.endTime)}
+SUMMARY:${escapeICS(event.title)}
+DESCRIPTION:${escapeICS(fullDescription)}
+END:VEVENT`;
+  }).join("\n");
+
+  return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Redeemed Strength//Iron Pile//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+${vEvents}
+END:VCALENDAR`;
+};
+
+/**
  * Calculate sequential start/end times based on durations
  */
 export const calculateSequentialTimes = (

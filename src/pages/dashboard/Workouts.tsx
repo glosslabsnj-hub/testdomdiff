@@ -10,6 +10,7 @@ import AddToCalendarButton from "@/components/AddToCalendarButton";
 import { addMinutes } from "@/lib/calendarUtils";
 import DashboardBackLink from "@/components/DashboardBackLink";
 import DashboardLayout from "@/components/DashboardLayout";
+import WeeklyScheduleBuilder from "@/components/workouts/WeeklyScheduleBuilder";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
@@ -109,16 +110,10 @@ const Workouts = () => {
           </>
         )}
 
-        {/* Week Builder Section - Coming Soon */}
-        <div className="bg-card p-8 rounded-lg border border-border">
-          <h2 className="headline-card mb-4">Weekly Schedule Builder</h2>
-          <p className="text-muted-foreground mb-4">
-            A custom weekly schedule builder is coming soon. For now, follow the structured program or use these templates as standalone workouts.
-          </p>
-          <p className="text-xs text-primary">
-            💡 Tip: Use the 12-week program in "The Sentence" for a structured training plan.
-          </p>
-        </div>
+        {/* Weekly Schedule Builder */}
+        {visibleTemplates.length > 0 && (
+          <WeeklyScheduleBuilder templates={visibleTemplates} />
+        )}
       </div>
     </DashboardLayout>
   );
