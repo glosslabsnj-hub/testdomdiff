@@ -361,7 +361,7 @@ export function useAssignTemplate() {
 
             if (!exercises || exercises.length === 0) continue;
 
-            // Copy exercises to client_program_exercises
+            // Copy exercises to client_program_exercises (including premium coaching fields)
             const clientExercises = exercises.map((ex) => ({
               day_id: clientDay.id,
               section_type: ex.section_type || "main",
@@ -372,6 +372,10 @@ export function useAssignTemplate() {
               notes: ex.notes,
               demo_url: ex.demo_url,
               display_order: ex.display_order,
+              // Premium Free World coaching fields
+              coach_notes: (ex as any).coach_notes || null,
+              scaling_options: (ex as any).scaling_options || null,
+              progression_notes: (ex as any).progression_notes || null,
             }));
 
             const { error: exercisesError } = await supabase
