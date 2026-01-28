@@ -55,6 +55,13 @@ export interface TemplateExercise {
   notes: string | null;
   demo_url: string | null;
   display_order: number | null;
+  // Premium coaching fields
+  coach_notes?: string | null;
+  scaling_options?: string | null;
+  progression_notes?: string | null;
+  instructions?: string | null;
+  form_tips?: string | null;
+  video_url?: string | null;
 }
 
 // Fetch all categories
@@ -376,6 +383,9 @@ export function useAssignTemplate() {
               coach_notes: (ex as any).coach_notes || null,
               scaling_options: (ex as any).scaling_options || null,
               progression_notes: (ex as any).progression_notes || null,
+              instructions: (ex as any).instructions || null,
+              form_tips: (ex as any).form_tips || null,
+              video_url: (ex as any).video_url || null,
             }));
 
             const { error: exercisesError } = await supabase
