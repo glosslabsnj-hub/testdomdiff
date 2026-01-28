@@ -336,6 +336,7 @@ export type Database = {
       }
       client_program_exercises: {
         Row: {
+          coach_notes: string | null
           created_at: string | null
           day_id: string
           demo_url: string | null
@@ -344,13 +345,16 @@ export type Database = {
           id: string
           instructions: string | null
           notes: string | null
+          progression_notes: string | null
           reps_or_time: string | null
           rest: string | null
+          scaling_options: string | null
           section_type: string
           sets: string | null
           updated_at: string | null
         }
         Insert: {
+          coach_notes?: string | null
           created_at?: string | null
           day_id: string
           demo_url?: string | null
@@ -359,13 +363,16 @@ export type Database = {
           id?: string
           instructions?: string | null
           notes?: string | null
+          progression_notes?: string | null
           reps_or_time?: string | null
           rest?: string | null
+          scaling_options?: string | null
           section_type?: string
           sets?: string | null
           updated_at?: string | null
         }
         Update: {
+          coach_notes?: string | null
           created_at?: string | null
           day_id?: string
           demo_url?: string | null
@@ -374,8 +381,10 @@ export type Database = {
           id?: string
           instructions?: string | null
           notes?: string | null
+          progression_notes?: string | null
           reps_or_time?: string | null
           rest?: string | null
+          scaling_options?: string | null
           section_type?: string
           sets?: string | null
           updated_at?: string | null
@@ -2002,6 +2011,7 @@ export type Database = {
       }
       program_template_exercises: {
         Row: {
+          coach_notes: string | null
           created_at: string | null
           day_id: string | null
           demo_url: string | null
@@ -2009,13 +2019,16 @@ export type Database = {
           exercise_name: string
           id: string
           notes: string | null
+          progression_notes: string | null
           reps_or_time: string | null
           rest: string | null
+          scaling_options: string | null
           section_type: string | null
           sets: string | null
           updated_at: string | null
         }
         Insert: {
+          coach_notes?: string | null
           created_at?: string | null
           day_id?: string | null
           demo_url?: string | null
@@ -2023,13 +2036,16 @@ export type Database = {
           exercise_name: string
           id?: string
           notes?: string | null
+          progression_notes?: string | null
           reps_or_time?: string | null
           rest?: string | null
+          scaling_options?: string | null
           section_type?: string | null
           sets?: string | null
           updated_at?: string | null
         }
         Update: {
+          coach_notes?: string | null
           created_at?: string | null
           day_id?: string | null
           demo_url?: string | null
@@ -2037,8 +2053,10 @@ export type Database = {
           exercise_name?: string
           id?: string
           notes?: string | null
+          progression_notes?: string | null
           reps_or_time?: string | null
           rest?: string | null
+          scaling_options?: string | null
           section_type?: string | null
           sets?: string | null
           updated_at?: string | null
