@@ -1,134 +1,73 @@
 
-# Rebuild Free World Templates Content Manager
+# Fix Free World Program Library: Exercises Not Displaying
 
-## Problem Summary
+## Problem Identified
 
-The "Free World Templates" section in Admin → Content currently shows:
-- **Categories** (expandable) → **Templates** (basic info cards)
+The exercises exist in the database (confirmed: 18 exercises per training day), but they're not rendering when you click on Monday because of a **section type mismatch**:
 
-But it should show the full hierarchy like the coaching Program Library does:
-- **Categories** → **Templates** → **Weeks** → **Days** → **Exercises** (with full editing)
+| What the UI filters for | What's in the database |
+|-------------------------|------------------------|
+| `warmup` | `activation` (964 exercises) |
+| `main` (fallback) | `mobility` (964 exercises) |
+| `finisher` | `strength` (1,928 exercises) |
+| `cooldown` | `accessory` (1,864 exercises) |
+| | `conditioning` (1,056 exercises) |
+| | `recovery` (1,928 exercises) |
 
-The exercises exist in the database (16-18 per training day, 400+ per template), but the UI doesn't drill down to display or edit them.
+The component groups exercises into 4 buckets (warmup, main, finisher, cooldown), but the database contains exercises with the 6-section premium format (activation, mobility, strength, accessory, conditioning, recovery). Since none match, nothing renders.
 
-## What You Want
+## Solution
 
-When you click into a template:
-1. See all 4 weeks (expandable)
-2. Each week expands to show 7 days
-3. Each day expands to show exercises grouped by section (Warm-up, Main, Finisher, Cooldown)
-4. Each exercise is editable with:
-   - Exercise name, sets, reps, rest, notes
-   - **Instructions** (how to perform)
-   - **Form tips** (coaching cues)
-   - **Video URL** (demo video)
+Update the `DayCard` component in `FreeWorldWorkoutTemplates.tsx` to map the 6 premium section types into the 4 simple display sections you requested:
 
-## Implementation Plan
+| Display Section | Maps From |
+|-----------------|-----------|
+| Warm-Up | `warmup`, `activation`, `mobility` |
+| Main Workout | `main`, `strength`, `accessory` |
+| Finisher | `finisher`, `conditioning` |
+| Cool-Down | `cooldown`, `recovery` |
 
-### Step 1: Replace ProgramTemplateManager.tsx
+## Files to Change
 
-Rebuild this component with a proper hierarchical editor:
+**`src/components/admin/coaching/FreeWorldWorkoutTemplates.tsx`**
 
-**Level 1 - Category Accordion:**
-```
-[▼ Beginner Programs] (12 templates)
-   ├── Build Your Base
-   ├── First Steps to Strength
-   └── ...
-```
+Modify the `DayCard` component's grouping logic (around lines 469-473):
 
-**Level 2 - Template Expansion:**
-When you click "Edit" on a template:
-```
-Editing: Build Your Base
-├── Template Info (name, description, difficulty, days/week)
-└── [▼ Week 1: Foundation Phase]
-    └── [▼ Week 2: Building Phase]
-    └── ...
+Current code:
+```typescript
+const warmupExercises = exercises.filter(e => e.section_type === "warmup");
+const mainExercises = exercises.filter(e => e.section_type === "main" || !e.section_type);
+const finisherExercises = exercises.filter(e => e.section_type === "finisher");
+const cooldownExercises = exercises.filter(e => e.section_type === "cooldown");
 ```
 
-**Level 3 - Week Expansion:**
+Updated code:
+```typescript
+// Map 6-section premium format to 4-section simple display
+const warmupExercises = exercises.filter(e => 
+  ["warmup", "activation", "mobility"].includes(e.section_type || "")
+);
+const mainExercises = exercises.filter(e => 
+  ["main", "strength", "accessory"].includes(e.section_type || "") || !e.section_type
+);
+const finisherExercises = exercises.filter(e => 
+  ["finisher", "conditioning"].includes(e.section_type || "")
+);
+const cooldownExercises = exercises.filter(e => 
+  ["cooldown", "recovery"].includes(e.section_type || "")
+);
 ```
-[▼ Week 1: Foundation Phase]
-├── [▼ Monday: Push A] (16 exercises)
-├── [▼ Tuesday: Pull A] (16 exercises)
-├── Wednesday: Rest Day
-├── ...
-```
-
-**Level 4 - Day Expansion:**
-```
-[▼ Monday: Push A]
-├── WARM-UP
-│   ├── Arm Circles - 2 sets × 30s [Edit] [Delete]
-│   └── + Add Exercise
-├── MAIN WORK
-│   ├── Incline Push-ups - 4 sets × 20 reps - 45s rest [Edit] [Delete]
-│   └── ...
-├── FINISHER
-├── COOL-DOWN
-```
-
-**Level 5 - Exercise Edit Dialog:**
-```
-┌─────────────────────────────────────┐
-│ Edit Exercise                       │
-├─────────────────────────────────────┤
-│ Section: [Main Work ▼]              │
-│ Name: [Incline Push-ups          ]  │
-│ Sets: [4] Reps: [20] Rest: [45s]    │
-│ Notes: [Focus on full range...]     │
-│                                     │
-│ ─── Coaching Details ───            │
-│ Instructions: [Place hands on       │
-│   elevated surface, lower chest...] │
-│ Form Tips: [Keep core tight,        │
-│   elbows at 45 degrees...]          │
-│ Video URL: [https://...          ]  │
-└─────────────────────────────────────┘
-```
-
-### Step 2: Add Database Fields (if missing)
-
-The `program_template_exercises` table may need additional fields:
-- `instructions` (text) - How to perform the exercise
-- `form_tips` (text) - Coaching cues for proper form
-- `video_url` (text) - Demo video link
-
-These may already exist from the recent upgrade. If not, a migration will add them.
-
-### Step 3: File Changes
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/components/admin/ProgramTemplateManager.tsx` | REPLACE | Complete rebuild with hierarchical Category → Template → Week → Day → Exercise structure |
-| `src/hooks/useProgramTemplates.ts` | MODIFY | Ensure exercise editing includes instructions, form_tips, video_url fields |
-
-### Step 4: UI Features
-
-The new editor will include:
-- **Collapsible sections** at every level (categories, templates, weeks, days)
-- **Inline editing** for exercises (click to expand edit form)
-- **Add Exercise** button in each section
-- **Delete** with confirmation
-- **Drag to reorder** (optional future enhancement)
-- **Exercise count badges** on each day
-- **Section labels** color-coded (Warm-up = yellow, Main = gold, Finisher = red, Cooldown = blue)
-
-## Technical Notes
-
-- The coaching `ProgramLibrary.tsx` already has much of this logic - we'll adapt it for the Content section
-- Uses existing `useTemplateDetails()` hook which fetches weeks, days, and exercises
-- Exercises are stored in `program_template_exercises` linked to `program_template_days`
-- Changes auto-save on blur (or explicit Save button based on your preference)
 
 ## Expected Result
 
-After implementation:
-- Click "Free World Templates" in Content navigation
-- Expand any category to see templates
-- Click "Edit" on any template to see full 4-week structure
-- Expand any week to see 7 days
-- Expand any day to see all exercises grouped by section
-- Click any exercise to edit name, sets, reps, rest, notes, instructions, form tips, and video URL
-- All 400+ exercises per template are fully accessible and editable
+After this change:
+- Expanding "Monday: Full Body Assault A" will show all 18 exercises
+- Exercises grouped into 4 clear sections: Warm-Up, Main Workout, Finisher, Cool-Down
+- Inline editing will continue to work as-is
+
+## Technical Notes
+
+- This is a display-layer fix only; no database changes required
+- The underlying section_type values remain unchanged in the database
+- The 6-section structure is preserved for future granular views if needed
+- Video links will not be shown per your preference
