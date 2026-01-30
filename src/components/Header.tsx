@@ -14,8 +14,8 @@ const Header = () => {
 
   const handleLogout = async () => {
     await signOut();
-    // Navigate to home after logout and close menu
-    window.location.href = "/";
+    // Use replace to prevent back-button returning to protected page
+    window.location.replace("/");
   };
   // Base nav links (always shown)
   const navLinks = [

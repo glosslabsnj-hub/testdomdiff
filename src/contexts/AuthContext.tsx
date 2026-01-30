@@ -43,6 +43,7 @@ interface AuthContextType {
   loading: boolean;
   hasAccess: boolean;
   daysRemaining: number | null;
+  dataLoaded: boolean;
   signUp: (email: string, password: string) => Promise<{ error: Error | null; data: any }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -66,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const withTimeout = async <T,>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> => {
     return await Promise.race([
@@ -240,12 +242,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             fetchProfile(session.user.id),
             fetchSubscription(session.user.id),
           ]);
+          if (mounted) setDataLoaded(true);
         } else {
           setProfile(null);
           setSubscription(null);
+          if (mounted) setDataLoaded(true);
         }
       } catch (err) {
         console.error("Auth state change error:", err);
+        if (mounted) setDataLoaded(true);
       } finally {
         safeSetLoading(false);
       }
@@ -266,9 +271,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             fetchProfile(data.session.user.id),
             fetchSubscription(data.session.user.id),
           ]);
+          if (mounted) setDataLoaded(true);
+        } else {
+          if (mounted) setDataLoaded(true);
         }
       } catch (err) {
         console.error("Error getting initial session:", err);
+        if (mounted) setDataLoaded(true);
       } finally {
         safeSetLoading(false);
       }
@@ -307,9 +316,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Clear state immediately (optimistic) to prevent UI flash
+    setUser(null);
+    setSession(null);
     setProfile(null);
     setSubscription(null);
+    setDataLoaded(false);
+    // Then complete the actual signout
+    await supabase.auth.signOut();
   };
 
   const hasAccess = calculateAccess();
@@ -325,6 +339,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         hasAccess,
         daysRemaining,
+        dataLoaded,
         signUp,
         signIn,
         signOut,
