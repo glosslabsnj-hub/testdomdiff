@@ -1,147 +1,138 @@
 
-# Fix Plan: Logout Button + "No Active Assignments" Race Condition
+# Multi-Tab Session Issues + Subscription Errors: Complete Fix
 
-## Issues Identified
+## Problems Identified
 
-### Issue 1: Logout Button Not Working
-**Root Cause:** The `signOut()` function in `AuthContext.tsx` is async, but the `handleLogout` in `Header.tsx` doesn't wait for the Promise to properly resolve before the page redirect happens. The Supabase signOut may not complete before `window.location.href` fires.
+You're experiencing **three related but distinct issues**:
 
-**Evidence:** The current implementation is:
-```typescript
-const handleLogout = async () => {
-  await signOut();
-  window.location.href = "/";
+### Issue 1: Multiple Accounts in Different Tabs Don't Work
+**Root Cause:** This is a fundamental limitation of how browser authentication works. Supabase stores the user session in `localStorage`, which is **shared across all tabs on the same domain**. When you log into Account B in Tab 2, it overwrites Account A's session - and when you switch back to Tab 1, it now has Account B's session.
+
+This is **by design** for security - it prevents session confusion. However, it makes testing multiple accounts impossible without workarounds.
+
+### Issue 2: "No Active Assignment" Flash on Tab Switch
+**Root Cause:** When switching tabs, the browser can suspend/resume React, triggering re-initialization of the AuthContext. The `onAuthStateChange` listener fires, but before the profile/subscription data loads, the UI briefly shows "No active assignments." 
+
+This was partially fixed in the previous update with the `dataLoaded` flag, but the session storage conflicts from Issue 1 can still cause this.
+
+### Issue 3: Signup "Subscription Failed" Error
+**Root Cause:** The edge function `create-user-subscription` is working (tested above with a 500 error when passed an invalid UUID), but some signups may fail due to:
+- CORS headers missing the newer Supabase client headers
+- Network timing issues during concurrent tab operations
+
+---
+
+## Solution Overview
+
+### For Multi-Account Testing (Your Primary Need)
+The **only reliable way** to test multiple different accounts simultaneously is:
+
+1. **Use different browsers** - Chrome for Account A, Firefox for Account B, Safari for Account C
+2. **Use browser profiles** - Chrome User 1, Chrome User 2, etc. (each has separate localStorage)
+3. **Use incognito/private windows** - Each incognito window has isolated storage
+
+This is not something we can fix with code - it's how browser security works. The session is stored at `localStorage['sb-wbnrmnfsxrxcxnvmowtp-auth-token']` and all tabs share it.
+
+### For Single Account Multi-Tab (Secondary Issue)
+We'll make the auth system more resilient when the **same account** is open in multiple tabs:
+
+1. **Improve CORS headers** on the edge function to include all Supabase client headers
+2. **Add session storage check** on route load to detect if the user changed
+3. **Improve error handling** in subscription creation
+
+---
+
+## Technical Implementation
+
+### 1. Update Edge Function CORS Headers
+The current CORS headers are missing some Supabase client headers that the SDK now sends:
+
+**Current:**
+```javascript
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 ```
 
-The `signOut` in AuthContext calls `supabase.auth.signOut()` which is async, but there's no guarantee the state clears before the hard redirect. Additionally, using `window.location.href` sometimes doesn't wait for async operations to settle.
+**Updated:**
+```javascript
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+```
 
----
-
-### Issue 2: "No Active Assignments" Flash on Tab Switch
-**Root Cause:** This is a **race condition** in the authentication flow. When you:
-1. Leave a tab open
-2. The browser suspends/resumes the tab
-3. The `AuthContext` re-initializes, setting `loading=true`
-4. Before profile/subscription data loads, the UI shows the "No active assignment" state from `AccessExpired.tsx`
-
-The flow works like this:
-1. User returns to tab → React re-renders
-2. `ProtectedRoute` checks `hasAccess` → it's `false` because data hasn't loaded yet
-3. User is redirected to `/access-expired` which shows "No Active Assignment"
-4. Eventually subscription loads → `hasAccess` becomes `true` → redirects back to dashboard
-
-This matches the "lovable-stack-overflow" guidance about separating initial load from ongoing changes.
-
----
-
-## Technical Solution
-
-### Fix 1: Logout Button
-Improve the logout handler to properly clear state and use React Router navigation:
+### 2. Add User Change Detection in ProtectedRoute
+Add a check to handle when the user ID changes between renders (which happens when a different account logs in via another tab):
 
 ```typescript
-// In Header.tsx
-const handleLogout = async () => {
-  try {
-    await signOut();
-  } finally {
-    // Force full page reload to clear all state
-    window.location.replace("/");
+// In ProtectedRoute.tsx
+const [lastKnownUserId, setLastKnownUserId] = useState<string | null>(null);
+
+useEffect(() => {
+  if (user && lastKnownUserId && user.id !== lastKnownUserId) {
+    // User changed (different account logged in from another tab)
+    // Force a full page reload to get fresh state
+    window.location.reload();
+  }
+  if (user) {
+    setLastKnownUserId(user.id);
+  }
+}, [user]);
+```
+
+### 3. Add Retry Logic for Subscription Creation Failures
+Add more robust error handling in Login.tsx to retry if the edge function call fails:
+
+```typescript
+const createSubscriptionWithRetry = async (userId: string, email: string, planType: PlanType, attempts = 3) => {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      await createSubscriptionViaEdge(userId, email, planType);
+      return;
+    } catch (err) {
+      if (i === attempts - 1) throw err;
+      await new Promise(r => setTimeout(r, 500 * (i + 1)));
+    }
   }
 };
 ```
-
-Also enhance the `signOut` in `AuthContext.tsx` to:
-1. Clear the user state immediately (optimistic)
-2. Wait for Supabase signOut to complete
-3. Return only after state is fully cleared
-
----
-
-### Fix 2: "No Active Assignments" Race Condition
-The issue is that `ProtectedRoute` redirects to `/access-expired` while `loading` is `false` but `hasAccess` hasn't been computed yet (subscription is still loading).
-
-**Solution:** Add a `dataLoaded` state that only becomes `true` after the **initial** profile and subscription fetch completes. The `loading` state is currently being set to `false` by the `onAuthStateChange` handler *before* the data fetch completes in some race conditions.
-
-**Specifically:**
-1. In `AuthContext.tsx`, track when initial data fetch is complete separately from auth loading
-2. In `ProtectedRoute.tsx`, don't redirect to `/access-expired` until we've confirmed the subscription data has been fetched at least once
 
 ---
 
 ## Files to Modify
 
-### 1. `src/contexts/AuthContext.tsx`
-- Add `dataLoaded` state to track when profile/subscription have been fetched at least once
-- Modify `signOut` to clear `user` state immediately and wait for Supabase
-- Export `dataLoaded` so ProtectedRoute can use it
-
-### 2. `src/components/Header.tsx`
-- Update `handleLogout` to use `window.location.replace()` to prevent back-button issues
-- Add a small delay or use a flag to ensure signOut completes
-
-### 3. `src/components/ProtectedRoute.tsx`
-- Use the new `dataLoaded` flag from AuthContext
-- Only redirect to `/access-expired` after confirming data has been loaded
-- Show loading spinner while data is still being fetched for the first time
+| File | Change |
+|------|--------|
+| `supabase/functions/create-user-subscription/index.ts` | Update CORS headers |
+| `src/components/ProtectedRoute.tsx` | Add user change detection |
+| `src/pages/Login.tsx` | Add retry logic for subscription creation |
 
 ---
 
-## Detailed Changes
+## Testing Strategy for Your Demo Tonight
 
-### AuthContext.tsx Changes
-```typescript
-// Add new state
-const [dataLoaded, setDataLoaded] = useState(false);
+Since you need to demo multiple tiers, here's the recommended approach:
 
-// In initial session fetch, after fetching profile/subscription:
-setDataLoaded(true);
+1. **Use 3 different browsers** (Chrome, Firefox, Safari/Edge)
+2. Each browser logs into a different tier account
+3. You can switch between browser windows without any session conflicts
 
-// In signOut, immediately clear user:
-const signOut = async () => {
-  setUser(null);  // Clear immediately
-  setSession(null);
-  setProfile(null);
-  setSubscription(null);
-  setDataLoaded(false);
-  await supabase.auth.signOut();
-};
-
-// Export dataLoaded in context value
-```
-
-### ProtectedRoute.tsx Changes
-```typescript
-const { user, loading, hasAccess, profile, subscription, dataLoaded } = useAuth();
-
-// Show loading if auth is loading OR if data hasn't been loaded yet
-if (loading || isVerifying || !adminCheckComplete || (user && !dataLoaded)) {
-  return <LoadingSpinner />;
-}
-
-// Only redirect to access-expired after confirming data has loaded
-if (!requireAdmin && dataLoaded && !hasAccess) {
-  return <Navigate to="/access-expired" replace />;
-}
-```
-
-### Header.tsx Changes
-```typescript
-const handleLogout = async () => {
-  await signOut();
-  // Use replace to prevent back-button returning to protected page
-  window.location.replace("/");
-};
-```
+Alternatively, use Chrome profiles:
+1. Open Chrome → Click your profile icon → "Add" → Create "Tier 1 Demo"
+2. Repeat for "Tier 2 Demo" and "Tier 3 Demo"  
+3. Each profile is completely isolated
 
 ---
 
 ## Summary
 
-| Issue | Root Cause | Fix |
-|-------|-----------|-----|
-| Logout button not working | `signOut` async race with page redirect | Clear state immediately + use `window.location.replace()` |
-| "No Active Assignments" flash | UI renders before subscription data loads on tab resume | Track `dataLoaded` state, don't redirect until data confirmed fetched |
+| Issue | Root Cause | Solution |
+|-------|-----------|----------|
+| Can't have 4 different accounts in 4 tabs | Browser localStorage is shared across tabs | Use different browsers or browser profiles |
+| "No Active Assignment" flash | Auth state not fully loaded on tab resume | Already fixed with `dataLoaded`; adding user change detection |
+| Subscription errors on signup | CORS headers incomplete + no retry logic | Update CORS headers + add retry |
+| Logout not working | Async race condition | Already fixed with optimistic state clear |
 
-This will make the logout button work reliably and prevent the confusing "No active assignments" flash when switching tabs.
+The key insight is that **you cannot have different accounts logged in across tabs on the same browser profile** - this is a browser security feature, not a bug. Use separate browsers or browser profiles for multi-account testing.
