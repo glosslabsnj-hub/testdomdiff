@@ -101,8 +101,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     throw lastError;
   };
 
-  const fetchProfile = async (userId: string) => {
-    console.log("[Auth] fetchProfile start", userId);
+  const fetchProfile = async (userId: string, isRefresh = false) => {
+    console.log("[Auth] fetchProfile start", userId, { isRefresh });
 
     try {
       const { data, error } = await withRetry(
@@ -120,19 +120,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         console.error("[Auth] Profile fetch error:", error);
-        setProfile(null);
+        // On refresh, keep existing data rather than clearing it on error
+        if (!isRefresh) {
+          setProfile(null);
+        }
         return;
       }
 
       setProfile(data ? (data as Profile) : null);
     } catch (error) {
       console.error("[Auth] fetchProfile failed after retries:", error);
-      setProfile(null);
+      // On refresh/token events, keep existing profile data to prevent logout
+      if (!isRefresh) {
+        setProfile(null);
+      }
     }
   };
 
-  const fetchSubscription = async (userId: string) => {
-    console.log("[Auth] fetchSubscription start", userId);
+  const fetchSubscription = async (userId: string, isRefresh = false) => {
+    console.log("[Auth] fetchSubscription start", userId, { isRefresh });
 
     try {
       const { data, error } = await withRetry(
@@ -162,12 +168,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!error && data) {
         setSubscription(data as Subscription);
-      } else {
+      } else if (!isRefresh) {
+        // Only clear subscription on initial load, not on refresh errors
         setSubscription(null);
       }
     } catch (error) {
       console.error("[Auth] fetchSubscription failed after retries:", error);
-      setSubscription(null);
+      // On refresh/token events, keep existing subscription to prevent access loss
+      if (!isRefresh) {
+        setSubscription(null);
+      }
     }
   };
 
@@ -230,17 +240,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // to avoid missing updates during initial load.
     const {
       data: { subscription: authSubscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
+
+      // Token refresh events should not clear data on failure
+      const isRefreshEvent = event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN';
+      console.log("[Auth] onAuthStateChange", { event, hasSession: !!session, isRefreshEvent });
 
       try {
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          // Pass isRefresh=true for token refresh events to preserve data on errors
           await Promise.all([
-            fetchProfile(session.user.id),
-            fetchSubscription(session.user.id),
+            fetchProfile(session.user.id, isRefreshEvent),
+            fetchSubscription(session.user.id, isRefreshEvent),
           ]);
           if (mounted) setDataLoaded(true);
         } else {
