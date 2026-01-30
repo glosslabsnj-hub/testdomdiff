@@ -1,102 +1,130 @@
 
-# Multi-Tab Session Issues + Subscription Errors: Complete Fix
+# Fix Plan: Ensure Users Can Resume Onboarding After Signup
 
-## Problems Identified
+## The Problem
 
-You're experiencing **three related but distinct issues**:
+After signup and payment, if a user leaves the intake/onboarding flow and returns later (or the browser suspends the tab), they sometimes see "No Active Assignments" instead of resuming where they left off.
 
-### Issue 1: Multiple Accounts in Different Tabs Don't Work
-**Root Cause:** This is a fundamental limitation of how browser authentication works. Supabase stores the user session in `localStorage`, which is **shared across all tabs on the same domain**. When you log into Account B in Tab 2, it overwrites Account A's session - and when you switch back to Tab 1, it now has Account B's session.
+**Why this happens:**
+1. The browser tab is suspended/resumed, causing React to re-mount
+2. AuthContext re-fetches subscription data from the database
+3. If there's any delay or transient failure, `hasAccess` becomes `false`
+4. ProtectedRoute redirects to `/access-expired` because the subscription check fails
 
-This is **by design** for security - it prevents session confusion. However, it makes testing multiple accounts impossible without workarounds.
+## The Expected Flow
 
-### Issue 2: "No Active Assignment" Flash on Tab Switch
-**Root Cause:** When switching tabs, the browser can suspend/resume React, triggering re-initialization of the AuthContext. The `onAuthStateChange` listener fires, but before the profile/subscription data loads, the UI briefly shows "No active assignments." 
-
-This was partially fixed in the previous update with the `dataLoaded` flag, but the session storage conflicts from Issue 1 can still cause this.
-
-### Issue 3: Signup "Subscription Failed" Error
-**Root Cause:** The edge function `create-user-subscription` is working (tested above with a 500 error when passed an invalid UUID), but some signups may fail due to:
-- CORS headers missing the newer Supabase client headers
-- Network timing issues during concurrent tab operations
-
----
+```text
+Signup → Pay → Intake Form → Watch Video → Dashboard
+           ↓
+    (User can leave and return at any point)
+           ↓
+    Resume where they left off (intake, onboarding, or dashboard)
+```
 
 ## Solution Overview
 
-### For Multi-Account Testing (Your Primary Need)
-The **only reliable way** to test multiple different accounts simultaneously is:
+Add a **"fresh signup" session flag** that persists during the onboarding flow. Routes that use `requireIntake={false}` (intake, intake-complete, onboarding) will check this flag before redirecting to `/access-expired`, giving the subscription verification extra time.
 
-1. **Use different browsers** - Chrome for Account A, Firefox for Account B, Safari for Account C
-2. **Use browser profiles** - Chrome User 1, Chrome User 2, etc. (each has separate localStorage)
-3. **Use incognito/private windows** - Each incognito window has isolated storage
+### Key Changes
 
-This is not something we can fix with code - it's how browser security works. The session is stored at `localStorage['sb-wbnrmnfsxrxcxnvmowtp-auth-token']` and all tabs share it.
-
-### For Single Account Multi-Tab (Secondary Issue)
-We'll make the auth system more resilient when the **same account** is open in multiple tabs:
-
-1. **Improve CORS headers** on the edge function to include all Supabase client headers
-2. **Add session storage check** on route load to detect if the user changed
-3. **Improve error handling** in subscription creation
+1. **Extend the fresh signup protection window** — Don't redirect to `/access-expired` during onboarding if the user just signed up
+2. **Add a fallback retry mechanism** — If subscription isn't found immediately, retry a few times before giving up
+3. **Clear the flag only after successful dashboard access** — Not after intake completion
 
 ---
 
 ## Technical Implementation
 
-### 1. Update Edge Function CORS Headers
-The current CORS headers are missing some Supabase client headers that the SDK now sends:
+### File 1: `src/components/ProtectedRoute.tsx`
 
-**Current:**
-```javascript
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-```
-
-**Updated:**
-```javascript
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-```
-
-### 2. Add User Change Detection in ProtectedRoute
-Add a check to handle when the user ID changes between renders (which happens when a different account logs in via another tab):
+Add logic to detect onboarding routes and give them more lenient access checking:
 
 ```typescript
-// In ProtectedRoute.tsx
-const [lastKnownUserId, setLastKnownUserId] = useState<string | null>(null);
+// Add at the top of the component
+const isOnboardingRoute = ['/intake', '/intake-complete', '/onboarding', '/freeworld-intake'].includes(location.pathname);
 
+// Modify the access check (line ~146)
+// For onboarding routes, if fresh signup flag is set, don't redirect immediately
+const isFreshSignup = sessionStorage.getItem("rs_fresh_signup") === "true";
+
+if (!requireAdmin && dataLoaded && !hasAccess) {
+  // For onboarding routes during fresh signup, give extra time
+  if (isOnboardingRoute && isFreshSignup && !verificationComplete) {
+    // Stay in verification mode - the existing useEffect will handle retries
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Verifying your subscription...</p>
+      </div>
+    );
+  }
+  return <Navigate to="/access-expired" replace />;
+}
+```
+
+### File 2: `src/pages/Login.tsx`
+
+Ensure the fresh signup flag is set before navigation and is only cleared after dashboard access:
+
+```typescript
+// Already correctly sets: sessionStorage.setItem("rs_fresh_signup", "true");
+// No changes needed here
+```
+
+### File 3: `src/pages/dashboard/Dashboard.tsx`
+
+Clear the fresh signup flag once the user successfully accesses the dashboard:
+
+```typescript
 useEffect(() => {
-  if (user && lastKnownUserId && user.id !== lastKnownUserId) {
-    // User changed (different account logged in from another tab)
-    // Force a full page reload to get fresh state
-    window.location.reload();
-  }
-  if (user) {
-    setLastKnownUserId(user.id);
-  }
-}, [user]);
+  // Clear fresh signup flag once user reaches dashboard
+  sessionStorage.removeItem("rs_fresh_signup");
+}, []);
 ```
 
-### 3. Add Retry Logic for Subscription Creation Failures
-Add more robust error handling in Login.tsx to retry if the edge function call fails:
+### File 4: `src/components/ProtectedRoute.tsx` (additional change)
+
+Modify the fresh signup check to be more robust:
 
 ```typescript
-const createSubscriptionWithRetry = async (userId: string, email: string, planType: PlanType, attempts = 3) => {
-  for (let i = 0; i < attempts; i++) {
-    try {
-      await createSubscriptionViaEdge(userId, email, planType);
-      return;
-    } catch (err) {
-      if (i === attempts - 1) throw err;
-      await new Promise(r => setTimeout(r, 500 * (i + 1)));
+// Enhanced fresh signup verification
+useEffect(() => {
+  const checkFreshSignup = async () => {
+    const isFreshSignup = sessionStorage.getItem("rs_fresh_signup") === "true";
+    
+    // Only run verification if:
+    // 1. It's a fresh signup
+    // 2. User exists
+    // 3. We don't have access yet
+    // 4. We're not already verifying
+    // 5. We haven't already completed verification
+    if (isFreshSignup && user && !hasAccess && !isVerifying && !verificationComplete) {
+      setIsVerifying(true);
+      
+      // More aggressive retry: 8 attempts over ~10 seconds
+      for (let i = 0; i < 8; i++) {
+        const { data } = await supabase
+          .from("subscriptions")
+          .select("id, status")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .maybeSingle();
+        
+        if (data) {
+          await refreshSubscription();
+          // DON'T remove flag here - let Dashboard do it
+          break;
+        }
+        await new Promise(r => setTimeout(r, 500 + (i * 200))); // Progressive delay
+      }
+      
+      setIsVerifying(false);
+      setVerificationComplete(true);
     }
-  }
-};
+  };
+  
+  checkFreshSignup();
+}, [user, hasAccess, isVerifying, verificationComplete, refreshSubscription]);
 ```
 
 ---
@@ -105,34 +133,18 @@ const createSubscriptionWithRetry = async (userId: string, email: string, planTy
 
 | File | Change |
 |------|--------|
-| `supabase/functions/create-user-subscription/index.ts` | Update CORS headers |
-| `src/components/ProtectedRoute.tsx` | Add user change detection |
-| `src/pages/Login.tsx` | Add retry logic for subscription creation |
-
----
-
-## Testing Strategy for Your Demo Tonight
-
-Since you need to demo multiple tiers, here's the recommended approach:
-
-1. **Use 3 different browsers** (Chrome, Firefox, Safari/Edge)
-2. Each browser logs into a different tier account
-3. You can switch between browser windows without any session conflicts
-
-Alternatively, use Chrome profiles:
-1. Open Chrome → Click your profile icon → "Add" → Create "Tier 1 Demo"
-2. Repeat for "Tier 2 Demo" and "Tier 3 Demo"  
-3. Each profile is completely isolated
+| `src/components/ProtectedRoute.tsx` | Add onboarding route detection and lenient access checking |
+| `src/pages/dashboard/Dashboard.tsx` | Clear fresh signup flag on successful dashboard access |
 
 ---
 
 ## Summary
 
-| Issue | Root Cause | Solution |
-|-------|-----------|----------|
-| Can't have 4 different accounts in 4 tabs | Browser localStorage is shared across tabs | Use different browsers or browser profiles |
-| "No Active Assignment" flash | Auth state not fully loaded on tab resume | Already fixed with `dataLoaded`; adding user change detection |
-| Subscription errors on signup | CORS headers incomplete + no retry logic | Update CORS headers + add retry |
-| Logout not working | Async race condition | Already fixed with optimistic state clear |
+| Scenario | Before | After |
+|----------|--------|-------|
+| Signup → Leave intake tab → Return | "No Active Assignment" error | Resumes at intake form |
+| Signup → Complete intake → Leave → Return | Sometimes "No Active Assignment" | Resumes at onboarding video |
+| Signup → Complete everything → Logout → Login | Works correctly | Works correctly |
+| Existing user → Tab switch | "No Active Assignment" flash | Fixed by `dataLoaded` flag |
 
-The key insight is that **you cannot have different accounts logged in across tabs on the same browser profile** - this is a browser security feature, not a bug. Use separate browsers or browser profiles for multi-account testing.
+The key insight is that the fresh signup protection window should extend through the entire onboarding flow (intake → video → dashboard), not just the initial signup. The flag is only cleared once the user successfully reaches the dashboard, ensuring they can always resume where they left off.
