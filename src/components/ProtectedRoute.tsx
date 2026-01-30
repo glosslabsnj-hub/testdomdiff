@@ -144,12 +144,13 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Admin check - block non-admins from admin routes BEFORE any data loads
+  // Admin check - block non-admins from admin routes
   if (requireAdmin && !isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // No valid subscription (only check for non-admin routes, and only after data has loaded)
+  // IMPORTANT: Admin routes skip subscription check entirely - admins always have access
+  // Only check subscription for non-admin routes
   if (!requireAdmin && dataLoaded && !hasAccess) {
     // For onboarding routes during fresh signup, give extra time before redirecting
     if (isOnboardingRoute && isFreshSignup && !verificationComplete) {
