@@ -19,6 +19,10 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   const [adminCheckComplete, setAdminCheckComplete] = useState(!requireAdmin);
   const [lastKnownUserId, setLastKnownUserId] = useState<string | null>(null);
 
+  // Check if this is an onboarding route (intake, onboarding, etc.)
+  const isOnboardingRoute = ['/intake', '/intake-complete', '/onboarding', '/freeworld-intake'].includes(location.pathname);
+  const isFreshSignup = sessionStorage.getItem("rs_fresh_signup") === "true";
+
   // Detect if user changed (e.g., different account logged in from another tab)
   useEffect(() => {
     if (user && lastKnownUserId && user.id !== lastKnownUserId) {
@@ -69,13 +73,17 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   // Check if this is a fresh signup that needs subscription verification
   useEffect(() => {
     const checkFreshSignup = async () => {
-      const isFreshSignup = sessionStorage.getItem("rs_fresh_signup") === "true";
-      
-      if (isFreshSignup && user && !hasAccess && !isVerifying) {
+      // Only run verification if:
+      // 1. It's a fresh signup
+      // 2. User exists
+      // 3. We don't have access yet
+      // 4. We're not already verifying
+      // 5. We haven't already completed verification
+      if (isFreshSignup && user && !hasAccess && !isVerifying && !verificationComplete) {
         setIsVerifying(true);
         
-        // Try to verify subscription with retries
-        for (let i = 0; i < 5; i++) {
+        // More aggressive retry: 8 attempts over ~10 seconds with progressive delay
+        for (let i = 0; i < 8; i++) {
           const { data } = await supabase
             .from("subscriptions")
             .select("id, status")
@@ -85,20 +93,19 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
           
           if (data) {
             await refreshSubscription();
-            sessionStorage.removeItem("rs_fresh_signup");
+            // DON'T remove flag here - let Dashboard do it
             break;
           }
-          await new Promise(r => setTimeout(r, 400));
+          await new Promise(r => setTimeout(r, 500 + (i * 200))); // Progressive delay: 500ms, 700ms, 900ms...
         }
         
         setIsVerifying(false);
         setVerificationComplete(true);
-        sessionStorage.removeItem("rs_fresh_signup");
       }
     };
     
     checkFreshSignup();
-  }, [user, hasAccess, isVerifying, refreshSubscription]);
+  }, [user, hasAccess, isVerifying, verificationComplete, refreshSubscription, isFreshSignup]);
 
   // Debug logging - only in development
   if (import.meta.env.DEV) {
@@ -144,6 +151,15 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
 
   // No valid subscription (only check for non-admin routes, and only after data has loaded)
   if (!requireAdmin && dataLoaded && !hasAccess) {
+    // For onboarding routes during fresh signup, give extra time before redirecting
+    if (isOnboardingRoute && isFreshSignup && !verificationComplete) {
+      return (
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Verifying your subscription...</p>
+        </div>
+      );
+    }
     return <Navigate to="/access-expired" replace />;
   }
 
