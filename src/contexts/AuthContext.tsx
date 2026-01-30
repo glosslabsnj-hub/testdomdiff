@@ -78,11 +78,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     ]);
   };
 
-  // Retry helper with exponential backoff
+  // Retry helper with exponential backoff - reduced for faster response
   const withRetry = async <T,>(
     fn: () => Promise<T>,
-    maxAttempts: number = 3,
-    baseDelayMs: number = 1000,
+    maxAttempts: number = 2,
+    baseDelayMs: number = 500,
     label: string
   ): Promise<T> => {
     let lastError: Error | null = null;
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         lastError = error as Error;
         console.warn(`[Auth] ${label} attempt ${attempt}/${maxAttempts} failed:`, error);
         if (attempt < maxAttempts) {
-          const delay = baseDelayMs * Math.pow(2, attempt - 1);
+          const delay = baseDelayMs * attempt; // Linear backoff: 500ms, 1000ms
           await new Promise(resolve => window.setTimeout(resolve, delay));
         }
       }
@@ -108,11 +108,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data, error } = await withRetry(
         () => withTimeout<any>(
           supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
-          15000,
+          5000, // Reduced from 15s to 5s
           "fetchProfile"
         ),
-        3,
-        1000,
+        2, // Reduced from 3 to 2 attempts
+        500,
         "fetchProfile"
       );
 
@@ -151,11 +151,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle(),
-          15000,
+          5000, // Reduced from 15s to 5s
           "fetchSubscription"
         ),
-        3,
-        1000,
+        2, // Reduced from 3 to 2 attempts
+        500,
         "fetchSubscription"
       );
 
@@ -299,10 +299,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     })();
 
     // Safety net: never spin forever if something upstream hangs unexpectedly.
-    // Increased from 12s to 20s to accommodate 3 retry attempts with 15s timeout each
+    // Reduced to 8s to match 2 retry attempts with 5s timeout each
     const timeout = window.setTimeout(() => {
       safeSetLoading(false);
-    }, 20000);
+    }, 8000);
 
     return () => {
       mounted = false;
