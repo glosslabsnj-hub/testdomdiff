@@ -149,6 +149,11 @@ const Dashboard = () => {
   })();
 
 
+  // Clear fresh signup flag once user successfully reaches dashboard
+  useEffect(() => {
+    sessionStorage.removeItem("rs_fresh_signup");
+  }, []);
+
   // Show welcome banner for new users (within 7 days of intake)
   useEffect(() => {
     if (profile?.intake_completed_at) {
