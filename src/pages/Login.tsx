@@ -9,7 +9,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { TRANSFORMATION_DURATION_DAYS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 type PlanType = "membership" | "transformation" | "coaching";
@@ -77,24 +76,25 @@ const Login = () => {
   // Get the selected plan info for display
   const selectedPlanInfo = planOptions.find(p => p.value === selectedPlan) || planOptions[1];
 
-  const createDevSubscription = async (userId: string, planType: PlanType) => {
-    const now = new Date();
-    const expiresAt = planType === "transformation" 
-      ? new Date(now.getTime() + TRANSFORMATION_DURATION_DAYS * 24 * 60 * 60 * 1000)
-      : null;
-
-    const { error } = await supabase.from("subscriptions").insert({
-      user_id: userId,
-      plan_type: planType,
-      status: "active",
-      started_at: now.toISOString(),
-      expires_at: expiresAt?.toISOString() || null,
+  const createSubscriptionViaEdge = async (userId: string, email: string, planType: PlanType) => {
+    console.log("Creating subscription via edge function for user:", userId);
+    
+    const { data, error } = await supabase.functions.invoke("create-user-subscription", {
+      body: { userId, email, planType }
     });
 
     if (error) {
-      console.error("Error creating dev subscription:", error);
-      throw error;
+      console.error("Edge function error:", error);
+      throw new Error(error.message || "Failed to create subscription");
     }
+
+    if (data?.error) {
+      console.error("Subscription creation error:", data.error);
+      throw new Error(data.error);
+    }
+
+    console.log("Subscription created successfully:", data);
+    return data;
   };
 
   // Verify subscription exists and is readable before navigation
@@ -151,8 +151,8 @@ const Login = () => {
 
       if (newUserId) {
         try {
-          // Create dev subscription
-          await createDevSubscription(newUserId, selectedPlan);
+          // Create subscription via edge function (bypasses RLS race condition)
+          await createSubscriptionViaEdge(newUserId, safeEmail, selectedPlan);
           
           // Verify subscription is readable before proceeding
           const verified = await verifySubscription(newUserId);

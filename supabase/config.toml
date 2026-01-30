@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.generate-content-ideas]
 verify_jwt = false
+
+[functions.create-user-subscription]
+verify_jwt = false
