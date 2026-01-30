@@ -97,6 +97,19 @@ const Login = () => {
     return data;
   };
 
+  // Retry wrapper for subscription creation with exponential backoff
+  const createSubscriptionWithRetry = async (userId: string, email: string, planType: PlanType, attempts = 3) => {
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await createSubscriptionViaEdge(userId, email, planType);
+      } catch (err) {
+        console.log(`Subscription creation attempt ${i + 1} failed:`, err);
+        if (i === attempts - 1) throw err;
+        await new Promise(r => setTimeout(r, 500 * (i + 1))); // 500ms, 1000ms, 1500ms
+      }
+    }
+  };
+
   // Verify subscription exists and is readable before navigation
   const verifySubscription = async (userId: string, maxAttempts = 5): Promise<boolean> => {
     for (let i = 0; i < maxAttempts; i++) {
@@ -152,7 +165,7 @@ const Login = () => {
       if (newUserId) {
         try {
           // Create subscription via edge function (bypasses RLS race condition)
-          await createSubscriptionViaEdge(newUserId, safeEmail, selectedPlan);
+          await createSubscriptionWithRetry(newUserId, safeEmail, selectedPlan);
           
           // Verify subscription is readable before proceeding
           const verified = await verifySubscription(newUserId);

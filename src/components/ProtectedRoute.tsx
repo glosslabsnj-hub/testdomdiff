@@ -17,6 +17,19 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   const [verificationComplete, setVerificationComplete] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [adminCheckComplete, setAdminCheckComplete] = useState(!requireAdmin);
+  const [lastKnownUserId, setLastKnownUserId] = useState<string | null>(null);
+
+  // Detect if user changed (e.g., different account logged in from another tab)
+  useEffect(() => {
+    if (user && lastKnownUserId && user.id !== lastKnownUserId) {
+      // User changed - force full page reload to get fresh state
+      console.log("User changed from", lastKnownUserId, "to", user.id, "- reloading");
+      window.location.reload();
+    }
+    if (user) {
+      setLastKnownUserId(user.id);
+    }
+  }, [user, lastKnownUserId]);
 
   // Check admin role if required
   useEffect(() => {
