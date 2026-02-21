@@ -85,9 +85,13 @@ const JobSearchTools = () => {
   // Load saved applications
   useEffect(() => {
     if (user?.id) {
-      const saved = localStorage.getItem(`job_applications_${user.id}`);
-      if (saved) {
-        setApplications(JSON.parse(saved));
+      try {
+        const saved = localStorage.getItem(`job_applications_${user.id}`);
+        if (saved) {
+          setApplications(JSON.parse(saved));
+        }
+      } catch {
+        localStorage.removeItem(`job_applications_${user.id}`);
       }
     }
   }, [user?.id]);

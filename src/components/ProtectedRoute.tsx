@@ -1,7 +1,8 @@
 import { ReactNode, useState, useEffect } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { verifySubscription } from "@/lib/verifySubscription";
 import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
@@ -17,6 +18,7 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   const [verificationComplete, setVerificationComplete] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [adminCheckComplete, setAdminCheckComplete] = useState(!requireAdmin);
+  const navigate = useNavigate();
   const [lastKnownUserId, setLastKnownUserId] = useState<string | null>(null);
 
   // Check if this is an onboarding route (intake, onboarding, etc.)
@@ -26,14 +28,13 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   // Detect if user changed (e.g., different account logged in from another tab)
   useEffect(() => {
     if (user && lastKnownUserId && user.id !== lastKnownUserId) {
-      // User changed - force full page reload to get fresh state
-      console.log("User changed from", lastKnownUserId, "to", user.id, "- reloading");
-      window.location.reload();
+      navigate("/login", { replace: true });
+      return;
     }
     if (user) {
       setLastKnownUserId(user.id);
     }
-  }, [user, lastKnownUserId]);
+  }, [user, lastKnownUserId, navigate]);
 
   // Check admin role if required
   useEffect(() => {
@@ -81,24 +82,12 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
       // 5. We haven't already completed verification
       if (isFreshSignup && user && !hasAccess && !isVerifying && !verificationComplete) {
         setIsVerifying(true);
-        
-        // More aggressive retry: 8 attempts over ~10 seconds with progressive delay
-        for (let i = 0; i < 8; i++) {
-          const { data } = await supabase
-            .from("subscriptions")
-            .select("id, status")
-            .eq("user_id", user.id)
-            .eq("status", "active")
-            .maybeSingle();
-          
-          if (data) {
-            await refreshSubscription();
-            // DON'T remove flag here - let Dashboard do it
-            break;
-          }
-          await new Promise(r => setTimeout(r, 500 + (i * 200))); // Progressive delay: 500ms, 700ms, 900ms...
+
+        const verified = await verifySubscription(user.id, 8, 500);
+        if (verified) {
+          await refreshSubscription();
         }
-        
+
         setIsVerifying(false);
         setVerificationComplete(true);
       }
@@ -170,7 +159,8 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   }
 
   // Check if onboarding video is completed (for dashboard routes, not admin)
-  if (requireIntake && !requireAdmin && !profile?.first_login_video_watched) {
+  // Only redirect if profile has loaded (profile !== null) to avoid race condition
+  if (requireIntake && !requireAdmin && profile && !profile.first_login_video_watched) {
     return <Navigate to="/onboarding" replace />;
   }
 

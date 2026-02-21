@@ -31,33 +31,39 @@ interface ConversionParams {
 let pixelCache: { metaId?: string; ga4Id?: string; tiktokId?: string; loaded: boolean } = {
   loaded: false,
 };
+let pixelLoadPromise: Promise<typeof pixelCache> | null = null;
 
 async function loadPixelIds() {
   if (pixelCache.loaded) return pixelCache;
-  
-  try {
-    const { data } = await supabase
-      .from("site_settings")
-      .select("key, value")
-      .in("key", ["meta_pixel_id", "ga4_measurement_id", "tiktok_pixel_id"]);
-    
-    if (data) {
-      data.forEach((setting) => {
-        if (setting.key === "meta_pixel_id" && setting.value) {
-          pixelCache.metaId = setting.value;
-        } else if (setting.key === "ga4_measurement_id" && setting.value) {
-          pixelCache.ga4Id = setting.value;
-        } else if (setting.key === "tiktok_pixel_id" && setting.value) {
-          pixelCache.tiktokId = setting.value;
-        }
-      });
+  if (pixelLoadPromise) return pixelLoadPromise;
+
+  pixelLoadPromise = (async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .in("key", ["meta_pixel_id", "ga4_measurement_id", "tiktok_pixel_id"]);
+
+      if (data) {
+        data.forEach((setting) => {
+          if (setting.key === "meta_pixel_id" && setting.value) {
+            pixelCache.metaId = setting.value;
+          } else if (setting.key === "ga4_measurement_id" && setting.value) {
+            pixelCache.ga4Id = setting.value;
+          } else if (setting.key === "tiktok_pixel_id" && setting.value) {
+            pixelCache.tiktokId = setting.value;
+          }
+        });
+      }
+      pixelCache.loaded = true;
+    } catch (error) {
+      console.error("[Analytics] Failed to load pixel IDs:", error);
     }
-    pixelCache.loaded = true;
-  } catch (error) {
-    console.error("[Analytics] Failed to load pixel IDs:", error);
-  }
-  
-  return pixelCache;
+    pixelLoadPromise = null;
+    return pixelCache;
+  })();
+
+  return pixelLoadPromise;
 }
 
 // Initialize pixels with IDs from database

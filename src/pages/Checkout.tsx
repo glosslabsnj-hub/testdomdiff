@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { TRANSFORMATION_DURATION_DAYS } from "@/lib/constants";
+import { verifySubscription } from "@/lib/verifySubscription";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 
 type PlanType = "membership" | "transformation" | "coaching";
@@ -73,22 +74,6 @@ const Checkout = () => {
     if (error) throw error;
   };
 
-  // Verify subscription exists and is readable before navigation
-  const verifySubscription = async (userId: string, maxAttempts = 5): Promise<boolean> => {
-    for (let i = 0; i < maxAttempts; i++) {
-      const { data } = await supabase
-        .from("subscriptions")
-        .select("id, status")
-        .eq("user_id", userId)
-        .eq("status", "active")
-        .maybeSingle();
-      
-      if (data) return true;
-      await new Promise(r => setTimeout(r, 300));
-    }
-    return false;
-  };
-
   const handleCheckout = async () => {
     setIsProcessing(true);
     try {
@@ -98,6 +83,7 @@ const Checkout = () => {
 
       // If not logged in, start at account creation
       if (!user) {
+        setIsProcessing(false);
         navigate(`/login?mode=signup&plan=${plan}`);
         return;
       }

@@ -18,10 +18,26 @@ import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
 import { useAdminCheckIns } from "@/hooks/useAdminCheckIns";
 
 export default function AnalyticsHub() {
-  const [timeRange, setTimeRange] = useState("30d");
+  const [timeRange, setTimeRange] = useState("all");
   const { analytics: clientAnalytics, loading: clientsLoading } = useClientAnalytics({});
   const { analytics: leadAnalytics, isLoading: leadsLoading } = useChatLeadAnalytics();
   const { checkIns } = useAdminCheckIns();
+
+  // Filter check-ins by time range
+  const getDateCutoff = () => {
+    const now = new Date();
+    switch (timeRange) {
+      case "7d": return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      case "30d": return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      case "90d": return new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      default: return null;
+    }
+  };
+
+  const dateCutoff = getDateCutoff();
+  const filteredCheckIns = dateCutoff
+    ? checkIns.filter(c => new Date(c.created_at) >= dateCutoff)
+    : checkIns;
 
   // Calculate metrics
   const totalClients = clientAnalytics?.totalClients || 0;
@@ -36,9 +52,9 @@ export default function AnalyticsHub() {
   const tier2Conversion = totalTiered > 0 ? Math.round(((tier2Count + tier3Count) / totalTiered) * 100) : 0;
   const tier3Conversion = totalTiered > 0 ? Math.round((tier3Count / totalTiered) * 100) : 0;
 
-  // Check-in rate
-  const totalCheckIns = checkIns.length;
-  const reviewedCheckIns = checkIns.filter(c => c.coach_reviewed_at).length;
+  // Check-in rate (filtered by time range)
+  const totalCheckIns = filteredCheckIns.length;
+  const reviewedCheckIns = filteredCheckIns.filter(c => c.coach_reviewed_at).length;
   const checkInReviewRate = totalCheckIns > 0 ? Math.round((reviewedCheckIns / totalCheckIns) * 100) : 0;
 
   // Lead conversion

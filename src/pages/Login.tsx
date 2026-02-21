@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { verifySubscription } from "@/lib/verifySubscription";
 
 type PlanType = "membership" | "transformation" | "coaching";
 
@@ -110,22 +111,6 @@ const Login = () => {
     }
   };
 
-  // Verify subscription exists and is readable before navigation
-  const verifySubscription = async (userId: string, maxAttempts = 5): Promise<boolean> => {
-    for (let i = 0; i < maxAttempts; i++) {
-      const { data } = await supabase
-        .from("subscriptions")
-        .select("id, status")
-        .eq("user_id", userId)
-        .eq("status", "active")
-        .maybeSingle();
-      
-      if (data) return true;
-      await new Promise(r => setTimeout(r, 300)); // Wait 300ms between attempts
-    }
-    return false;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError("");
@@ -191,6 +176,8 @@ const Login = () => {
             description: "Account created but subscription failed. Please contact support.",
             variant: "destructive",
           });
+          setIsLoading(false);
+          return;
         }
       } else {
         toast({
@@ -321,6 +308,7 @@ const Login = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -352,6 +340,7 @@ const Login = () => {
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>

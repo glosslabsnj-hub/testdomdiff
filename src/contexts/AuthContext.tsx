@@ -44,7 +44,7 @@ interface AuthContextType {
   hasAccess: boolean;
   daysRemaining: number | null;
   dataLoaded: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null; data: any }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null; data: { user: User | null; session: Session | null } }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshSubscription: () => Promise<void>;
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchProfile = async (userId: string, isRefresh = false) => {
-    console.log("[Auth] fetchProfile start", userId, { isRefresh });
+    if (import.meta.env.DEV) console.log("[Auth] fetchProfile start", userId, { isRefresh });
 
     try {
       const { data, error } = await withRetry(
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         "fetchProfile"
       );
 
-      console.log("[Auth] fetchProfile done", { hasData: !!data, error: error ?? null });
+      if (import.meta.env.DEV) console.log("[Auth] fetchProfile done", { hasData: !!data, error: error ?? null });
 
       if (error) {
         console.error("[Auth] Profile fetch error:", error);
@@ -138,7 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const fetchSubscription = async (userId: string, isRefresh = false) => {
-    console.log("[Auth] fetchSubscription start", userId, { isRefresh });
+    if (import.meta.env.DEV) console.log("[Auth] fetchSubscription start", userId, { isRefresh });
 
     try {
       const { data, error } = await withRetry(
@@ -159,12 +159,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         "fetchSubscription"
       );
 
-      console.log("[Auth] fetchSubscription done", {
-        hasData: !!data,
-        status: (data as any)?.status,
-        plan: (data as any)?.plan_type,
-        error: error ?? null,
-      });
+      if (import.meta.env.DEV) {
+        console.log("[Auth] fetchSubscription done", {
+          hasData: !!data,
+          status: data?.status,
+          plan: data?.plan_type,
+          error: error ?? null,
+        });
+      }
 
       if (!error && data) {
         setSubscription(data as Subscription);
@@ -245,7 +247,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Token refresh events should not clear data on failure
       const isRefreshEvent = event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN';
-      console.log("[Auth] onAuthStateChange", { event, hasSession: !!session, isRefreshEvent });
+      if (import.meta.env.DEV) console.log("[Auth] onAuthStateChange", { event, hasSession: !!session, isRefreshEvent });
 
       try {
         setSession(session);

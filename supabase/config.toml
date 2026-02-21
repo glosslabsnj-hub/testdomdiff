@@ -1,28 +1,62 @@
 project_id = "wbnrmnfsxrxcxnvmowtp"
 
-[functions.populate-program-templates]
-verify_jwt = false
-
-[functions.warden-tts]
-verify_jwt = false
+# === PUBLIC FUNCTIONS (no auth required) ===
 
 [functions.email-subscribe]
 verify_jwt = false
 
-[functions.generate-onboarding-script]
-verify_jwt = false
-
-[functions.generate-onboarding-audio]
-verify_jwt = false
-
-[functions.tier-onboarding-generate]
-verify_jwt = false
-
-[functions.update-to-dom-style]
-verify_jwt = false
-
-[functions.generate-content-ideas]
+[functions.sales-chat]
 verify_jwt = false
 
 [functions.create-user-subscription]
-verify_jwt = false
+verify_jwt = true
+
+# === AUTHENTICATED FUNCTIONS (require valid JWT) ===
+
+[functions.create-admin-user]
+verify_jwt = true
+
+[functions.daily-devotional]
+verify_jwt = true
+
+[functions.generate-content-ideas]
+verify_jwt = true
+
+[functions.generate-onboarding-audio]
+verify_jwt = true
+
+[functions.generate-onboarding-script]
+verify_jwt = true
+
+[functions.populate-meal-plans]
+verify_jwt = true
+
+[functions.populate-program-templates]
+verify_jwt = true
+
+[functions.populate-workouts]
+verify_jwt = true
+
+[functions.seed-fake-users]
+verify_jwt = true
+
+[functions.send-notifications]
+verify_jwt = true
+
+[functions.sermon-tts]
+verify_jwt = true
+
+[functions.tier-onboarding-generate]
+verify_jwt = true
+
+[functions.update-to-dom-style]
+verify_jwt = true
+
+[functions.warden-brief]
+verify_jwt = true
+
+[functions.warden-chat]
+verify_jwt = true
+
+[functions.warden-tts]
+verify_jwt = true

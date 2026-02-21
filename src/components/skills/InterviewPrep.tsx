@@ -153,10 +153,15 @@ const InterviewPrep = () => {
   // Load saved data
   useState(() => {
     if (user?.id) {
-      const savedAnswers = localStorage.getItem(`interview_answers_${user.id}`);
-      const savedCompleted = localStorage.getItem(`interview_completed_${user.id}`);
-      if (savedAnswers) setPracticeAnswers(JSON.parse(savedAnswers));
-      if (savedCompleted) setCompletedQuestions(JSON.parse(savedCompleted));
+      try {
+        const savedAnswers = localStorage.getItem(`interview_answers_${user.id}`);
+        const savedCompleted = localStorage.getItem(`interview_completed_${user.id}`);
+        if (savedAnswers) setPracticeAnswers(JSON.parse(savedAnswers));
+        if (savedCompleted) setCompletedQuestions(JSON.parse(savedCompleted));
+      } catch {
+        localStorage.removeItem(`interview_answers_${user.id}`);
+        localStorage.removeItem(`interview_completed_${user.id}`);
+      }
     }
   });
 

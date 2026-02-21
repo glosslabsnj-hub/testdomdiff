@@ -58,14 +58,20 @@ export function parseWeight(weightStr: string): number {
  */
 export function calculateDailyCalories(input: CalorieCalculationInput): CalorieCalculationResult {
   const { weightLbs, heightFeet, heightInches, age, goal } = input;
-  
+
+  // Clamp inputs to sane ranges to prevent garbage output
+  const safeWeight = Math.max(50, Math.min(weightLbs, 500));
+  const safeFeet = Math.max(3, Math.min(heightFeet, 8));
+  const safeInches = Math.max(0, Math.min(heightInches, 11));
+  const safeAge = Math.max(13, Math.min(age, 120));
+
   // Convert to metric
-  const weightKg = weightLbs * 0.453592;
-  const heightCm = (heightFeet * 12 + heightInches) * 2.54;
+  const weightKg = safeWeight * 0.453592;
+  const heightCm = (safeFeet * 12 + safeInches) * 2.54;
   
   // Mifflin-St Jeor equation for men
   // BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) + 5
-  const bmr = Math.round(10 * weightKg + 6.25 * heightCm - 5 * age + 5);
+  const bmr = Math.round(10 * weightKg + 6.25 * heightCm - 5 * safeAge + 5);
   
   // TDEE with moderate activity multiplier (1.55) for training program
   const tdee = Math.round(bmr * 1.55);
@@ -92,7 +98,7 @@ export function calculateDailyCalories(input: CalorieCalculationInput): CalorieC
   
   // Calculate macros
   // Protein: 1g per lb of bodyweight (adjusted by goal)
-  const protein = Math.round(weightLbs * proteinMultiplier);
+  const protein = Math.round(safeWeight * proteinMultiplier);
   // Fat: 25% of calories
   const fats = Math.round((targetCalories * 0.25) / 9);
   // Carbs: remaining calories

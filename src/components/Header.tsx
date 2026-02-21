@@ -1,16 +1,47 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Cross, Shield, Package, LogOut } from "lucide-react";
+import { Menu, X, Cross, Shield, Package, LogOut, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import CartButton from "@/components/shop/CartButton";
+
+const PromoBanner = () => {
+  const [dismissed, setDismissed] = useState(() =>
+    sessionStorage.getItem("promo_banner_dismissed") === "true"
+  );
+
+  if (dismissed) return null;
+
+  return (
+    <div className="bg-primary/10 border-b border-primary/20 text-center py-1.5 px-4 relative">
+      <p className="text-xs sm:text-sm font-medium text-primary">
+        <Flame className="w-3 h-3 inline-block mr-1 -mt-0.5" />
+        Free World 1:1 Coaching — limited to 10 clients.{" "}
+        <Link to="/checkout?plan=coaching" className="underline underline-offset-2 font-bold hover:text-foreground transition-colors">
+          Claim your spot
+        </Link>
+      </p>
+      <button
+        onClick={() => {
+          setDismissed(true);
+          sessionStorage.setItem("promo_banner_dismissed", "true");
+        }}
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary p-1"
+        aria-label="Dismiss banner"
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+};
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdminCheck();
+  const isDashboard = location.pathname.startsWith("/dashboard") || location.pathname.startsWith("/admin");
 
   const handleLogout = async () => {
     await signOut();
@@ -30,6 +61,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+      {!isDashboard && !user && <PromoBanner />}
       <div className="section-container">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}

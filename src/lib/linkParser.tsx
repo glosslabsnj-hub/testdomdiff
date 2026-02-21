@@ -1,5 +1,15 @@
 import { Link } from "react-router-dom";
 
+function isSafeUrl(url: string): boolean {
+  if (url.startsWith('/')) return true;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Parses markdown links [text](url) and HTML links <a href="url">text</a>
  * into proper React Router Links for internal URLs or anchor tags for external.
@@ -23,9 +33,10 @@ export function parseLinks(text: string): (string | JSX.Element)[] {
     }
 
     const [, linkText, href] = match;
-    const isInternal = href.startsWith('/');
 
-    if (isInternal) {
+    if (!isSafeUrl(href)) {
+      parts.push(linkText);
+    } else if (href.startsWith('/')) {
       parts.push(
         <Link
           key={match.index}
@@ -83,7 +94,10 @@ export function parseLinksWithButtons(
     }
 
     const [, label, href] = match;
-    if (href.startsWith("/")) {
+
+    if (!isSafeUrl(href)) {
+      parts.push(label);
+    } else if (href.startsWith("/")) {
       parts.push(
         <Link
           key={match.index}

@@ -33,7 +33,7 @@ import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
 import { DashboardPullToRefresh } from "@/components/DashboardPullToRefresh";
 
-import { TodayFocusCard } from "@/components/dashboard/TodayFocusCard";
+import { RollCallToday } from "@/components/dashboard/RollCallToday";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
 import {
   Tooltip,
@@ -441,6 +441,9 @@ const Dashboard = () => {
 
         {/* Compact Welcome Card - replaces verbose welcome banner */}
         <DashboardWelcomeCard userName={profile?.first_name || undefined} />
+
+        {/* Daily Mission Card - prioritized next-step guidance */}
+        <RollCallToday />
 
         {/* Simple Warden Tip */}
         <WardenTip 

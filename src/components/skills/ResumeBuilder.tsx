@@ -89,9 +89,13 @@ const ResumeBuilder = () => {
   // Load saved resume from localStorage
   useEffect(() => {
     if (user?.id) {
-      const saved = localStorage.getItem(`resume_${user.id}`);
-      if (saved) {
-        setResume(JSON.parse(saved));
+      try {
+        const saved = localStorage.getItem(`resume_${user.id}`);
+        if (saved) {
+          setResume(JSON.parse(saved));
+        }
+      } catch {
+        localStorage.removeItem(`resume_${user.id}`);
       }
     }
   }, [user?.id]);

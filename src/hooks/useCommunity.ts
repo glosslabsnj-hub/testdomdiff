@@ -195,6 +195,7 @@ export function useCommunityMessages(channelId: string | null) {
       .subscribe();
 
     return () => {
+      channel.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [channelId]);

@@ -36,11 +36,13 @@ export default function PaymentsHub() {
   const transformationCount = analytics?.clientsByPlan.transformation || 0;
   const coachingCount = analytics?.clientsByPlan.coaching || 0;
 
+  // Recurring revenue (membership + coaching are monthly)
   const membershipMRR = membershipCount * TIER_PRICES.membership;
-  const transformationMRR = (transformationCount * TIER_PRICES.transformation) / 3; // Spread over 3 months
   const coachingMRR = coachingCount * TIER_PRICES.coaching;
+  const totalMRR = membershipMRR + coachingMRR;
 
-  const totalMRR = membershipMRR + transformationMRR + coachingMRR;
+  // One-time revenue from transformation (not recurring — counted separately)
+  const transformationTotal = transformationCount * TIER_PRICES.transformation;
 
   // Recent orders as transactions
   const recentOrders = orders?.slice(0, 10) || [];
@@ -114,15 +116,19 @@ export default function PaymentsHub() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-primary">Gen Pop ({transformationCount})</span>
-                  <span className="font-medium">${transformationMRR.toFixed(0)}/mo spread</span>
+                  <span className="font-medium">${transformationTotal.toFixed(0)} total (one-time)</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-purple-400">Free World ({coachingCount})</span>
                   <span className="font-medium">${coachingMRR.toFixed(2)}/mo</span>
                 </div>
-                <div className="border-t border-border pt-2 mt-2">
+                <div className="border-t border-border pt-2 mt-2 space-y-1">
                   <div className="flex justify-between text-sm font-medium">
-                    <span>Annual Projection</span>
+                    <span>Recurring MRR</span>
+                    <span className="text-green-400">${totalMRR.toLocaleString()}/mo</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-medium">
+                    <span>Annual Projection (recurring)</span>
                     <span className="text-green-400">${(totalMRR * 12).toLocaleString()}</span>
                   </div>
                 </div>

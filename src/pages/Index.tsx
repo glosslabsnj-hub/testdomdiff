@@ -145,10 +145,24 @@ const Index = () => {
             <p className="text-base md:text-lg text-primary/80 italic mb-4 animate-fade-in delay-100 max-w-2xl mx-auto">
               "I can do all things through Christ who strengthens me." — Philippians 4:13
             </p>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl animate-slide-up opacity-0 delay-200 mx-[35px]">
-              Men-only. Faith-first. Prison-proof discipline meets divine purpose. 
-              Transform your body. Renew your mind. Redeem your life.
+            <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-2xl animate-slide-up opacity-0 delay-200 mx-[35px]">
+              12 weeks. Bodyweight-only. Zero excuses. Transform your body,
+              anchor your faith, and build discipline that lasts a lifetime.
             </p>
+            <div className="flex items-center justify-center gap-6 mb-10 animate-slide-up opacity-0 delay-250">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Cross className="w-4 h-4 text-primary" />
+                <span>Faith-led training</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Flame className="w-4 h-4 text-primary" />
+                <span>No equipment needed</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+                <Trophy className="w-4 h-4 text-primary" />
+                <span>Proven results</span>
+              </div>
+            </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up opacity-0 delay-300">
             <Button variant="hero" size="hero" asChild className="glow-gold animate-glow-pulse">
                 <Link to="/checkout?plan=transformation">
@@ -295,6 +309,17 @@ const Index = () => {
                   <Link to={program.href}>{program.cta}</Link>
                 </Button>
               </div>)}
+          </div>
+
+          {/* Guarantee */}
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-charcoal border border-border rounded-lg">
+              <Check className="w-5 h-5 text-primary flex-shrink-0" />
+              <p className="text-sm text-muted-foreground">
+                <span className="text-foreground font-semibold">No-Risk Guarantee.</span>{" "}
+                If you put in the work and don't see results in 30 days, we'll make it right. Period.
+              </p>
+            </div>
           </div>
         </div>
       </section>
