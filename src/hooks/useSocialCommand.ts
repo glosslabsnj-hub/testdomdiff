@@ -39,9 +39,16 @@ export function useSocialCommand() {
         .limit(1)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        // Table doesn't exist yet - treat as no config
+        if (error.code === 'PGRST205' || error.code === '42P01') {
+          return null;
+        }
+        throw error;
+      }
       return data as SocialCommandConfig | null;
     },
+    retry: false,
   });
 
   const upsertConfig = useMutation({
