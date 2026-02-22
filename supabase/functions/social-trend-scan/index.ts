@@ -1,4 +1,5 @@
 // Social Trend Scanner — Claude-powered trend analysis per platform
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BRAND_VOICE_SYSTEM_PROMPT, CORS_HEADERS } from "../_shared/brand-voice.ts";
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
@@ -6,6 +7,18 @@ const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+  const supabaseAuth = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const { error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
+  if (authError) {
+    return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
   }
 
   try {

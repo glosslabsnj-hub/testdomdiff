@@ -1,4 +1,5 @@
 // Social Profile Audit — Claude-powered profile analysis per platform
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { BRAND_VOICE_SYSTEM_PROMPT, CORS_HEADERS } from "../_shared/brand-voice.ts";
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
@@ -8,8 +9,19 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: CORS_HEADERS });
   }
 
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+  const supabaseAuth = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const { error: authError } = await supabaseAuth.auth.getUser(authHeader.replace("Bearer ", ""));
+  if (authError) {
+    return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
+  }
+
   try {
-    const { platform, current_bio, has_highlights, has_pinned_post, has_link_in_bio, handle, extra_context } = await req.json();
 
     if (!ANTHROPIC_API_KEY) {
       throw new Error("ANTHROPIC_API_KEY not configured");
