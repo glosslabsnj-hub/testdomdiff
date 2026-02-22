@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://domdifferent.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
@@ -38,7 +38,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       "BASIC RATIONS - Simple nutrition: Fixed meal templates for bulking, cutting, or maintenance. Nothing fancy - just fuel.",
       "ASK THE WARDEN - Your AI guide: That gold shield button is your only lifeline. Questions, motivation, guidance - tap it anytime.",
       "⛔ LOCKED: The Chapel (faith lessons) - You gotta earn this. Upgrade to Gen Pop.",
-      "⛔ LOCKED: The Yard (community) - No brotherhood access in Solitary. That's the point.",
+      "⛔ LOCKED: The Yard (community) - No community access in Solitary. That's the point.",
       "⛔ LOCKED: The Sentence (12-week program) - You don't get structure until you prove yourself.",
       "⛔ LOCKED: Chow Hall (personalized nutrition) - Basic Rations only. No swaps, no custom meals.",
       "⛔ LOCKED: Work Release (skills) - No income building access until you level up.",
@@ -91,7 +91,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       "CHOW HALL - Complete personalized nutrition: Meal plans built for YOUR goals and body. Breakfast, lunch, dinner, snacks - all with macros. MEAL SWAPS when you don't like something. No more Basic Rations.",
       "LIGHTS ON / LIGHTS OUT - Daily discipline routines: Morning structure (cold shower, prayer, movement, plan). Evening lockdown (reflection, gratitude, sleep prep). Customize times to your schedule.",
       "THE CHAPEL - Weekly faith lessons: Scripture, teaching, reflection questions. This ain't just physical - we're building your spirit too. 12 weeks of lessons that align with your training phases.",
-      "THE YARD - Community access UNLOCKED: Connect with fellow inmates. Share wins. Ask questions. Get support. Iron sharpens iron - you got brothers now.",
+      "THE YARD - Community access UNLOCKED: Connect with your people. Share wins. Ask questions. Get support. Iron sharpens iron - you got a team now.",
       "ROLL CALL - Weekly accountability check-ins: Weight, measurements, wins, struggles. Report every week. Stay accountable.",
       "TIME SERVED - Progress tracking: Photos (front, side, back) and measurements. Document Week 1 to Week 12. Watch the transformation happen.",
       "WORK RELEASE - Skills building: Resume builder, interview prep, job search tools. Prepare for life after the program.",
@@ -108,7 +108,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { step: "Open CHOW HALL", location: "Nutrition page", details: "Your personalized meal plan. Breakfast, lunch, dinner, snacks. Macros calculated for YOU.", time: "3 min" },
       { step: "Try a meal swap", location: "Nutrition page", details: "Don't like something? Tap the swap button. Trade for alternatives. You got options now.", time: "2 min" },
       { step: "Read Week 1 Chapel lesson", location: "Chapel page", details: "Faith lessons align with your training phase. Scripture, teaching, reflection. 10 minutes.", time: "5 min" },
-      { step: "Introduce yourself in The Yard", location: "Community page", details: "Post your goals. Share why you're here. Your brothers are waiting. Iron sharpens iron.", time: "3 min" },
+      { step: "Introduce yourself in The Yard", location: "Community page", details: "Post your goals. Share why you're here. Your people are waiting. Iron sharpens iron.", time: "3 min" },
       { step: "Upload Day 1 photos", location: "Progress page", details: "Front, side, back. This is your starting point. You'll compare Week 12 to this.", time: "3 min" },
       { step: "Submit first Roll Call", location: "Check-in page", details: "Weight, wins, struggles. Every week. Stay accountable.", time: "5 min" },
       { step: "Ask the Warden", location: "Floating shield button", details: "Gold shield button. Your AI guide. Questions, motivation - tap it anytime.", time: "1 min" },
@@ -118,7 +118,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { name: "Chow Hall", purpose: "Personalized nutrition with meal swaps", howTo: "Tap Nutrition tile > See today's meals > Tap meal for recipe > Swap button for alternatives" },
       { name: "Lights On / Lights Out", purpose: "Daily discipline routines", howTo: "Tap Discipline tile > Check off steps > Tap times to customize" },
       { name: "The Chapel", purpose: "Weekly faith lessons aligned to program phases", howTo: "Tap Faith tile > Read this week's lesson > Reflect and pray" },
-      { name: "The Yard", purpose: "Community - your brothers in the program", howTo: "Tap Community tile > Post, share wins, connect" },
+      { name: "The Yard", purpose: "Community - your people in the program", howTo: "Tap Community tile > Post, share wins, connect" },
       { name: "Roll Call", purpose: "Weekly accountability", howTo: "Tap Check-In tile > Submit weight, wins, struggles every week" },
       { name: "Time Served", purpose: "Progress photos and measurements", howTo: "Tap Progress tile > Upload photos > Track transformation" },
       { name: "Work Release", purpose: "Skills for after the program", howTo: "Tap Skills tile > Resume builder, interview prep" },
@@ -139,7 +139,7 @@ const TIER_CONFIGS: Record<string, TierConfig> = {
       { id: "checkin-form", screen: "checkin-form", highlight_areas: [{ x: 10, y: 10, width: 80, height: 70 }], duration: 15, zoom_level: 1.0 },
       { id: "warden-button", screen: "warden-chat", highlight_areas: [{ x: 70, y: 80, width: 25, height: 15 }], duration: 10, zoom_level: 1.0 },
     ],
-    specialFeatures: "THE YARD COMMUNITY: You got brothers now. Post your wins. Ask questions when you're struggling. Share what's working. Iron sharpens iron - this is where accountability lives. You ain't alone in Gen Pop.",
+    specialFeatures: "THE YARD COMMUNITY: You got a team now. Post your wins. Ask questions when you're struggling. Share what's working. Iron sharpens iron - this is where accountability lives. You ain't alone in Gen Pop.",
     upgradeHint: null,
     ctaText: "Open The Sentence and start Week 1, Day 1. Your 12-week transformation begins NOW.",
   },
@@ -247,7 +247,7 @@ This person is in ISOLATION - the entry-level tier. They have LIMITED access.
       ? `=== GENERAL POPULATION IDENTITY ===
 This person is in GEN POP - the FULL 12-week transformation program. They have FULL access.
 - They have UNLOCKED: The Sentence (12-week program), Chow Hall (personalized nutrition), The Chapel (faith), The Yard (community), Work Release (skills)
-- This is the CORE experience - structured progression, brotherhood, complete transformation
+- This is the CORE experience - structured progression, community, complete transformation
 - NARRATIVE: They're doing their sentence with everything they need. Full access to the yard, the chapel, the program.
 - TERMINOLOGY: "The Sentence", "Intake Processing" (NOT "Welcome Home"), "Chow Hall", "The Chapel", "The Yard", "Roll Call", "Time Served", "Work Release", "Ask the Warden"
 - IMPORTANT: The orientation tile is called "INTAKE PROCESSING" for Gen Pop - NOT "Welcome Home". Use that exact name.

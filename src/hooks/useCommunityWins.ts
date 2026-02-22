@@ -147,7 +147,7 @@ export function useCommunityWins(channelId?: string) {
 
       if (insertError) throw insertError;
 
-      toast({ title: "Win posted!", description: "Your victory is shared with the brotherhood." });
+      toast({ title: "Win posted!", description: "Your victory is shared with the community." });
       await fetchWins();
     } catch (e: any) {
       toast({

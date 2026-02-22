@@ -72,7 +72,7 @@ const AdvancedSkills = () => {
           </div>
           <p className="text-muted-foreground">
             As a Free World member, you have access to the complete business mastery curriculum.
-            This content is designed for men ready to build real empires—not just side hustles.
+            This content is designed for those ready to build real empires—not just side hustles.
             Study deeply. Apply relentlessly. Build something that lasts.
           </p>
         </div>

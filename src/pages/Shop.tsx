@@ -392,7 +392,7 @@ const Shop = () => {
               Rep the <span className="text-primary">Mission</span>
             </h2>
             <p className="text-muted-foreground mb-8">
-              Every piece of gear is designed for men who are doing the work. 
+              Every piece of gear is designed for those who are doing the work.
               Built tough. Styled with purpose. Wear your transformation.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -400,7 +400,7 @@ const Shop = () => {
                 { label: "Premium Quality", desc: "Built to last" },
                 { label: "Faith-Focused", desc: "Wear your values" },
                 { label: "Limited Drops", desc: "Stand out" },
-                { label: "Brotherhood", desc: "Rep the crew" },
+                { label: "Community", desc: "Rep the crew" },
               ].map((item, i) => (
                 <div key={i} className="p-4 bg-background rounded-lg border border-border">
                   <p className="font-display text-primary">{item.label}</p>

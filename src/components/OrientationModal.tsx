@@ -75,7 +75,7 @@ const solitarySteps: OrientationStep[] = [
     items: [
       { label: "The Sentence", description: "Upgrade to unlock the 12-week structured program" },
       { label: "Chapel", description: "Faith lessons and spiritual growth - Gen Pop only" },
-      { label: "The Yard", description: "Community with your brothers - Gen Pop only" },
+      { label: "The Yard", description: "Community with your people - Gen Pop only" },
       { label: "Chow Hall", description: "Complete meal plans with macros - Gen Pop only" },
     ],
   },
@@ -184,7 +184,7 @@ const coachingSteps: OrientationStep[] = [
   },
   {
     title: "Your Support System",
-    description: "You've got a team now. Dom and your brothers have your back.",
+    description: "You've got a team now. Dom and your community have your back.",
     icon: Users,
     items: [
       { label: "The Network", description: "Connect with others on probation" },

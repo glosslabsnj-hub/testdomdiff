@@ -68,7 +68,7 @@ export default function WinsFeed({ channelId }: WinsFeedProps) {
             <Trophy className="w-16 h-16 mx-auto text-primary/50 mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Wins Yet</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              Be the first to share your victory with the brotherhood!
+              Be the first to share your victory with the community!
             </p>
             <Button variant="goldOutline" onClick={() => setShowCreateDialog(true)}>
               Post Your First Win

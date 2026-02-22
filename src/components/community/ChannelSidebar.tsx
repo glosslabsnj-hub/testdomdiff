@@ -35,7 +35,7 @@ export default function ChannelSidebar({
     <div className="w-full h-full bg-charcoal border-r border-border overflow-y-auto">
       <div className="p-4 border-b border-border">
         <h2 className="font-display text-lg text-primary">Channels</h2>
-        <p className="text-xs text-muted-foreground">Connect with the brotherhood</p>
+        <p className="text-xs text-muted-foreground">Connect with the community</p>
       </div>
 
       <div className="p-2 space-y-4">

@@ -28,7 +28,7 @@ const About = () => {
     {
       year: "The Mission",
       title: "From Inmate to Inspiration",
-      description: "The discipline forged on the inside became the foundation for success on the outside. Now, Dom takes what he learned in the hardest classroom on earth and uses it to help other men break their own chains — physical, mental, and spiritual.",
+      description: "The discipline forged on the inside became the foundation for success on the outside. Now, Dom takes what he learned in the hardest classroom on earth and uses it to help others break their own chains — physical, mental, and spiritual.",
     },
   ];
 
@@ -46,11 +46,11 @@ const About = () => {
     {
       icon: Shield,
       title: "Accountability",
-      description: "Iron sharpens iron. We check in. We call each other out. We don't let brothers slip.",
+      description: "Iron sharpens iron. We check in. We call each other out. We don't let anyone slip.",
     },
     {
       icon: Users,
-      title: "Brotherhood",
+      title: "Community",
       description: "This isn't a solo journey. We rise together, struggle together, and celebrate together.",
     },
   ];
@@ -61,8 +61,8 @@ const About = () => {
     "Your past doesn't define you, but your decisions from today forward do",
     "Real transformation happens inside out — spirit, then body",
     "Excuses are lies we tell ourselves to stay comfortable",
-    "Brotherhood and accountability are non-negotiable",
-    "Every man has a purpose — fitness is the vehicle, not the destination",
+    "Community and accountability are non-negotiable",
+    "Every person has a purpose — fitness is the vehicle, not the destination",
   ];
 
   return (
@@ -78,11 +78,11 @@ const About = () => {
             <p className="text-primary uppercase tracking-widest mb-4 font-semibold">About Dom Different</p>
             <h1 className="headline-hero mb-6">
               From <span className="text-primary">Locked Up</span><br />
-              to Locking In Other Men
+              to Locking Others In
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              This isn't just a fitness brand. It's a redemption story. A movement born in a prison cell, 
-              forged through faith, and now dedicated to helping men break free from whatever holds them back.
+              This isn't just a fitness brand. It's a redemption story. A movement born in a prison cell,
+              forged through faith, and now dedicated to helping people break free from whatever holds them back.
             </p>
           </div>
         </div>
@@ -192,7 +192,7 @@ const About = () => {
                   </div>
                   <h4 className="font-bold text-foreground mb-2">Grew Personally</h4>
                   <p className="text-sm text-muted-foreground">
-                    Every book, every mentor, every moment of reflection became fuel for becoming a new man.
+                    Every book, every mentor, every moment of reflection became fuel for becoming a new person.
                   </p>
                 </div>
               </div>
@@ -240,11 +240,11 @@ const About = () => {
             </h2>
             <div className="divider-gold mb-8" />
             <p className="text-xl text-muted-foreground mb-4 leading-relaxed">
-              To take the same discipline that was forged behind bars and use it to set other men free.
+              To take the same discipline that was forged behind bars and use it to set others free.
             </p>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
               Free from excuses. Free from weakness. Free from the chains of their past. 
-              We don't just build muscle — <span className="text-primary font-semibold">we build men of God.</span>
+              We don't just build muscle — <span className="text-primary font-semibold">we build people of God.</span>
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <div className="flex items-center gap-2 px-4 py-2 bg-charcoal rounded-full border border-border">

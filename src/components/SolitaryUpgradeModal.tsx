@@ -35,7 +35,7 @@ const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: 
     {
       icon: Users,
       title: "The Yard Access",
-      description: "Connect with your brothers in the community",
+      description: "Connect with your people in the community",
     },
   ];
 

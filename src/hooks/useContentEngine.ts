@@ -2,16 +2,26 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export type ContentCategory = 
-  | "faith" 
-  | "discipline" 
-  | "training" 
-  | "transformations" 
-  | "authority" 
-  | "platform";
+export type ContentCategory =
+  | "faith"
+  | "discipline"
+  | "training"
+  | "transformations"
+  | "authority"
+  | "platform"
+  | "story"
+  | "culture";
 
 export type ContentMode = "done_for_you" | "freestyle";
 export type ContentStatus = "fresh" | "used" | "favorite";
+
+export type ContentStrategyType =
+  | "hot_take"
+  | "trending"
+  | "story"
+  | "value"
+  | "engagement"
+  | "promo";
 
 export interface ContentPost {
   id: string;
@@ -28,6 +38,9 @@ export interface ContentPost {
   created_at: string;
   used_at: string | null;
   updated_at: string;
+  strategy_type?: ContentStrategyType | null;
+  hashtags?: string[] | null;
+  why_it_works?: string | null;
 }
 
 export interface ContentPostInput {
@@ -40,6 +53,9 @@ export interface ContentPostInput {
   talking_points: string[];
   filming_tips?: string;
   cta?: string;
+  strategy_type?: ContentStrategyType;
+  hashtags?: string[];
+  why_it_works?: string;
 }
 
 interface UseContentEngineFilters {
@@ -110,7 +126,7 @@ export function useContentEngine(filters: UseContentEngineFilters = {}) {
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: ContentStatus }) => {
       const updateData: { status: ContentStatus; used_at?: string | null } = { status };
-      
+
       if (status === "used") {
         updateData.used_at = new Date().toISOString();
       } else if (status === "fresh") {
@@ -169,10 +185,11 @@ export function useContentEngine(filters: UseContentEngineFilters = {}) {
 export function useContentGenerator() {
   const generateContent = async (
     category: ContentCategory | "surprise",
-    mode: ContentMode
+    mode: ContentMode,
+    strategy_type: ContentStrategyType | "surprise" = "surprise"
   ): Promise<ContentPostInput[]> => {
     const { data, error } = await supabase.functions.invoke("generate-content-ideas", {
-      body: { category, mode },
+      body: { category, mode, strategy_type },
     });
 
     if (error) {

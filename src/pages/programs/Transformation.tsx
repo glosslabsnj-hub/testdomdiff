@@ -107,7 +107,7 @@ const Transformation = () => {
     {
       icon: Trophy,
       title: "Community Access",
-      description: "Connect with your brothers in The Yard. Iron sharpens iron.",
+      description: "Connect with your community in The Yard. Iron sharpens iron.",
     },
   ];
 
@@ -308,7 +308,7 @@ const Transformation = () => {
             12 Weeks in <span className="text-primary">Gen Pop</span>
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            You've earned your place. Time to build with the brotherhood.
+            You've earned your place. Time to build with the community.
           </p>
           <Button variant="hero" size="hero" asChild>
             <Link to="/checkout?plan=transformation">Join Gen Pop — $379.99</Link>

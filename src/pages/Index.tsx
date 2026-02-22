@@ -23,7 +23,7 @@ const Index = () => {
     });
   }, []);
   
-  const targetAudience = ["You're done making excuses and ready to be held accountable", "You want your faith to be the foundation — not an afterthought", "You need structure that works anywhere, anytime, with minimal equipment", "You're tired of inconsistency and ready for daily discipline", "You want to be part of a brotherhood, not just another gym bro"];
+  const targetAudience = ["You're done making excuses and ready to be held accountable", "You want your faith to be the foundation — not an afterthought", "You need structure that works anywhere, anytime, with minimal equipment", "You're tired of inconsistency and ready for daily discipline", "You want to be part of a community that holds you to a higher standard"];
   const howItWorks = [{
     step: "01",
     title: "Booking",
@@ -79,7 +79,7 @@ const Index = () => {
   }, {
     name: "David M.",
     transformation: "Complete lifestyle change",
-    quote: "I came for the body. I stayed for the brotherhood. This is different."
+    quote: "I came for the body. I stayed for the community. This is different."
   }];
   const whatIncluded = [
     { item: "Bodyweight workout templates for any environment", tier: "All" },
@@ -109,7 +109,7 @@ const Index = () => {
     answer: "Yes. Cancel anytime. But if you quit, you're only cheating yourself. We don't do refunds on lack of discipline."
   }, {
     question: "What makes this different from other programs?",
-    answer: "Faith is the foundation, not an add-on. Prison-style discipline means no excuses. Templates mean you own your journey. And brotherhood means you're never alone."
+    answer: "Faith is the foundation, not an add-on. Prison-style discipline means no excuses. Templates mean you own your journey. And community means you're never alone."
   }];
   return <div className="min-h-screen bg-background">
       <Header />
@@ -135,7 +135,7 @@ const Index = () => {
             {/* Pre-headline badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-8 animate-fade-in backdrop-blur-sm">
               <Cross className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-primary uppercase tracking-wider">Men Only • Faith First</span>
+              <span className="text-sm font-semibold text-primary uppercase tracking-wider">Faith First • Discipline Always</span>
             </div>
 
             <h1 className="headline-hero mb-6 animate-fade-in">
@@ -188,12 +188,12 @@ const Index = () => {
         </div>
       </section>
 
-      {/* This Is For Men Who Section */}
+      {/* This Is For Those Who Section */}
       <section className="py-20 md:py-32 bg-charcoal section-ambient">
         <div className="section-container relative z-10">
           <div className="text-center mb-12">
             <h2 className="headline-section mb-4">
-              This Is For Men Who<span className="text-primary">...</span>
+              This Is For Those Who<span className="text-primary">...</span>
             </h2>
             <div className="divider-gold" />
           </div>
@@ -239,7 +239,7 @@ const Index = () => {
                 </div>
                 <div className="border-l-4 border-primary pl-4 bg-charcoal/50 py-3 pr-3 rounded-r-lg">
                   <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">The Mission</p>
-                  <p>Now helping men break their own chains. Same prison-proof discipline. Same faith-first approach. Different results for every man who commits.</p>
+                  <p>Now helping others break their own chains. Same prison-proof discipline. Same faith-first approach. Different results for everyone who commits.</p>
                 </div>
               </div>
               <Button variant="goldOutline" size="lg" className="mt-8" asChild>
@@ -332,7 +332,7 @@ const Index = () => {
         <div className="section-container relative z-10">
           <div className="text-center mb-16">
             <h2 className="headline-section mb-4">
-              Real Men. <span className="text-primary">Real Results.</span>
+              Real People. <span className="text-primary">Real Results.</span>
             </h2>
             <div className="divider-gold" />
           </div>

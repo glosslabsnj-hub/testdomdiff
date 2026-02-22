@@ -52,7 +52,7 @@ const prisonTooltips: Record<string, string> = {
   "Roll Call": "Submit your weekly check-in for accountability",
   "Time Served": "Track your transformation progress",
   "Work Release": "Build income-generating skills for life outside",
-  "The Yard": "Connect with your brothers in the community",
+  "The Yard": "Connect with your community",
   "Mugshots": "View and compare your progress photos",
 };
 
@@ -67,7 +67,7 @@ const coachingTooltips: Record<string, string> = {
   "Weekly Report": "Report to your P.O. for accountability",
   "Progress Report": "Track your transformation journey",
   "Career Building": "Build legitimate income streams",
-  "The Network": "Connect with your brotherhood",
+  "The Network": "Connect with your community",
   "Photo Gallery": "View and compare your progress photos",
 };
 
@@ -76,7 +76,7 @@ const lockedBenefits: Record<string, string> = {
   "The Sentence (12-Week Program)": "Unlock structured 12-week progression",
   "Chapel (Faith & Mindset)": "Unlock weekly scripture & mindset training",
   "Work Release (Skill-Building)": "Unlock money-making hustle skills",
-  "The Yard (Community)": "Connect with your brothers on this journey",
+  "The Yard (Community)": "Connect with your community on this journey",
 };
 
 // Week-specific greeting messages for inmates

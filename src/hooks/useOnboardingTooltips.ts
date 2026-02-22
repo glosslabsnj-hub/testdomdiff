@@ -78,7 +78,7 @@ const GEN_POP_TOOLTIPS: Record<string, TooltipConfig> = {
   community: {
     id: "community",
     title: "The Yard",
-    description: "Connect with your brothers. Share wins, ask questions, and hold each other accountable.",
+    description: "Connect with your community. Share wins, ask questions, and hold each other accountable.",
   },
 };
 

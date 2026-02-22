@@ -141,7 +141,7 @@ export function CancelSubscriptionDialog({ trigger }: CancelSubscriptionDialogPr
                 Help us improve
               </AlertDialogTitle>
               <AlertDialogDescription className="text-muted-foreground">
-                Before you go, please tell us why you're leaving. Your feedback helps us serve our brothers better.
+                Before you go, please tell us why you're leaving. Your feedback helps us serve our community better.
               </AlertDialogDescription>
             </AlertDialogHeader>
             

@@ -48,7 +48,7 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-muted-foreground max-w-md mb-6">
-              Faith-based transformation coaching for men. Prison-proof discipline
+              Faith-based transformation coaching. Prison-proof discipline
               meets God-led identity change. Built different.
             </p>
 

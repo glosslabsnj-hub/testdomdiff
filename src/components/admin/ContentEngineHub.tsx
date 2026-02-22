@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Flame, Sparkles, Library, Loader2 } from "lucide-react";
+import { Flame, Sparkles, Library, Loader2, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -16,6 +16,8 @@ const categories: { value: ContentCategory | "all"; label: string; short: string
   { value: "transformations", label: "Transformations", short: "Trans" },
   { value: "authority", label: "Authority", short: "Auth" },
   { value: "platform", label: "Platform", short: "Plat" },
+  { value: "story", label: "Story", short: "Story" },
+  { value: "culture", label: "Culture", short: "Cult" },
 ];
 
 const statusFilters: { value: ContentStatus | "all"; label: string }[] = [
@@ -56,10 +58,10 @@ export default function ContentEngineHub() {
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Flame className="h-5 w-5 text-orange-400" />
-            Content Engine
+            Content Strategy Engine
           </h2>
           <p className="text-sm text-muted-foreground">
-            Your daily content playbook. Generate ideas, save scripts, track what you've posted.
+            Your social media command center. Strategy-driven content that grows the brand — not just promotes it.
           </p>
         </div>
 
@@ -72,6 +74,14 @@ export default function ContentEngineHub() {
             Generate Ideas
           </Button>
         </div>
+      </div>
+
+      {/* Strategy Reminder */}
+      <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+        <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-muted-foreground">
+          <span className="text-primary font-medium">Content Strategy:</span> Mix Hot Takes, Value Drops, Stories, Trending Formats, and Engagement Bait. Keep promos under 20%. Consistency + variety = growth.
+        </p>
       </div>
 
       {/* Filters - Mobile Optimized */}

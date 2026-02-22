@@ -103,9 +103,9 @@ const Coaching = () => {
       icon: Users,
       items: [
         "Priority community access",
-        "Brotherhood accountability",
+        "Community accountability",
         "Progress celebration",
-        "Lifetime brotherhood connection",
+        "Lifetime community connection",
       ],
     },
   ];
@@ -155,7 +155,7 @@ const Coaching = () => {
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
                 You've done the time. Now live free. Direct access to Dom, custom programming, 
-                and maximum accountability for men ready to thrive on the outside.
+                and maximum accountability for those ready to thrive on the outside.
               </p>
               <div className="flex items-baseline gap-2 mb-4">
                 <span className="text-5xl font-display text-primary">$999.99</span>
@@ -229,7 +229,7 @@ const Coaching = () => {
         <div className="section-container">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="headline-section mb-6">
-              This Is For Men Who<span className="text-primary">...</span>
+              This Is For Those Who<span className="text-primary">...</span>
             </h2>
             <div className="divider-gold mb-8" />
             <div className="space-y-4 text-left">

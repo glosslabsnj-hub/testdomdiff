@@ -67,7 +67,7 @@ const GEN_POP_CHECKLIST = [
     category: "Block Integration",
     timeEstimate: "15 min",
     items: [
-      { id: "genpop-7", label: "Introduce yourself in The Yard community", href: "/dashboard/community", description: "Share your goals with your brothers" },
+      { id: "genpop-7", label: "Introduce yourself in The Yard community", href: "/dashboard/community", description: "Share your goals with the community" },
       { id: "genpop-8", label: "Upload your starting photos in Progress", href: "/dashboard/progress", description: "Front, side, and back photos for comparison later" },
       { id: "genpop-9", label: "Read Week 1 faith lesson in Chapel", href: "/dashboard/faith", description: "Start building your spiritual foundation" },
     ],

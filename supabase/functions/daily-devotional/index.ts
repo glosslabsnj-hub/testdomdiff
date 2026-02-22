@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://domdifferent.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
@@ -9,10 +9,10 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-const systemPrompt = `You are a faith-focused guide creating daily devotionals for men going through a 12-week transformation program. Your devotionals tie scripture to their specific journey—their struggles, their victories, their current phase.
+const systemPrompt = `You are a faith-focused guide creating daily devotionals for people going through a 12-week transformation program. Your devotionals tie scripture to their specific journey—their struggles, their victories, their current phase.
 
 YOUR VOICE:
-- Direct and masculine—no flowery language
+- Direct and powerful—no flowery language
 - Faith is real and practical, not performative
 - Speak to the warrior inside them
 - Keep it short and impactful

@@ -37,7 +37,7 @@ const MerchShowcase = () => {
             Locked In <span className="text-primary">Essentials</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Rep the Dom Different brand. Premium apparel designed for men who refuse to be average.
+            Rep the Dom Different brand. Premium apparel designed for those who refuse to be average.
           </p>
         </div>
 
