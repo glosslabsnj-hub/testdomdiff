@@ -27,7 +27,7 @@ export function useTrendScanner(platform?: string) {
   const { data: scans = [], isLoading } = useQuery({
     queryKey: ["social-trend-scans", platform],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from("social_trend_scans")
         .select("*")
         .gt("expires_at", new Date().toISOString())
@@ -58,7 +58,7 @@ export function useTrendScanner(platform?: string) {
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24);
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_trend_scans")
         .insert({
           platform: targetPlatform,
@@ -77,7 +77,7 @@ export function useTrendScanner(platform?: string) {
       queryClient.invalidateQueries({ queryKey: ["social-trend-scans"] });
       toast.success("Trend scan complete!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to scan trends");
       console.error(error);
     },

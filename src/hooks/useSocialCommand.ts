@@ -33,7 +33,7 @@ export function useSocialCommand() {
   const { data: config, isLoading, error } = useQuery({
     queryKey: ["social-command-config"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_command_config")
         .select("*")
         .limit(1)
@@ -47,7 +47,7 @@ export function useSocialCommand() {
   const upsertConfig = useMutation({
     mutationFn: async (input: SocialCommandConfigInput) => {
       if (config?.id) {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("social_command_config")
           .update(input)
           .eq("id", config.id)
@@ -56,7 +56,7 @@ export function useSocialCommand() {
         if (error) throw error;
         return data;
       } else {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("social_command_config")
           .insert(input)
           .select()
@@ -68,7 +68,7 @@ export function useSocialCommand() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["social-command-config"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to save configuration");
       console.error("Upsert config error:", error);
     },
