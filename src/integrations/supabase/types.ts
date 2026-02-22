@@ -2670,6 +2670,107 @@ export type Database = {
         }
         Relationships: []
       }
+      social_content_calendar: {
+        Row: {
+          content_post_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          platform: string
+          scheduled_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          content_post_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          platform: string
+          scheduled_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          content_post_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          platform?: string
+          scheduled_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_content_calendar_content_post_id_fkey"
+            columns: ["content_post_id"]
+            isOneToOne: false
+            referencedRelation: "content_engine_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_profile_audits: {
+        Row: {
+          audit_data: Json
+          completed_items: string[]
+          created_at: string
+          id: string
+          platform: string
+          recommendations: Json
+          score: number
+          updated_at: string
+        }
+        Insert: {
+          audit_data?: Json
+          completed_items?: string[]
+          created_at?: string
+          id?: string
+          platform: string
+          recommendations?: Json
+          score?: number
+          updated_at?: string
+        }
+        Update: {
+          audit_data?: Json
+          completed_items?: string[]
+          created_at?: string
+          id?: string
+          platform?: string
+          recommendations?: Json
+          score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_trend_scans: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          platform: string
+          scanned_at: string
+          trends: Json
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          platform: string
+          scanned_at?: string
+          trends?: Json
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          platform?: string
+          scanned_at?: string
+          trends?: Json
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancelled_at: string | null
