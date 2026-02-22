@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Lock, CreditCard } from "lucide-react";
+import { Lock, CreditCard, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { TRANSFORMATION_DURATION_DAYS } from "@/lib/constants";
-import { verifySubscription } from "@/lib/verifySubscription";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 
 type PlanType = "membership" | "transformation" | "coaching";
@@ -57,56 +55,33 @@ const Checkout = () => {
     trackCheckoutStart(selectedPlan.name, priceValue);
   }, [plan, selectedPlan]);
 
-  const createDevSubscription = async (userId: string, planType: PlanType) => {
-    const now = new Date();
-    const expiresAt = planType === "transformation"
-      ? new Date(now.getTime() + TRANSFORMATION_DURATION_DAYS * 24 * 60 * 60 * 1000)
-      : null;
-
-    const { error } = await supabase.from("subscriptions").insert({
-      user_id: userId,
-      plan_type: planType,
-      status: "active",
-      started_at: now.toISOString(),
-      expires_at: expiresAt?.toISOString() || null,
-    });
-
-    if (error) throw error;
-  };
-
   const handleCheckout = async () => {
     setIsProcessing(true);
     try {
-      // Stripe integration placeholder
-      // In production, this would redirect to Stripe Checkout
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // If not logged in, start at account creation
+      // If not logged in, redirect to signup first
       if (!user) {
         setIsProcessing(false);
         navigate(`/login?mode=signup&plan=${plan}`);
         return;
       }
 
-      // Dev mode: create subscription for existing logged-in user
-      await createDevSubscription(user.id, plan);
-      
-      // Verify subscription is readable before proceeding
-      const verified = await verifySubscription(user.id);
-      if (!verified) {
-        throw new Error("Subscription verification timed out");
-      }
-      
-      // Mark fresh signup for ProtectedRoute safety net
-      sessionStorage.setItem("rs_fresh_signup", "true");
-      
-      await refreshSubscription();
+      // Call Stripe checkout edge function
+      const { data, error } = await supabase.functions.invoke("stripe-create-checkout", {
+        body: {
+          planType: plan,
+          userId: user.id,
+          email: user.email,
+        },
+      });
 
-      // Keep your required flow: intake must be completed after purchase
-      if (!profile?.intake_completed_at) {
-        navigate("/intake", { replace: true });
+      if (error) throw new Error(error.message || "Failed to create checkout session");
+      if (data?.error) throw new Error(data.error);
+
+      // Redirect to Stripe-hosted checkout
+      if (data?.url) {
+        window.location.href = data.url;
       } else {
-        navigate("/dashboard", { replace: true });
+        throw new Error("No checkout URL returned");
       }
     } catch (err: any) {
       toast({
@@ -114,7 +89,6 @@ const Checkout = () => {
         description: err?.message || "Unable to complete checkout. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -179,25 +153,19 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Stripe Checkout Placeholder */}
-            <div className="bg-charcoal p-8 rounded-lg border border-border mb-8">
-              <div className="flex items-center gap-2 mb-6">
+            {/* Secure Payment Notice */}
+            <div className="bg-charcoal p-6 rounded-lg border border-border mb-8">
+              <div className="flex items-center gap-2 mb-3">
                 <CreditCard className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">Payment Information</h3>
+                <h3 className="font-semibold">Secure Payment</h3>
               </div>
-              
-              {/* Placeholder for Stripe Elements */}
-              <div className="space-y-4">
-                <div className="p-4 bg-background rounded border border-border text-center text-muted-foreground">
-                  <Lock className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm">Stripe Payment Integration</p>
-                  <p className="text-xs mt-1">Secure payment processing will be configured here</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 mt-6 text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-3">
+                You'll be redirected to Stripe's secure checkout to complete your payment.
+                Your payment information is never stored on our servers.
+              </p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Lock className="w-4 h-4" />
-                <span>Secure checkout powered by Stripe</span>
+                <span>256-bit SSL encryption powered by Stripe</span>
               </div>
             </div>
 
@@ -210,7 +178,14 @@ const Checkout = () => {
                 onClick={handleCheckout}
                 disabled={isProcessing}
               >
-                {isProcessing ? "Processing..." : `Pay ${selectedPlan.price}`}
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Redirecting to Stripe...
+                  </>
+                ) : (
+                  `Pay ${selectedPlan.price}`
+                )}
               </Button>
             </div>
             
@@ -254,7 +229,14 @@ const Checkout = () => {
           onClick={handleCheckout}
           disabled={isProcessing}
         >
-          {isProcessing ? "Processing..." : `Pay ${selectedPlan.price}`}
+          {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Redirecting to Stripe...
+                  </>
+                ) : (
+                  `Pay ${selectedPlan.price}`
+                )}
         </Button>
       </StickyMobileFooter>
     </div>

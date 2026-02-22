@@ -11,6 +11,7 @@ import Membership from "@/pages/programs/Membership";
 import Transformation from "@/pages/programs/Transformation";
 import Coaching from "@/pages/programs/Coaching";
 import Checkout from "@/pages/Checkout";
+import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import Intake from "@/pages/Intake";
 import IntakeComplete from "@/pages/IntakeComplete";
 import Onboarding from "@/pages/Onboarding";
@@ -74,6 +75,7 @@ export function AnimatedRoutes() {
         <Route path="/programs/transformation" element={<PageTransition><Transformation /></PageTransition>} />
         <Route path="/programs/coaching" element={<PageTransition><Coaching /></PageTransition>} />
         <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
+        <Route path="/checkout/success" element={<PageTransition><CheckoutSuccess /></PageTransition>} />
         <Route path="/book-call" element={<PageTransition><BookCall /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />

@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   Moon,
   Lock,
-  Info
+  Info,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import jailSounds from "@/lib/sounds";
 import { fireVictoryConfetti, fireTaskConfetti } from "@/lib/confetti";
+import { usePersonalizedWorkout, type PersonalizedExercise } from "@/hooks/usePersonalizedWorkout";
 
 interface ProgramDayWorkout {
   id: string;
@@ -254,12 +256,48 @@ const Program = () => {
   };
 
   const WorkoutCard = ({ workout, weekNumber }: { workout: ProgramDayWorkout; weekNumber: number }) => {
-    const exercises = exercisesByDay[workout.id] || [];
+    const baseExercises = exercisesByDay[workout.id] || [];
     const isOpen = expandedWorkouts.has(workout.id);
     const isCompleted = isDayCompleted(workout.id);
     const [completing, setCompleting] = useState(false);
     const [showStamp, setShowStamp] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
+
+    // AI Personalization (only fetches when card is expanded, only for non-membership users)
+    const shouldPersonalize = isOpen && !isMembership;
+    const {
+      isPersonalized,
+      personalizedExercises,
+      modificationNotes,
+      loading: personalizationLoading,
+    } = usePersonalizedWorkout(
+      shouldPersonalize ? weekNumber : 0,
+      shouldPersonalize ? workout.day_of_week : ""
+    );
+
+    // Build effective exercises: use personalized if available, else base
+    const exercises = useMemo(() => {
+      if (!isPersonalized || !personalizedExercises) return baseExercises;
+      // Map personalized exercises back to ProgramDayExercise shape for the UI
+      return personalizedExercises.map((pe: PersonalizedExercise, idx: number) => ({
+        id: `personalized-${workout.id}-${idx}`,
+        day_workout_id: workout.id,
+        section_type: pe.section_type,
+        exercise_name: pe.exercise_name,
+        sets: pe.sets || null,
+        reps_or_time: pe.reps_or_time || null,
+        rest: pe.rest || null,
+        notes: pe.modification_reason
+          ? `${pe.notes || ""} [Modified: ${pe.modification_reason}]`.trim()
+          : pe.notes || null,
+        demo_url: null,
+        display_order: pe.display_order,
+        scaling_options: null,
+        instructions: null,
+        form_tips: null,
+        muscles_targeted: null,
+      })) as ProgramDayExercise[];
+    }, [isPersonalized, personalizedExercises, baseExercises, workout.id]);
     
     const setIsOpen = (open: boolean) => {
       // Capture scroll position before state change
@@ -412,6 +450,22 @@ const Program = () => {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="mt-2 p-4 rounded-lg bg-background border border-border space-y-4">
+            {/* AI Personalization indicator */}
+            {isPersonalized && modificationNotes && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/10 border border-primary/30">
+                <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-medium text-primary">Personalized for you</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{modificationNotes}</p>
+                </div>
+              </div>
+            )}
+            {personalizationLoading && shouldPersonalize && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/20">
+                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                <p className="text-xs text-muted-foreground">Personalizing workout...</p>
+              </div>
+            )}
             {warmupExercises.length > 0 && (
               <div>
                 <h5 className="text-xs uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-2">

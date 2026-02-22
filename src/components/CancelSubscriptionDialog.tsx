@@ -32,27 +32,19 @@ export function CancelSubscriptionDialog({ trigger }: CancelSubscriptionDialogPr
 
   const handleCancel = async () => {
     if (!subscription) return;
-    
+
     setIsProcessing(true);
     try {
-      // In production, this would call Stripe to cancel the subscription
-      // For now, we update the database directly
-      const { error } = await supabase
-        .from("subscriptions")
-        .update({
-          status: "cancelled",
-          cancelled_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", subscription.id);
+      // Cancel via Stripe edge function (handles both Stripe API + DB update)
+      const { data, error } = await supabase.functions.invoke("stripe-cancel-subscription", {
+        body: {
+          subscriptionId: subscription.id,
+          reason: reason.trim() || undefined,
+        },
+      });
 
-      if (error) throw error;
-
-      // Log cancellation reason for analytics
-      if (reason.trim()) {
-        console.log("Cancellation reason:", reason);
-        // Could save to a cancellation_reasons table in production
-      }
+      if (error) throw new Error(error.message || "Failed to cancel subscription");
+      if (data?.error) throw new Error(data.error);
 
       await refreshSubscription();
 
@@ -68,7 +60,7 @@ export function CancelSubscriptionDialog({ trigger }: CancelSubscriptionDialogPr
       console.error("Error cancelling subscription:", error);
       toast({
         title: "Error",
-        description: "Failed to cancel subscription. Please contact support.",
+        description: error?.message || "Failed to cancel subscription. Please contact support.",
         variant: "destructive",
       });
     } finally {

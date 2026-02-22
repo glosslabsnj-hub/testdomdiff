@@ -61,7 +61,7 @@ export default function ExportScheduleDialog({
     if (events.length > 0) {
       const firstEvent = events[0];
       const completeLink = firstEvent.id 
-        ? `\n\n---\nMark Complete: https://testdomdiff.lovable.app/dashboard/discipline?complete=${firstEvent.id}&type=${routineType}\n\nRedeemed Strength - ${routineType === "morning" ? "Lights On" : "Lights Out"} Protocol`
+        ? `\n\n---\nMark Complete: ${window.location.origin}/dashboard/discipline?complete=${firstEvent.id}&type=${routineType}\n\nRedeemed Strength - ${routineType === "morning" ? "Lights On" : "Lights Out"} Protocol`
         : "";
       
       const eventWithLink: CalendarEvent = {

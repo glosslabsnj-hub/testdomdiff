@@ -56,7 +56,7 @@ const escapeICS = (text: string): string => {
 export const generateCompleteLink = (
   routineId: string,
   routineType: "morning" | "evening",
-  baseUrl: string = "https://testdomdiff.lovable.app"
+  baseUrl: string = typeof window !== "undefined" ? window.location.origin : "https://domdifferent.com"
 ): string => {
   return `${baseUrl}/dashboard/discipline?complete=${routineId}&type=${routineType}`;
 };

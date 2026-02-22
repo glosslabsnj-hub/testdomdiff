@@ -10,7 +10,6 @@ import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { verifySubscription } from "@/lib/verifySubscription";
 
 type PlanType = "membership" | "transformation" | "coaching";
 
@@ -77,40 +76,6 @@ const Login = () => {
   // Get the selected plan info for display
   const selectedPlanInfo = planOptions.find(p => p.value === selectedPlan) || planOptions[1];
 
-  const createSubscriptionViaEdge = async (userId: string, email: string, planType: PlanType) => {
-    console.log("Creating subscription via edge function for user:", userId);
-    
-    const { data, error } = await supabase.functions.invoke("create-user-subscription", {
-      body: { userId, email, planType }
-    });
-
-    if (error) {
-      console.error("Edge function error:", error);
-      throw new Error(error.message || "Failed to create subscription");
-    }
-
-    if (data?.error) {
-      console.error("Subscription creation error:", data.error);
-      throw new Error(data.error);
-    }
-
-    console.log("Subscription created successfully:", data);
-    return data;
-  };
-
-  // Retry wrapper for subscription creation with exponential backoff
-  const createSubscriptionWithRetry = async (userId: string, email: string, planType: PlanType, attempts = 3) => {
-    for (let i = 0; i < attempts; i++) {
-      try {
-        return await createSubscriptionViaEdge(userId, email, planType);
-      } catch (err) {
-        console.log(`Subscription creation attempt ${i + 1} failed:`, err);
-        if (i === attempts - 1) throw err;
-        await new Promise(r => setTimeout(r, 500 * (i + 1))); // 500ms, 1000ms, 1500ms
-      }
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError("");
@@ -146,34 +111,37 @@ const Login = () => {
       }
 
       const newUserId = data?.user?.id ?? data?.session?.user?.id;
+      const userEmail = data?.user?.email ?? safeEmail;
 
       if (newUserId) {
         try {
-          // Create subscription via edge function (bypasses RLS race condition)
-          await createSubscriptionWithRetry(newUserId, safeEmail, selectedPlan);
-          
-          // Verify subscription is readable before proceeding
-          const verified = await verifySubscription(newUserId);
-          if (!verified) {
-            throw new Error("Subscription verification timed out");
+          // Redirect to Stripe checkout for payment
+          const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke(
+            "stripe-create-checkout",
+            {
+              body: {
+                planType: selectedPlan,
+                userId: newUserId,
+                email: userEmail,
+              },
+            }
+          );
+
+          if (checkoutError) throw new Error(checkoutError.message || "Failed to create checkout");
+          if (checkoutData?.error) throw new Error(checkoutData.error);
+
+          if (checkoutData?.url) {
+            // Mark fresh signup for post-payment flow
+            sessionStorage.setItem("rs_fresh_signup", "true");
+            window.location.href = checkoutData.url;
+            return;
           }
-          
-          // Mark that we just completed signup (for ProtectedRoute safety net)
-          sessionStorage.setItem("rs_fresh_signup", "true");
-          
-          await refreshSubscription();
-          
+
+          throw new Error("No checkout URL returned");
+        } catch (err: any) {
           toast({
-            title: "Account Created!",
-            description: `Welcome! You have ${selectedPlan} access. Complete your intake to continue.`,
-          });
-          
-          // Navigate to intake
-          navigate("/intake", { replace: true });
-        } catch (err) {
-          toast({
-            title: "Subscription Error",
-            description: "Account created but subscription failed. Please contact support.",
+            title: "Checkout Error",
+            description: err?.message || "Account created but checkout failed. Please try again from the checkout page.",
             variant: "destructive",
           });
           setIsLoading(false);

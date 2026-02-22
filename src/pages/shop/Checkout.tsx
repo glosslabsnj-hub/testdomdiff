@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import product images for cart display
 import hoodieImage from "@/assets/products/hoodie.jpg";
@@ -79,25 +80,48 @@ const ShopCheckout = () => {
 
     setIsProcessing(true);
 
-    // Simulate payment processing (Stripe will be integrated here)
     try {
-      // TODO: Integrate Stripe checkout
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Build cart items for Stripe checkout
+      const cartItems = items.map((item) => ({
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        size: item.size,
+        image_url: item.product.image_url,
+      }));
 
-      toast({
-        title: "Order placed!",
-        description: "Thank you for your purchase. You'll receive a confirmation email shortly.",
+      const { data, error } = await supabase.functions.invoke("stripe-create-merch-checkout", {
+        body: {
+          items: cartItems,
+          email: formData.email,
+          shipping: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            country: formData.country,
+          },
+        },
       });
 
-      clearCart();
-      navigate("/shop/confirmation");
+      if (error) throw new Error(error.message || "Failed to create checkout session");
+      if (data?.error) throw new Error(data.error);
+
+      // Redirect to Stripe-hosted checkout
+      if (data?.url) {
+        clearCart();
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
     } catch (err: any) {
       toast({
         title: "Payment failed",
         description: err.message || "Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -217,7 +241,7 @@ const ShopCheckout = () => {
               </div>
             </div>
 
-            {/* Payment Placeholder */}
+            {/* Secure Payment Notice */}
             <div className="bg-card p-6 rounded-lg border border-primary/30">
               <h2 className="headline-card mb-4 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-primary" />
@@ -225,7 +249,7 @@ const ShopCheckout = () => {
               </h2>
               <div className="bg-charcoal p-4 rounded border border-border">
                 <p className="text-sm text-muted-foreground text-center">
-                  Stripe payment integration will be enabled here
+                  You'll be redirected to Stripe's secure checkout to complete payment.
                 </p>
               </div>
             </div>
@@ -240,7 +264,7 @@ const ShopCheckout = () => {
               {isProcessing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  Processing...
+                  Redirecting to Stripe...
                 </>
               ) : (
                 `Complete Order - $${total.toFixed(2)}`
