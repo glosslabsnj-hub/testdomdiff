@@ -121,8 +121,8 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
 
     let suggestions;
     try {
-      // Strip markdown code fences if present
-      const cleaned = content.replace(/```(?:json)?\s*/gi, "").replace(/```\s*$/gi, "").trim();
+      // Strip all markdown code fences
+      const cleaned = content.replace(/```[\w]*\n?/g, "").trim();
       const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
       suggestions = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(cleaned);
     } catch {
