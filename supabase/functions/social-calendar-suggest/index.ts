@@ -121,8 +121,10 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
 
     let suggestions;
     try {
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      suggestions = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+      // Strip markdown code fences if present
+      const cleaned = content.replace(/```(?:json)?\s*/gi, "").replace(/```\s*$/gi, "").trim();
+      const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+      suggestions = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(cleaned);
     } catch {
       console.error("Failed to parse:", content);
       throw new Error("Failed to parse calendar suggestions");
