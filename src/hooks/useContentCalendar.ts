@@ -17,6 +17,12 @@ export interface CalendarSlot {
   content_post_id: string | null;
   title: string;
   notes: string | null;
+  hook: string | null;
+  talking_points: string[];
+  filming_tips: string | null;
+  cta: string | null;
+  strategy_type: string | null;
+  category: string | null;
   status: CalendarSlotStatus;
   created_at: string;
   updated_at: string;
@@ -31,6 +37,12 @@ export interface CalendarSlotInput {
   content_post_id?: string;
   title: string;
   notes?: string;
+  hook?: string;
+  talking_points?: string[];
+  filming_tips?: string;
+  cta?: string;
+  strategy_type?: string;
+  category?: string;
   status?: CalendarSlotStatus;
 }
 

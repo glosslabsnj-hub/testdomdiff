@@ -98,6 +98,12 @@ export default function ContentCalendar() {
         content_type: s.content_type || null,
         title: s.title,
         notes: s.notes || null,
+        hook: s.hook || null,
+        talking_points: s.talking_points || [],
+        filming_tips: s.filming_tips || null,
+        cta: s.cta || null,
+        strategy_type: s.strategy_type || null,
+        category: s.category || null,
       }));
 
       await bulkCreateSlots.mutateAsync(inputs);
@@ -148,7 +154,22 @@ export default function ContentCalendar() {
       const uid = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}@domdifferent.com`;
       const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, "").slice(0, -1) + "Z";
       const esc = (t: string) => t.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
-      return `BEGIN:VEVENT\nUID:${uid}\nDTSTAMP:${fmt(new Date())}\nDTSTART:${fmt(start)}\nDTEND:${fmt(end)}\nSUMMARY:${esc(`[${s.platform.toUpperCase()}] ${s.title}`)}\nDESCRIPTION:${esc(s.notes || "")}\nEND:VEVENT`;
+
+      // Build rich description with all content details
+      const descParts: string[] = [];
+      if (s.strategy_type) descParts.push(`Strategy: ${s.strategy_type.replace("_", " ")}`);
+      if (s.category) descParts.push(`Category: ${s.category}`);
+      if (s.content_type) descParts.push(`Format: ${s.content_type}`);
+      if (s.hook) descParts.push(`\nHOOK:\n"${s.hook}"`);
+      if (s.talking_points && s.talking_points.length > 0) {
+        descParts.push(`\nWHAT TO SAY:\n${(s.talking_points as string[]).map((p: string) => `• ${p}`).join("\n")}`);
+      }
+      if (s.filming_tips) descParts.push(`\nHOW TO FILM IT:\n${s.filming_tips}`);
+      if (s.cta) descParts.push(`\nCALL TO ACTION:\n"${s.cta}"`);
+      if (s.notes) descParts.push(`\nNOTES:\n${s.notes}`);
+      const description = descParts.join("\n");
+
+      return `BEGIN:VEVENT\nUID:${uid}\nDTSTAMP:${fmt(new Date())}\nDTSTART:${fmt(start)}\nDTEND:${fmt(end)}\nSUMMARY:${esc(`[${s.platform.toUpperCase()}] ${s.title}`)}\nDESCRIPTION:${esc(description)}\nEND:VEVENT`;
     }).join("\n");
 
     const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Dom Different//Social Command//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n${vEvents}\nEND:VCALENDAR`;
@@ -329,28 +350,74 @@ export default function ContentCalendar() {
                 </div>
                 <DialogTitle className="text-lg">{detailSlot.title}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-2">
+              <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
                 {/* Schedule Info */}
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     <span>{new Date(detailSlot.scheduled_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</span>
                   </div>
                   <Badge variant="secondary" className="text-xs capitalize">{detailSlot.time_slot} slot</Badge>
+                  {detailSlot.content_type && (
+                    <Badge variant="outline" className="text-xs">{detailSlot.content_type}</Badge>
+                  )}
+                  {detailSlot.strategy_type && (
+                    <Badge variant="outline" className="text-xs capitalize border-orange-500/30 text-orange-400">{detailSlot.strategy_type.replace("_", " ")}</Badge>
+                  )}
+                  {detailSlot.category && (
+                    <Badge variant="outline" className="text-xs capitalize">{detailSlot.category}</Badge>
+                  )}
                 </div>
 
-                {/* Content Type */}
-                {detailSlot.content_type && (
+                {/* Hook */}
+                {detailSlot.hook && (
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-1">Content Type</h4>
-                    <Badge variant="outline" className="text-xs">{detailSlot.content_type}</Badge>
+                    <h4 className="text-sm font-medium text-foreground mb-1">🎣 Hook</h4>
+                    <p className="text-sm text-muted-foreground bg-charcoal/50 rounded-lg p-3 border border-border italic">
+                      "{detailSlot.hook}"
+                    </p>
+                  </div>
+                )}
+
+                {/* Talking Points */}
+                {detailSlot.talking_points && detailSlot.talking_points.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground mb-2">🗣️ What to Say</h4>
+                    <ul className="space-y-1.5">
+                      {(detailSlot.talking_points as string[]).map((point: string, idx: number) => (
+                        <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                          <span className="text-orange-400 mt-0.5 flex-shrink-0">•</span>
+                          <span>{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Filming Tips */}
+                {detailSlot.filming_tips && (
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground mb-1">🎬 How to Film It</h4>
+                    <p className="text-sm text-muted-foreground bg-charcoal/50 rounded-lg p-3 border border-border">
+                      {detailSlot.filming_tips}
+                    </p>
+                  </div>
+                )}
+
+                {/* CTA */}
+                {detailSlot.cta && (
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground mb-1">📢 Call to Action</h4>
+                    <p className="text-sm text-muted-foreground bg-charcoal/50 rounded-lg p-3 border border-border italic">
+                      "{detailSlot.cta}"
+                    </p>
                   </div>
                 )}
 
                 {/* Notes / Strategy */}
                 {detailSlot.notes && (
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-1">Strategy & Notes</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-1">📝 Strategy & Notes</h4>
                     <p className="text-sm text-muted-foreground bg-charcoal/50 rounded-lg p-3 border border-border">
                       {detailSlot.notes}
                     </p>

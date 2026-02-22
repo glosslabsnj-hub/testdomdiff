@@ -2672,43 +2672,61 @@ export type Database = {
       }
       social_content_calendar: {
         Row: {
+          category: string | null
           content_post_id: string | null
           content_type: string | null
           created_at: string
+          cta: string | null
           day_of_week: number | null
+          filming_tips: string | null
+          hook: string | null
           id: string
           notes: string | null
           platform: string
           scheduled_date: string
           status: string
+          strategy_type: string | null
+          talking_points: Json | null
           time_slot: string | null
           title: string | null
           updated_at: string
         }
         Insert: {
+          category?: string | null
           content_post_id?: string | null
           content_type?: string | null
           created_at?: string
+          cta?: string | null
           day_of_week?: number | null
+          filming_tips?: string | null
+          hook?: string | null
           id?: string
           notes?: string | null
           platform: string
           scheduled_date: string
           status?: string
+          strategy_type?: string | null
+          talking_points?: Json | null
           time_slot?: string | null
           title?: string | null
           updated_at?: string
         }
         Update: {
+          category?: string | null
           content_post_id?: string | null
           content_type?: string | null
           created_at?: string
+          cta?: string | null
           day_of_week?: number | null
+          filming_tips?: string | null
+          hook?: string | null
           id?: string
           notes?: string | null
           platform?: string
           scheduled_date?: string
           status?: string
+          strategy_type?: string | null
+          talking_points?: Json | null
           time_slot?: string | null
           title?: string | null
           updated_at?: string
