@@ -22,6 +22,7 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const { platform, current_bio, has_highlights, has_pinned_post, has_link_in_bio, handle, extra_context } = await req.json();
 
     if (!ANTHROPIC_API_KEY) {
       throw new Error("ANTHROPIC_API_KEY not configured");
