@@ -1,0 +1,1 @@
+ALTER TABLE public.social_trend_scans ADD COLUMN content_angles jsonb DEFAULT '[]'::jsonb;

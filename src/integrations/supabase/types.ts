@@ -2746,6 +2746,7 @@ export type Database = {
       }
       social_trend_scans: {
         Row: {
+          content_angles: Json | null
           created_at: string
           expires_at: string
           id: string
@@ -2754,6 +2755,7 @@ export type Database = {
           trends: Json
         }
         Insert: {
+          content_angles?: Json | null
           created_at?: string
           expires_at?: string
           id?: string
@@ -2762,6 +2764,7 @@ export type Database = {
           trends?: Json
         }
         Update: {
+          content_angles?: Json | null
           created_at?: string
           expires_at?: string
           id?: string
