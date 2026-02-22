@@ -2673,32 +2673,44 @@ export type Database = {
       social_content_calendar: {
         Row: {
           content_post_id: string | null
+          content_type: string | null
           created_at: string
+          day_of_week: number | null
           id: string
           notes: string | null
           platform: string
           scheduled_date: string
           status: string
+          time_slot: string | null
+          title: string | null
           updated_at: string
         }
         Insert: {
           content_post_id?: string | null
+          content_type?: string | null
           created_at?: string
+          day_of_week?: number | null
           id?: string
           notes?: string | null
           platform: string
           scheduled_date: string
           status?: string
+          time_slot?: string | null
+          title?: string | null
           updated_at?: string
         }
         Update: {
           content_post_id?: string | null
+          content_type?: string | null
           created_at?: string
+          day_of_week?: number | null
           id?: string
           notes?: string | null
           platform?: string
           scheduled_date?: string
           status?: string
+          time_slot?: string | null
+          title?: string | null
           updated_at?: string
         }
         Relationships: [
