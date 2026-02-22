@@ -6,6 +6,8 @@ import {
   Globe,
   Sparkles,
   Library,
+  Mic,
+  Search,
   Loader2,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +19,8 @@ import ContentCalendar from "./ContentCalendar";
 import PlatformDashboard from "./PlatformDashboard";
 import EnhancedGenerator from "./EnhancedGenerator";
 import ContentLibrary from "./ContentLibrary";
+import BrandVoiceManager from "./BrandVoiceManager";
+import CompetitorAnalysis from "./CompetitorAnalysis";
 
 const TABS = [
   { value: "dashboard", label: "Dashboard", shortLabel: "Home", icon: LayoutDashboard },
@@ -24,6 +28,8 @@ const TABS = [
   { value: "platforms", label: "Platforms", shortLabel: "Plat", icon: Globe },
   { value: "generator", label: "Generator", shortLabel: "Gen", icon: Sparkles },
   { value: "library", label: "Library", shortLabel: "Lib", icon: Library },
+  { value: "brand-voice", label: "Brand Voice", shortLabel: "Voice", icon: Mic },
+  { value: "competitors", label: "Competitors", shortLabel: "Comp", icon: Search },
 ];
 
 export default function SocialCommandCenter() {
@@ -103,6 +109,14 @@ export default function SocialCommandCenter() {
 
         <TabsContent value="library" className="mt-4">
           <ContentLibrary onNavigateToGenerator={() => setActiveTab("generator")} />
+        </TabsContent>
+
+        <TabsContent value="brand-voice" className="mt-4">
+          <BrandVoiceManager />
+        </TabsContent>
+
+        <TabsContent value="competitors" className="mt-4">
+          <CompetitorAnalysis />
         </TabsContent>
       </Tabs>
     </div>

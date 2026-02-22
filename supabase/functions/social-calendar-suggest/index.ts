@@ -1,7 +1,9 @@
 // Social Calendar Suggest — AI-generated weekly content schedule
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-  BRAND_VOICE_SYSTEM_PROMPT,
+  getBrandVoicePrompt,
+  checkApiLimits,
+  trackApiUsage,
   CORS_HEADERS,
   categoryDescriptions,
   platformContentTypes,
@@ -32,8 +34,6 @@ Deno.serve(async (req) => {
     if (!ANTHROPIC_API_KEY) {
       throw new Error("ANTHROPIC_API_KEY not configured");
     }
-
-    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     const userPrompt = `Generate a complete week of content calendar suggestions starting from ${week_start}.
 
@@ -75,6 +75,12 @@ For each suggested slot, return a JSON object:
 
 Return ONLY a valid JSON array. No markdown, no explanation.`;
 
+    // Dynamic prompt + cost controls
+    const [systemPrompt, limits] = await Promise.all([
+      getBrandVoicePrompt(),
+      checkApiLimits(),
+    ]);
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -83,9 +89,9 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: limits.model,
         max_tokens: 4000,
-        system: BRAND_VOICE_SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
         temperature: 0.8,
       }),
@@ -100,6 +106,17 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
     const data = await response.json();
     const content = data.content?.[0]?.text;
 
+    // Track usage
+    const usage = data.usage;
+    if (usage) {
+      await trackApiUsage(
+        "social-calendar-suggest",
+        limits.model,
+        usage.input_tokens || 0,
+        usage.output_tokens || 0
+      );
+    }
+
     if (!content) throw new Error("No content in Claude response");
 
     let suggestions;
@@ -112,7 +129,7 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
     }
 
     return new Response(
-      JSON.stringify({ suggestions }),
+      JSON.stringify({ suggestions, model_used: limits.model }),
       { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
     );
   } catch (error) {

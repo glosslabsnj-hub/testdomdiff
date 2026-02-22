@@ -12,6 +12,14 @@ export interface SocialCommandConfig {
   posting_cadence: Record<string, number>;
   content_pillars: string[];
   brand_voice_notes: string | null;
+  // Brand voice fields
+  personality_answers: Record<string, unknown>;
+  generated_master_prompt: string | null;
+  master_prompt_version: number;
+  master_prompt_generated_at: string | null;
+  competitor_handles: string[];
+  existing_content_samples: string[];
+  content_voice_analysis: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +33,13 @@ export interface SocialCommandConfigInput {
   posting_cadence?: Record<string, number>;
   content_pillars?: string[];
   brand_voice_notes?: string | null;
+  personality_answers?: Record<string, unknown>;
+  generated_master_prompt?: string | null;
+  master_prompt_version?: number;
+  master_prompt_generated_at?: string | null;
+  competitor_handles?: string[];
+  existing_content_samples?: string[];
+  content_voice_analysis?: string | null;
 }
 
 export function useSocialCommand() {

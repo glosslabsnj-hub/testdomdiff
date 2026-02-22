@@ -74,3 +74,9 @@ verify_jwt = false
 
 [functions.social-trend-scan]
 verify_jwt = false
+
+[functions.social-generate-master-prompt]
+verify_jwt = false
+
+[functions.social-competitor-analyze]
+verify_jwt = false

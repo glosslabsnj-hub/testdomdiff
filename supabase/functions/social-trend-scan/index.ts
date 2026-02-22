@@ -1,6 +1,11 @@
 // Social Trend Scanner — Claude-powered trend analysis per platform
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { BRAND_VOICE_SYSTEM_PROMPT, CORS_HEADERS } from "../_shared/brand-voice.ts";
+import {
+  getBrandVoicePrompt,
+  checkApiLimits,
+  trackApiUsage,
+  CORS_HEADERS,
+} from "../_shared/brand-voice.ts";
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
@@ -58,6 +63,12 @@ Be specific and actionable. No vague advice. Dom needs to be able to act on ever
 
 Return ONLY valid JSON. No markdown, no explanation.`;
 
+    // Dynamic prompt + cost controls
+    const [systemPrompt, limits] = await Promise.all([
+      getBrandVoicePrompt(),
+      checkApiLimits(),
+    ]);
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -66,9 +77,9 @@ Return ONLY valid JSON. No markdown, no explanation.`;
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: limits.model,
         max_tokens: 4000,
-        system: BRAND_VOICE_SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
         temperature: 0.8,
       }),
@@ -82,6 +93,18 @@ Return ONLY valid JSON. No markdown, no explanation.`;
 
     const data = await response.json();
     const content = data.content?.[0]?.text;
+
+    // Track usage
+    const usage = data.usage;
+    if (usage) {
+      await trackApiUsage(
+        "social-trend-scan",
+        limits.model,
+        usage.input_tokens || 0,
+        usage.output_tokens || 0
+      );
+    }
+
     if (!content) throw new Error("No content in Claude response");
 
     let scan;
@@ -94,7 +117,7 @@ Return ONLY valid JSON. No markdown, no explanation.`;
     }
 
     return new Response(
-      JSON.stringify({ scan }),
+      JSON.stringify({ scan, model_used: limits.model }),
       { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
     );
   } catch (error) {
