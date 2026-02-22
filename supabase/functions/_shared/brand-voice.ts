@@ -54,9 +54,9 @@ The 80/20 rule is NON-NEGOTIABLE:
 - Twitter/X: 280 char limit, thread structure, no hashtags in body, text-based hot takes`;
 
 export const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 export const categoryDescriptions: Record<string, string> = {
