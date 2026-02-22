@@ -128,13 +128,33 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
       try {
         suggestions = JSON.parse(jsonStr);
       } catch {
-        // Response may be truncated — try to recover by closing the array
-        // Find the last complete object (ends with })
-        const lastBrace = jsonStr.lastIndexOf("}");
-        if (lastBrace > 0) {
-          jsonStr = jsonStr.substring(0, lastBrace + 1) + "]";
+        // Response is truncated. Walk backwards to find the last complete object.
+        // Find positions of all "}," or "}\n]" patterns to locate object boundaries.
+        let lastGoodEnd = -1;
+        let depth = 0;
+        let inString = false;
+        let escape = false;
+        
+        for (let i = 0; i < jsonStr.length; i++) {
+          const ch = jsonStr[i];
+          if (escape) { escape = false; continue; }
+          if (ch === '\\' && inString) { escape = true; continue; }
+          if (ch === '"') { inString = !inString; continue; }
+          if (inString) continue;
+          if (ch === '{' || ch === '[') depth++;
+          if (ch === '}' || ch === ']') {
+            depth--;
+            // When depth returns to 1, we just closed a top-level object in the array
+            if (depth === 1 && ch === '}') {
+              lastGoodEnd = i;
+            }
+          }
+        }
+        
+        if (lastGoodEnd > 0) {
+          jsonStr = "[" + jsonStr.substring(1, lastGoodEnd + 1) + "]";
           suggestions = JSON.parse(jsonStr);
-          console.log("Recovered truncated JSON, got", suggestions.length, "slots");
+          console.log("Recovered", suggestions.length, "slots from truncated response");
         } else {
           throw new Error("No recoverable JSON");
         }
