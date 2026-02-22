@@ -2628,6 +2628,48 @@ export type Database = {
         }
         Relationships: []
       }
+      social_command_config: {
+        Row: {
+          brand_voice_notes: string | null
+          content_pillars: string[]
+          created_at: string
+          id: string
+          instagram_handle: string | null
+          onboarding_completed: boolean
+          posting_cadence: Json
+          tiktok_handle: string | null
+          twitter_handle: string | null
+          updated_at: string
+          youtube_handle: string | null
+        }
+        Insert: {
+          brand_voice_notes?: string | null
+          content_pillars?: string[]
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          onboarding_completed?: boolean
+          posting_cadence?: Json
+          tiktok_handle?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          youtube_handle?: string | null
+        }
+        Update: {
+          brand_voice_notes?: string | null
+          content_pillars?: string[]
+          created_at?: string
+          id?: string
+          instagram_handle?: string | null
+          onboarding_completed?: boolean
+          posting_cadence?: Json
+          tiktok_handle?: string | null
+          twitter_handle?: string | null
+          updated_at?: string
+          youtube_handle?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancelled_at: string | null
