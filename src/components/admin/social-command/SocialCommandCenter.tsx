@@ -31,6 +31,8 @@ export default function SocialCommandCenter() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  const shouldShowOnboarding = !isLoading && !onboardingCompleted && !config;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -39,12 +41,7 @@ export default function SocialCommandCenter() {
     );
   }
 
-  // Show onboarding if not completed
-  if (!onboardingCompleted && !showOnboarding && !config) {
-    setShowOnboarding(true);
-  }
-
-  if (showOnboarding && !onboardingCompleted) {
+  if (shouldShowOnboarding || (showOnboarding && !onboardingCompleted)) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
