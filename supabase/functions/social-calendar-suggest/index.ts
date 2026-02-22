@@ -90,7 +90,7 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
       },
       body: JSON.stringify({
         model: limits.model,
-        max_tokens: 4000,
+        max_tokens: 8000,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
         temperature: 0.8,
@@ -124,9 +124,23 @@ Return ONLY a valid JSON array. No markdown, no explanation.`;
       // Strip all markdown code fences
       const cleaned = content.replace(/```[\w]*\n?/g, "").trim();
       const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
-      suggestions = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(cleaned);
-    } catch {
-      console.error("Failed to parse:", content);
+      let jsonStr = jsonMatch ? jsonMatch[0] : cleaned;
+      try {
+        suggestions = JSON.parse(jsonStr);
+      } catch {
+        // Response may be truncated — try to recover by closing the array
+        // Find the last complete object (ends with })
+        const lastBrace = jsonStr.lastIndexOf("}");
+        if (lastBrace > 0) {
+          jsonStr = jsonStr.substring(0, lastBrace + 1) + "]";
+          suggestions = JSON.parse(jsonStr);
+          console.log("Recovered truncated JSON, got", suggestions.length, "slots");
+        } else {
+          throw new Error("No recoverable JSON");
+        }
+      }
+    } catch (parseErr) {
+      console.error("Failed to parse:", content?.substring(0, 500));
       throw new Error("Failed to parse calendar suggestions");
     }
 
