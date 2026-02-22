@@ -73,7 +73,7 @@ export function useContentCalendar() {
   const { data: slots = [], isLoading } = useQuery({
     queryKey: ["social-content-calendar", formatDate(weekStart), formatDate(weekEnd)],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_content_calendar")
         .select("*")
         .gte("scheduled_date", formatDate(weekStart))
@@ -87,7 +87,7 @@ export function useContentCalendar() {
 
   const createSlot = useMutation({
     mutationFn: async (input: CalendarSlotInput) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_content_calendar")
         .insert({ ...input, status: input.status || "planned" })
         .select()
@@ -99,7 +99,7 @@ export function useContentCalendar() {
       queryClient.invalidateQueries({ queryKey: ["social-content-calendar"] });
       toast.success("Slot added to calendar");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to create calendar slot");
       console.error(error);
     },
@@ -107,7 +107,7 @@ export function useContentCalendar() {
 
   const updateSlot = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<CalendarSlot> & { id: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_content_calendar")
         .update(updates)
         .eq("id", id)
@@ -119,7 +119,7 @@ export function useContentCalendar() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["social-content-calendar"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to update slot");
       console.error(error);
     },
@@ -127,7 +127,7 @@ export function useContentCalendar() {
 
   const deleteSlot = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("social_content_calendar")
         .delete()
         .eq("id", id);
@@ -137,7 +137,7 @@ export function useContentCalendar() {
       queryClient.invalidateQueries({ queryKey: ["social-content-calendar"] });
       toast.success("Slot removed");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to delete slot");
       console.error(error);
     },
@@ -145,7 +145,7 @@ export function useContentCalendar() {
 
   const bulkCreateSlots = useMutation({
     mutationFn: async (inputs: CalendarSlotInput[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_content_calendar")
         .insert(inputs.map((i) => ({ ...i, status: i.status || "planned" })))
         .select();
@@ -156,7 +156,7 @@ export function useContentCalendar() {
       queryClient.invalidateQueries({ queryKey: ["social-content-calendar"] });
       toast.success("Calendar auto-filled!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to auto-fill calendar");
       console.error(error);
     },
@@ -166,13 +166,11 @@ export function useContentCalendar() {
   const goToPrevWeek = () => setWeekOffset((o) => o - 1);
   const goToNextWeek = () => setWeekOffset((o) => o + 1);
 
-  // Get slots for a specific day + time
   const getSlotsByDayAndTime = (dayIndex: number, timeSlot: TimeSlot) =>
     slots.filter(
       (s) => s.day_of_week === dayIndex && s.time_slot === timeSlot
     );
 
-  // Stats
   const stats = useMemo(() => {
     const posted = slots.filter((s) => s.status === "posted").length;
     const planned = slots.filter((s) => s.status === "planned").length;

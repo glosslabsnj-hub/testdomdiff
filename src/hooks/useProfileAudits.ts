@@ -40,7 +40,7 @@ export function useProfileAudits(platform?: string) {
   const { data: audits = [], isLoading } = useQuery({
     queryKey: ["social-profile-audits", platform],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from("social_profile_audits")
         .select("*")
         .order("created_at", { ascending: false });
@@ -67,7 +67,7 @@ export function useProfileAudits(platform?: string) {
 
       const audit = fnData.audit;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_profile_audits")
         .insert({
           platform: input.platform,
@@ -86,7 +86,7 @@ export function useProfileAudits(platform?: string) {
       queryClient.invalidateQueries({ queryKey: ["social-profile-audits"] });
       toast.success("Profile audit complete!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to run profile audit");
       console.error(error);
     },
@@ -102,14 +102,13 @@ export function useProfileAudits(platform?: string) {
         ? completed.filter((i: string) => i !== itemId)
         : [...completed, itemId];
 
-      // Recalculate score based on completion
       const totalItems = (audit.recommendations || []).length;
       const completedCount = updated.length;
       const newScore = totalItems > 0
         ? Math.round((completedCount / totalItems) * 100)
         : audit.score;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("social_profile_audits")
         .update({ completed_items: updated, score: newScore })
         .eq("id", auditId)
@@ -122,7 +121,7 @@ export function useProfileAudits(platform?: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["social-profile-audits"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Failed to update checklist");
       console.error(error);
     },

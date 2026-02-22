@@ -1,14 +1,13 @@
 // Content Strategy Engine — generates strategic social media content for Dom Different
-// NOT just promotional scripts — this is a full content strategy system
+// Powered by Claude (Anthropic API)
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
 // ============================================================
 // CONTENT CATEGORIES — What the content is ABOUT
@@ -175,8 +174,8 @@ Deno.serve(async (req) => {
   try {
     const { category, mode, strategy_type } = await req.json();
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY not configured");
     }
 
     // Pick random category if "surprise"
@@ -228,40 +227,40 @@ For each idea, provide a JSON object with these exact fields:
 
 Return ONLY a valid JSON array of 3 content idea objects. No markdown, no explanation, just the JSON array.`;
 
-    const response = await fetch(AI_GATEWAY_URL, {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 6000,
+        system: BRAND_VOICE_SYSTEM_PROMPT,
         messages: [
-          { role: "system", content: BRAND_VOICE_SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
         ],
         temperature: 0.9,
-        max_tokens: 6000,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error("AI Gateway error:", error);
-      throw new Error(`AI Gateway returned ${response.status}`);
+      console.error("Anthropic API error:", error);
+      throw new Error(`Anthropic API returned ${response.status}`);
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const content = data.content?.[0]?.text;
 
     if (!content) {
-      throw new Error("No content in AI response");
+      throw new Error("No content in Claude response");
     }
 
     // Parse the JSON from the response
     let ideas;
     try {
-      // Try to extract JSON from the response (handle potential markdown wrapping)
       const jsonMatch = content.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         ideas = JSON.parse(jsonMatch[0]);
@@ -269,8 +268,8 @@ Return ONLY a valid JSON array of 3 content idea objects. No markdown, no explan
         ideas = JSON.parse(content);
       }
     } catch (parseError) {
-      console.error("Failed to parse AI response:", content);
-      throw new Error("Failed to parse content ideas from AI");
+      console.error("Failed to parse Claude response:", content);
+      throw new Error("Failed to parse content ideas from Claude");
     }
 
     return new Response(
