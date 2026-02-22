@@ -65,7 +65,11 @@ For each suggested slot, return a JSON object:
 - platform: platform name (lowercase)
 - content_type: specific content type for that platform
 - title: Suggested content title (5-8 words)
-- notes: Brief note on angle/approach
+- hook: The opening hook line that grabs attention (1-2 punchy sentences, written in Dom's voice)
+- talking_points: Array of 3-5 bullet point strings — the key things to say in the video/post
+- filming_tips: Brief advice on how to film/create this piece (camera angle, setting, energy, b-roll ideas)
+- cta: The call-to-action line to end with (e.g. "Drop a 🔥 if you're tired of excuses")
+- notes: Brief note on angle/approach and strategy
 - strategy_type: "hot_take" | "trending" | "story" | "value" | "engagement" | "promo"
 - category: content category
 
