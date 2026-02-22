@@ -7,6 +7,14 @@ import {
   Loader2,
   Plus,
   Download,
+  Instagram,
+  Youtube,
+  Twitter,
+  Zap,
+  Clock,
+  Film,
+  Check,
+  SkipForward,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useContentCalendar, type CalendarSlotInput, type CalendarSlotStatus, type Platform, type TimeSlot } from "@/hooks/useContentCalendar";
+import { useContentCalendar, type CalendarSlot, type CalendarSlotInput, type CalendarSlotStatus, type Platform, type TimeSlot } from "@/hooks/useContentCalendar";
 import { useSocialCommand } from "@/hooks/useSocialCommand";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -48,6 +56,7 @@ export default function ContentCalendar() {
   const { config, activePlatforms } = useSocialCommand();
   const [autoFilling, setAutoFilling] = useState(false);
   const [addDialog, setAddDialog] = useState<{ dayIndex: number; timeSlot: TimeSlot; date: Date } | null>(null);
+  const [detailSlot, setDetailSlot] = useState<CalendarSlot | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [newPlatform, setNewPlatform] = useState<Platform>("instagram");
 
@@ -241,6 +250,7 @@ export default function ContentCalendar() {
                         slot={slot}
                         onUpdateStatus={handleUpdateStatus}
                         onDelete={handleDelete}
+                        onClick={(s) => setDetailSlot(s)}
                       />
                     ))}
                     <button
@@ -301,6 +311,97 @@ export default function ContentCalendar() {
               Add Slot
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Slot Detail Dialog */}
+      <Dialog open={!!detailSlot} onOpenChange={(o) => !o && setDetailSlot(null)}>
+        <DialogContent className="sm:max-w-lg">
+          {detailSlot && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2 mb-1">
+                  {detailSlot.platform === "instagram" && <Instagram className="h-5 w-5 text-pink-400" />}
+                  {detailSlot.platform === "tiktok" && <Zap className="h-5 w-5 text-cyan-400" />}
+                  {detailSlot.platform === "youtube" && <Youtube className="h-5 w-5 text-red-400" />}
+                  {detailSlot.platform === "twitter" && <Twitter className="h-5 w-5 text-blue-400" />}
+                  <Badge variant="outline" className="text-xs capitalize">{detailSlot.platform}</Badge>
+                  <Badge variant="outline" className="text-xs capitalize">{detailSlot.status}</Badge>
+                </div>
+                <DialogTitle className="text-lg">{detailSlot.title}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                {/* Schedule Info */}
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{new Date(detailSlot.scheduled_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-xs capitalize">{detailSlot.time_slot} slot</Badge>
+                </div>
+
+                {/* Content Type */}
+                {detailSlot.content_type && (
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground mb-1">Content Type</h4>
+                    <Badge variant="outline" className="text-xs">{detailSlot.content_type}</Badge>
+                  </div>
+                )}
+
+                {/* Notes / Strategy */}
+                {detailSlot.notes && (
+                  <div>
+                    <h4 className="text-sm font-medium text-foreground mb-1">Strategy & Notes</h4>
+                    <p className="text-sm text-muted-foreground bg-charcoal/50 rounded-lg p-3 border border-border">
+                      {detailSlot.notes}
+                    </p>
+                  </div>
+                )}
+
+                {/* Status Actions */}
+                <div>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Update Status</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(["planned", "drafted", "recorded", "posted", "skipped"] as CalendarSlotStatus[]).map((s) => {
+                      const icons: Record<CalendarSlotStatus, React.ReactNode> = {
+                        planned: <Clock className="h-3 w-3" />,
+                        drafted: <Film className="h-3 w-3" />,
+                        recorded: <Film className="h-3 w-3" />,
+                        posted: <Check className="h-3 w-3" />,
+                        skipped: <SkipForward className="h-3 w-3" />,
+                      };
+                      return (
+                        <Button
+                          key={s}
+                          variant={detailSlot.status === s ? "default" : "outline"}
+                          size="sm"
+                          className={cn("gap-1 text-xs capitalize", detailSlot.status === s && "bg-orange-500 hover:bg-orange-600 text-white")}
+                          onClick={() => {
+                            handleUpdateStatus(detailSlot.id, s);
+                            setDetailSlot({ ...detailSlot, status: s });
+                          }}
+                        >
+                          {icons[s]} {s}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+              <DialogFooter className="flex-row gap-2 sm:justify-between">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    handleDelete(detailSlot.id);
+                    setDetailSlot(null);
+                  }}
+                >
+                  Delete Slot
+                </Button>
+                <Button variant="outline" onClick={() => setDetailSlot(null)}>Close</Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
