@@ -60,3 +60,17 @@ verify_jwt = true
 
 [functions.warden-tts]
 verify_jwt = true
+
+# === SOCIAL COMMAND CENTER FUNCTIONS ===
+
+[functions.social-generate-content]
+verify_jwt = true
+
+[functions.social-calendar-suggest]
+verify_jwt = true
+
+[functions.social-profile-audit]
+verify_jwt = true
+
+[functions.social-trend-scan]
+verify_jwt = true

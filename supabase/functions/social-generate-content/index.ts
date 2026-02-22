@@ -1,0 +1,163 @@
+// Social Content Generator — Claude-powered, platform-specific content generation
+import {
+  BRAND_VOICE_SYSTEM_PROMPT,
+  CORS_HEADERS,
+  categoryDescriptions,
+  strategyTypeDescriptions,
+  platformFormatRules,
+} from "../_shared/brand-voice.ts";
+
+const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+
+function getModeInstructions(mode: string): string {
+  if (mode === "done_for_you") {
+    return `Generate COMPLETE, READY-TO-RECORD content with:
+- Exact hook written out word-for-word (the first thing Dom says — must stop the scroll)
+- Full script / talking points written in Dom's actual voice (word-for-word what to say)
+- Specific filming instructions: camera angle, location suggestions, what to wear, any props
+- Text overlay suggestions for key moments
+- Hashtag recommendations
+- Ready-to-use CTA that fits naturally (NOT always "link in bio")`;
+  } else {
+    return `Generate FREESTYLE FRAMEWORKS with:
+- Hook formula (fill-in-the-blank style)
+- Prompt questions to spark Dom's own ideas
+- Flexible talking point structure Dom can riff on
+- Multiple angle suggestions
+- CTA guidance (direction, not exact wording)`;
+  }
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: CORS_HEADERS });
+  }
+
+  try {
+    const { platform, content_type, category, mode, strategy_type, calendar_context, trend_context } = await req.json();
+
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY not configured");
+    }
+
+    // Pick random category if "surprise"
+    const cats = Object.keys(categoryDescriptions);
+    const finalCategory = category === "surprise"
+      ? cats[Math.floor(Math.random() * cats.length)]
+      : category;
+
+    // Pick random strategy type if "surprise" — weighted toward non-promo
+    const strategyWeights = ["hot_take", "hot_take", "trending", "trending", "story", "story", "value", "value", "value", "engagement", "engagement", "promo"];
+    const finalStrategy = strategy_type === "surprise"
+      ? strategyWeights[Math.floor(Math.random() * strategyWeights.length)]
+      : strategy_type || "value";
+
+    const categoryContext = categoryDescriptions[finalCategory] || categoryDescriptions.faith;
+    const strategyContext = strategyTypeDescriptions[finalStrategy] || strategyTypeDescriptions.value;
+    const modeInstructions = getModeInstructions(mode);
+    const platformRules = platform ? (platformFormatRules[platform] || "") : "";
+
+    let contextBlock = "";
+    if (calendar_context) {
+      contextBlock += `\n\nCURRENT WEEK'S CALENDAR (avoid duplicate topics):\n${JSON.stringify(calendar_context)}`;
+    }
+    if (trend_context) {
+      contextBlock += `\n\nTRENDING RIGHT NOW (incorporate where natural):\n${JSON.stringify(trend_context)}`;
+    }
+
+    const userPrompt = `Generate 3 unique content ideas for the "${finalCategory}" category using the "${finalStrategy}" strategy.
+
+TARGET PLATFORM: ${platform || "multi-platform"}
+CONTENT TYPE: ${content_type || "any"}
+${platformRules ? `\nPLATFORM FORMAT RULES:\n${platformRules}` : ""}
+
+CATEGORY FOCUS: ${categoryContext}
+
+CONTENT STRATEGY TYPE: ${strategyContext}
+
+${modeInstructions}
+${contextBlock}
+
+IMPORTANT RULES:
+- These should NOT all sound the same — vary the angles, hooks, and approaches
+- At least one idea should feel like something that could go viral
+- The hooks must be scroll-stopping
+- Content should feel natural coming from Dom, not from a marketing team
+- NEVER use the word "journey" — Dom doesn't talk like that
+- If platform is specified, format MUST match that platform's rules exactly
+
+For each idea, provide a JSON object with these exact fields:
+- category: "${finalCategory}"
+- mode: "${mode}"
+- strategy_type: "${finalStrategy}"
+- target_platform: "${platform || ""}"
+- content_type: "${content_type || ""}"
+- title: Clear, compelling post title (5-8 words)
+- platforms: Array of best platforms for this content
+- format: How to film it
+- hook: The exact opening line(s) that grab attention
+- talking_points: Array of 3-5 bullet points covering what to say
+- filming_tips: Plain-language instructions for how to shoot this
+- cta: The call-to-action to end with
+- hashtags: Array of relevant hashtags (platform-appropriate count)
+- why_it_works: One sentence explaining why this content will perform well
+
+Return ONLY a valid JSON array of 3 content idea objects. No markdown, no explanation, just the JSON array.`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 6000,
+        system: BRAND_VOICE_SYSTEM_PROMPT,
+        messages: [
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.9,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("Anthropic API error:", error);
+      throw new Error(`Anthropic API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.content?.[0]?.text;
+
+    if (!content) {
+      throw new Error("No content in Claude response");
+    }
+
+    let ideas;
+    try {
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        ideas = JSON.parse(jsonMatch[0]);
+      } else {
+        ideas = JSON.parse(content);
+      }
+    } catch (parseError) {
+      console.error("Failed to parse Claude response:", content);
+      throw new Error("Failed to parse content ideas from Claude");
+    }
+
+    return new Response(
+      JSON.stringify({ ideas }),
+      { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Error generating content:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+    );
+  }
+});

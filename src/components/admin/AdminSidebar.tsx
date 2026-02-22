@@ -150,7 +150,7 @@ export default function AdminSidebar({
     {
       title: "Growth",
       items: [
-        { id: "content-engine", label: "Content Engine", icon: Flame },
+        { id: "content-engine", label: "Social Command", icon: Flame },
       ],
     },
     {

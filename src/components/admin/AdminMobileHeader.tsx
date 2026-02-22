@@ -27,7 +27,7 @@ const sectionTitles: Record<AdminSection, string> = {
   settings: "Settings",
   logs: "Logs & Safety",
   freeworld: "Free World",
-  "content-engine": "Content Engine",
+  "content-engine": "Social Command Center",
 };
 
 export default function AdminMobileHeader({

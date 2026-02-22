@@ -130,7 +130,7 @@ export default function AdminMobileDrawer({
       title: "Growth",
       color: "text-orange-400",
       items: [
-        { id: "content-engine", label: "Content Engine", icon: Flame },
+        { id: "content-engine", label: "Social Command", icon: Flame },
       ],
     },
     {

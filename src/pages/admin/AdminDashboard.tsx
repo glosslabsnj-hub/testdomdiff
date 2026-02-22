@@ -22,7 +22,7 @@ import IntakeManager from "@/components/admin/IntakeManager";
 import AnalyticsHub from "@/components/admin/AnalyticsHub";
 import SiteSettingsManager from "@/components/admin/SiteSettingsManager";
 import AdminAuditLog from "@/components/admin/AdminAuditLog";
-import ContentEngineHub from "@/components/admin/ContentEngineHub";
+import SocialCommandCenter from "@/components/admin/social-command/SocialCommandCenter";
 
 // Content CMS
 import ContentNavigation from "@/components/admin/ContentNavigation";
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
         return <AdminAuditLog />;
       
       case "content-engine":
-        return <ContentEngineHub />;
+        return <SocialCommandCenter />;
       
       default:
         return null;
