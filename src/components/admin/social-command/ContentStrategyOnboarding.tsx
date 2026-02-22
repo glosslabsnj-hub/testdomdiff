@@ -19,12 +19,14 @@ import { useSocialCommand, type SocialCommandConfigInput } from "@/hooks/useSoci
 import { toast } from "sonner";
 
 const CONTENT_PILLARS = [
-  { id: "faith", label: "Faith & Redemption", emoji: "✝️" },
+  { id: "faith", label: "Faith & God", emoji: "✝️" },
   { id: "discipline", label: "Discipline & Structure", emoji: "⚡" },
   { id: "training", label: "Workout & Training", emoji: "💪" },
-  { id: "transformations", label: "Transformations", emoji: "🔥" },
-  { id: "authority", label: "Education & Authority", emoji: "🎓" },
+  { id: "hustle", label: "Money & Hustle", emoji: "💰" },
+  { id: "controversy", label: "Hot Takes & Controversy", emoji: "🔥" },
   { id: "story", label: "Dom's Story & Personal", emoji: "📖" },
+  { id: "transformations", label: "Transformations", emoji: "🏆" },
+  { id: "authority", label: "Education & Authority", emoji: "🎓" },
   { id: "culture", label: "Culture & Lifestyle", emoji: "🌍" },
   { id: "platform", label: "Platform & Product", emoji: "📱" },
 ];
@@ -50,7 +52,7 @@ export default function ContentStrategyOnboarding({ onComplete }: Props) {
     twitter: "",
   });
   const [cadence, setCadence] = useState<Record<string, number>>(DEFAULT_CADENCE);
-  const [pillars, setPillars] = useState<string[]>(["faith", "discipline", "training", "story"]);
+  const [pillars, setPillars] = useState<string[]>(["faith", "discipline", "hustle", "story", "controversy"]);
   const [saving, setSaving] = useState(false);
 
   const activePlatforms = Object.entries(handles)

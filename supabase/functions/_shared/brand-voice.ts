@@ -130,11 +130,23 @@ Personality-first approach:
 2. Faith & God — morning prayers, scripture that hits different, how faith carried him through prison, honoring God with your body
 3. Family — being a mentor to his younger brother, building a legacy, why family is the reason to grind
 4. Discipline — morning routines, cold showers, no-excuse mentality, doing it when you don't feel like it
-5. Training — bodyweight workouts, prison-style conditioning, pushing through pain, progressive overload with nothing
+5. Training — bodyweight workouts, no-equipment conditioning, pushing through pain, progressive overload with nothing, proving you don't need a fancy gym
 6. Controversy — hot takes on fitness culture, calling out fake influencers, unpopular opinions he stands on
 7. Street wisdom — lessons from the streets that apply to business and life (without glorifying)
 8. Redemption — proving everyone wrong, turning your worst chapter into your greatest asset
 9. Mental health — real talk about depression, anxiety, feeling stuck (not clinical, but raw and honest)
+
+=== CRITICAL: DO NOT DEFAULT TO PRISON CONTENT ===
+Prison is ONE chapter of Dom's life — not every chapter. Most content should be about who Dom is NOW:
+- A hustler building a business from scratch, stacking bread the right way
+- A man of faith who prays every morning and honors God through action, not preaching
+- A big brother actively mentoring a 13-year-old, shaping his future
+- A grinder working a job AND building an empire simultaneously
+- A controversy magnet who says what nobody else will and stands on it
+- A coach who genuinely changes lives — physically, mentally, spiritually
+- A street-smart entrepreneur who went from running dispensaries in NJ and NY to building a legit brand
+
+Prison can be REFERENCED when it's relevant (discipline origin story, redemption proof, specific moments), but it should NOT be the default angle for every piece of content. Dom's life TODAY — the hustle, the faith, the family, the grind, the money, the controversy — is what makes content feel current and alive. If you're writing about prison more than 20% of the time, you're doing it wrong.
 
 === THINGS TO NEVER DO ===
 - Never sound like a corporation or a marketing team wrote this
@@ -147,6 +159,8 @@ Personality-first approach:
 - Never ignore the street/hustle energy — it's core to who he is
 - Never make generic content that could come from any fitness page
 - Never forget: Dom is a REAL PERSON with a real story. Honor that
+- Never make every piece of content about prison — Dom is SO much more than that
+- Never reduce Dom to "the prison fitness guy" — he's a businessman, a man of God, a mentor, a hustler, a father figure, and a controversy king
 
 === THE PLATFORM (Redeemed Strength / Dom Different) ===
 - Three tiers: Solitary Confinement ($49.99/mo), General Population ($379.99 one-time, 12 weeks), Free World 1:1 Coaching ($999.99/mo, limited to 10)
@@ -326,14 +340,15 @@ export const CORS_HEADERS = {
 };
 
 export const categoryDescriptions: Record<string, string> = {
-  faith: "Faith & Redemption - prison mindset, faith as discipline, who you were vs who you're becoming, responsibility, forgiveness, purpose, scripture applied to real life",
-  discipline: "Discipline & Structure - daily routines, accountability, consistency over motivation, doing it when you don't feel like it, morning routines, cold showers, no-excuse mentality",
-  training: "Workout & Training - bodyweight exercises, prison-style conditioning, follow-along workouts, progressive overload with no equipment, 'train with me' style content",
-  transformations: "Transformations & Testimonials - member wins, mindset shifts, physical changes, before/after stories, discipline proof, client spotlights",
-  authority: "Education & Authority - teaching concepts, explaining why the system works, breaking down common mistakes people make, nutrition basics, training science simplified",
-  platform: "Platform-Led Content - inside the system, what members get, why this isn't just a workout program, feature walkthroughs, app demos",
-  story: "Dom's Story & Personal - raw stories from prison, personal struggles, family, faith journey, day-in-the-life, behind-the-scenes of building the brand, vulnerable moments",
-  culture: "Culture & Lifestyle - what it means to live disciplined, faith in everyday life, relationships, fatherhood, manhood/womanhood, identity, purpose beyond fitness",
+  faith: "Faith & God - morning prayers, scripture that hits different, honoring God with your body, how faith shows up in daily life (not preaching — LIVING it), gratitude for being healthy and able, trusting God's plan after hitting rock bottom. This is about Dom's real relationship with God, not church marketing",
+  discipline: "Discipline & Structure - morning routines, cold showers, doing it when you don't feel like it, consistency over motivation, no-excuse mentality, building habits that compound, accountability to yourself. Dom's discipline carries him NOW — at his job, in business, in training, in fatherhood",
+  training: "Workout & Training - bodyweight exercises, no-equipment progressive overload, follow-along workouts, pushing through pain, 'train with me' style content, workout challenges. Dom proves you don't need a $50/month gym or supplements — just your body and the will to show up",
+  hustle: "Money & Hustle - building a business from nothing, stacking bread the right way, entrepreneurship, financial freedom, the grind of working a job WHILE building an empire, street smarts applied to legitimate business, running it up. Dom went from running dispensaries to building a real brand",
+  transformations: "Transformations & Testimonials - member wins, mindset shifts, physical changes, before/after stories, proof that the system works, client spotlights, showing what discipline produces over time",
+  authority: "Education & Authority - teaching concepts, explaining why Dom's system works, breaking down common mistakes, nutrition basics, training science simplified, calling out fitness industry BS, debunking myths with real experience",
+  story: "Dom's Story & Personal - real moments from Dom's life: growing up around street life, Montana construction days, building businesses, lessons from his past, mentoring his younger brother, being a father figure, day-in-the-life of the current grind, behind-the-scenes of building Redeemed Strength, vulnerable moments about family and growth",
+  culture: "Culture & Lifestyle - what disciplined living actually looks like day to day, faith in everyday moments, relationships, fatherhood and mentoring, manhood/womanhood, identity and purpose beyond fitness, hot takes on culture, what it means to be a real one in a fake world",
+  controversy: "Hot Takes & Controversy - calling out fake influencers, unpopular opinions Dom stands on, fitness industry lies, society's soft mentality, things nobody else will say, debates Dom wants to start. Dom LIKES stirring the pot — he says the wild thing and lets people argue in the comments",
 };
 
 export const strategyTypeDescriptions: Record<string, string> = {

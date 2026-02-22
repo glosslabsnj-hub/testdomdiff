@@ -34,14 +34,16 @@ interface ContentGeneratorModalProps {
 
 const categories: { value: ContentCategory | "surprise"; label: string }[] = [
   { value: "surprise", label: "Surprise Me" },
-  { value: "faith", label: "Faith & Redemption" },
+  { value: "faith", label: "Faith & God" },
   { value: "discipline", label: "Discipline & Structure" },
   { value: "training", label: "Workout & Training" },
+  { value: "hustle", label: "Money & Hustle" },
+  { value: "controversy", label: "Hot Takes & Controversy" },
+  { value: "story", label: "Dom's Story & Personal" },
   { value: "transformations", label: "Transformations" },
   { value: "authority", label: "Education & Authority" },
-  { value: "platform", label: "Platform-Led" },
-  { value: "story", label: "Dom's Story & Personal" },
   { value: "culture", label: "Culture & Lifestyle" },
+  { value: "platform", label: "Platform-Led" },
 ];
 
 const strategyTypes: { value: ContentStrategyType | "surprise"; label: string; emoji: string; description: string }[] = [

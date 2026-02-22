@@ -13,11 +13,13 @@ const categories: { value: ContentCategory | "all"; label: string; short: string
   { value: "faith", label: "Faith", short: "Faith" },
   { value: "discipline", label: "Discipline", short: "Disc" },
   { value: "training", label: "Training", short: "Train" },
+  { value: "hustle", label: "Hustle", short: "Hustle" },
+  { value: "controversy", label: "Controversy", short: "Hot" },
+  { value: "story", label: "Story", short: "Story" },
   { value: "transformations", label: "Transformations", short: "Trans" },
   { value: "authority", label: "Authority", short: "Auth" },
-  { value: "platform", label: "Platform", short: "Plat" },
-  { value: "story", label: "Story", short: "Story" },
   { value: "culture", label: "Culture", short: "Cult" },
+  { value: "platform", label: "Platform", short: "Plat" },
 ];
 
 const statusFilters: { value: ContentStatus | "all"; label: string }[] = [

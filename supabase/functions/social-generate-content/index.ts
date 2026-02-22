@@ -101,6 +101,7 @@ IMPORTANT RULES:
 - Content should feel natural coming from Dom, not from a marketing team
 - NEVER use the word "journey" — Dom doesn't talk like that
 - If platform is specified, format MUST match that platform's rules exactly
+- DO NOT default to prison content. Dom is a hustler, a man of God, a mentor, a businessman, a controversy king, and a grinder. Prison is ONE chapter — most content should be about who Dom is TODAY: the daily grind, building his empire, stacking bread, mentoring his brother, honoring God, working his job while building a business, calling out BS, and living disciplined. Only reference prison when it's specifically relevant to the category or angle.
 
 For each idea, provide a JSON object with these exact fields:
 - category: "${finalCategory}"

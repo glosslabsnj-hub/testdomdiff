@@ -6,11 +6,13 @@ export type ContentCategory =
   | "faith"
   | "discipline"
   | "training"
+  | "hustle"
   | "transformations"
   | "authority"
   | "platform"
   | "story"
-  | "culture";
+  | "culture"
+  | "controversy";
 
 export type ContentMode = "done_for_you" | "freestyle";
 export type ContentStatus = "fresh" | "used" | "favorite";
