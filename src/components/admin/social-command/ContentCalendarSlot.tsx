@@ -29,21 +29,25 @@ interface Props {
   slot: CalendarSlot;
   onUpdateStatus: (id: string, status: CalendarSlotStatus) => void;
   onDelete: (id: string) => void;
+  onClick?: (slot: CalendarSlot) => void;
 }
 
-export default function ContentCalendarSlot({ slot, onUpdateStatus, onDelete }: Props) {
+export default function ContentCalendarSlot({ slot, onUpdateStatus, onDelete, onClick }: Props) {
   const pConfig = platformConfig[slot.platform] || platformConfig.instagram;
   const sConfig = statusConfig[slot.status] || statusConfig.planned;
   const PlatformIcon = pConfig.icon;
   const StatusIcon = sConfig.icon;
 
   return (
-    <div className={cn(
-      "rounded-md border p-2 text-xs space-y-1 transition-all",
-      pConfig.bg,
-      slot.status === "posted" && "opacity-60",
-      slot.status === "skipped" && "opacity-40"
-    )}>
+    <div
+      className={cn(
+        "rounded-md border p-2 text-xs space-y-1 transition-all cursor-pointer hover:ring-1 hover:ring-orange-500/50",
+        pConfig.bg,
+        slot.status === "posted" && "opacity-60",
+        slot.status === "skipped" && "opacity-40"
+      )}
+      onClick={() => onClick?.(slot)}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
           <PlatformIcon className={cn("h-3 w-3", pConfig.color)} />
