@@ -31,6 +31,66 @@ function getModeInstructions(mode: string): string {
   }
 }
 
+function buildOverloadFallbackIdeas(params: {
+  category: string;
+  mode: string;
+  strategyType: string;
+  platform?: string;
+  contentType?: string;
+}) {
+  const { category, mode, strategyType, platform, contentType } = params;
+
+  const base = [
+    {
+      title: "Most Men Train Without Standards",
+      hook: "You don't have a fitness problem — you have a discipline problem.",
+      talking_points: [
+        "Standards beat motivation every time.",
+        "If your day has no structure, your body follows chaos.",
+        "Train like your family depends on your consistency — because it does.",
+      ],
+      cta: "Comment 'STANDARD' if you're done with excuses.",
+    },
+    {
+      title: "Your Morning Decides Your Muscle",
+      hook: "You keep losing fat at night because you lose the war in the morning.",
+      talking_points: [
+        "First hour decides the next 12.",
+        "Prayer, plan, then execution — no scrolling first.",
+        "Consistency builds confidence faster than any supplement.",
+      ],
+      cta: "DM 'MORNING' and I’ll send the structure.",
+    },
+    {
+      title: "Stop Waiting To Feel Ready",
+      hook: "If you only move when you feel ready, you'll stay average forever.",
+      talking_points: [
+        "Readiness is earned through reps, not emotion.",
+        "Your current habits are either building you or burying you.",
+        "A disciplined man wins even on bad days.",
+      ],
+      cta: "Drop a 🔥 if you’re executing today.",
+    },
+  ];
+
+  return base.map((item) => ({
+    category,
+    mode,
+    strategy_type: strategyType,
+    target_platform: platform || "",
+    content_type: contentType || "",
+    title: item.title,
+    platforms: platform ? [platform] : ["Instagram", "TikTok", "YouTube"],
+    format: "Talking to camera",
+    hook: item.hook,
+    talking_points: item.talking_points,
+    filming_tips: "Eye-level camera, direct tone, clean background, high energy.",
+    cta: item.cta,
+    hashtags: ["#redeemedstrength", "#discipline", "#faithandfitness", "#mensfitness", "#noexcuses"],
+    why_it_works: "Direct, conviction-heavy messaging with clear execution steps and a strong CTA.",
+  }));
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
@@ -158,10 +218,30 @@ Return ONLY a valid JSON array of 3 content idea objects. No markdown, no explan
     if (!response || !response.ok) {
       const error = await response?.text();
       console.error("Anthropic API error:", error);
+
+      // Graceful degradation for provider overloads
+      if (response?.status === 529 || response?.status === 503) {
+        const fallbackIdeas = buildOverloadFallbackIdeas({
+          category: finalCategory,
+          mode,
+          strategyType: finalStrategy,
+          platform,
+          contentType: content_type,
+        });
+
+        return new Response(
+          JSON.stringify({
+            ideas: fallbackIdeas,
+            model_used: "fallback-overload",
+            provider_overloaded: true,
+            message: "Primary AI provider is overloaded. Returned fallback ideas.",
+          }),
+          { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+        );
+      }
+
       throw new Error(`Anthropic API returned ${response?.status}`);
     }
-
-    const data = await response.json();
     const content = data.content?.[0]?.text;
 
     // Track usage
