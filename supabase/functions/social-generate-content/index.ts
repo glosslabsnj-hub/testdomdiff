@@ -127,28 +127,38 @@ Return ONLY a valid JSON array of 3 content idea objects. No markdown, no explan
       checkApiLimits(),
     ]);
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: limits.model,
-        max_tokens: 6000,
-        system: systemPrompt,
-        messages: [
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.9,
-      }),
-    });
+    let response: Response | null = null;
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: limits.model,
+          max_tokens: 6000,
+          system: systemPrompt,
+          messages: [
+            { role: "user", content: userPrompt },
+          ],
+          temperature: 0.9,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
+      if (response.ok || (response.status !== 529 && response.status !== 503)) {
+        break;
+      }
+      console.warn(`Anthropic returned ${response.status}, retry ${attempt + 1}/${maxRetries}`);
+      await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+    }
+
+    if (!response || !response.ok) {
+      const error = await response?.text();
       console.error("Anthropic API error:", error);
-      throw new Error(`Anthropic API returned ${response.status}`);
+      throw new Error(`Anthropic API returned ${response?.status}`);
     }
 
     const data = await response.json();
