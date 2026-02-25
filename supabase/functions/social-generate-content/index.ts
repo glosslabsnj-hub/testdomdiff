@@ -242,6 +242,8 @@ Return ONLY a valid JSON array of 3 content idea objects. No markdown, no explan
 
       throw new Error(`Anthropic API returned ${response?.status}`);
     }
+
+    const data = await response.json();
     const content = data.content?.[0]?.text;
 
     // Track usage
