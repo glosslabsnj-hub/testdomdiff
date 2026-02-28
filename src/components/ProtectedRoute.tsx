@@ -1,6 +1,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { verifySubscription } from "@/lib/verifySubscription";
 import { Loader2 } from "lucide-react";
@@ -13,6 +14,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }: ProtectedRouteProps) => {
   const { user, loading, hasAccess, profile, subscription, refreshSubscription, dataLoaded } = useAuth();
+  const { isAdmin: isAdminUser, isLoading: isAdminCheckLoading } = useAdminCheck();
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
@@ -117,7 +119,7 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   }
 
   // Show loading during initial auth load, subscription verification, admin check, or if user exists but data hasn't loaded
-  if (loading || isVerifying || !adminCheckComplete || (user && !dataLoaded)) {
+  if (loading || isVerifying || !adminCheckComplete || isAdminCheckLoading || (user && !dataLoaded)) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
@@ -138,9 +140,9 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
     return <Navigate to="/dashboard" replace />;
   }
 
-  // IMPORTANT: Admin routes skip subscription check entirely - admins always have access
-  // Only check subscription for non-admin routes
-  if (!requireAdmin && dataLoaded && !hasAccess) {
+  // IMPORTANT: Admins ALWAYS have access — they use preview mode to view user dashboards
+  // Only check subscription for non-admin users on non-admin routes
+  if (!requireAdmin && dataLoaded && !hasAccess && !isAdminUser) {
     // For onboarding routes during fresh signup, give extra time before redirecting
     if (isOnboardingRoute && isFreshSignup && !verificationComplete) {
       return (
@@ -153,14 +155,14 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
     return <Navigate to="/access-expired" replace />;
   }
 
-  // Check if intake is completed (for dashboard routes, not admin)
-  if (requireIntake && !requireAdmin && !profile?.intake_completed_at) {
+  // Check if intake is completed (for dashboard routes, not admin users)
+  if (requireIntake && !requireAdmin && !isAdminUser && !profile?.intake_completed_at) {
     return <Navigate to="/intake" replace />;
   }
 
-  // Check if onboarding video is completed (for dashboard routes, not admin)
+  // Check if onboarding video is completed (for dashboard routes, not admin users)
   // Only redirect if profile has loaded (profile !== null) to avoid race condition
-  if (requireIntake && !requireAdmin && profile && !profile.first_login_video_watched) {
+  if (requireIntake && !requireAdmin && !isAdminUser && profile && !profile.first_login_video_watched) {
     return <Navigate to="/onboarding" replace />;
   }
 

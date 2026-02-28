@@ -74,9 +74,7 @@ Deno.serve(async (req) => {
 
     // Fetch from Apify for uncached handles
     if (handlesToFetch.length > 0) {
-      const directUrls = handlesToFetch.map(
-        (h) => `https://www.instagram.com/${h.replace(/^@/, "")}/`
-      );
+      const usernames = handlesToFetch.map((h) => h.replace(/^@/, ""));
 
       // Run Apify Instagram Profile Scraper
       const runResponse = await fetch(
@@ -85,10 +83,10 @@ Deno.serve(async (req) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            directUrls,
+            usernames,
             resultsType: "details",
             resultsLimit: 12,
-          } as ApifyRunInput),
+          }),
         }
       );
 
