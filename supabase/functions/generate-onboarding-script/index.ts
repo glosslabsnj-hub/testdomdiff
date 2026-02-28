@@ -223,11 +223,11 @@ serve(async (req) => {
     }
 
     const config = TIER_CONFIGS[tier_key as keyof typeof TIER_CONFIGS];
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
-    if (!LOVABLE_API_KEY) {
+    if (!ANTHROPIC_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "LOVABLE_API_KEY not configured" }),
+        JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -389,25 +389,27 @@ Generate the comprehensive walkthrough script now.`;
 
     console.log("Generating detailed script for tier:", tier_key, "persona:", config.persona, "target duration:", targetDuration);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY!,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-haiku-4-5-20251001",
+        system: "You are an expert script writer for fitness coaching onboarding videos. Output only valid JSON with comprehensive, detailed content.",
         messages: [
-          { role: "system", content: "You are an expert script writer for fitness coaching onboarding videos. Output only valid JSON with comprehensive, detailed content." },
           { role: "user", content: prompt },
         ],
+        max_tokens: 4096,
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
+      console.error("Script generation error:", response.status, errorText);
       return new Response(
         JSON.stringify({ error: "Failed to generate script", details: errorText }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -417,7 +419,7 @@ Generate the comprehensive walkthrough script now.`;
     const data = await response.json();
     console.log("AI response structure:", JSON.stringify(data).substring(0, 500));
     
-    const content = data.choices?.[0]?.message?.content;
+    const content = data.content?.[0]?.text;
 
     if (!content) {
       console.error("Empty AI response. Full response:", JSON.stringify(data));

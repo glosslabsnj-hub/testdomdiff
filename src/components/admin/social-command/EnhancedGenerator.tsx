@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronUp,
   Lightbulb,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -67,9 +68,10 @@ interface GeneratedIdea extends ContentPostInput {
 
 interface Props {
   onSchedule?: (idea: GeneratedIdea) => void;
+  onGenerateScript?: (idea: GeneratedIdea) => void;
 }
 
-export default function EnhancedGenerator({ onSchedule }: Props) {
+export default function EnhancedGenerator({ onSchedule, onGenerateScript }: Props) {
   const { createPost } = useContentEngine();
   const { activePlatforms } = useSocialCommand();
 
@@ -300,10 +302,15 @@ export default function EnhancedGenerator({ onSchedule }: Props) {
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex flex-wrap gap-2 pt-2">
                     <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => saveIdea(idea)}>
                       <Save className="h-3 w-3" /> Save to Library
                     </Button>
+                    {onGenerateScript && (
+                      <Button size="sm" variant="outline" className="gap-1 text-xs bg-orange-500/10 text-orange-400 border-orange-500/30 hover:bg-orange-500/20" onClick={() => onGenerateScript(idea)}>
+                        <FileText className="h-3 w-3" /> Generate Script
+                      </Button>
+                    )}
                     {onSchedule && (
                       <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => onSchedule(idea)}>
                         <CalendarPlus className="h-3 w-3" /> Schedule It

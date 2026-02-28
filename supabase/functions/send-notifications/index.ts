@@ -183,7 +183,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Don't let the week slip by without documenting your wins and lessons.
                 </p>
-                <a href="https://testdomdiff.lovable.app/dashboard/check-in" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.netlify.app/dashboard/check-in" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Submit Check-In →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Iron sharpens iron. - Dom</p>
@@ -203,7 +203,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Get back in and complete your routines. Every day matters.
                 </p>
-                <a href="https://testdomdiff.lovable.app/dashboard/discipline" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.netlify.app/dashboard/discipline" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Complete Today's Routines →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">No excuses. - Dom</p>
@@ -223,7 +223,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Check your dashboard for this week's workouts, faith lesson, and nutrition plan.
                 </p>
-                <a href="https://testdomdiff.lovable.app/dashboard" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.netlify.app/dashboard" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   View This Week's Plan →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Stay locked in. - Dom</p>
@@ -240,7 +240,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   You just earned a new milestone badge! Your dedication is paying off.
                 </p>
-                <a href="https://testdomdiff.lovable.app/dashboard/settings" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.netlify.app/dashboard/settings" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   View Your Achievements →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Proud of you. - Dom</p>
@@ -260,7 +260,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Head to your dashboard and complete the "Start Here" checklist to get oriented.
                 </p>
-                <a href="https://testdomdiff.lovable.app/dashboard/start-here" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.netlify.app/dashboard/start-here" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Start Your Transformation →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Let's get after it. - Dom</p>
@@ -280,7 +280,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Every photo is proof of the work you're putting in. Don't skip this.
                 </p>
-                <a href="https://testdomdiff.lovable.app/dashboard/photos" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.netlify.app/dashboard/photos" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Upload Progress Photo →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Stay consistent. - Dom</p>

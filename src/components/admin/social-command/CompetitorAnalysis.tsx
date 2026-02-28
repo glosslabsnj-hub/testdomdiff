@@ -9,12 +9,19 @@ import {
   Lightbulb,
   Shield,
   Zap,
+  Users,
+  Heart,
+  BarChart3,
+  Instagram,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { useCompetitorAnalysis, type CompetitorAnalysis as CompetitorAnalysisType } from "@/hooks/useCompetitorAnalysis";
+import { useInstagramInsights } from "@/hooks/useInstagramInsights";
 
 const PLATFORMS = [
   { value: "instagram", label: "Instagram" },
@@ -23,7 +30,15 @@ const PLATFORMS = [
   { value: "twitter", label: "Twitter/X" },
 ];
 
-function AnalysisCard({ analysis, onDelete }: { analysis: CompetitorAnalysisType; onDelete: () => void }) {
+function AnalysisCard({
+  analysis,
+  onDelete,
+  domStats,
+}: {
+  analysis: CompetitorAnalysisType;
+  onDelete: () => void;
+  domStats: any;
+}) {
   const [expanded, setExpanded] = useState(false);
   const data = analysis.analysis_data as any;
 
@@ -47,6 +62,26 @@ function AnalysisCard({ analysis, onDelete }: { analysis: CompetitorAnalysisType
           </Button>
         </div>
       </div>
+
+      {/* Real Stats Comparison (if available) */}
+      {data?.real_stats && domStats && (
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded bg-background/50 p-2 border border-border">
+            <p className="text-[10px] text-muted-foreground mb-1">@domdifferent_</p>
+            <div className="space-y-1">
+              <p className="text-xs"><Users className="h-3 w-3 inline mr-1" />{formatNumber(domStats.follower_count)}</p>
+              <p className="text-xs"><Heart className="h-3 w-3 inline mr-1" />{domStats.engagement_rate}% eng</p>
+            </div>
+          </div>
+          <div className="rounded bg-background/50 p-2 border border-border">
+            <p className="text-[10px] text-muted-foreground mb-1">@{analysis.competitor_handle}</p>
+            <div className="space-y-1">
+              <p className="text-xs"><Users className="h-3 w-3 inline mr-1" />{formatNumber(data.real_stats.follower_count || 0)}</p>
+              <p className="text-xs"><Heart className="h-3 w-3 inline mr-1" />{data.real_stats.engagement_rate || "N/A"}% eng</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary */}
       {data?.competitor_summary && (
@@ -173,18 +208,31 @@ function AnalysisCard({ analysis, onDelete }: { analysis: CompetitorAnalysisType
 
 export default function CompetitorAnalysis() {
   const { analyses, isLoading, analyzeCompetitor, deleteAnalysis } = useCompetitorAnalysis();
+  const { insights: domInsights, fetchInsights } = useInstagramInsights("domdifferent_");
   const [handle, setHandle] = useState("");
   const [platform, setPlatform] = useState("instagram");
   const [pastedContent, setPastedContent] = useState("");
   const [notes, setNotes] = useState("");
+  const [fetchingCompetitor, setFetchingCompetitor] = useState(false);
 
   async function handleAnalyze() {
-    if (!handle.trim()) {
-      return;
+    if (!handle.trim()) return;
+
+    const cleanHandle = handle.trim().replace(/^@/, "");
+
+    // If Instagram, also fetch real stats via Apify
+    if (platform === "instagram") {
+      setFetchingCompetitor(true);
+      try {
+        await fetchInsights.mutateAsync([cleanHandle, "domdifferent_"]);
+      } catch {
+        // Continue with analysis even if Apify fails
+      }
+      setFetchingCompetitor(false);
     }
 
     await analyzeCompetitor.mutateAsync({
-      competitor_handle: handle.trim().replace(/^@/, ""),
+      competitor_handle: cleanHandle,
       platform,
       pasted_content: pastedContent ? pastedContent.split("\n---\n").filter(Boolean) : undefined,
       notes: notes || undefined,
@@ -203,10 +251,31 @@ export default function CompetitorAnalysis() {
         <div>
           <h3 className="text-lg font-bold">Competitor Analysis</h3>
           <p className="text-xs text-muted-foreground">
-            Analyze competitor strategies and find opportunities for Dom.
+            Analyze competitor strategies with real data + AI insights.
           </p>
         </div>
       </div>
+
+      {/* Dom's Stats Bar */}
+      {domInsights && (
+        <div className="rounded-lg bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 p-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-xs font-semibold text-orange-400">@domdifferent_</span>
+            <span className="text-xs text-muted-foreground">
+              <Users className="h-3 w-3 inline mr-0.5" />
+              {formatNumber(domInsights.follower_count)} followers
+            </span>
+            <span className="text-xs text-muted-foreground">
+              <Heart className="h-3 w-3 inline mr-0.5" />
+              {domInsights.engagement_rate}% engagement
+            </span>
+            <span className="text-xs text-muted-foreground">
+              <BarChart3 className="h-3 w-3 inline mr-0.5" />
+              {domInsights.posts_per_week} posts/week
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* New Analysis Form */}
       <div className="rounded-lg bg-charcoal border border-border p-4 space-y-4">
@@ -263,15 +332,21 @@ export default function CompetitorAnalysis() {
 
         <Button
           onClick={handleAnalyze}
-          disabled={!handle.trim() || analyzeCompetitor.isPending}
+          disabled={!handle.trim() || analyzeCompetitor.isPending || fetchingCompetitor}
           className="bg-orange-500 hover:bg-orange-600 text-white gap-2"
         >
-          {analyzeCompetitor.isPending ? (
+          {analyzeCompetitor.isPending || fetchingCompetitor ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Search className="h-4 w-4" />
           )}
-          {analyzeCompetitor.isPending ? "Analyzing..." : "Analyze Competitor"}
+          {fetchingCompetitor
+            ? "Fetching real stats..."
+            : analyzeCompetitor.isPending
+            ? "Analyzing..."
+            : platform === "instagram"
+            ? "Fetch Stats & Analyze"
+            : "Analyze Competitor"}
         </Button>
       </div>
 
@@ -301,6 +376,7 @@ export default function CompetitorAnalysis() {
             <AnalysisCard
               key={analysis.id}
               analysis={analysis}
+              domStats={domInsights}
               onDelete={() => deleteAnalysis.mutate(analysis.id)}
             />
           ))
@@ -308,4 +384,10 @@ export default function CompetitorAnalysis() {
       </div>
     </div>
   );
+}
+
+function formatNumber(num: number): string {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return String(num);
 }

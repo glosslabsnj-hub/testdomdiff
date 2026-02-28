@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -17,11 +18,15 @@ import {
   ChevronRight,
   Crown,
   Flame,
+  Eye,
+  Lock,
+  Star,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAdminPreview } from "@/contexts/AdminPreviewContext";
 
 export type AdminSection = 
   | "command"
@@ -70,6 +75,13 @@ export default function AdminSidebar({
   pendingOrders = 0,
 }: AdminSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
+  const { setPreviewTier } = useAdminPreview();
+
+  const handlePreviewDashboard = (tier: "membership" | "transformation" | "coaching") => {
+    setPreviewTier(tier);
+    navigate("/dashboard");
+  };
 
   // Define category colors
   const categoryColors: Record<string, string> = {
@@ -195,6 +207,63 @@ export default function AdminSidebar({
           )}
         </Button>
       </div>
+
+      {/* Preview Dashboards */}
+      {!collapsed && (
+        <div className="px-3 py-2 border-b border-border">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Preview As User
+          </h3>
+          <div className="space-y-1">
+            <button
+              onClick={() => handlePreviewDashboard("membership")}
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <Lock className="h-3.5 w-3.5 text-orange-400" />
+              <span>Solitary Confinement</span>
+            </button>
+            <button
+              onClick={() => handlePreviewDashboard("transformation")}
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <Eye className="h-3.5 w-3.5 text-blue-400" />
+              <span>General Population</span>
+            </button>
+            <button
+              onClick={() => handlePreviewDashboard("coaching")}
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <Star className="h-3.5 w-3.5 text-yellow-400" />
+              <span>Free World</span>
+            </button>
+          </div>
+        </div>
+      )}
+      {collapsed && (
+        <div className="px-2 py-2 border-b border-border space-y-1">
+          <button
+            onClick={() => handlePreviewDashboard("membership")}
+            className="w-full flex items-center justify-center py-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Preview: Solitary Confinement"
+          >
+            <Lock className="h-4 w-4 text-orange-400" />
+          </button>
+          <button
+            onClick={() => handlePreviewDashboard("transformation")}
+            className="w-full flex items-center justify-center py-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Preview: General Population"
+          >
+            <Eye className="h-4 w-4 text-blue-400" />
+          </button>
+          <button
+            onClick={() => handlePreviewDashboard("coaching")}
+            className="w-full flex items-center justify-center py-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Preview: Free World"
+          >
+            <Star className="h-4 w-4 text-yellow-400" />
+          </button>
+        </div>
+      )}
 
       {/* Navigation */}
       <ScrollArea className="flex-1">

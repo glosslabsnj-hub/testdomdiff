@@ -1,4 +1,4 @@
-project_id = "wbnrmnfsxrxcxnvmowtp"
+project_id = "oalnbcnvvkoqbatvxssk"
 
 # === PUBLIC FUNCTIONS (no auth required) ===
 
@@ -79,4 +79,16 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.social-competitor-analyze]
+verify_jwt = false
+
+[functions.apify-instagram-insights]
+verify_jwt = false
+
+[functions.firecrawl-viral-research]
+verify_jwt = false
+
+[functions.generate-content-script]
+verify_jwt = false
+
+[functions.social-engagement-coach]
 verify_jwt = false
