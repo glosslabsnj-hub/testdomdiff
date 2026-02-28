@@ -11,12 +11,14 @@ import {
   Hash,
   Copy,
   Check,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTrendScanner } from "@/hooks/useTrendScanner";
 import { useViralResearch } from "@/hooks/useViralResearch";
+import { downloadCSV } from "@/lib/exportUtils";
 
 interface Props {
   platform: string;
@@ -72,6 +74,65 @@ export default function TrendScanner({ platform, onGenerateFromTrend }: Props) {
           </p>
         )}
         <div className="flex gap-2 ml-auto">
+          {(latestScan || latestResult?.data) && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs gap-1"
+              onClick={() => {
+                const rows: Record<string, unknown>[] = [];
+                if (latestScan?.trends?.length > 0) {
+                  latestScan.trends.forEach((t: any) => {
+                    rows.push({
+                      type: "AI Trend",
+                      title: t.title,
+                      description: t.description,
+                      content_idea: t.content_idea,
+                      reach: t.estimated_reach,
+                      urgency: t.urgency,
+                    });
+                  });
+                }
+                if (latestScan?.content_angles?.length > 0) {
+                  latestScan.content_angles.forEach((a: any) => {
+                    rows.push({
+                      type: "Content Angle",
+                      title: a.angle,
+                      description: a.why,
+                      content_idea: a.example_hook,
+                      reach: "",
+                      urgency: "",
+                    });
+                  });
+                }
+                if (latestResult?.data?.viral_hooks?.length > 0) {
+                  latestResult.data.viral_hooks.forEach((h: any) => {
+                    rows.push({
+                      type: "Viral Hook",
+                      title: h.hook,
+                      description: h.why_it_works,
+                      content_idea: h.dom_adaptation,
+                      reach: "",
+                      urgency: "",
+                    });
+                  });
+                }
+                if (rows.length === 0) {
+                  rows.push({ type: "No data", title: "", description: "", content_idea: "", reach: "", urgency: "" });
+                }
+                downloadCSV(rows, `trends-${new Date().toISOString().split("T")[0]}.csv`, [
+                  { key: "type", label: "Type" },
+                  { key: "title", label: "Title/Hook" },
+                  { key: "description", label: "Description" },
+                  { key: "content_idea", label: "Content Idea" },
+                  { key: "reach", label: "Reach" },
+                  { key: "urgency", label: "Urgency" },
+                ]);
+              }}
+            >
+              <Download className="h-3 w-3" /> Export
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Library, Sparkles, Instagram, Twitter, Youtube, Zap, CalendarPlus, Search } from "lucide-react";
+import { Library, Sparkles, Instagram, Twitter, Youtube, Zap, CalendarPlus, Search, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -13,6 +13,7 @@ import {
   type ContentPostInput,
 } from "@/hooks/useContentEngine";
 import ContentCard from "@/components/admin/content-engine/ContentCard";
+import { downloadCSV } from "@/lib/exportUtils";
 
 const categories: { value: ContentCategory | "all"; label: string; short: string }[] = [
   { value: "all", label: "All", short: "All" },
@@ -198,7 +199,39 @@ export default function ContentLibrary({ onNavigateToGenerator }: Props) {
         </div>
       ) : (
         <>
-          <p className="text-xs text-muted-foreground">{filteredPosts.length} items</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">{filteredPosts.length} items</p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs gap-1 h-7"
+              onClick={() => {
+                downloadCSV(
+                  filteredPosts.map((p) => ({
+                    title: p.title || "",
+                    hook: p.hook || "",
+                    category: p.category || "",
+                    mode: p.mode || "",
+                    status: p.status || "",
+                    platforms: p.platforms?.join(", ") || "",
+                    talking_points: p.talking_points?.join("; ") || "",
+                  })),
+                  `content-library-${new Date().toISOString().split("T")[0]}.csv`,
+                  [
+                    { key: "title", label: "Title" },
+                    { key: "hook", label: "Hook" },
+                    { key: "category", label: "Category" },
+                    { key: "mode", label: "Mode" },
+                    { key: "status", label: "Status" },
+                    { key: "platforms", label: "Platforms" },
+                    { key: "talking_points", label: "Talking Points" },
+                  ]
+                );
+              }}
+            >
+              <Download className="h-3 w-3" /> Export CSV
+            </Button>
+          </div>
           <div className="grid gap-4 md:grid-cols-2">
             {filteredPosts.map((post) => (
               <ContentCard

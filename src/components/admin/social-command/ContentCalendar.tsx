@@ -27,6 +27,7 @@ import { useSocialCommand } from "@/hooks/useSocialCommand";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ContentCalendarSlot from "./ContentCalendarSlot";
+import { downloadCSV } from "@/lib/exportUtils";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const FULL_DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -227,7 +228,49 @@ export default function ContentCalendar() {
             <Badge variant="secondary" className="text-[10px]">{stats.remaining} remaining</Badge>
           </div>
           <Button variant="outline" size="sm" onClick={exportCalendar} className="text-xs gap-1">
-            <Download className="h-3 w-3" /> Export
+            <Download className="h-3 w-3" /> .ics
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs gap-1"
+            onClick={() => {
+              downloadCSV(
+                slots.map((s) => ({
+                  date: s.scheduled_date,
+                  day: DAY_NAMES[s.day_of_week] || "",
+                  time_slot: s.time_slot,
+                  platform: s.platform,
+                  title: s.title,
+                  content_type: s.content_type || "",
+                  category: s.category || "",
+                  status: s.status,
+                  hook: s.hook || "",
+                  talking_points: (s.talking_points as string[])?.join("; ") || "",
+                  filming_tips: s.filming_tips || "",
+                  cta: s.cta || "",
+                  notes: s.notes || "",
+                })),
+                `calendar-${weekDates[0].toISOString().split("T")[0]}.csv`,
+                [
+                  { key: "date", label: "Date" },
+                  { key: "day", label: "Day" },
+                  { key: "time_slot", label: "Time Slot" },
+                  { key: "platform", label: "Platform" },
+                  { key: "title", label: "Title" },
+                  { key: "content_type", label: "Type" },
+                  { key: "category", label: "Category" },
+                  { key: "status", label: "Status" },
+                  { key: "hook", label: "Hook" },
+                  { key: "talking_points", label: "Talking Points" },
+                  { key: "filming_tips", label: "Filming Tips" },
+                  { key: "cta", label: "CTA" },
+                  { key: "notes", label: "Notes" },
+                ]
+              );
+            }}
+          >
+            <Download className="h-3 w-3" /> .csv
           </Button>
           <Button
             size="sm"

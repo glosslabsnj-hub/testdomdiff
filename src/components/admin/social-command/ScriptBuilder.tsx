@@ -21,6 +21,7 @@ import {
   Zap,
   PenLine,
   BookOpen,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { useContentScripts, type ContentScript, type GenerateScriptInput } from "@/hooks/useContentScripts";
 import { useContentEngine, type ContentPost } from "@/hooks/useContentEngine";
 import { toast } from "sonner";
+import { downloadText, downloadCSV, formatScriptAsText } from "@/lib/exportUtils";
 
 const PLATFORMS = [
   { value: "instagram", label: "Instagram" },
@@ -344,14 +346,67 @@ export default function ScriptBuilder() {
 
       {/* Scripts Library */}
       <div className="space-y-3">
-        <h4 className="text-sm font-semibold">
-          Saved Scripts
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-semibold">
+            Saved Scripts
+            {scripts.length > 0 && (
+              <span className="text-muted-foreground font-normal ml-2">
+                ({scripts.length})
+              </span>
+            )}
+          </h4>
           {scripts.length > 0 && (
-            <span className="text-muted-foreground font-normal ml-2">
-              ({scripts.length})
-            </span>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs gap-1 h-7"
+                onClick={() => {
+                  const allText = scripts
+                    .map((s) => formatScriptAsText({ title: s.title, platform: s.platform, content_type: s.content_type, category: s.category, created_at: s.created_at, script_data: s.script_data }))
+                    .join("\n\n\n");
+                  downloadText(allText, `all-scripts-${new Date().toISOString().split("T")[0]}.txt`);
+                }}
+              >
+                <Download className="h-3 w-3" /> Export All
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs gap-1 h-7"
+                onClick={() => {
+                  downloadCSV(
+                    scripts.map((s) => ({
+                      title: s.title || "",
+                      platform: s.platform,
+                      content_type: s.content_type || "",
+                      category: s.category || "",
+                      approach: s.script_data?.approach || "",
+                      hook: s.script_data?.hook?.what_to_say || "",
+                      caption: s.script_data?.caption || "",
+                      hashtags: s.script_data?.hashtags?.join(" ") || "",
+                      created_at: new Date(s.created_at).toLocaleDateString(),
+                    })),
+                    `scripts-${new Date().toISOString().split("T")[0]}.csv`,
+                    [
+                      { key: "title", label: "Title" },
+                      { key: "platform", label: "Platform" },
+                      { key: "content_type", label: "Type" },
+                      { key: "category", label: "Category" },
+                      { key: "approach", label: "Approach" },
+                      { key: "hook", label: "Hook" },
+                      { key: "caption", label: "Caption" },
+                      { key: "hashtags", label: "Hashtags" },
+                      { key: "created_at", label: "Date" },
+                    ]
+                  );
+                }}
+              >
+                <Download className="h-3 w-3" /> CSV
+              </Button>
+            </div>
           )}
-        </h4>
+        </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
@@ -649,6 +704,24 @@ function ScriptCard({
 
           {/* Actions */}
           <div className="flex gap-2 pt-2 border-t border-border">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-xs gap-1"
+              onClick={() => {
+                const text = formatScriptAsText({
+                  title: script.title,
+                  platform: script.platform,
+                  content_type: script.content_type,
+                  category: script.category,
+                  created_at: script.created_at,
+                  script_data: sd,
+                });
+                downloadText(text, `script-${(script.title || "untitled").replace(/\s+/g, "-").toLowerCase()}.txt`);
+              }}
+            >
+              <Download className="h-3 w-3" /> Download
+            </Button>
             <Button
               size="sm"
               variant="ghost"

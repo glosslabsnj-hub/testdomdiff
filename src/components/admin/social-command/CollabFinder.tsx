@@ -15,6 +15,7 @@ import {
   Clock,
   Star,
   Search,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { downloadCSV } from "@/lib/exportUtils";
 
 interface CollabProspect {
   id: string;
@@ -207,14 +209,52 @@ export default function CollabFinder() {
             </p>
           </div>
         </div>
-        <Button
-          size="sm"
-          className="bg-purple-500 hover:bg-purple-600 text-white gap-1.5"
-          onClick={() => setShowAddForm(!showAddForm)}
-        >
-          <UserPlus className="h-3.5 w-3.5" />
-          Add Prospect
-        </Button>
+        <div className="flex gap-2">
+          {prospects.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs gap-1"
+              onClick={() => {
+                downloadCSV(
+                  prospects.map((p) => ({
+                    handle: `@${p.handle}`,
+                    name: p.name || "",
+                    platform: p.platform,
+                    followers: p.follower_count || "",
+                    niche: p.niche || "",
+                    status: p.status,
+                    collab_idea: p.collab_idea || "",
+                    notes: p.notes || "",
+                    last_contacted: p.last_contacted_at ? new Date(p.last_contacted_at).toLocaleDateString() : "",
+                  })),
+                  `collab-prospects-${new Date().toISOString().split("T")[0]}.csv`,
+                  [
+                    { key: "handle", label: "Handle" },
+                    { key: "name", label: "Name" },
+                    { key: "platform", label: "Platform" },
+                    { key: "followers", label: "Followers" },
+                    { key: "niche", label: "Niche" },
+                    { key: "status", label: "Status" },
+                    { key: "collab_idea", label: "Collab Idea" },
+                    { key: "notes", label: "Notes" },
+                    { key: "last_contacted", label: "Last Contacted" },
+                  ]
+                );
+              }}
+            >
+              <Download className="h-3.5 w-3.5" /> Export
+            </Button>
+          )}
+          <Button
+            size="sm"
+            className="bg-purple-500 hover:bg-purple-600 text-white gap-1.5"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            Add Prospect
+          </Button>
+        </div>
       </div>
 
       {/* How This Works - explained simply */}

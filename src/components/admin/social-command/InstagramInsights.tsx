@@ -12,11 +12,13 @@ import {
   Calendar,
   BarChart3,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useInstagramInsights } from "@/hooks/useInstagramInsights";
+import { downloadCSV } from "@/lib/exportUtils";
 
 export default function InstagramInsights() {
   const { insights, isLoading, isExpired, fetchInsights, history } =
@@ -48,22 +50,58 @@ export default function InstagramInsights() {
             </p>
           </div>
         </div>
-        <Button
-          size="sm"
-          onClick={handleRefresh}
-          disabled={fetchInsights.isPending}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs gap-1"
-        >
-          {fetchInsights.isPending ? (
-            <>
-              <Loader2 className="h-3 w-3 animate-spin" /> Fetching...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="h-3 w-3" /> Refresh
-            </>
+        <div className="flex gap-2">
+          {insights && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs gap-1"
+              onClick={() => {
+                const rows: Record<string, unknown>[] = [
+                  {
+                    username: insights.username,
+                    followers: insights.follower_count,
+                    following: insights.following_count,
+                    posts: insights.post_count,
+                    avg_likes: insights.avg_likes,
+                    avg_comments: insights.avg_comments,
+                    engagement_rate: `${insights.engagement_rate}%`,
+                    posts_per_week: insights.posts_per_week,
+                    verified: insights.is_verified ? "Yes" : "No",
+                    bio: insights.biography || "",
+                  },
+                ];
+                if (insights.top_posts?.length > 0) {
+                  insights.top_posts.forEach((post: any, i: number) => {
+                    if (i > 0) rows.push({});
+                    rows[0][`top_post_${i + 1}_caption`] = post.caption || "";
+                    rows[0][`top_post_${i + 1}_likes`] = post.likes;
+                    rows[0][`top_post_${i + 1}_comments`] = post.comments;
+                  });
+                }
+                downloadCSV(rows, `ig-insights-${new Date().toISOString().split("T")[0]}.csv`);
+              }}
+            >
+              <Download className="h-3 w-3" /> Export
+            </Button>
           )}
-        </Button>
+          <Button
+            size="sm"
+            onClick={handleRefresh}
+            disabled={fetchInsights.isPending}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs gap-1"
+          >
+            {fetchInsights.isPending ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin" /> Fetching...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-3 w-3" /> Refresh
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {isExpired && !insights && (
