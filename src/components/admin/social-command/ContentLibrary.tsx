@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Library, Sparkles, Instagram, Twitter, Youtube, Zap, CalendarPlus } from "lucide-react";
+import { Library, Sparkles, Instagram, Twitter, Youtube, Zap, CalendarPlus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -52,6 +52,7 @@ export default function ContentLibrary({ onNavigateToGenerator }: Props) {
   const [mode, setMode] = useState<ContentMode | "all">("all");
   const [status, setStatus] = useState<ContentStatus | "all">("all");
   const [platformFilter, setPlatformFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { posts, isLoading, updateStatus, deletePost } = useContentEngine({
     category,
@@ -59,11 +60,20 @@ export default function ContentLibrary({ onNavigateToGenerator }: Props) {
     status,
   });
 
-  const filteredPosts = platformFilter === "all"
+  const filteredPosts = (platformFilter === "all"
     ? posts
     : posts.filter((p) =>
         p.platforms.some((plat) => plat.toLowerCase() === platformFilter.toLowerCase())
-      );
+      )
+  ).filter((p) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      p.title?.toLowerCase().includes(q) ||
+      p.hook?.toLowerCase().includes(q) ||
+      p.talking_points?.some((tp) => tp.toLowerCase().includes(q))
+    );
+  });
 
   const handleUpdateStatus = (id: string, newStatus: ContentStatus) => {
     updateStatus.mutate({ id, status: newStatus });
@@ -75,6 +85,17 @@ export default function ContentLibrary({ onNavigateToGenerator }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by title, hook, or talking points..."
+          className="w-full h-9 pl-9 pr-3 rounded-lg bg-charcoal border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-orange-500/50"
+        />
+      </div>
+
       {/* Filters */}
       <div className="space-y-3">
         {/* Platform Filter */}

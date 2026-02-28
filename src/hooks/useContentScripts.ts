@@ -88,9 +88,10 @@ export function useContentScripts() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["content-scripts"] });
-      toast.success("Script generated!");
+      const count = data?.count || 1;
+      toast.success(`${count} script${count > 1 ? "s" : ""} generated!`);
     },
     onError: (error: any) => {
       toast.error("Failed to generate script");

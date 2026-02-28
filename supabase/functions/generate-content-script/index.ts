@@ -165,50 +165,72 @@ ${talking_points ? `EXISTING TALKING POINTS: ${JSON.stringify(talking_points)}` 
     // Common JSON output schema appended to both modes
     userPrompt += `
 
-Return a JSON object with this EXACT structure:
-{
-  "title": "Script title (5-8 words, catchy, Dom-style)",
-  "platform": "${platform}",
-  "content_type": "${content_type}",
-  "category": "${category}",
-  "script": {
-    "hook": {
-      "what_to_say": "EXACT words Dom opens with — aggressive, scroll-stopping, raw",
-      "how_to_say_it": "Delivery notes: energy level, facial expression, speed, tone",
-      "camera_notes": "Exactly how to frame this shot — angle, distance, location, what's visible",
-      "duration": "3-5 seconds"
-    },
-    "body": [
-      {
-        "section": "Section name (e.g., 'The Reality Check', 'The Grind', 'The Lesson')",
-        "what_to_say": "EXACT script — word for word what Dom says. Multiple sentences. In Dom's actual voice with his actual phrases. Make it REAL.",
-        "how_to_say_it": "Delivery: energy changes, pauses, emphasis, look at camera vs away, walk vs stand",
-        "b_roll_notes": "SPECIFIC visual suggestions for THIS setting — exact shots to film, angles, durations"
-      }
-    ],
-    "cta": {
-      "what_to_say": "Exact closing words — natural, not salesy",
-      "on_screen_text": "Text overlay for the CTA moment"
-    },
-    "caption": "Full Instagram/platform caption with personality — NOT corporate, NOT generic. Dom's voice. Include line breaks for readability.",
-    "hashtags": ["#relevant", "#hashtags", "#here"],
-    "thumbnail_idea": "Specific thumbnail concept — facial expression, text overlay, background, what makes someone click",
-    "filming_checklist": [
-      "Step 1: specific prep instruction for THIS situation",
-      "Step 2: specific filming instruction",
-      "Step 3: etc."
-    ],
-    "total_duration": "estimated total video length",
-    "equipment_needed": "what Dom needs (phone, tripod, etc.)"
+=== ABSOLUTELY CRITICAL: DO NOT DEFAULT TO PRISON ===
+Prison is ONE chapter of Dom's life — NOT every chapter. DO NOT make every script about prison, cells, bars, or incarceration.
+Dom's life TODAY is what makes content feel alive:
+- A HUSTLER building a business from scratch while working a regular job
+- A MAN OF FAITH who prays every morning and honors God through action
+- A BIG BROTHER actively mentoring his 13-year-old brother
+- A GRINDER working a day job AND building an empire simultaneously
+- A CONTROVERSY KING who says what nobody else will
+- A STREET-SMART ENTREPRENEUR who knows how to stack bread the right way
+- A COACH who genuinely changes lives
+
+Prison can be REFERENCED when it naturally fits (maybe 1 out of 5 scripts), but most scripts should be about Dom's CURRENT grind, faith, family, hustle, and daily life. If the topic is "morning workout" — talk about the discipline of showing up, not prison. If it's about money — talk about the hustle, not prison. Only bring up prison when it genuinely serves the story.
+
+=== GENERATE 3 DIFFERENT SCRIPT OPTIONS ===
+You MUST generate exactly 3 completely different script approaches. Each should take a DIFFERENT angle:
+- Script 1: The most scroll-stopping, aggressive, viral approach
+- Script 2: A storytelling/vulnerable/faith angle (still Dom's voice, still raw, just deeper)
+- Script 3: A wildcard — something creative, unexpected, or controversial that nobody else would think of
+
+Each script should feel COMPLETELY different from the others. Different hooks, different messages, different energy.
+
+Return a JSON ARRAY with exactly 3 objects, each with this structure:
+[
+  {
+    "title": "Script title (5-8 words, catchy, Dom-style)",
+    "platform": "${platform}",
+    "content_type": "${content_type}",
+    "category": "${category}",
+    "approach": "Brief 1-sentence description of the angle this script takes",
+    "script": {
+      "hook": {
+        "what_to_say": "EXACT words Dom opens with — aggressive, scroll-stopping, raw",
+        "how_to_say_it": "Delivery notes: energy level, facial expression, speed, tone",
+        "camera_notes": "Exactly how to frame this shot — angle, distance, location, what's visible",
+        "duration": "3-5 seconds"
+      },
+      "body": [
+        {
+          "section": "Section name (e.g., 'The Reality Check', 'The Grind', 'The Lesson')",
+          "what_to_say": "EXACT script — word for word what Dom says. Multiple sentences. In Dom's actual voice with his actual phrases. Make it REAL.",
+          "how_to_say_it": "Delivery: energy changes, pauses, emphasis, look at camera vs away, walk vs stand",
+          "b_roll_notes": "SPECIFIC visual suggestions for THIS setting — exact shots to film, angles, durations"
+        }
+      ],
+      "cta": {
+        "what_to_say": "Exact closing words — natural, not salesy",
+        "on_screen_text": "Text overlay for the CTA moment"
+      },
+      "caption": "Full Instagram/platform caption with personality — NOT corporate. Dom's voice. Include line breaks.",
+      "hashtags": ["#relevant", "#hashtags"],
+      "thumbnail_idea": "Specific thumbnail concept",
+      "filming_checklist": ["Step 1: ...", "Step 2: ...", "Step 3: ..."],
+      "total_duration": "estimated total video length",
+      "equipment_needed": "what Dom needs (phone, tripod, etc.)"
+    }
   }
-}
+]
 
 The body should have 2-4 sections depending on content length.
 Each body section's "what_to_say" should be 2-5 sentences of EXACT script in Dom's voice.
 
-REMEMBER: Dom is street. Dom is gritty. Dom doesn't hold back. The script should sound like HIM, not like a marketing agency wrote it. Use "bro", use real talk, use intensity. Some scripts should make you uncomfortable — that's Dom's superpower.
+REMEMBER: Dom is street. Dom is gritty. Dom doesn't hold back. The scripts should sound like HIM, not like a marketing agency wrote it. Use "bro", use real talk, use intensity.
 
-Return ONLY valid JSON. No markdown, no explanation.`;
+BUT ALSO REMEMBER: Dom is multi-dimensional. He's not just one thing. Mix up the energy across the 3 scripts — one can be aggressive, one can be thoughtful, one can be funny or controversial.
+
+Return ONLY a valid JSON array. No markdown, no explanation, no wrapping.`;
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -219,10 +241,10 @@ Return ONLY valid JSON. No markdown, no explanation.`;
       },
       body: JSON.stringify({
         model: limits.model,
-        max_tokens: 6000,
+        max_tokens: 12000,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
-        temperature: 0.85,
+        temperature: 0.9,
       }),
     });
 
@@ -249,42 +271,60 @@ Return ONLY valid JSON. No markdown, no explanation.`;
       throw new Error("No content in Claude response");
     }
 
-    let scriptData;
+    // Parse the 3-script array response
+    let scriptsArray: any[];
     try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      scriptData = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+      // Try array first (expected format)
+      const arrayMatch = content.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        scriptsArray = JSON.parse(arrayMatch[0]);
+      } else {
+        // Fallback: single object — wrap in array
+        const objMatch = content.match(/\{[\s\S]*\}/);
+        const single = objMatch ? JSON.parse(objMatch[0]) : JSON.parse(content);
+        scriptsArray = [single];
+      }
+      if (!Array.isArray(scriptsArray)) {
+        scriptsArray = [scriptsArray];
+      }
     } catch {
-      console.error("Failed to parse script:", content);
-      throw new Error("Failed to parse script from AI");
+      console.error("Failed to parse scripts:", content);
+      throw new Error("Failed to parse scripts from AI");
     }
 
-    // Save to DB
+    // Save all scripts to DB
     const supabaseService = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { data: saved, error: saveError } = await supabaseService
-      .from("content_scripts")
-      .insert({
-        content_post_id: content_post_id || null,
-        script_data: scriptData.script || scriptData,
-        platform,
-        title: scriptData.title || title || topic,
-        content_type,
-        category,
-      })
-      .select()
-      .single();
+    const savedScripts: any[] = [];
+    for (const scriptItem of scriptsArray) {
+      const { data: saved, error: saveError } = await supabaseService
+        .from("content_scripts")
+        .insert({
+          content_post_id: content_post_id || null,
+          script_data: { ...(scriptItem.script || scriptItem), approach: scriptItem.approach || null },
+          platform: scriptItem.platform || platform,
+          title: scriptItem.title || title || topic,
+          content_type: scriptItem.content_type || content_type,
+          category: scriptItem.category || category,
+        })
+        .select()
+        .single();
 
-    if (saveError) {
-      console.error("Failed to save script:", saveError);
+      if (saveError) {
+        console.error("Failed to save script:", saveError);
+      } else if (saved) {
+        savedScripts.push(saved);
+      }
     }
 
     return new Response(
       JSON.stringify({
-        script: scriptData,
-        saved_id: saved?.id || null,
+        scripts: scriptsArray,
+        saved_ids: savedScripts.map((s) => s.id),
+        count: scriptsArray.length,
         model_used: limits.model,
       }),
       { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }

@@ -435,6 +435,9 @@ function ScriptCard({
             )}
           </div>
           <p className="font-semibold text-sm">{script.title || "Untitled Script"}</p>
+          {sd?.approach && (
+            <p className="text-[10px] text-orange-400 mt-0.5">{sd.approach}</p>
+          )}
           {sd?.hook?.what_to_say && (
             <p className="text-xs text-muted-foreground italic mt-1 line-clamp-2">
               Hook: "{sd.hook.what_to_say}"

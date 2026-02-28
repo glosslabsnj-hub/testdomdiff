@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useInstagramInsights } from "@/hooks/useInstagramInsights";
 
 interface DailyAction {
   action: string;
@@ -141,7 +142,8 @@ export default function GrowthPlaybook() {
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [strategy, setStrategy] = useState<EngagementStrategy | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [currentFollowers] = useState(50000);
+  const { insights: igInsights } = useInstagramInsights("domdifferent_");
+  const currentFollowers = igInsights?.follower_count || 50000;
 
   const toggleCheck = (id: string) => {
     setCheckedItems((prev) => {

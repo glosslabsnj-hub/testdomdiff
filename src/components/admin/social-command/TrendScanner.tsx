@@ -9,6 +9,8 @@ import {
   BarChart3,
   Music,
   Hash,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +39,13 @@ export default function TrendScanner({ platform, onGenerateFromTrend }: Props) {
   const { latestScan, isExpired, runScan, isLoading } = useTrendScanner(platform);
   const { latestResult, runResearch } = useViralResearch();
   const [showResearch, setShowResearch] = useState(false);
+  const [copiedId, setCopiedId] = useState("");
+
+  const copyHook = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(""), 2000);
+  };
 
   const handleScan = () => {
     runScan.mutate(platform);
@@ -149,7 +158,16 @@ export default function TrendScanner({ platform, onGenerateFromTrend }: Props) {
                   </h5>
                   {latestResult.data.viral_hooks.map((hook, i) => (
                     <div key={i} className="rounded bg-background/50 p-2 space-y-1">
-                      <p className="text-xs font-medium">"{hook.hook}"</p>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-medium flex-1">"{hook.hook}"</p>
+                        <button
+                          onClick={() => copyHook(hook.dom_adaptation || hook.hook, `hook-${i}`)}
+                          className="text-muted-foreground hover:text-foreground shrink-0 p-1"
+                          title="Copy hook"
+                        >
+                          {copiedId === `hook-${i}` ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+                        </button>
+                      </div>
                       <p className="text-[10px] text-muted-foreground">{hook.why_it_works}</p>
                       <p className="text-[10px] text-orange-400">Dom's version: {hook.dom_adaptation}</p>
                     </div>
@@ -241,7 +259,15 @@ export default function TrendScanner({ platform, onGenerateFromTrend }: Props) {
                     <div key={i} className="rounded-lg bg-charcoal border border-border p-3">
                       <p className="text-sm font-medium">{angle.angle}</p>
                       <p className="text-xs text-muted-foreground mt-1">{angle.why}</p>
-                      <p className="text-xs italic text-orange-400 mt-2">Hook: "{angle.example_hook}"</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <p className="text-xs italic text-orange-400 flex-1">Hook: "{angle.example_hook}"</p>
+                        <button
+                          onClick={() => copyHook(angle.example_hook, `angle-${i}`)}
+                          className="text-muted-foreground hover:text-foreground shrink-0 p-1"
+                        >
+                          {copiedId === `angle-${i}` ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

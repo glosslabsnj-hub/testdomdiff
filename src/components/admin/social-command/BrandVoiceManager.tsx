@@ -136,7 +136,7 @@ export default function BrandVoiceManager() {
           </div>
         </div>
         <textarea
-          className="w-full min-h-[400px] rounded-lg bg-charcoal border border-border p-4 text-xs font-mono text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-1 focus:ring-orange-500/50"
+          className="w-full min-h-[200px] sm:min-h-[400px] rounded-lg bg-charcoal border border-border p-4 text-xs font-mono text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-1 focus:ring-orange-500/50"
           value={currentPrompt || ""}
           onChange={(e) => setEditedPrompt(e.target.value)}
           placeholder="No master prompt set. Click 'Regenerate' to generate one from personality data, or paste your own here..."
