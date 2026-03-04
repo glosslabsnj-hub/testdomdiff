@@ -70,7 +70,7 @@ export default function SolitaryMealCard({ meal }: SolitaryMealCardProps) {
             )}
 
             {/* Macros Grid */}
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="p-2 rounded-lg bg-muted/30 text-center">
                 <p className="text-lg font-bold text-orange-400">{meal.calories}</p>
                 <p className="text-xs text-muted-foreground">Calories</p>

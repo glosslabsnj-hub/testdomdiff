@@ -153,7 +153,7 @@ export default function PhotoUploadCard({
 
       {/* Upload Dialog */}
       <Dialog open={dialogOpen} onOpenChange={handleClose}>
-        <DialogContent className="bg-card border-border max-w-md">
+        <DialogContent className="bg-card border-border max-w-[95vw] sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-primary">Upload {label.title} Photo</DialogTitle>
           </DialogHeader>

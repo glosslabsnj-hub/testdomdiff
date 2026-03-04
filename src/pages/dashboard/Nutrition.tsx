@@ -188,26 +188,26 @@ const Nutrition = () => {
               <p className="text-sm text-muted-foreground ml-10">Step 1: Your daily macro targets based on your goal</p>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 rounded-lg bg-background border border-border">
-                  <Flame className="h-6 w-6 mx-auto mb-2 text-orange-500" />
-                  <p className="text-2xl font-bold text-foreground">{userCalories.targetCalories}</p>
-                  <p className="text-xs text-muted-foreground">Daily Calories</p>
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-4">
+                <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
+                  <Flame className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-orange-500" />
+                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.targetCalories}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">Calories</p>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-background border border-border">
-                  <Beef className="h-6 w-6 mx-auto mb-2 text-red-500" />
-                  <p className="text-2xl font-bold text-foreground">{userCalories.protein}g</p>
-                  <p className="text-xs text-muted-foreground">Protein</p>
+                <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
+                  <Beef className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-red-500" />
+                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.protein}g</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">Protein</p>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-background border border-border">
-                  <Wheat className="h-6 w-6 mx-auto mb-2 text-amber-500" />
-                  <p className="text-2xl font-bold text-foreground">{userCalories.carbs}g</p>
-                  <p className="text-xs text-muted-foreground">Carbs</p>
+                <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
+                  <Wheat className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-amber-500" />
+                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.carbs}g</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">Carbs</p>
                 </div>
-                <div className="text-center p-4 rounded-lg bg-background border border-border">
-                  <Droplet className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-                  <p className="text-2xl font-bold text-foreground">{userCalories.fats}g</p>
-                  <p className="text-xs text-muted-foreground">Fats</p>
+                <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
+                  <Droplet className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-blue-500" />
+                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.fats}g</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">Fats</p>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground text-center mt-4">
@@ -260,17 +260,19 @@ const Nutrition = () => {
 
             {/* Day Tabs */}
             <Tabs value={selectedDay} onValueChange={setSelectedDay} className="mb-8">
-              <TabsList className="grid grid-cols-7 bg-charcoal border border-border">
-                {assignedPlan.days.map(day => (
-                  <TabsTrigger 
-                    key={day.id} 
-                    value={day.day_number.toString()}
-                    className="text-xs sm:text-sm"
-                  >
-                    {day.day_name.slice(0, 3)}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                <TabsList className="inline-flex w-auto sm:grid sm:grid-cols-7 sm:w-full bg-charcoal border border-border">
+                  {assignedPlan.days.map(day => (
+                    <TabsTrigger
+                      key={day.id}
+                      value={day.day_number.toString()}
+                      className="text-xs sm:text-sm min-w-[48px] px-3 sm:px-2"
+                    >
+                      {day.day_name.slice(0, 3)}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
 
               {assignedPlan.days.map(day => (
                 <TabsContent key={day.id} value={day.day_number.toString()} className="mt-6">

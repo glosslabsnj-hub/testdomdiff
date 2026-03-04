@@ -157,11 +157,11 @@ const CheckIn = () => {
 
   return (
     <DashboardLayout>
-      <div className="section-container py-12">
-        <DashboardBackLink className="mb-8" />
+      <div className="section-container py-6 sm:py-12">
+        <DashboardBackLink className="mb-4 sm:mb-8" />
 
-        <div className="max-w-2xl">
-          <div className="flex items-center justify-between mb-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
             <div>
               <h1 className="headline-section mb-2">
                 {isCoaching ? "Weekly" : "Roll"} <span className="text-primary">{isCoaching ? "Report" : "Call"}</span>
@@ -197,7 +197,7 @@ const CheckIn = () => {
                         {format(new Date(checkIn.submitted_at), "MMM d, yyyy")}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
                       <div>
                         <p className="text-xs text-muted-foreground">Weight</p>
                         <p className="font-semibold">{checkIn.weight || "—"} lbs</p>
@@ -232,12 +232,12 @@ const CheckIn = () => {
               )}
             </div>
           ) : (
-            <div className="space-y-6 bg-card p-8 rounded-lg border border-border">
+            <div className="space-y-5 sm:space-y-6 bg-card p-4 sm:p-8 rounded-lg border border-border">
               <div className="bg-primary/10 p-4 rounded-lg border border-primary/30 mb-6">
                 <p className="text-sm font-semibold text-primary">Count {formData.week_number} Report</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1">
                   <Label>Weight (lbs)</Label>
                   <Input
@@ -267,7 +267,7 @@ const CheckIn = () => {
                   )}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1">
                   <Label>Avg Daily Steps</Label>
                   <Input
@@ -361,7 +361,7 @@ const CheckIn = () => {
                 </div>
                 
                 {!hasWeeklyPhoto && (
-                  <div className="max-w-xs">
+                  <div className="max-w-full sm:max-w-xs">
                     <PhotoUploadCard
                       photoType="during"
                       onUpload={handlePhotoUpload}

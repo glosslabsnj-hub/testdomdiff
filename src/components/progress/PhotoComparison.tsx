@@ -55,7 +55,7 @@ export default function PhotoComparison({ photos }: PhotoComparisonProps) {
         {/* Left Photo Selector */}
         <div>
           <p className="text-xs text-muted-foreground mb-2">Select Photo 1</p>
-          <div className="grid grid-cols-4 gap-2 mb-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
             {allPhotos.map((photo) => (
               <button
                 key={photo.id}
@@ -85,7 +85,7 @@ export default function PhotoComparison({ photos }: PhotoComparisonProps) {
         {/* Right Photo Selector */}
         <div>
           <p className="text-xs text-muted-foreground mb-2">Select Photo 2</p>
-          <div className="grid grid-cols-4 gap-2 mb-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
             {allPhotos.map((photo) => (
               <button
                 key={photo.id}

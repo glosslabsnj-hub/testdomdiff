@@ -211,7 +211,7 @@ const Faith = () => {
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
-          <div className="flex gap-2 flex-wrap justify-center">
+          <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-center">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((week) => {
               const lesson = lessons.find((l) => l.week_number === week);
               const isPublished = lesson?.is_published;
@@ -220,7 +220,7 @@ const Faith = () => {
                 <button
                   key={week}
                   onClick={() => setCurrentWeek(week)}
-                  className={`w-8 h-8 rounded-full text-sm font-medium transition-all relative ${
+                  className={`w-10 h-10 sm:w-9 sm:h-9 rounded-full text-sm font-medium transition-all relative ${
                     currentWeek === week
                       ? "bg-primary text-primary-foreground"
                       : isPublished
@@ -257,16 +257,18 @@ const Faith = () => {
           />
         ) : (
           <Tabs defaultValue="lesson" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-charcoal">
-              <TabsTrigger value="lesson">Sermon</TabsTrigger>
-              <TabsTrigger value="journal">Cell Notes</TabsTrigger>
-              <TabsTrigger value="prayers">Prayer Wall</TabsTrigger>
-              <TabsTrigger value="actions">Faith Walk</TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+              <TabsList className="inline-flex w-auto sm:grid sm:w-full sm:grid-cols-4 bg-charcoal">
+                <TabsTrigger value="lesson" className="min-w-[70px] px-3 sm:px-2 text-xs sm:text-sm">Sermon</TabsTrigger>
+                <TabsTrigger value="journal" className="min-w-[80px] px-3 sm:px-2 text-xs sm:text-sm">Cell Notes</TabsTrigger>
+                <TabsTrigger value="prayers" className="min-w-[85px] px-3 sm:px-2 text-xs sm:text-sm">Prayer Wall</TabsTrigger>
+                <TabsTrigger value="actions" className="min-w-[80px] px-3 sm:px-2 text-xs sm:text-sm">Faith Walk</TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Lesson Tab */}
             <TabsContent value="lesson" className="space-y-6">
-              <div className="bg-card p-8 rounded-lg border border-border">
+              <div className="bg-card p-4 sm:p-8 rounded-lg border border-border">
                 <div className="space-y-6">
                   {currentLesson.title && (
                     <div className="flex items-start justify-between">
@@ -362,7 +364,7 @@ const Faith = () => {
 
             {/* Journal Tab */}
             <TabsContent value="journal" className="space-y-6">
-              <div className="bg-card p-8 rounded-lg border border-border">
+              <div className="bg-card p-4 sm:p-8 rounded-lg border border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <PenLine className="w-5 h-5 text-primary" />
                   <h3 className="headline-card">Week {currentWeek} Reflection Journal</h3>
@@ -411,7 +413,7 @@ const Faith = () => {
 
             {/* Prayers Tab */}
             <TabsContent value="prayers" className="space-y-6">
-              <div className="bg-card p-8 rounded-lg border border-border">
+              <div className="bg-card p-4 sm:p-8 rounded-lg border border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <Heart className="w-5 h-5 text-primary" />
                   <h3 className="headline-card">Prayer List</h3>
@@ -460,7 +462,7 @@ const Faith = () => {
 
             {/* Actions Tab */}
             <TabsContent value="actions" className="space-y-6">
-              <div className="bg-card p-8 rounded-lg border border-border">
+              <div className="bg-card p-4 sm:p-8 rounded-lg border border-border">
                 <div className="flex items-center gap-2 mb-4">
                   <CheckCircle className="w-5 h-5 text-primary" />
                   <h3 className="headline-card">Weekly Action Steps</h3>

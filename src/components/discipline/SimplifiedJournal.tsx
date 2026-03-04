@@ -117,7 +117,7 @@ export default function SimplifiedJournal({
               History
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Journal History</DialogTitle>
             </DialogHeader>

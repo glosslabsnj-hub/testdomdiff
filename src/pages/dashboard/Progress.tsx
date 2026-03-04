@@ -134,8 +134,8 @@ const Progress = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="section-container py-12">
-        <DashboardBackLink className="mb-8" />
+      <div className="section-container py-6 sm:py-12">
+        <DashboardBackLink className="mb-4 sm:mb-8" />
 
         <h1 className="headline-section mb-2">
           {isCoaching ? "Progress" : "Time"} <span className="text-primary">{isCoaching ? "Report" : "Served"}</span>
@@ -164,9 +164,86 @@ const Progress = () => {
           <TabsContent value="metrics" className="space-y-8">
             {/* Workout Heatmap */}
             <WorkoutHeatmap />
-        <div className="bg-card p-8 rounded-lg border border-border mb-8">
-          <h2 className="headline-card mb-6">Sentence Progress Grid</h2>
-          <div className="overflow-x-auto">
+        <div className="bg-card p-4 sm:p-8 rounded-lg border border-border mb-8">
+          <h2 className="headline-card mb-4 sm:mb-6">Sentence Progress Grid</h2>
+
+          {/* Mobile: stacked card layout */}
+          <div className="space-y-3 md:hidden">
+            {weeks.map((week) => {
+              const isEditing = editingWeek === week;
+              const isSaving = savingWeek === week;
+              const weightTrend = getTrend(week, "weight");
+              const waistTrend = getTrend(week, "waist");
+              const hasData = getEntryValue(week, "weight") || getEntryValue(week, "waist") || getEntryValue(week, "workouts");
+
+              return (
+                <div key={week} className={cn("p-3 rounded-lg border", hasData ? "border-primary/30 bg-primary/5" : "border-border")}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-primary">Week {week}</span>
+                    {isEditing ? (
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="gold" onClick={() => handleSave(week)} disabled={isSaving} className="h-9 px-3">
+                          {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save"}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={handleCancel} className="h-9 px-3">Cancel</Button>
+                      </div>
+                    ) : (
+                      <Button size="sm" variant="ghost" onClick={() => handleEdit(week)} className="h-9 min-w-[44px]">Edit</Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Weight</span>
+                      <span className="flex items-center gap-1 font-medium">
+                        {isEditing ? (
+                          <Input className="w-20 h-8 text-center bg-charcoal" type="number" step="0.1" value={editValues.weight || ""} onChange={(e) => setEditValues({ ...editValues, weight: e.target.value })} />
+                        ) : (
+                          <>{getEntryValue(week, "weight") || "—"}{weightTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}{weightTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}</>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Waist</span>
+                      <span className="flex items-center gap-1 font-medium">
+                        {isEditing ? (
+                          <Input className="w-20 h-8 text-center bg-charcoal" type="number" step="0.1" value={editValues.waist || ""} onChange={(e) => setEditValues({ ...editValues, waist: e.target.value })} />
+                        ) : (
+                          <>{getEntryValue(week, "waist") || "—"}{waistTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}{waistTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}</>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Workouts</span>
+                      <span className="font-medium">
+                        {isEditing ? (
+                          <Input className="w-16 h-8 text-center bg-charcoal" type="number" value={editValues.workouts || ""} onChange={(e) => setEditValues({ ...editValues, workouts: e.target.value })} />
+                        ) : (getEntryValue(week, "workouts") || "—")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Steps</span>
+                      <span className="font-medium">
+                        {isEditing ? (
+                          <Input className="w-20 h-8 text-center bg-charcoal" type="number" value={editValues.steps_avg || ""} onChange={(e) => setEditValues({ ...editValues, steps_avg: e.target.value })} />
+                        ) : (getEntryValue(week, "steps_avg") ? Number(getEntryValue(week, "steps_avg")).toLocaleString() : "—")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between col-span-2">
+                      <span className="text-muted-foreground">Compliance</span>
+                      <span className="font-medium">
+                        {isEditing ? (
+                          <Input className="w-16 h-8 text-center bg-charcoal" type="number" max="100" value={editValues.compliance_pct || ""} onChange={(e) => setEditValues({ ...editValues, compliance_pct: e.target.value })} />
+                        ) : (getEntryValue(week, "compliance_pct") ? `${getEntryValue(week, "compliance_pct")}%` : "—")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop: table layout */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
@@ -192,77 +269,35 @@ const Progress = () => {
                       <td className="p-2">
                         <div className="flex items-center justify-center gap-1">
                           {isEditing ? (
-                            <Input
-                              className="w-20 h-8 text-center bg-charcoal"
-                              type="number"
-                              step="0.1"
-                              value={editValues.weight || ""}
-                              onChange={(e) => setEditValues({ ...editValues, weight: e.target.value })}
-                            />
+                            <Input className="w-20 h-8 text-center bg-charcoal" type="number" step="0.1" value={editValues.weight || ""} onChange={(e) => setEditValues({ ...editValues, weight: e.target.value })} />
                           ) : (
-                            <>
-                              <span>{getEntryValue(week, "weight") || "—"}</span>
-                              {weightTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}
-                              {weightTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}
-                            </>
+                            <><span>{getEntryValue(week, "weight") || "—"}</span>{weightTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}{weightTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}</>
                           )}
                         </div>
                       </td>
                       <td className="p-2">
                         <div className="flex items-center justify-center gap-1">
                           {isEditing ? (
-                            <Input
-                              className="w-20 h-8 text-center bg-charcoal"
-                              type="number"
-                              step="0.1"
-                              value={editValues.waist || ""}
-                              onChange={(e) => setEditValues({ ...editValues, waist: e.target.value })}
-                            />
+                            <Input className="w-20 h-8 text-center bg-charcoal" type="number" step="0.1" value={editValues.waist || ""} onChange={(e) => setEditValues({ ...editValues, waist: e.target.value })} />
                           ) : (
-                            <>
-                              <span>{getEntryValue(week, "waist") || "—"}</span>
-                              {waistTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}
-                              {waistTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}
-                            </>
+                            <><span>{getEntryValue(week, "waist") || "—"}</span>{waistTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}{waistTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}</>
                           )}
                         </div>
                       </td>
                       <td className="p-2 text-center">
                         {isEditing ? (
-                          <Input
-                            className="w-16 h-8 text-center bg-charcoal mx-auto"
-                            type="number"
-                            value={editValues.workouts || ""}
-                            onChange={(e) => setEditValues({ ...editValues, workouts: e.target.value })}
-                          />
-                        ) : (
-                          getEntryValue(week, "workouts") || "—"
-                        )}
+                          <Input className="w-16 h-8 text-center bg-charcoal mx-auto" type="number" value={editValues.workouts || ""} onChange={(e) => setEditValues({ ...editValues, workouts: e.target.value })} />
+                        ) : (getEntryValue(week, "workouts") || "—")}
                       </td>
                       <td className="p-2 text-center">
                         {isEditing ? (
-                          <Input
-                            className="w-20 h-8 text-center bg-charcoal mx-auto"
-                            type="number"
-                            value={editValues.steps_avg || ""}
-                            onChange={(e) => setEditValues({ ...editValues, steps_avg: e.target.value })}
-                          />
-                        ) : (
-                          getEntryValue(week, "steps_avg") ? Number(getEntryValue(week, "steps_avg")).toLocaleString() : "—"
-                        )}
+                          <Input className="w-20 h-8 text-center bg-charcoal mx-auto" type="number" value={editValues.steps_avg || ""} onChange={(e) => setEditValues({ ...editValues, steps_avg: e.target.value })} />
+                        ) : (getEntryValue(week, "steps_avg") ? Number(getEntryValue(week, "steps_avg")).toLocaleString() : "—")}
                       </td>
                       <td className="p-2 text-center">
                         {isEditing ? (
-                          <Input
-                            className="w-16 h-8 text-center bg-charcoal mx-auto"
-                            type="number"
-                            max="100"
-                            value={editValues.compliance_pct || ""}
-                            onChange={(e) => setEditValues({ ...editValues, compliance_pct: e.target.value })}
-                          />
-                        ) : (
-                          getEntryValue(week, "compliance_pct") ? `${getEntryValue(week, "compliance_pct")}%` : "—"
-                        )}
+                          <Input className="w-16 h-8 text-center bg-charcoal mx-auto" type="number" max="100" value={editValues.compliance_pct || ""} onChange={(e) => setEditValues({ ...editValues, compliance_pct: e.target.value })} />
+                        ) : (getEntryValue(week, "compliance_pct") ? `${getEntryValue(week, "compliance_pct")}%` : "—")}
                       </td>
                       <td className="p-2 text-center">
                         {isEditing ? (
@@ -285,55 +320,59 @@ const Progress = () => {
         </div>
 
         {/* Habit Tracker */}
-        <div className="bg-card p-8 rounded-lg border border-border">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-card p-4 sm:p-8 rounded-lg border border-border">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <h2 className="headline-card">Daily Compliance Tracker</h2>
             <div className="text-right">
-              <p className="text-2xl font-bold text-primary">{weeklyCompliance}%</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary">{weeklyCompliance}%</p>
               <p className="text-xs text-muted-foreground">Block Compliance Rate</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-8 gap-2 text-xs text-center mb-4">
-            <div className="font-semibold text-left">Habit</div>
-            {weekDays.map(day => (
-              <div key={day.toISOString()} className="text-muted-foreground">
-                {format(day, "EEE")}
-                <br />
-                <span className="text-[10px]">{format(day, "M/d")}</span>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="min-w-[420px]">
+              <div className="grid grid-cols-8 gap-1.5 sm:gap-2 text-xs text-center mb-3">
+                <div className="font-semibold text-left">Habit</div>
+                {weekDays.map(day => (
+                  <div key={day.toISOString()} className="text-muted-foreground">
+                    {format(day, "EEE")}
+                    <br />
+                    <span className="text-[10px]">{format(day, "M/d")}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {DEFAULT_HABITS.map((habit) => (
-            <div key={habit} className="grid grid-cols-8 gap-2 mb-2">
-              <div className="text-sm text-muted-foreground truncate">{habit}</div>
-              {weekDays.map(day => {
-                const isCompleted = isHabitCompleted(habit, day);
-                const key = `${habit}-${format(day, "yyyy-MM-dd")}`;
-                const isToggling = togglingHabit === key;
+              {DEFAULT_HABITS.map((habit) => (
+                <div key={habit} className="grid grid-cols-8 gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                  <div className="text-xs sm:text-sm text-muted-foreground truncate flex items-center">{habit}</div>
+                  {weekDays.map(day => {
+                    const isCompleted = isHabitCompleted(habit, day);
+                    const key = `${habit}-${format(day, "yyyy-MM-dd")}`;
+                    const isToggling = togglingHabit === key;
 
-                return (
-                  <button
-                    key={day.toISOString()}
-                    onClick={() => handleHabitToggle(habit, day)}
-                    disabled={isToggling}
-                    className={`aspect-square rounded border-2 transition-all flex items-center justify-center ${
-                      isCompleted
-                        ? "bg-primary border-primary"
-                        : "bg-charcoal border-border hover:border-primary/50"
-                    } ${isToggling ? "opacity-50" : ""}`}
-                  >
-                    {isToggling ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : isCompleted ? (
-                      <Check className="w-3 h-3 text-primary-foreground" />
-                    ) : null}
-                  </button>
-                );
-              })}
+                    return (
+                      <button
+                        key={day.toISOString()}
+                        onClick={() => handleHabitToggle(habit, day)}
+                        disabled={isToggling}
+                        className={`aspect-square min-h-[36px] sm:min-h-0 rounded border-2 transition-all flex items-center justify-center ${
+                          isCompleted
+                            ? "bg-primary border-primary"
+                            : "bg-charcoal border-border hover:border-primary/50"
+                        } ${isToggling ? "opacity-50" : ""}`}
+                      >
+                        {isToggling ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : isCompleted ? (
+                          <Check className="w-3 h-3 text-primary-foreground" />
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
           </div>
           </TabsContent>
 
@@ -394,7 +433,7 @@ const Progress = () => {
                 Upload a photo each week to track your visual transformation over 12 weeks.
               </p>
 
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3">
                 {weeks.map((week) => {
                   const weekPhoto = getWeeklyPhotos(week)[0];
                   return (

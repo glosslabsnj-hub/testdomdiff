@@ -140,7 +140,7 @@ const TemplateSelector = ({ currentTemplateId, onTemplateChange, trigger }: Temp
 
       {/* Template Selection Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Choose Your Discipline Level</DialogTitle>
             <DialogDescription>

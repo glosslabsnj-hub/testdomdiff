@@ -39,6 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 import jailSounds from "@/lib/sounds";
 import { fireVictoryConfetti, fireTaskConfetti } from "@/lib/confetti";
 import { usePersonalizedWorkout, type PersonalizedExercise } from "@/hooks/usePersonalizedWorkout";
+import DifficultyFeedback from "@/components/workout/DifficultyFeedback";
 
 interface ProgramDayWorkout {
   id: string;
@@ -217,7 +218,7 @@ const Program = () => {
     return (
       <div 
         className={cn(
-          "flex items-start gap-3 p-3 rounded transition-all cursor-pointer group",
+          "flex items-start gap-3 p-3 sm:p-3 py-3.5 rounded transition-all cursor-pointer group min-h-[44px]",
           isMain ? "bg-charcoal hover:bg-charcoal/80" : "bg-charcoal/50 hover:bg-charcoal/70"
         )}
         onClick={() => setSelectedExercise(exercise)}
@@ -230,8 +231,11 @@ const Program = () => {
             )}>
               {exercise.exercise_name}
             </p>
-            <Info className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Info className="w-4 h-4 text-primary sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
           </div>
+          {exercise.muscles_targeted && (
+            <p className="text-xs text-primary/70 mt-0.5">{exercise.muscles_targeted}</p>
+          )}
           {exercise.notes && (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{exercise.notes}</p>
           )}
@@ -292,10 +296,10 @@ const Program = () => {
           : pe.notes || null,
         demo_url: null,
         display_order: pe.display_order,
-        scaling_options: null,
+        scaling_options: pe.scaling_options || null,
         instructions: null,
-        form_tips: null,
-        muscles_targeted: null,
+        form_tips: pe.form_tips || null,
+        muscles_targeted: pe.muscles_targeted || null,
       })) as ProgramDayExercise[];
     }, [isPersonalized, personalizedExercises, baseExercises, workout.id]);
     
@@ -835,6 +839,13 @@ const Program = () => {
             <WeekCard key={week.id} week={week} />
           ))}
         </div>
+
+        {/* Difficulty Feedback */}
+        <DifficultyFeedback
+          currentWeek={currentWeek}
+          trackName={userTrack?.name || "Program"}
+          planType={subscription?.plan_type || "transformation"}
+        />
 
         {/* Bottom Actions */}
         <div className="mt-8 flex flex-wrap gap-4">

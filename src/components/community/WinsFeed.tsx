@@ -290,7 +290,7 @@ function CreateWinDialog({ open, onClose, onSubmit }: CreateWinDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-[95vw] sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-primary" />
@@ -400,7 +400,7 @@ function WinDetailDialog({ win, onClose, onLike }: WinDetailDialogProps) {
 
   return (
     <Dialog open={!!win} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
         {/* Media */}
         <div className="aspect-square rounded-lg overflow-hidden bg-background -mx-6 -mt-6">
           {win.media_type === "video" ? (

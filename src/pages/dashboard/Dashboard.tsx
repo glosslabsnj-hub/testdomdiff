@@ -470,7 +470,7 @@ const Dashboard = () => {
         </div>
 
         {/* Tiles Grid - single column on narrow phones, 2 col on sm, 4 col on lg */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {tiles.map((tile, index) => (
             <Link
               key={index}
@@ -527,7 +527,7 @@ const Dashboard = () => {
                           <Info className="w-4 h-4" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[200px] text-center">
+                      <TooltipContent side="top" className="max-w-[180px] text-center z-50">
                         <p className="text-sm">{tooltipText}</p>
                       </TooltipContent>
                     </Tooltip>
@@ -560,9 +560,9 @@ const Dashboard = () => {
         />
 
         {/* Quick Actions - Tier-aware routing */}
-        <div className="mt-12 steel-plate p-8 border border-steel-light/20">
+        <div className="mt-8 sm:mt-12 steel-plate p-4 sm:p-8 border border-steel-light/20">
           <h3 className="headline-card mb-4">Quick Actions</h3>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             {/* Primary workout action - tier-aware */}
             <Button variant="gold" size="lg" asChild>
               <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"}>

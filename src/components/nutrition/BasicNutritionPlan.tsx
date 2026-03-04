@@ -313,7 +313,7 @@ const BasicNutritionPlan = ({ userGoal }: BasicNutritionPlanProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-4 mb-6">
               <div className="text-center p-4 rounded-lg bg-background border border-border">
                 <Flame className="h-6 w-6 mx-auto mb-2 text-orange-500" />
                 <p className="text-2xl font-bold text-foreground">{plan.targetCalories}</p>

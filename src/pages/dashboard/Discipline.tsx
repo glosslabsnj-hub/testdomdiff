@@ -193,7 +193,7 @@ const Discipline = () => {
         </div>
 
         {!hasRoutines ? (
-          <div className="bg-charcoal p-8 rounded-lg border border-border text-center mb-6">
+          <div className="bg-charcoal p-4 sm:p-8 rounded-lg border border-border text-center mb-6">
             <Sun className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
             <h3 className="font-display text-lg mb-1">No Routines Set</h3>
             <p className="text-sm text-muted-foreground">
