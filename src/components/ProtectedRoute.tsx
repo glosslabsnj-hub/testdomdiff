@@ -2,7 +2,6 @@ import { ReactNode, useState, useEffect } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-import { supabase } from "@/integrations/supabase/client";
 import { verifySubscription } from "@/lib/verifySubscription";
 import { Loader2 } from "lucide-react";
 
@@ -14,12 +13,10 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }: ProtectedRouteProps) => {
   const { user, loading, hasAccess, profile, subscription, refreshSubscription, dataLoaded } = useAuth();
-  const { isAdmin: isAdminUser, isLoading: isAdminCheckLoading } = useAdminCheck();
+  const { isAdmin, isLoading: isAdminCheckLoading } = useAdminCheck();
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [adminCheckComplete, setAdminCheckComplete] = useState(!requireAdmin);
   const navigate = useNavigate();
   const [lastKnownUserId, setLastKnownUserId] = useState<string | null>(null);
 
@@ -38,50 +35,9 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
     }
   }, [user, lastKnownUserId, navigate]);
 
-  // Check admin role if required
-  useEffect(() => {
-    const checkAdminRole = async () => {
-      if (!requireAdmin || !user) {
-        setAdminCheckComplete(true);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error checking admin role:', error);
-          setIsAdmin(false);
-        } else {
-          setIsAdmin(!!data);
-        }
-      } catch (e) {
-        console.error('Admin check error:', e);
-        setIsAdmin(false);
-      } finally {
-        setAdminCheckComplete(true);
-      }
-    };
-
-    if (user && requireAdmin) {
-      checkAdminRole();
-    }
-  }, [user, requireAdmin]);
-
   // Check if this is a fresh signup that needs subscription verification
   useEffect(() => {
     const checkFreshSignup = async () => {
-      // Only run verification if:
-      // 1. It's a fresh signup
-      // 2. User exists
-      // 3. We don't have access yet
-      // 4. We're not already verifying
-      // 5. We haven't already completed verification
       if (isFreshSignup && user && !hasAccess && !isVerifying && !verificationComplete) {
         setIsVerifying(true);
 
@@ -94,19 +50,19 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
         setVerificationComplete(true);
       }
     };
-    
+
     checkFreshSignup();
   }, [user, hasAccess, isVerifying, verificationComplete, refreshSubscription, isFreshSignup]);
 
   // Debug logging - only in development
   if (import.meta.env.DEV) {
-    console.log("ProtectedRoute Debug:", { 
+    console.log("ProtectedRoute Debug:", {
       path: location.pathname,
-      user: !!user, 
-      loading, 
-      hasAccess, 
+      user: !!user,
+      loading,
+      hasAccess,
       dataLoaded,
-      profile: !!profile, 
+      profile: !!profile,
       subscription: subscription?.status,
       intakeCompleted: !!profile?.intake_completed_at,
       videoWatched: !!profile?.first_login_video_watched,
@@ -114,12 +70,12 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
       verificationComplete,
       requireAdmin,
       isAdmin,
-      adminCheckComplete
+      isAdminCheckLoading
     });
   }
 
   // Show loading during initial auth load, subscription verification, admin check, or if user exists but data hasn't loaded
-  if (loading || isVerifying || !adminCheckComplete || isAdminCheckLoading || (user && !dataLoaded)) {
+  if (loading || isVerifying || isAdminCheckLoading || (user && !dataLoaded)) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
@@ -142,7 +98,7 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
 
   // IMPORTANT: Admins ALWAYS have access — they use preview mode to view user dashboards
   // Only check subscription for non-admin users on non-admin routes
-  if (!requireAdmin && dataLoaded && !hasAccess && !isAdminUser) {
+  if (!requireAdmin && dataLoaded && !hasAccess && !isAdmin) {
     // For onboarding routes during fresh signup, give extra time before redirecting
     if (isOnboardingRoute && isFreshSignup && !verificationComplete) {
       return (
@@ -156,13 +112,12 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   }
 
   // Check if intake is completed (for dashboard routes, not admin users)
-  if (requireIntake && !requireAdmin && !isAdminUser && !profile?.intake_completed_at) {
+  if (requireIntake && !requireAdmin && !isAdmin && !profile?.intake_completed_at) {
     return <Navigate to="/intake" replace />;
   }
 
   // Check if onboarding video is completed (for dashboard routes, not admin users)
-  // Only redirect if profile has loaded (profile !== null) to avoid race condition
-  if (requireIntake && !requireAdmin && !isAdminUser && profile && !profile.first_login_video_watched) {
+  if (requireIntake && !requireAdmin && !isAdmin && profile && !profile.first_login_video_watched) {
     return <Navigate to="/onboarding" replace />;
   }
 

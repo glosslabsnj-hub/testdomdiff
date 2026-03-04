@@ -199,27 +199,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const calculateAccess = (): boolean => {
     if (!subscription) return false;
 
-    const now = new Date();
-
-    // For transformation plan, check expires_at
-    if (subscription.plan_type === "transformation") {
-      if (subscription.expires_at) {
-        return new Date(subscription.expires_at) > now;
-      }
-      return false;
-    }
-
-    // For membership and coaching, just check status
+    // All plans: just check active status (transformation is lifetime access)
     return subscription.status === "active";
   };
 
-  // Calculate days remaining for transformation plan
+  // Calculate days remaining — no longer used for transformation (lifetime access)
+  // Kept for potential future use with time-limited promotions
   const calculateDaysRemaining = (): number | null => {
-    if (!subscription || subscription.plan_type !== "transformation") {
-      return null;
-    }
-
-    if (!subscription.expires_at) return null;
+    if (!subscription || !subscription.expires_at) return null;
 
     const now = new Date();
     const expiresAt = new Date(subscription.expires_at);
@@ -253,6 +240,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
 
+        // Reset dataLoaded when user changes to prevent ProtectedRoute from
+        // evaluating redirect conditions with stale subscription/profile data
+        if (session?.user && event !== 'TOKEN_REFRESHED') {
+          setDataLoaded(false);
+        }
+
         if (session?.user) {
           // Pass isRefresh=true for token refresh events to preserve data on errors
           await Promise.all([
@@ -273,32 +266,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    (async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) throw error;
-
-        if (!mounted) return;
-
-        setSession(data.session);
-        setUser(data.session?.user ?? null);
-
-        if (data.session?.user) {
-          await Promise.all([
-            fetchProfile(data.session.user.id),
-            fetchSubscription(data.session.user.id),
-          ]);
-          if (mounted) setDataLoaded(true);
-        } else {
-          if (mounted) setDataLoaded(true);
+    // Just kick-start the auth flow — onAuthStateChange above handles data fetching.
+    // Calling getSession() triggers onAuthStateChange with the INITIAL_SESSION event,
+    // so we do NOT duplicate fetchProfile/fetchSubscription here.
+    supabase.auth.getSession().then(({ error }) => {
+      if (error) {
+        console.error("Error getting initial session:", error);
+        if (mounted) {
+          setDataLoaded(true);
+          safeSetLoading(false);
         }
-      } catch (err) {
-        console.error("Error getting initial session:", err);
-        if (mounted) setDataLoaded(true);
-      } finally {
-        safeSetLoading(false);
       }
-    })();
+      // If no error, onAuthStateChange already handles setting state + loading
+    });
 
     // Safety net: never spin forever if something upstream hangs unexpectedly.
     // Reduced to 8s to match 2 retry attempts with 5s timeout each

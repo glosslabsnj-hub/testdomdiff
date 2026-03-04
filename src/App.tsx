@@ -13,7 +13,16 @@ import CartDrawer from "@/components/shop/CartDrawer";
 import AnimatedRoutes from "@/components/AnimatedRoutes";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes — don't refetch if data is fresh
+      gcTime: 10 * 60 * 1000,   // 10 minutes — keep unused data in cache
+      refetchOnWindowFocus: false, // Don't refetch when tabbing back
+      retry: 1, // Only retry once on failure
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>
