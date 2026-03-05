@@ -42,7 +42,7 @@ const Index = () => {
   }];
   const programs = [{
     title: "Solitary Confinement",
-    price: "$49.99",
+    price: "$19.99",
     period: "/month",
     description: "The foundation. Strip away distractions. Just the essentials needed to perform.",
     features: ["4 bodyweight workout templates", "Daily discipline routine templates", "Basic nutrition template", "Weekly check-in submissions", "Progress tracking"],
@@ -51,7 +51,7 @@ const Index = () => {
     popular: false
   }, {
     title: "General Population",
-    price: "$379.99",
+    price: "$249",
     period: "one-time",
     description: "You've earned your place. Connect with peers, get video instruction, and start building your hustle.",
     features: ["Complete 12-week framework", "Weekly video coaching", "Nutrition templates + meal guides", "Faith + mindset lessons", "Skill-building lessons", "Community access"],
@@ -60,26 +60,26 @@ const Index = () => {
     popular: true
   }, {
     title: "Free World 1:1 Coaching",
-    price: "$999.99",
+    price: "$499",
     period: "/month",
     description: "You've done the time. Now live free. Direct access to Dom. Limited to 10 clients.",
     features: ["Weekly 1:1 video calls", "Direct messaging access", "Custom-built programming", "In-person training (NJ area)", "Advanced skill-building", "Everything in Gen Pop"],
-    cta: "Apply for Free World",
+    cta: "Enter Free World",
     href: "/checkout?plan=coaching",
     popular: false
   }];
   const testimonials = [{
-    name: "Marcus T.",
-    transformation: "Lost 47 lbs in 12 weeks",
-    quote: "Dom's program gave me the discipline I needed. For the first time, my faith and fitness work together."
+    name: "Dom's Own Transformation",
+    transformation: "Built from nothing in a cell",
+    quote: "No gym. No equipment. No freedom. Just a concrete floor and the will to change. Everything you see was built with bodyweight and discipline."
   }, {
-    name: "James R.",
-    transformation: "Built 15 lbs of muscle",
-    quote: "The prison-style workouts humbled me. No excuses. Just results. God got the glory."
+    name: "The Foundation",
+    transformation: "3.5 years of prison training",
+    quote: "I went in broken. Came out with a body, a mind, and a relationship with God that nobody can take from me. This program is that exact blueprint."
   }, {
-    name: "David M.",
-    transformation: "Complete lifestyle change",
-    quote: "I came for the body. I stayed for the community. This is different."
+    name: "50,000 Strong",
+    transformation: "A movement, not a program",
+    quote: "50,000 people follow this journey because it's real. No shortcuts. No filters. Just faith, discipline, and results that speak for themselves."
   }];
   const whatIncluded = [
     { item: "Bodyweight workout templates for any environment", tier: "All" },

@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useAdminPreview } from "@/contexts/AdminPreviewContext";
 import { verifySubscription } from "@/lib/verifySubscription";
 import { Loader2 } from "lucide-react";
 
@@ -14,15 +15,25 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }: ProtectedRouteProps) => {
   const { user, loading, hasAccess, profile, subscription, refreshSubscription, dataLoaded } = useAuth();
   const { isAdmin, isLoading: isAdminCheckLoading } = useAdminCheck();
+  const { isTestingFlow } = useAdminPreview();
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
   const navigate = useNavigate();
   const [lastKnownUserId, setLastKnownUserId] = useState<string | null>(null);
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
 
   // Check if this is an onboarding route (intake, onboarding, etc.)
   const isOnboardingRoute = ['/intake', '/intake-complete', '/onboarding', '/freeworld-intake'].includes(location.pathname);
   const isFreshSignup = sessionStorage.getItem("rs_fresh_signup") === "true";
+
+  // Safety timeout — never show a loading spinner for more than 10 seconds
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setLoadingTimedOut(true);
+    }, 10000);
+    return () => clearTimeout(timeout);
+  }, []);
 
   // Detect if user changed (e.g., different account logged in from another tab)
   useEffect(() => {
@@ -41,7 +52,7 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
       if (isFreshSignup && user && !hasAccess && !isVerifying && !verificationComplete) {
         setIsVerifying(true);
 
-        const verified = await verifySubscription(user.id, 8, 500);
+        const verified = await verifySubscription(user.id, 6, 500);
         if (verified) {
           await refreshSubscription();
         }
@@ -70,12 +81,16 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
       verificationComplete,
       requireAdmin,
       isAdmin,
-      isAdminCheckLoading
+      isAdminCheckLoading,
+      isTestingFlow,
+      loadingTimedOut,
     });
   }
 
   // Show loading during initial auth load, subscription verification, admin check, or if user exists but data hasn't loaded
-  if (loading || isVerifying || isAdminCheckLoading || (user && !dataLoaded)) {
+  const isStillLoading = loading || isVerifying || isAdminCheckLoading || (user && !dataLoaded);
+
+  if (isStillLoading && !loadingTimedOut) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
@@ -84,6 +99,11 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
         </p>
       </div>
     );
+  }
+
+  // If loading timed out and we still don't have a user, redirect to login
+  if (loadingTimedOut && !user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Not logged in
@@ -97,18 +117,23 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   }
 
   // IMPORTANT: Admins ALWAYS have access — they use preview mode to view user dashboards
-  // Only check subscription for non-admin users on non-admin routes
+  // Fresh signups on onboarding routes get through immediately (subscription was just created)
   if (!requireAdmin && dataLoaded && !hasAccess && !isAdmin) {
-    // For onboarding routes during fresh signup, give extra time before redirecting
-    if (isOnboardingRoute && isFreshSignup && !verificationComplete) {
-      return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Verifying your subscription...</p>
-        </div>
-      );
+    // Let fresh signups through to onboarding routes — subscription exists but may not be visible yet
+    if (isOnboardingRoute && isFreshSignup) {
+      // Fire-and-forget: try to load the subscription in the background
+      if (!isVerifying && !verificationComplete) {
+        // The useEffect will handle this
+      }
+      // Let them through regardless
+    } else {
+      return <Navigate to="/access-expired" replace />;
     }
-    return <Navigate to="/access-expired" replace />;
+  }
+
+  // Admin testing full flow — skip intake/onboarding redirects so they can walk through them
+  if (isAdmin && isTestingFlow) {
+    return <>{children}</>;
   }
 
   // Check if intake is completed (for dashboard routes, not admin users)
@@ -117,6 +142,7 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   }
 
   // Check if onboarding video is completed (for dashboard routes, not admin users)
+  // The onboarding video teaches users how to navigate the dashboard
   if (requireIntake && !requireAdmin && !isAdmin && profile && !profile.first_login_video_watched) {
     return <Navigate to="/onboarding" replace />;
   }

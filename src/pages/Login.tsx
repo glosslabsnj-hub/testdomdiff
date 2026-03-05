@@ -18,19 +18,19 @@ const planOptions: { value: PlanType; label: string; icon: React.ReactNode; desc
     value: "membership",
     label: "Solitary Confinement",
     icon: <User className="w-5 h-5" />,
-    description: "$49.99/mo - The Foundation",
+    description: "$19.99/mo — The Foundation",
   },
   {
     value: "transformation",
     label: "General Population",
     icon: <Sparkles className="w-5 h-5" />,
-    description: "$379.99 - One-Time",
+    description: "$249 — Full 12-Week Program",
   },
   {
     value: "coaching",
-    label: "Free World Coaching",
+    label: "Free World 1:1 Coaching",
     icon: <Crown className="w-5 h-5" />,
-    description: "$999.99/mo - Limited Spots",
+    description: "$499/mo — Direct Access to Dom",
   },
 ];
 
@@ -56,8 +56,8 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<PlanType>(
-    urlPlan && ["membership", "transformation", "coaching"].includes(urlPlan) 
-      ? urlPlan 
+    urlPlan && ["membership", "transformation", "coaching"].includes(urlPlan)
+      ? urlPlan
       : "transformation"
   );
 
@@ -81,102 +81,139 @@ const Login = () => {
     setPasswordError("");
     setIsLoading(true);
 
+    // Hard safety timeout — spinner NEVER runs longer than 15s
+    const safetyTimeout = window.setTimeout(() => {
+      console.error("[Auth] Safety timeout hit — forcing loading off");
+      setIsLoading(false);
+    }, 15000);
+
     const safeEmail = email.trim().toLowerCase();
 
-    if (isSignUp) {
-      // Validate password confirmation
-      if (password !== confirmPassword) {
-        setPasswordError("Passwords do not match");
-        setIsLoading(false);
-        return;
-      }
+    try {
+      if (isSignUp) {
+        if (password !== confirmPassword) {
+          setPasswordError("Passwords do not match");
+          setIsLoading(false);
+          clearTimeout(safetyTimeout);
+          return;
+        }
 
-      if (password.length < 8) {
-        setPasswordError("Password must be at least 8 characters");
-        setIsLoading(false);
-        return;
-      }
+        if (password.length < 8) {
+          setPasswordError("Password must be at least 8 characters");
+          setIsLoading(false);
+          clearTimeout(safetyTimeout);
+          return;
+        }
 
-      // Sign up flow
-      const { error, data } = await signUp(safeEmail, password);
+        // Step 1: Sign up
+        console.log("[Signup] Step 1: Creating account...");
+        const { error, data } = await signUp(safeEmail, password);
+        console.log("[Signup] Step 1 done:", { error: error?.message, hasSession: !!data?.session });
 
-      if (error) {
-        toast({
-          title: "Sign Up Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
+        if (error) {
+          toast({ title: "Sign Up Failed", description: error.message, variant: "destructive" });
+          setIsLoading(false);
+          clearTimeout(safetyTimeout);
+          return;
+        }
 
-      const newUserId = data?.user?.id ?? data?.session?.user?.id;
-      const userEmail = data?.user?.email ?? safeEmail;
-
-      if (newUserId) {
-        try {
-          // Redirect to Stripe checkout for payment
-          const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke(
-            "stripe-create-checkout",
-            {
-              body: {
-                planType: selectedPlan,
-                userId: newUserId,
-                email: userEmail,
-              },
-            }
-          );
-
-          if (checkoutError) throw new Error(checkoutError.message || "Failed to create checkout");
-          if (checkoutData?.error) throw new Error(checkoutData.error);
-
-          if (checkoutData?.url) {
-            // Mark fresh signup for post-payment flow
-            sessionStorage.setItem("rs_fresh_signup", "true");
-            window.location.href = checkoutData.url;
-            return;
-          }
-
-          throw new Error("No checkout URL returned");
-        } catch (err: any) {
+        if (!data?.session) {
           toast({
-            title: "Checkout Error",
-            description: err?.message || "Account created but checkout failed. Please try again from the checkout page.",
+            title: "Account Already Exists",
+            description: "This email is already registered. Please sign in instead.",
             variant: "destructive",
           });
           setIsLoading(false);
+          setIsSignUp(false);
+          clearTimeout(safetyTimeout);
           return;
         }
-      } else {
-        toast({
-          title: "Sign Up Error",
-          description: "Account created but session was not established. Please try signing in.",
-          variant: "destructive",
-        });
-      }
-    } else {
-      // Sign in flow
-      const { error } = await signIn(safeEmail, password);
 
-      if (error) {
-        toast({
-          title: "Login Failed",
-          description: error.message,
-          variant: "destructive",
-        });
+        const newUserId = data.session.user.id;
+        const userEmail = data.session.user.email ?? safeEmail;
+
+        // Step 2: Create subscription (with 10s timeout)
+        console.log("[Signup] Step 2: Creating subscription for", newUserId, selectedPlan);
+        const controller = new AbortController();
+        const fnTimeout = setTimeout(() => controller.abort(), 10000);
+
+        let res;
+        try {
+          res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user-subscription`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${data.session.access_token}`,
+                "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              },
+              body: JSON.stringify({
+                userId: newUserId,
+                email: userEmail,
+                planType: selectedPlan,
+              }),
+              signal: controller.signal,
+            }
+          );
+          clearTimeout(fnTimeout);
+        } catch (fetchErr: any) {
+          clearTimeout(fnTimeout);
+          if (fetchErr.name === "AbortError") {
+            throw new Error("Subscription request timed out. Please try again.");
+          }
+          throw fetchErr;
+        }
+
+        console.log("[Signup] Step 2 done: HTTP", res.status);
+        if (!res.ok) {
+          const body = await res.text();
+          console.error("[Signup] Function error:", res.status, body);
+          throw new Error(`Subscription failed (HTTP ${res.status}): ${body}`);
+        }
+
+        const resData = await res.json();
+        console.log("[Signup] Step 2 response:", resData);
+
+        if (resData.error) {
+          throw new Error(`Subscription error: ${resData.error}`);
+        }
+
+        // Step 3: Brief wait then redirect
+        console.log("[Signup] Step 3: Redirecting to intake...");
+        sessionStorage.setItem("rs_fresh_signup", "true");
+        const intakeRoute = selectedPlan === "coaching" ? "/freeworld-intake" : "/intake";
         setIsLoading(false);
-        return;
+        clearTimeout(safetyTimeout);
+        navigate(intakeRoute, { replace: true });
+      } else {
+        // Sign in flow
+        console.log("[Signin] Signing in...");
+        const { error } = await signIn(safeEmail, password);
+        console.log("[Signin] Done:", { error: error?.message });
+
+        if (error) {
+          toast({ title: "Login Failed", description: error.message, variant: "destructive" });
+          setIsLoading(false);
+          clearTimeout(safetyTimeout);
+          return;
+        }
+
+        toast({ title: "Welcome back!", description: "You've successfully logged in." });
+        setIsLoading(false);
+        clearTimeout(safetyTimeout);
+        navigate(from, { replace: true });
       }
-
+    } catch (err: any) {
+      console.error("[Auth] Error:", err);
       toast({
-        title: "Welcome back!",
-        description: "You've successfully logged in.",
+        title: "Error",
+        description: err?.message || "Something went wrong. Please try again.",
+        variant: "destructive",
       });
-
-      navigate(from, { replace: true });
+      setIsLoading(false);
+      clearTimeout(safetyTimeout);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -195,8 +232,8 @@ const Login = () => {
                 )}
               </h1>
               <p className="text-muted-foreground">
-                {isSignUp 
-                  ? "Begin processing to access your cell block" 
+                {isSignUp
+                  ? "Begin processing to access your cell block"
                   : "Re-enter the system to access your block"
                 }
               </p>
@@ -224,7 +261,7 @@ const Login = () => {
               {isSignUp && !isFromCheckout && (
                 <div className="mb-6 p-3 rounded-lg bg-primary/10 border border-primary/30">
                   <p className="text-xs text-primary text-center font-medium">
-                    🛠️ Processing Center — Select your block assignment
+                    Select your block assignment
                   </p>
                 </div>
               )}
@@ -336,8 +373,8 @@ const Login = () => {
                           }`}
                         >
                           <div className={`p-2 rounded-full ${
-                            selectedPlan === plan.value 
-                              ? "bg-primary text-primary-foreground" 
+                            selectedPlan === plan.value
+                              ? "bg-primary text-primary-foreground"
                               : "bg-muted text-muted-foreground"
                           }`}>
                             {plan.icon}

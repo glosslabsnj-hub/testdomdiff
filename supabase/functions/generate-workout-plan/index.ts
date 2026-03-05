@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, regenerate, phase: requestedPhase } = await req.json();
+    const { userId, regenerate, phase: requestedPhase, coachingApproach } = await req.json();
 
     if (!userId) {
       return new Response(
@@ -277,9 +277,19 @@ Deno.serve(async (req) => {
       const phase = PHASE_DESCRIPTIONS[phaseKey];
       const startWeek = phaseKey === "foundation" ? 1 : phaseKey === "build" ? 5 : 9;
 
-      const tierContext = planType === "coaching"
-        ? `\n\nTHIS IS A FREE WORLD (1:1 COACHING) CLIENT — Premium tier. Generate MORE detailed coach notes, MORE specific scaling options, MORE personalized exercise selection based on their detailed profile. Include advanced techniques, tempo prescriptions, and RPE targets for each exercise. This person is paying top dollar for the most detailed, personalized program possible.`
-        : `\n\nTHIS IS A GENERAL POPULATION CLIENT — 12-week transformation tier. Generate solid, comprehensive workouts with clear scaling options and form cues. Dom's energy in every note.`;
+      let tierContext: string;
+      if (planType === "coaching") {
+        tierContext = `\n\nTHIS IS A FREE WORLD (1:1 COACHING) CLIENT — Premium tier. Generate MORE detailed coach notes, MORE specific scaling options, MORE personalized exercise selection based on their detailed profile. Include advanced techniques, tempo prescriptions, and RPE targets for each exercise. This person is paying top dollar for the most detailed, personalized program possible.`;
+        if (coachingApproach) {
+          tierContext += `\n\nDOM'S APPROVED APPROACH FOR THIS CLIENT:\nTitle: ${coachingApproach.title}\nApproach: ${coachingApproach.summary}\nKey Focus Areas: ${(coachingApproach.differentiators || []).join(", ")}`;
+          if (coachingApproach.domNotes) {
+            tierContext += `\nDom's Personal Notes: ${coachingApproach.domNotes}`;
+          }
+          tierContext += `\n\nFOLLOW THIS APPROVED APPROACH. The workout style, exercise selection, and programming should reflect these specific choices Dom made for this client.`;
+        }
+      } else {
+        tierContext = `\n\nTHIS IS A GENERAL POPULATION CLIENT — 12-week transformation tier. Generate solid, comprehensive workouts with clear scaling options and form cues. Dom's energy in every note.`;
+      }
 
       const prompt = `${DOM_WORKOUT_PHILOSOPHY}
 ${tierContext}

@@ -455,6 +455,33 @@ const Dashboard = () => {
           className="mb-6"
         />
 
+        {/* Coaching Plan Status Banner */}
+        {isCoaching && profile?.coaching_plan_status && profile.coaching_plan_status !== "approved" && profile.coaching_plan_status !== "none" && (
+          <div className="mb-6 p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                {profile.coaching_plan_status === "generating" ? (
+                  <Clock className="w-5 h-5 text-purple-400 animate-spin" />
+                ) : (
+                  <Crown className="w-5 h-5 text-purple-400" />
+                )}
+              </div>
+              <div>
+                <p className="font-medium text-purple-400">
+                  {profile.coaching_plan_status === "generating"
+                    ? "Building Your Plan Options..."
+                    : "Dom is Reviewing Your Plan"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {profile.coaching_plan_status === "generating"
+                    ? "AI is creating personalized plan approaches based on your intake. This takes a few minutes."
+                    : "Dom is hand-picking the perfect workout and meal plan approach for you. You'll be notified when it's ready."}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Section Header - Tier-aware */}
         <div className="mb-6">
           <h2 className="headline-section mb-1">

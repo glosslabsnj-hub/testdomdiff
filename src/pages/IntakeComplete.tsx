@@ -30,7 +30,8 @@ const IntakeComplete = () => {
     }).catch((err) => console.error("Video pre-generation error:", err));
   }, [isCoaching, isTransformation, isTestingFlow]);
 
-  // Generate personalized workout plan and meal plan (fire and forget) — Gen Pop & Free World only
+  // Generate personalized plans (fire and forget)
+  // Gen Pop: direct plan generation. Free World: generate options for Dom to review.
   useEffect(() => {
     if (!isTransformation && !isCoaching) return;
 
@@ -43,25 +44,39 @@ const IntakeComplete = () => {
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       };
 
-      console.log(`Generating plans for user ${user.id} (test flow: ${isTestingFlow})`);
+      console.log(`Generating plans for user ${user.id} (coaching: ${isCoaching}, test flow: ${isTestingFlow})`);
 
       const regen = isTestingFlow;
 
-      // Fire workout phases in parallel (one call per phase to avoid timeout)
-      // Plus meal plan — all 4 calls are independent
-      for (const phase of ["foundation", "build", "peak"]) {
-        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-workout-plan`, {
+      if (isCoaching) {
+        // Free World: generate plan OPTIONS for Dom to review (workout + meal)
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-coaching-options`, {
           method: "POST",
           headers,
-          body: JSON.stringify({ userId: user.id, regenerate: regen, phase }),
-        }).catch((err) => console.error(`Workout ${phase} generation error:`, err));
-      }
+          body: JSON.stringify({ userId: user.id, planType: "workout" }),
+        }).catch((err) => console.error("Coaching workout options error:", err));
 
-      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-meal-plan`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ userId: user.id, regenerate: regen }),
-      }).catch((err) => console.error("Meal plan generation error:", err));
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-coaching-options`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ userId: user.id, planType: "meal" }),
+        }).catch((err) => console.error("Coaching meal options error:", err));
+      } else {
+        // Gen Pop: direct plan generation (3 phases + meal plan)
+        for (const phase of ["foundation", "build", "peak"]) {
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-workout-plan`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ userId: user.id, regenerate: regen, phase }),
+          }).catch((err) => console.error(`Workout ${phase} generation error:`, err));
+        }
+
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-meal-plan`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ userId: user.id, regenerate: regen }),
+        }).catch((err) => console.error("Meal plan generation error:", err));
+      }
     };
 
     generatePlans();

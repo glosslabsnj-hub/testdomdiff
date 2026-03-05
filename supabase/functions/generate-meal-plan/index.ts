@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, regenerate } = await req.json();
+    const { userId, regenerate, coachingApproach } = await req.json();
 
     if (!userId) {
       return new Response(
@@ -185,9 +185,19 @@ Deno.serve(async (req) => {
       profile.nutrition_style ? `NUTRITION STYLE/NOTES: ${profile.nutrition_style}` : null,
     ].filter(Boolean).join("\n");
 
-    const tierContext = planType === "coaching"
-      ? "\n\nTHIS IS A FREE WORLD (1:1 COACHING) CLIENT. Generate PREMIUM meal plans with more variety, more detailed instructions, specific macro targets per meal, and coach notes about timing, portion adjustment, and meal swap suggestions."
-      : "\n\nTHIS IS A GENERAL POPULATION CLIENT. Generate solid, practical meal plans with clear instructions and macros.";
+    let tierContext: string;
+    if (planType === "coaching") {
+      tierContext = "\n\nTHIS IS A FREE WORLD (1:1 COACHING) CLIENT. Generate PREMIUM meal plans with more variety, more detailed instructions, specific macro targets per meal, and coach notes about timing, portion adjustment, and meal swap suggestions.";
+      if (coachingApproach) {
+        tierContext += `\n\nDOM'S APPROVED NUTRITION APPROACH FOR THIS CLIENT:\nTitle: ${coachingApproach.title}\nApproach: ${coachingApproach.summary}\nKey Focus Areas: ${(coachingApproach.differentiators || []).join(", ")}`;
+        if (coachingApproach.domNotes) {
+          tierContext += `\nDom's Personal Notes: ${coachingApproach.domNotes}`;
+        }
+        tierContext += `\n\nFOLLOW THIS APPROVED APPROACH. The meal structure, food choices, and macro targets should reflect Dom's specific choices for this client.`;
+      }
+    } else {
+      tierContext = "\n\nTHIS IS A GENERAL POPULATION CLIENT. Generate solid, practical meal plans with clear instructions and macros.";
+    }
 
     const prompt = `${DOM_NUTRITION_PHILOSOPHY}
 ${tierContext}

@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 
-type PlanType = "membership" | "transformation";
+type PlanType = "membership" | "transformation" | "coaching";
 
 const Checkout = () => {
   const { trackCheckoutStart } = useAnalytics();
@@ -21,7 +21,7 @@ const Checkout = () => {
 
   const planParam = searchParams.get("plan");
   const plan: PlanType =
-    planParam === "membership" || planParam === "transformation"
+    planParam === "membership" || planParam === "transformation" || planParam === "coaching"
       ? planParam
       : "transformation";
   const [isProcessing, setIsProcessing] = useState(false);
@@ -29,24 +29,25 @@ const Checkout = () => {
   const plans = {
     membership: {
       name: "Solitary Confinement",
-      price: "$49.99",
+      price: "$19.99",
       period: "/month",
       description: "The foundation — essentials only",
     },
     transformation: {
       name: "General Population",
-      price: "$379.99",
+      price: "$249",
       period: "one-time",
-      description: "Earn your place — full program access",
+      description: "Earn your place — full 12-week program",
+    },
+    coaching: {
+      name: "Free World 1:1 Coaching",
+      price: "$499",
+      period: "/month",
+      description: "Direct access to Dom — custom everything",
     },
   };
 
-  // Redirect coaching plan to the application page
-  useEffect(() => {
-    if (planParam === "coaching") {
-      navigate("/programs/coaching", { replace: true });
-    }
-  }, [planParam, navigate]);
+  // Coaching is now a direct checkout — no redirect needed
 
   const selectedPlan = plans[plan as keyof typeof plans] || plans.transformation;
 
@@ -67,19 +68,29 @@ const Checkout = () => {
       }
 
       // DEV/TEST MODE: Skip Stripe, create subscription directly
-      const { error: subError } = await supabase.functions.invoke("create-user-subscription", {
+      console.log("[Checkout] Creating subscription for", user.id, plan);
+      const res = await supabase.functions.invoke("create-user-subscription", {
         body: {
           userId: user.id,
           email: user.email,
           planType: plan,
         },
       });
+      console.log("[Checkout] Subscription response:", { data: res.data, error: res.error });
 
-      if (subError) throw new Error(subError.message || "Failed to create subscription");
+      if (res.error) {
+        const errMsg = typeof res.error === "object"
+          ? (res.error as any).message || JSON.stringify(res.error)
+          : String(res.error);
+        throw new Error(`Subscription failed: ${errMsg}`);
+      }
+      if (res.data?.error) throw new Error(`Subscription error: ${res.data.error}`);
 
       // Refresh subscription state and redirect to intake
       await refreshSubscription();
+      sessionStorage.setItem("rs_fresh_signup", "true");
       const intakeRoute = plan === "coaching" ? "/freeworld-intake" : "/intake";
+      setIsProcessing(false);
       navigate(intakeRoute, { replace: true });
     } catch (err: any) {
       toast({
