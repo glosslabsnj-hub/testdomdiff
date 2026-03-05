@@ -2,24 +2,24 @@ import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Play, CheckSquare, Dumbbell, Crown, Calendar, MessageCircle } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { supabase } from "@/integrations/supabase/client";
 
 const IntakeComplete = () => {
-  const { subscription } = useAuth();
+  const { isCoaching, isTransformation, isTestingFlow } = useEffectiveSubscription();
   const { trackIntakeComplete } = useAnalytics();
-  const isCoaching = subscription?.plan_type === "coaching";
-  const isTransformation = subscription?.plan_type === "transformation";
 
-  // Track intake completion (Lead conversion event)
+  // Track intake completion (Lead conversion event) — skip during admin test flow
   useEffect(() => {
-    trackIntakeComplete();
-  }, []);
+    if (!isTestingFlow) trackIntakeComplete();
+  }, [isTestingFlow]);
 
-  // Pre-generate onboarding video for this tier (fire and forget)
+  // Pre-generate onboarding video for this tier (fire and forget) — skip during test flow
   useEffect(() => {
+    if (isTestingFlow) return;
     const tierKey = isCoaching ? "coaching" : isTransformation ? "transformation" : "membership";
-    
+
     fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tier-onboarding-generate`, {
       method: "POST",
       headers: {
@@ -28,7 +28,44 @@ const IntakeComplete = () => {
       },
       body: JSON.stringify({ tier_key: tierKey }),
     }).catch((err) => console.error("Video pre-generation error:", err));
-  }, [isCoaching, isTransformation]);
+  }, [isCoaching, isTransformation, isTestingFlow]);
+
+  // Generate personalized workout plan and meal plan (fire and forget) — Gen Pop & Free World only
+  useEffect(() => {
+    if (!isTransformation && !isCoaching) return;
+
+    const generatePlans = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      };
+
+      console.log(`Generating plans for user ${user.id} (test flow: ${isTestingFlow})`);
+
+      const regen = isTestingFlow;
+
+      // Fire workout phases in parallel (one call per phase to avoid timeout)
+      // Plus meal plan — all 4 calls are independent
+      for (const phase of ["foundation", "build", "peak"]) {
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-workout-plan`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ userId: user.id, regenerate: regen, phase }),
+        }).catch((err) => console.error(`Workout ${phase} generation error:`, err));
+      }
+
+      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-meal-plan`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ userId: user.id, regenerate: regen }),
+      }).catch((err) => console.error("Meal plan generation error:", err));
+    };
+
+    generatePlans();
+  }, [isTransformation, isCoaching, isTestingFlow]);
 
   // Tier-specific content
   const getTierContent = () => {
