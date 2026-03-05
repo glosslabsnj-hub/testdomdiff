@@ -284,8 +284,8 @@ Generate all 7 days with 4 meals each (28 total meals). Every meal must be UNIQU
     console.log(`Generating ${planType} meal plan for user ${userId} — goal: ${userGoal}`);
 
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 32000,
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 8000,
       messages: [{ role: "user", content: prompt }],
     });
 
