@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 
-type PlanType = "membership" | "transformation" | "coaching";
+type PlanType = "membership" | "transformation";
 
 const Checkout = () => {
   const { trackCheckoutStart } = useAnalytics();
@@ -21,7 +21,7 @@ const Checkout = () => {
 
   const planParam = searchParams.get("plan");
   const plan: PlanType =
-    planParam === "membership" || planParam === "transformation" || planParam === "coaching"
+    planParam === "membership" || planParam === "transformation"
       ? planParam
       : "transformation";
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,13 +39,14 @@ const Checkout = () => {
       period: "one-time",
       description: "Earn your place — full program access",
     },
-    coaching: {
-      name: "Free World 1:1 Coaching",
-      price: "$999.99",
-      period: "/month",
-      description: "Live free with direct access to Dom (10 spots max)",
-    },
   };
+
+  // Redirect coaching plan to the application page
+  useEffect(() => {
+    if (planParam === "coaching") {
+      navigate("/programs/coaching", { replace: true });
+    }
+  }, [planParam, navigate]);
 
   const selectedPlan = plans[plan as keyof typeof plans] || plans.transformation;
 
@@ -65,24 +66,21 @@ const Checkout = () => {
         return;
       }
 
-      // Call Stripe checkout edge function
-      const { data, error } = await supabase.functions.invoke("stripe-create-checkout", {
+      // DEV/TEST MODE: Skip Stripe, create subscription directly
+      const { error: subError } = await supabase.functions.invoke("create-user-subscription", {
         body: {
-          planType: plan,
           userId: user.id,
           email: user.email,
+          planType: plan,
         },
       });
 
-      if (error) throw new Error(error.message || "Failed to create checkout session");
-      if (data?.error) throw new Error(data.error);
+      if (subError) throw new Error(subError.message || "Failed to create subscription");
 
-      // Redirect to Stripe-hosted checkout
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+      // Refresh subscription state and redirect to intake
+      await refreshSubscription();
+      const intakeRoute = plan === "coaching" ? "/freeworld-intake" : "/intake";
+      navigate(intakeRoute, { replace: true });
     } catch (err: any) {
       toast({
         title: "Checkout Error",
