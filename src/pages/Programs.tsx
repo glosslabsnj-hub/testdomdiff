@@ -27,7 +27,7 @@ const Programs = () => {
       icon: Users,
       description: "Strip away the distractions. In Solitary, you get nothing but the essentials — the raw guidelines needed to perform. No noise. Just discipline.",
       features: [
-        "4 bodyweight workout templates",
+        "4 workout templates",
         "Daily discipline routine templates",
         "Basic nutrition template (one fixed meal)",
         "Weekly check-in submissions",

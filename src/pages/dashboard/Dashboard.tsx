@@ -205,11 +205,11 @@ const Dashboard = () => {
     workouts: {
       icon: Dumbbell,
       title: isCoaching ? "Training Sessions" : "Iron Pile",
-      subtitle: isCoaching ? "Your Workouts" : (isMembership ? "Bodyweight Only" : "Full Iron Access"),
-      description: isCoaching 
+      subtitle: isCoaching ? "Your Workouts" : (isMembership ? "Your Workouts" : "Full Iron Access"),
+      description: isCoaching
         ? "Access your full workout library. Train like you mean it."
-        : (isMembership 
-          ? "Bodyweight workouts. No equipment, no excuses."
+        : (isMembership
+          ? "Your workout templates. No excuses."
           : "Full workout library. Build your sessions like we built ours inside."),
       href: "/dashboard/workouts",
       color: "dashboard-tile",

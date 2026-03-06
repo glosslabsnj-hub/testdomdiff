@@ -12,7 +12,7 @@ interface FeatureRow {
 
 const features: FeatureRow[] = [
   // Workouts
-  { feature: "Bodyweight Workout Templates (4)", solitary: true, genPop: true, freeWorld: true, category: "Workouts" },
+  { feature: "Workout Templates (4)", solitary: true, genPop: true, freeWorld: true, category: "Workouts" },
   { feature: "Full Progressive Workout Library", solitary: false, genPop: true, freeWorld: true },
   { feature: "Goal-Based 12-Week Schedule", solitary: false, genPop: true, freeWorld: true },
   { feature: "Weekly Video Coaching", solitary: false, genPop: true, freeWorld: true },

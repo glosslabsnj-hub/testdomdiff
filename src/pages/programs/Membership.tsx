@@ -8,8 +8,8 @@ const Membership = () => {
   const features = [
     {
       icon: Dumbbell,
-      title: "4 Bodyweight Workout Templates",
-      description: "Cell Block Push, Yard Legs, Lockdown Pull, and Full Body Circuit. No equipment required.",
+      title: "4 Workout Templates",
+      description: "Cell Block Push, Yard Legs, Lockdown Pull, and Full Body Circuit. Train anywhere with anything.",
     },
     {
       icon: Calendar,
@@ -34,7 +34,7 @@ const Membership = () => {
   ];
 
   const included = [
-    { item: "4 bodyweight workout templates", included: true },
+    { item: "4 workout templates", included: true },
     { item: "Daily discipline routine templates", included: true },
     { item: "Basic nutrition template (one fixed meal)", included: true },
     { item: "Weekly check-in submissions", included: true },

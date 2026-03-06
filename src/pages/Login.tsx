@@ -129,63 +129,12 @@ const Login = () => {
           return;
         }
 
-        const newUserId = data.session.user.id;
-        const userEmail = data.session.user.email ?? safeEmail;
-
-        // Step 2: Create subscription (with 10s timeout)
-        console.log("[Signup] Step 2: Creating subscription for", newUserId, selectedPlan);
-        const controller = new AbortController();
-        const fnTimeout = setTimeout(() => controller.abort(), 10000);
-
-        let res;
-        try {
-          res = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-user-subscription`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${data.session.access_token}`,
-                "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              },
-              body: JSON.stringify({
-                userId: newUserId,
-                email: userEmail,
-                planType: selectedPlan,
-              }),
-              signal: controller.signal,
-            }
-          );
-          clearTimeout(fnTimeout);
-        } catch (fetchErr: any) {
-          clearTimeout(fnTimeout);
-          if (fetchErr.name === "AbortError") {
-            throw new Error("Subscription request timed out. Please try again.");
-          }
-          throw fetchErr;
-        }
-
-        console.log("[Signup] Step 2 done: HTTP", res.status);
-        if (!res.ok) {
-          const body = await res.text();
-          console.error("[Signup] Function error:", res.status, body);
-          throw new Error(`Subscription failed (HTTP ${res.status}): ${body}`);
-        }
-
-        const resData = await res.json();
-        console.log("[Signup] Step 2 response:", resData);
-
-        if (resData.error) {
-          throw new Error(`Subscription error: ${resData.error}`);
-        }
-
-        // Step 3: Brief wait then redirect
-        console.log("[Signup] Step 3: Redirecting to intake...");
+        // Step 2: Redirect to Stripe checkout for payment
+        console.log("[Signup] Step 2: Redirecting to checkout for", selectedPlan);
         sessionStorage.setItem("rs_fresh_signup", "true");
-        const intakeRoute = selectedPlan === "coaching" ? "/freeworld-intake" : "/intake";
         setIsLoading(false);
         clearTimeout(safetyTimeout);
-        navigate(intakeRoute, { replace: true });
+        navigate(`/checkout?plan=${selectedPlan}`, { replace: true });
       } else {
         // Sign in flow
         console.log("[Signin] Signing in...");

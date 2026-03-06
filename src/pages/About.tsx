@@ -183,7 +183,7 @@ const About = () => {
                   </div>
                   <h4 className="font-bold text-foreground mb-2">Built Discipline</h4>
                   <p className="text-sm text-muted-foreground">
-                    No gym? No problem. Bodyweight workouts, prison-style conditioning, relentless daily consistency.
+                    No gym? No problem. Prison-style conditioning, relentless daily consistency, real results.
                   </p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-background/50 border border-border">

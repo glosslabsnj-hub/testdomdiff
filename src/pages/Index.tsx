@@ -45,7 +45,7 @@ const Index = () => {
     price: "$19.99",
     period: "/month",
     description: "The foundation. Strip away distractions. Just the essentials needed to perform.",
-    features: ["4 bodyweight workout templates", "Daily discipline routine templates", "Basic nutrition template", "Weekly check-in submissions", "Progress tracking"],
+    features: ["4 workout templates", "Daily discipline routine templates", "Basic nutrition template", "Weekly check-in submissions", "Progress tracking"],
     cta: "Enter Solitary",
     href: "/checkout?plan=membership",
     popular: false
@@ -71,7 +71,7 @@ const Index = () => {
   const testimonials = [{
     name: "Dom's Own Transformation",
     transformation: "Built from nothing in a cell",
-    quote: "No gym. No equipment. No freedom. Just a concrete floor and the will to change. Everything you see was built with bodyweight and discipline."
+    quote: "No gym. No freedom. Just a concrete floor and the will to change. Everything you see was built with discipline and faith."
   }, {
     name: "The Foundation",
     transformation: "3.5 years of prison training",
@@ -82,7 +82,7 @@ const Index = () => {
     quote: "50,000 people follow this journey because it's real. No shortcuts. No filters. Just faith, discipline, and results that speak for themselves."
   }];
   const whatIncluded = [
-    { item: "Bodyweight workout templates for any environment", tier: "All" },
+    { item: "Workout templates for any environment", tier: "All" },
     { item: "Daily discipline routines (Lights On / Lights Out)", tier: "All" },
     { item: "Weekly accountability check-ins", tier: "All" },
     { item: "Basic nutrition template (one fixed meal plan)", tier: "All" },
@@ -97,7 +97,7 @@ const Index = () => {
   ];
   const faqs = [{
     question: "Do I need gym equipment?",
-    answer: "No. All programs are designed for bodyweight training with minimal space. Dumbbells and bands are optional additions."
+    answer: "No. All programs are designed to work with minimal space and equipment. You can train with bodyweight, dumbbells, bands, or whatever you have access to."
   }, {
     question: "Is this program Christian-only?",
     answer: "This program is built on Christian faith principles. Scripture, prayer, and God-led discipline are core — not optional. If that resonates, you're in the right place."
@@ -146,7 +146,7 @@ const Index = () => {
               "I can do all things through Christ who strengthens me." — Philippians 4:13
             </p>
             <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-2xl animate-slide-up opacity-0 delay-200 mx-[35px]">
-              12 weeks. Bodyweight-only. Zero excuses. Transform your body,
+              12 weeks. Zero excuses. Transform your body,
               anchor your faith, and build discipline that lasts a lifetime.
             </p>
             <div className="flex items-center justify-center gap-6 mb-10 animate-slide-up opacity-0 delay-250">

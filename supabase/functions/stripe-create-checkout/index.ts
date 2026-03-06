@@ -1,20 +1,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-
-// Revenue split configuration (percentages are Dom's share AFTER Stripe fees)
-const REVENUE_SPLITS: Record<string, { domPercent: number; platformPercent: number }> = {
-  membership: { domPercent: 50, platformPercent: 50 },    // Solitary $49.99/mo
-  transformation: { domPercent: 50, platformPercent: 50 }, // Gen Pop $379.99 one-time
-  coaching: { domPercent: 75, platformPercent: 25 },       // Free World $999.99/mo
-};
+// Revenue split configuration
+// NOTE: Currently all payments go directly to Dom's Stripe account.
+// Jack's revenue share will be handled via Stripe Connect once his account is linked.
+// Splits for reference: membership 50/50, transformation 50/50, coaching 75/25 (Dom/Jack)
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -38,11 +32,10 @@ Deno.serve(async (req) => {
     }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    const domAccountId = Deno.env.get("STRIPE_DOM_CONNECTED_ACCOUNT_ID");
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    if (!stripeKey || !domAccountId) {
+    if (!stripeKey) {
       return new Response(
         JSON.stringify({ error: "Stripe configuration is incomplete" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -93,31 +86,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    const split = REVENUE_SPLITS[planType];
-
-    // Price amounts in cents for fee calculation
-    const priceAmounts: Record<string, number> = {
-      membership: 4999,      // $49.99
-      transformation: 37999, // $379.99
-      coaching: 99999,       // $999.99
-    };
-
-    const amountCents = priceAmounts[planType];
-
-    // Stripe fee estimate: 2.9% + $0.30
-    const stripeFee = Math.round(amountCents * 0.029 + 30);
-    const afterFees = amountCents - stripeFee;
-
-    // Platform keeps its percentage as application_fee_amount
-    // Dom receives the rest via transfer_data.destination
-    const applicationFee = Math.round(afterFees * (split.platformPercent / 100));
-
     const isSubscription = planType === "membership" || planType === "coaching";
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: stripeCustomerId,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: isSubscription ? "subscription" : "payment",
+      allow_promotion_codes: true,
       success_url: `https://domdifferent.com/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://domdifferent.com/checkout?plan=${planType}`,
       metadata: {
@@ -128,10 +103,6 @@ Deno.serve(async (req) => {
 
     if (isSubscription) {
       sessionParams.subscription_data = {
-        transfer_data: {
-          destination: domAccountId,
-        },
-        application_fee_percent: split.platformPercent,
         metadata: {
           supabase_user_id: userId,
           plan_type: planType,
@@ -139,10 +110,6 @@ Deno.serve(async (req) => {
       };
     } else {
       sessionParams.payment_intent_data = {
-        application_fee_amount: applicationFee,
-        transfer_data: {
-          destination: domAccountId,
-        },
         metadata: {
           supabase_user_id: userId,
           plan_type: planType,

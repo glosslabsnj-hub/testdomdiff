@@ -84,12 +84,8 @@ Deno.serve(async (req) => {
         }
 
         const now = new Date();
-        const expiresAt =
-          planType === "transformation"
-            ? new Date(
-                now.getTime() + TRANSFORMATION_DURATION_DAYS * 24 * 60 * 60 * 1000
-              ).toISOString()
-            : null;
+        // Transformation is lifetime access — no expiration
+        const expiresAt = null;
 
         // Create or update subscription
         const { error: subError } = await supabase.from("subscriptions").upsert(
@@ -109,14 +105,44 @@ Deno.serve(async (req) => {
           console.error("Error creating subscription:", subError);
         } else {
           console.log(`Subscription created/updated for user ${userId}, plan ${planType}`);
+
+          // Trigger welcome email
+          try {
+            await fetch(`${supabaseUrl}/functions/v1/send-notifications`, {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${serviceRoleKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ type: "welcome", userId }),
+            });
+            console.log(`Welcome email triggered for user ${userId}`);
+          } catch (emailErr) {
+            console.error("Failed to trigger welcome email:", emailErr);
+          }
         }
 
-        // Update profile with Stripe customer ID
+        // Ensure profile exists and update with Stripe customer ID
         if (session.customer) {
-          await supabase
+          const { data: existingProfile } = await supabase
             .from("profiles")
-            .update({ stripe_customer_id: session.customer as string })
-            .eq("user_id", userId);
+            .select("id")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+          if (existingProfile) {
+            await supabase
+              .from("profiles")
+              .update({ stripe_customer_id: session.customer as string })
+              .eq("user_id", userId);
+          } else {
+            await supabase.from("profiles").insert({
+              user_id: userId,
+              email: session.customer_email || session.customer_details?.email || "",
+              stripe_customer_id: session.customer as string,
+            });
+            console.log(`Profile created for user ${userId}`);
+          }
         }
         break;
       }

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Dumbbell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useWorkoutTemplates } from "@/hooks/useWorkoutContent";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { WardenTip } from "@/components/warden";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import EmptyState from "@/components/EmptyState";
@@ -14,11 +14,14 @@ import WeeklyScheduleBuilder from "@/components/workouts/WeeklyScheduleBuilder";
 
 const Workouts = () => {
   const { templates, loading } = useWorkoutTemplates();
-  const { subscription } = useAuth();
-  const isCoaching = subscription?.plan_type === "coaching";
+  const { isCoaching, isMembership } = useEffectiveSubscription();
 
-  // Only show active bodyweight templates for all users
-  const visibleTemplates = templates.filter(t => t.is_active && t.is_bodyweight);
+  // Solitary (membership) only gets bodyweight. Gen Pop + Coaching get full library.
+  const visibleTemplates = templates.filter(t => {
+    if (!t.is_active) return false;
+    if (isMembership) return t.is_bodyweight;
+    return true; // transformation & coaching see everything
+  });
 
   return (
     <DashboardLayout>
@@ -33,14 +36,14 @@ const Workouts = () => {
             <p className="text-muted-foreground">
               {isCoaching 
                 ? "Your complete workout library. Train with purpose."
-                : "Bodyweight workouts. No equipment, no excuses. Prison-style training."}
+                : "Your training templates. No excuses. Prison-style discipline."}
             </p>
           </div>
         </div>
 
         {/* Warden Tip */}
         <WardenTip 
-          tip="Bodyweight builds real strength. No equipment, no excuses. Pick a template and get after it."
+          tip="Consistency builds real strength. No excuses. Pick a template and get after it."
           className="mb-8"
         />
 

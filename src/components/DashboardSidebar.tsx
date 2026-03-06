@@ -98,7 +98,7 @@ export function DashboardSidebar() {
   const trainingItems: NavItem[] = [
     {
       title: isCoaching ? "Training" : isMembership ? "Iron Pile" : "Workout Library",
-      subtitle: isMembership ? "Bodyweight" : "All Workouts",
+      subtitle: isMembership ? "Your Workouts" : "All Workouts",
       href: "/dashboard/workouts",
       icon: Dumbbell,
     },
