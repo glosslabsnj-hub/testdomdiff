@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useReferralTracking } from "@/hooks/useReferralTracking";
 
 type PlanType = "membership" | "transformation" | "coaching";
 
@@ -24,7 +25,7 @@ const planOptions: { value: PlanType; label: string; icon: React.ReactNode; desc
     value: "transformation",
     label: "General Population",
     icon: <Sparkles className="w-5 h-5" />,
-    description: "$249 — Full 12-Week Program",
+    description: "$79/mo — Full 12-Week Program",
   },
   {
     value: "coaching",
@@ -40,6 +41,9 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const { signIn, signUp, refreshSubscription } = useAuth();
   const { toast } = useToast();
+
+  // Capture referral code from URL into localStorage (persists through signup flow)
+  useReferralTracking();
 
   // Check URL params for mode and plan (from checkout redirect)
   const urlMode = searchParams.get("mode");

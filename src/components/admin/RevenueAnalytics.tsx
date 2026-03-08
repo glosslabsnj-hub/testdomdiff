@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 // Pricing assumptions
 const PLAN_PRICES = {
   membership: 19.99,       // Monthly (Solitary)
-  transformation: 249,  // One-time (spread over 3 months for MRR calc) (Gen Pop)
+  transformation: 79,     // Monthly (Gen Pop)
   coaching: 499,        // Monthly (Free World)
 } as const;
 
@@ -34,7 +34,7 @@ export function RevenueAnalytics() {
     
     // Calculate MRR
     const membershipMRR = analytics.clientsByPlan.membership * PLAN_PRICES.membership;
-    const transformationMRR = analytics.clientsByPlan.transformation * (PLAN_PRICES.transformation / 3);
+    const transformationMRR = analytics.clientsByPlan.transformation * PLAN_PRICES.transformation;
     const coachingMRR = analytics.clientsByPlan.coaching * PLAN_PRICES.coaching;
     const totalMRR = membershipMRR + transformationMRR + coachingMRR;
     
@@ -66,7 +66,7 @@ export function RevenueAnalytics() {
         key: "transformation" as const,
         name: PLAN_DISPLAY_NAMES.transformation,
         count: analytics.clientsByPlan.transformation,
-        pricePerMember: PLAN_PRICES.transformation / 3, // Monthly equivalent
+        pricePerMember: PLAN_PRICES.transformation,
         monthlyRevenue: transformationMRR,
         color: PLAN_COLORS.transformation,
       },

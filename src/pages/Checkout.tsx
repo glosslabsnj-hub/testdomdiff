@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Lock, CreditCard, Loader2 } from "lucide-react";
+import { Lock, CreditCard, Loader2, Sparkles } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useReferralTracking, getReferralCode, clearReferralCode } from "@/hooks/useReferralTracking";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 
 type PlanType = "membership" | "transformation" | "coaching";
@@ -18,6 +19,10 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { user, profile, refreshSubscription } = useAuth();
   const { toast } = useToast();
+
+  // Capture referral code from URL into localStorage
+  useReferralTracking();
+  const referralCode = getReferralCode();
 
   const planParam = searchParams.get("plan");
   const plan: PlanType =
@@ -35,8 +40,8 @@ const Checkout = () => {
     },
     transformation: {
       name: "General Population",
-      price: "$249",
-      period: "one-time",
+      price: "$79",
+      period: "/month",
       description: "Earn your place — full 12-week program",
     },
     coaching: {
@@ -47,7 +52,12 @@ const Checkout = () => {
     },
   };
 
-  // Coaching is now a direct checkout — no redirect needed
+  // Coaching requires application — redirect to apply page
+  useEffect(() => {
+    if (plan === "coaching") {
+      navigate("/apply/coaching", { replace: true });
+    }
+  }, [plan, navigate]);
 
   const selectedPlan = plans[plan as keyof typeof plans] || plans.transformation;
 
@@ -63,7 +73,8 @@ const Checkout = () => {
       // If not logged in, redirect to signup first
       if (!user) {
         setIsProcessing(false);
-        navigate(`/login?mode=signup&plan=${plan}`);
+        const refParam = referralCode ? `&ref=${referralCode}` : "";
+        navigate(`/login?mode=signup&plan=${plan}${refParam}`);
         return;
       }
 
@@ -74,8 +85,11 @@ const Checkout = () => {
           userId: user.id,
           email: user.email,
           planType: plan,
+          referralCode: referralCode || undefined,
         },
       });
+      // Clear referral code after sending to prevent reuse
+      if (referralCode) clearReferralCode();
       console.log("[Checkout] Stripe response:", { data: res.data, error: res.error });
 
       if (res.error) {
@@ -116,6 +130,14 @@ const Checkout = () => {
               </h1>
               <div className="divider-gold" />
             </div>
+
+            {/* Referral Banner */}
+            {referralCode && (
+              <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/30 flex items-center gap-3">
+                <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
+                <p className="text-sm font-medium text-primary">Referred by a friend — welcome aboard!</p>
+              </div>
+            )}
 
             {/* Order Summary */}
             <div className="bg-charcoal p-6 sm:p-8 rounded-lg border border-border mb-8">

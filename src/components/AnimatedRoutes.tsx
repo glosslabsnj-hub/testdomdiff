@@ -26,6 +26,7 @@ const AccessExpired = lazy(() => import("@/pages/AccessExpired"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const FreeWorldIntake = lazy(() => import("@/pages/FreeWorldIntake"));
+const CoachingApplication = lazy(() => import("@/pages/CoachingApplication"));
 
 // Dashboard pages — lazy loaded
 const Dashboard = lazy(() => import("@/pages/dashboard/Dashboard"));
@@ -86,6 +87,7 @@ export function AnimatedRoutes() {
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
           <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
           <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
+          <Route path="/apply/coaching" element={<PageTransition><CoachingApplication /></PageTransition>} />
           <Route path="/access-expired" element={<PageTransition><AccessExpired /></PageTransition>} />
           <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
           <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />

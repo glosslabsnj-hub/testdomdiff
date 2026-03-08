@@ -47,8 +47,8 @@ const TIERS: TierConfig[] = [
     id: "transformation",
     name: "General Population",
     displayName: "Tier 2",
-    price: "$249 one-time",
-    billing: "Single payment, 98-day access",
+    price: "$79/month",
+    billing: "Monthly subscription",
     color: "from-primary/10 to-primary/5",
     borderColor: "border-primary/30",
     features: [

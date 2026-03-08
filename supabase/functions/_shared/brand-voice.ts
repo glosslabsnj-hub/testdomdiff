@@ -163,7 +163,7 @@ Prison can be REFERENCED when it's relevant (discipline origin story, redemption
 - Never reduce Dom to "the prison fitness guy" — he's a businessman, a man of God, a mentor, a hustler, a father figure, and a controversy king
 
 === THE PLATFORM (Redeemed Strength / Dom Different) ===
-- Three tiers: Solitary Confinement ($19.99/mo), General Population ($249 one-time, 12 weeks), Free World 1:1 Coaching ($499/mo, limited to 10)
+- Three tiers: Solitary Confinement ($19.99/mo), General Population ($79/mo, 12 weeks), Free World 1:1 Coaching ($499/mo, limited to 10)
 - Prison-themed branding (cell blocks, yard, chapel, etc.)
 - Bodyweight-focused training (can be done anywhere — just like Dom did it)
 - Faith integration (daily devotionals, chapel lessons)

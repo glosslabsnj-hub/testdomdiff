@@ -83,15 +83,14 @@ Deno.serve(async (req) => {
 
         const now = new Date();
 
-        // Transformation is lifetime access — no expiration
-        // Monthly plans (membership/coaching) get expiry from Stripe subscription period
+        // All plans get expiry from Stripe subscription period
         let expiresAt: string | null = null;
-        if (planType !== "transformation" && session.subscription) {
+        if (session.subscription) {
           try {
             const stripeSub = await stripe.subscriptions.retrieve(session.subscription as string);
             expiresAt = new Date(stripeSub.current_period_end * 1000).toISOString();
           } catch (err) {
-            // Fallback: set expiry to 30 days from now for monthly plans
+            // Fallback: set expiry to 30 days from now
             console.error("Failed to retrieve Stripe subscription period:", err);
             const fallback = new Date(now);
             fallback.setDate(fallback.getDate() + 30);
@@ -130,6 +129,71 @@ Deno.serve(async (req) => {
             console.log(`Welcome email triggered for user ${userId}`);
           } catch (emailErr) {
             console.error("Failed to trigger welcome email:", emailErr);
+          }
+        }
+
+        // Process referral credit if a referral code was used
+        const referralCode = session.metadata?.referral_code;
+        if (referralCode) {
+          try {
+            // Look up the referrer from referral_codes table
+            const { data: referralEntry } = await supabase
+              .from("referral_codes")
+              .select("user_id")
+              .eq("code", referralCode)
+              .maybeSingle();
+
+            if (referralEntry && referralEntry.user_id !== userId) {
+              // Insert referral completion with status 'completed'
+              const { error: refInsertErr } = await supabase
+                .from("referral_completions")
+                .insert({
+                  referrer_id: referralEntry.user_id,
+                  referred_user_id: userId,
+                  referred_plan: planType,
+                  status: "completed",
+                  completed_at: new Date().toISOString(),
+                });
+
+              if (refInsertErr) {
+                // Likely a duplicate — safe to ignore
+                console.log("Referral insert skipped (possible duplicate):", refInsertErr.message);
+              } else {
+                // Extend the referrer's subscription by 30 days
+                const { error: extendErr } = await supabase
+                  .rpc("extend_subscription_30_days", { target_user_id: referralEntry.user_id });
+
+                if (extendErr) {
+                  // Fallback: manual update
+                  await supabase
+                    .from("subscriptions")
+                    .update({
+                      expires_at: new Date(
+                        Date.now() + 30 * 24 * 60 * 60 * 1000
+                      ).toISOString(),
+                    })
+                    .eq("user_id", referralEntry.user_id)
+                    .eq("status", "active");
+                  console.log(`Referral credit (fallback): extended subscription for ${referralEntry.user_id}`);
+                } else {
+                  console.log(`Referral credit: extended subscription for ${referralEntry.user_id} by 30 days`);
+                }
+
+                // Mark referral as credited
+                await supabase
+                  .from("referral_completions")
+                  .update({
+                    status: "credited",
+                    credited_at: new Date().toISOString(),
+                  })
+                  .eq("referrer_id", referralEntry.user_id)
+                  .eq("referred_user_id", userId);
+              }
+            } else if (referralEntry?.user_id === userId) {
+              console.log("Self-referral blocked for user:", userId);
+            }
+          } catch (refErr) {
+            console.error("Referral processing error (non-fatal):", refErr);
           }
         }
 

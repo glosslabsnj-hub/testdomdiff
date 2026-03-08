@@ -132,8 +132,8 @@ const Transformation = () => {
                 instruction, get nutrition plans, and start building your hustle.
               </p>
               <div className="flex items-baseline gap-2 mb-8">
-                <span className="text-5xl font-display text-primary">$249</span>
-                <span className="text-muted-foreground text-xl">one-time</span>
+                <span className="text-5xl font-display text-primary">$79</span>
+                <span className="text-muted-foreground text-xl">/month</span>
               </div>
               <Button variant="hero" size="hero" asChild>
                 <Link to="/checkout?plan=transformation">Join Gen Pop</Link>
@@ -272,8 +272,8 @@ const Transformation = () => {
             </div>
             <h3 className="headline-card mb-4">General Population</h3>
             <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-4xl font-display text-primary">$249</span>
-              <span className="text-muted-foreground">one-time</span>
+              <span className="text-4xl font-display text-primary">$79</span>
+              <span className="text-muted-foreground">/month</span>
             </div>
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-2 text-sm">
@@ -310,7 +310,7 @@ const Transformation = () => {
             You've earned your place. Time to build with the community.
           </p>
           <Button variant="hero" size="hero" asChild>
-            <Link to="/checkout?plan=transformation">Join Gen Pop — $249</Link>
+            <Link to="/checkout?plan=transformation">Join Gen Pop — $79/mo</Link>
           </Button>
         </div>
       </section>

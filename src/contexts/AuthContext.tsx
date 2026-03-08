@@ -146,9 +146,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const expiresAt = new Date(subscription.expires_at);
       if (expiresAt < now) return false;
     }
-    // Recurring plans (membership/coaching) MUST have an expiry date
-    // If expires_at is null for a recurring plan, deny access (data integrity issue)
-    if (!subscription.expires_at && subscription.plan_type !== "transformation") {
+    // All plans MUST have an expiry date
+    // If expires_at is null, deny access (data integrity issue)
+    if (!subscription.expires_at) {
       return false;
     }
     return true;

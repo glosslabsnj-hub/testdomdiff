@@ -57,7 +57,7 @@ const tierJourneys: TierJourney[] = [
     description: "12-week structured transformation with community",
     color: "border-primary/50",
     steps: [
-      { id: "g1", title: "Purchase Gen Pop", description: "User selects $249 one-time", timeframe: "0 min", isCritical: true },
+      { id: "g1", title: "Purchase Gen Pop", description: "User selects $79/mo", timeframe: "0 min", isCritical: true },
       { id: "g2", title: "Signup & Email Confirm", description: "Auto-confirm enabled for speed", timeframe: "1 min" },
       { id: "g3", title: "4-Step Intake", description: "Goal, experience, injuries, commitment", timeframe: "3 min", isCritical: true },
       { id: "g4", title: "Intake Confirmation", description: "Processing Complete with next steps", timeframe: "0.5 min" },

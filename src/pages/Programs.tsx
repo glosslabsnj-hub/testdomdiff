@@ -41,8 +41,8 @@ const Programs = () => {
       id: "transformation",
       title: "General Population",
       subtitle: "12 Weeks",
-      price: "$249",
-      period: "one-time",
+      price: "$79",
+      period: "/month",
       icon: Flame,
       description: "You've earned your place. In Gen Pop, you connect with peers, access video instruction, get nutrition plans, and start building your hustle.",
       features: [
@@ -73,8 +73,8 @@ const Programs = () => {
         "Advanced skill-building lessons",
         "Custom-built programming",
       ],
-      href: "/checkout?plan=coaching",
-      cta: "Enter Free World",
+      href: "/apply/coaching",
+      cta: "Apply Now",
     },
   ];
 
@@ -182,8 +182,8 @@ const Programs = () => {
             ready to commit. Apply for Free World when you need maximum accountability.
           </p>
           <Button variant="goldOutline" asChild>
-            <Link to="/checkout?plan=coaching" className="inline-flex items-center gap-2">
-              Book a Free Consultation <ArrowRight className="w-4 h-4" />
+            <Link to="/apply/coaching" className="inline-flex items-center gap-2">
+              Apply for Free World Coaching <ArrowRight className="w-4 h-4" />
             </Link>
           </Button>
         </div>

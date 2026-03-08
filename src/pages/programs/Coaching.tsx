@@ -5,7 +5,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import coachingImage from "@/assets/coaching-image.jpg";
 import { CoachingSpotsDisplay } from "@/components/CoachingSpotsDisplay";
-import { CoachingWaitlistForm } from "@/components/CoachingWaitlistForm";
 import { useCoachingSpots } from "@/hooks/useCoachingSpots";
 
 const Coaching = () => {
@@ -167,9 +166,9 @@ const Coaching = () => {
               {/* Spots banner */}
               <CoachingSpotsDisplay variant="banner" className="mb-6" />
 
-              <div className="bg-card p-6 rounded-lg border border-border">
-                <CoachingWaitlistForm />
-              </div>
+              <Button variant="hero" size="hero" asChild>
+                <Link to="/apply/coaching">Apply for 1:1 Coaching</Link>
+              </Button>
             </div>
             <div className="relative hidden lg:block">
               <img
@@ -327,7 +326,9 @@ const Coaching = () => {
                 Everything in Gen Pop included
               </li>
             </ul>
-            <CoachingWaitlistForm />
+            <Button variant="gold" size="lg" className="w-full" asChild>
+              <Link to="/apply/coaching">Apply Now</Link>
+            </Button>
             <p className="text-xs text-muted-foreground text-center mt-4">
               Limited to 10 clients only. Dom will reach out after you apply.
             </p>

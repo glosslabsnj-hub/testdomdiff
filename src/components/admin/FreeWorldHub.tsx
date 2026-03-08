@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Crown, UserPlus, Users, Dumbbell, Utensils, Sparkles } from "lucide-react";
+import { Crown, UserPlus, Users, Dumbbell, Utensils, Sparkles, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CoachingClientList from "@/components/admin/coaching/CoachingClientList";
@@ -7,6 +7,7 @@ import ClientProgressPanel from "@/components/admin/coaching/ClientProgressPanel
 import ProgramLibrary from "@/components/admin/coaching/ProgramLibrary";
 import NutritionLibrary from "@/components/admin/coaching/NutritionLibrary";
 import PlanOptionsReview from "@/components/admin/coaching/PlanOptionsReview";
+import CoachingApplicationReview from "@/components/admin/coaching/CoachingApplicationReview";
 import EmptyState from "@/components/EmptyState";
 import DashboardSkeleton from "@/components/DashboardSkeleton";
 import { useClientAnalytics, type ClientWithSubscription } from "@/hooks/useClientAnalytics";
@@ -64,6 +65,13 @@ export default function FreeWorldHub() {
           >
             <Sparkles className="w-4 h-4" />
             Plan Review
+          </TabsTrigger>
+          <TabsTrigger
+            value="applications"
+            className="flex items-center gap-2 data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400"
+          >
+            <ClipboardList className="w-4 h-4" />
+            Applications
           </TabsTrigger>
           <TabsTrigger
             value="programs"
@@ -136,6 +144,11 @@ export default function FreeWorldHub() {
               </div>
             </div>
           )}
+        </TabsContent>
+
+        {/* Applications Tab */}
+        <TabsContent value="applications" className="flex-1 min-h-0 mt-4 overflow-y-auto">
+          <CoachingApplicationReview />
         </TabsContent>
 
         {/* Plan Review Tab */}

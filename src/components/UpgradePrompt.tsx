@@ -15,7 +15,7 @@ const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptP
   const upgradeDetails = {
     transformation: {
       name: "General Population",
-      price: "$249",
+      price: "$79/mo",
       href: "/checkout?plan=transformation",
       benefits: [
         "Full progressive workout library",

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw, XCircle, ChevronDown, Trash2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw, XCircle, ChevronDown, Trash2, AlertTriangle, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ReplayOrientationButton } from "@/components/ReplayOrientationButton";
 import { CancelSubscriptionDialog } from "@/components/CancelSubscriptionDialog";
 import { DataExportButton } from "@/components/DataExportButton";
+import ReferralCard from "@/components/dashboard/ReferralCard";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 import { z } from "zod";
 
@@ -781,6 +782,19 @@ export default function Settings() {
                 </AccordionContent>
               </AccordionItem>
 
+              {/* Refer a Friend Section */}
+              <AccordionItem value="referral" className="bg-charcoal border border-primary/30 rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <Gift className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Refer a Friend</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <ReferralCard />
+                </AccordionContent>
+              </AccordionItem>
+
               {/* Danger Zone Section */}
               <AccordionItem value="danger" className="bg-charcoal border border-destructive/50 rounded-lg overflow-hidden">
                 <AccordionTrigger className="px-4 py-4 hover:no-underline">
@@ -1456,6 +1470,22 @@ export default function Settings() {
             </CardHeader>
             <CardContent>
               <DataExportButton />
+            </CardContent>
+          </Card>
+
+          {/* Refer a Friend */}
+          <Card className="bg-charcoal border-primary/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="h-5 w-5 text-primary" />
+                Refer a Friend
+              </CardTitle>
+              <CardDescription>
+                Share your link and earn 30 free days for every friend who signs up
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ReferralCard />
             </CardContent>
           </Card>
 

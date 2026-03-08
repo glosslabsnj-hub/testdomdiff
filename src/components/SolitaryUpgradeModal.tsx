@@ -75,7 +75,7 @@ const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: 
             Level up your transformation
           </p>
           <h3 className="text-xl font-display text-center mb-1">General Population</h3>
-          <p className="text-2xl font-display text-primary text-center mb-6">$249 <span className="text-sm text-muted-foreground font-normal">one-time</span></p>
+          <p className="text-2xl font-display text-primary text-center mb-6">$79 <span className="text-sm text-muted-foreground font-normal">/month</span></p>
 
           <div className="space-y-3">
             {benefits.map((benefit, i) => (

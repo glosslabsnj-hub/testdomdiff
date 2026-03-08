@@ -22,7 +22,7 @@ import { useOrders } from "@/hooks/useOrders";
 
 const TIER_PRICES = {
   membership: 19.99,
-  transformation: 249,
+  transformation: 79,
   coaching: 499,
 };
 
@@ -36,13 +36,11 @@ export default function PaymentsHub() {
   const transformationCount = analytics?.clientsByPlan.transformation || 0;
   const coachingCount = analytics?.clientsByPlan.coaching || 0;
 
-  // Recurring revenue (membership + coaching are monthly)
+  // Recurring revenue (all plans are monthly)
   const membershipMRR = membershipCount * TIER_PRICES.membership;
+  const transformationMRR = transformationCount * TIER_PRICES.transformation;
   const coachingMRR = coachingCount * TIER_PRICES.coaching;
-  const totalMRR = membershipMRR + coachingMRR;
-
-  // One-time revenue from transformation (not recurring — counted separately)
-  const transformationTotal = transformationCount * TIER_PRICES.transformation;
+  const totalMRR = membershipMRR + transformationMRR + coachingMRR;
 
   // Recent orders as transactions
   const recentOrders = orders?.slice(0, 10) || [];
@@ -116,7 +114,7 @@ export default function PaymentsHub() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-primary">Gen Pop ({transformationCount})</span>
-                  <span className="font-medium">${transformationTotal.toFixed(0)} total (one-time)</span>
+                  <span className="font-medium">${transformationMRR.toFixed(2)}/mo</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-purple-400">Free World ({coachingCount})</span>

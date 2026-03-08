@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { planType, userId, email } = await req.json();
+    const { planType, userId, email, referralCode } = await req.json();
 
     if (!planType || !userId || !email) {
       return new Response(
@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const isSubscription = planType === "membership" || planType === "coaching";
+    const isSubscription = planType === "membership" || planType === "transformation" || planType === "coaching";
     const domPercent = SPLITS[planType] || 50;
     const useSplit = !!connectedAccountId;
 
@@ -155,6 +155,7 @@ Deno.serve(async (req) => {
       metadata: {
         supabase_user_id: userId,
         plan_type: planType,
+        referral_code: referralCode || "",
       },
     };
 

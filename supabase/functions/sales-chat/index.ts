@@ -24,7 +24,7 @@ THE THREE PROGRAMS:
    - Weekly check-ins, progress tracking
    - Best for: Men who need to build the basics first
 
-2. GENERAL POPULATION ($249 one-time, 12 weeks)
+2. GENERAL POPULATION ($79/month, 12 weeks)
    - You've earned your place in Gen Pop
    - Full program: video coaching, nutrition plans, skill-building, faith lessons
    - Community access, connect with peers

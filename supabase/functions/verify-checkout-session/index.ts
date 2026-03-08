@@ -125,6 +125,22 @@ Deno.serve(async (req) => {
     // 4. No active subscription — check for any existing subscription for this user
     const now = new Date();
 
+    // Determine expires_at from Stripe subscription period
+    let expiresAt: string | null = null;
+    if (session.subscription) {
+      try {
+        const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")!;
+        const stripeClient = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+        const stripeSub = await stripeClient.subscriptions.retrieve(session.subscription as string);
+        expiresAt = new Date(stripeSub.current_period_end * 1000).toISOString();
+      } catch (err) {
+        console.error("Failed to retrieve Stripe subscription period:", err);
+        const fallback = new Date(now);
+        fallback.setDate(fallback.getDate() + 30);
+        expiresAt = fallback.toISOString();
+      }
+    }
+
     // Try to update any existing (possibly inactive) subscription first
     const { data: updatedSub, error: updateError } = await supabase
       .from("subscriptions")
@@ -132,7 +148,7 @@ Deno.serve(async (req) => {
         plan_type: planType,
         status: "active",
         started_at: now.toISOString(),
-        expires_at: null,
+        expires_at: expiresAt,
         stripe_customer_id: (session.customer as string) || null,
         stripe_subscription_id: (session.subscription as string) || null,
       })
@@ -152,7 +168,7 @@ Deno.serve(async (req) => {
           plan_type: planType,
           status: "active",
           started_at: now.toISOString(),
-          expires_at: null,
+          expires_at: expiresAt,
           stripe_customer_id: (session.customer as string) || null,
           stripe_subscription_id: (session.subscription as string) || null,
         })

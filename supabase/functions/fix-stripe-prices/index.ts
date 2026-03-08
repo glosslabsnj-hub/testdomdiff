@@ -67,10 +67,10 @@ Deno.serve(async (req) => {
 
     if (action === "fix") {
       // Create correct prices and return the new IDs
-      // Target: membership=$19.99/mo, transformation=$249 one-time, coaching=$499/mo
+      // Target: membership=$19.99/mo, transformation=$79/mo, coaching=$499/mo
       const targetPrices = {
         membership: { amount: 1999, recurring: { interval: "month" as const }, nickname: "Solitary Confinement - $19.99/mo" },
-        transformation: { amount: 24900, recurring: null, nickname: "General Population - $249 one-time" },
+        transformation: { amount: 7900, recurring: { interval: "month" as const }, nickname: "General Population - $79/mo" },
         coaching: { amount: 49900, recurring: { interval: "month" as const }, nickname: "Free World Coaching - $499/mo" },
       };
 

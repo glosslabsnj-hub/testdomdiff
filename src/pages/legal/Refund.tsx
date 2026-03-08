@@ -10,8 +10,8 @@ const Refund = () => (
         <p>Last updated: {new Date().toLocaleDateString()}</p>
         <h2 className="headline-card text-foreground mt-8">Solitary Confinement ($19.99/mo)</h2>
         <p>Cancel anytime. No refunds for partial months. Access continues until billing period ends.</p>
-        <h2 className="headline-card text-foreground mt-8">General Population ($249)</h2>
-        <p>No refunds once program access is granted. This is a commitment.</p>
+        <h2 className="headline-card text-foreground mt-8">General Population ($79/mo)</h2>
+        <p>Cancel anytime. No refunds for partial months. Access continues until billing period ends.</p>
         <h2 className="headline-card text-foreground mt-8">Free World 1:1 Coaching ($499/mo)</h2>
         <p>Limited spots. Cancel with 7 days notice before next billing. No partial refunds.</p>
       </div>

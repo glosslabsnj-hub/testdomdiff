@@ -52,8 +52,8 @@ const Index = () => {
     popular: false
   }, {
     title: "General Population",
-    price: "$249",
-    period: "one-time",
+    price: "$79",
+    period: "/month",
     description: "You've earned your place. Connect with peers, get video instruction, and start building your hustle.",
     features: ["Complete 12-week framework", "Custom workout programming", "Nutrition templates + meal guides", "Faith + mindset lessons", "Skill-building lessons", "Community access"],
     cta: "Join Gen Pop",
