@@ -175,12 +175,12 @@ export default function CommentCoach() {
         {/* Quick Comment Examples */}
         <div className="space-y-1.5">
           <p className="text-[10px] uppercase text-muted-foreground font-medium">Or try an example:</p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {QUICK_COMMENTS.map((qc, i) => (
               <button
                 key={i}
                 onClick={() => useQuickComment(qc)}
-                className="text-[10px] px-2 py-1 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-green-500/50 transition-colors"
+                className="text-xs px-3 py-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-green-500/50 active:bg-green-500/10 transition-colors"
               >
                 {qc.comment.length > 35 ? qc.comment.slice(0, 35) + "..." : qc.comment}
               </button>
@@ -199,16 +199,16 @@ export default function CommentCoach() {
                   key={ct.value}
                   onClick={() => setCommentType(ct.value)}
                   className={cn(
-                    "flex items-center gap-2 p-2 rounded-lg border text-left transition-colors",
+                    "flex items-center gap-3 p-3 rounded-lg border text-left transition-colors min-h-[48px] active:scale-[0.98]",
                     commentType === ct.value
                       ? "border-green-500/50 bg-green-500/10"
                       : "border-border hover:border-green-500/30"
                   )}
                 >
-                  <Icon className={cn("h-4 w-4 shrink-0", ct.color)} />
+                  <Icon className={cn("h-5 w-5 shrink-0", ct.color)} />
                   <div>
-                    <p className="text-xs font-medium">{ct.label}</p>
-                    <p className="text-[10px] text-muted-foreground">{ct.description}</p>
+                    <p className="text-sm font-medium">{ct.label}</p>
+                    <p className="text-xs text-muted-foreground">{ct.description}</p>
                   </div>
                 </button>
               );
@@ -307,17 +307,17 @@ export default function CommentCoach() {
         <div className="space-y-2">
           <h4 className="text-sm font-semibold text-muted-foreground">Recent Replies ({history.length})</h4>
           {history.slice(1).map((item, i) => (
-            <div key={i} className="rounded bg-charcoal border border-border p-2">
-              <p className="text-[10px] text-muted-foreground truncate">Comment: "{item.comment}"</p>
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-xs truncate flex-1">{item.response.reply}</p>
+            <div key={i} className="rounded bg-charcoal border border-border p-3">
+              <p className="text-xs text-muted-foreground truncate">Comment: "{item.comment}"</p>
+              <div className="flex items-center justify-between mt-1.5">
+                <p className="text-sm truncate flex-1">{item.response.reply}</p>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-5 text-[10px] gap-1 shrink-0 ml-2"
+                  className="h-8 text-xs gap-1 shrink-0 ml-2 min-w-[44px]"
                   onClick={() => copyText(item.response.reply, `history-${i}`)}
                 >
-                  {copiedField === `history-${i}` ? <Check className="h-2 w-2 text-green-400" /> : <Copy className="h-2 w-2" />}
+                  {copiedField === `history-${i}` ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
                 </Button>
               </div>
             </div>

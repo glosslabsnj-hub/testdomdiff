@@ -992,7 +992,7 @@ export default function WhatsNextWizard() {
       {step !== 1 && (
         <button
           onClick={handleBack}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground active:text-foreground transition-colors min-h-[44px] px-2 -mx-2 rounded-lg"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
@@ -1115,9 +1115,9 @@ export default function WhatsNextWizard() {
             <p className="text-lg font-bold leading-snug">"{currentRec.hook}"</p>
             <button
               onClick={() => handleCopy(currentRec.hook)}
-              className="flex items-center gap-1.5 mt-3 text-xs text-green-400 hover:text-green-300 transition-colors"
+              className="flex items-center gap-1.5 mt-3 text-sm text-green-400 hover:text-green-300 active:text-green-200 transition-colors min-h-[44px] px-3 -mx-3 rounded-lg"
             >
-              {copied ? <CheckCircle className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? <CheckCircle className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied!" : "Copy hook"}
             </button>
           </div>
@@ -1173,7 +1173,7 @@ export default function WhatsNextWizard() {
           {/* Start Over */}
           <button
             onClick={handleReset}
-            className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+            className="w-full text-center text-sm text-muted-foreground hover:text-foreground active:text-foreground transition-colors py-3 min-h-[44px] rounded-lg"
           >
             Start over with different answers
           </button>

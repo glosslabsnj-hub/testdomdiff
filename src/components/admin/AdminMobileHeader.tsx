@@ -18,7 +18,7 @@ export default function AdminMobileHeader({
   const navigate = useNavigate();
 
   return (
-    <div className="md:hidden flex items-center gap-2 px-3 py-2.5 border-b border-border bg-charcoal sticky top-0 z-40">
+    <div className="md:hidden flex items-center gap-2 px-3 py-3 border-b border-border bg-charcoal sticky top-0 z-40">
       <AdminMobileDrawer
         activeSection={activeSection}
         onSectionChange={onSectionChange}
@@ -34,11 +34,11 @@ export default function AdminMobileHeader({
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-muted-foreground"
+        className="h-10 w-10 text-muted-foreground"
         onClick={() => navigate("/dashboard")}
         aria-label="Back to dashboard"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-5 w-5" />
       </Button>
     </div>
   );

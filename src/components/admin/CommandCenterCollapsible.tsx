@@ -97,7 +97,7 @@ export default function CommandCenterCollapsible({
   return (
     <div className="space-y-4">
       {/* 1. Scoreboard Strip — always visible */}
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+      <div className="grid grid-cols-2 sm:flex gap-3 overflow-x-auto pb-1 sm:-mx-1 sm:px-1 scrollbar-hide">
         {[
           {
             label: "MRR",
@@ -129,7 +129,7 @@ export default function CommandCenterCollapsible({
           <Card
             key={stat.label}
             className={cn(
-              "min-w-[140px] flex-shrink-0 bg-gradient-to-br border",
+              "sm:min-w-[140px] flex-shrink-0 bg-gradient-to-br border",
               stat.bg
             )}
           >
@@ -169,10 +169,10 @@ export default function CommandCenterCollapsible({
         </Card>
       )}
 
-      {/* 3. Tier Breakdown — horizontal scroll on mobile */}
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+      {/* 3. Tier Breakdown — grid on mobile, flex on desktop */}
+      <div className="grid grid-cols-3 gap-3">
         <Card
-          className="min-w-[150px] flex-1 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30 cursor-pointer hover:border-blue-500/50 transition-colors"
+          className="flex-1 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30 cursor-pointer hover:border-blue-500/50 transition-colors"
           onClick={() => onNavigate("users")}
         >
           <CardContent className="p-3">
@@ -184,7 +184,7 @@ export default function CommandCenterCollapsible({
           </CardContent>
         </Card>
         <Card
-          className="min-w-[150px] flex-1 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-colors"
+          className="flex-1 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 cursor-pointer hover:border-primary/50 transition-colors"
           onClick={() => onNavigate("users")}
         >
           <CardContent className="p-3">
@@ -196,7 +196,7 @@ export default function CommandCenterCollapsible({
           </CardContent>
         </Card>
         <Card
-          className="min-w-[150px] flex-1 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30 cursor-pointer hover:border-purple-500/50 transition-colors"
+          className="flex-1 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30 cursor-pointer hover:border-purple-500/50 transition-colors"
           onClick={() => onNavigate("freeworld")}
         >
           <CardContent className="p-3">
@@ -225,10 +225,10 @@ export default function CommandCenterCollapsible({
               className="flex flex-col items-center gap-1.5 group"
             >
               <div className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110",
+                "w-14 h-14 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 group-active:scale-95",
                 action.color
               )}>
-                <Icon className="w-5 h-5" />
+                <Icon className="w-6 h-6" />
               </div>
               <span className="text-xs text-muted-foreground">{action.label}</span>
             </button>

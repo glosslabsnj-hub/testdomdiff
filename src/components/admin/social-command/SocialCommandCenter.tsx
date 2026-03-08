@@ -118,7 +118,7 @@ export default function SocialCommandCenter() {
             <ActiveIcon className={cn("h-5 w-5", activeTabData.color)} />
             <div className="text-left">
               <p className="text-sm font-bold">{activeTabData.label}</p>
-              <p className="text-[10px] text-muted-foreground">{activeTabData.description}</p>
+              <p className="text-[11px] text-muted-foreground">{activeTabData.description}</p>
             </div>
           </div>
           <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", mobileMenuOpen && "rotate-180")} />
@@ -126,28 +126,30 @@ export default function SocialCommandCenter() {
 
         {/* Mobile Tab Grid */}
         {mobileMenuOpen && (
-          <div className="mt-2 rounded-lg bg-charcoal border border-border p-3 grid grid-cols-3 gap-2 animate-in slide-in-from-top-2 duration-200">
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.value;
-              return (
-                <button
-                  key={tab.value}
-                  onClick={() => handleNavigate(tab.value)}
-                  className={cn(
-                    "flex flex-col items-center gap-1.5 p-3 rounded-lg border transition-all text-center",
-                    isActive
-                      ? "bg-orange-500/15 border-orange-500/40 ring-1 ring-orange-500/20"
-                      : "border-border/50 hover:border-border hover:bg-background/50"
-                  )}
-                >
-                  <Icon className={cn("h-5 w-5", isActive ? "text-orange-400" : tab.color)} />
-                  <span className={cn("text-[10px] font-medium leading-tight", isActive ? "text-orange-400" : "text-muted-foreground")}>
-                    {tab.label}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="mt-2 rounded-lg bg-charcoal border border-border p-3 max-h-[60vh] overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-3 gap-2">
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.value;
+                return (
+                  <button
+                    key={tab.value}
+                    onClick={() => handleNavigate(tab.value)}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 p-3 rounded-lg border transition-all text-center min-h-[60px]",
+                      isActive
+                        ? "bg-orange-500/15 border-orange-500/40 ring-1 ring-orange-500/20"
+                        : "border-border/50 hover:border-border hover:bg-background/50 active:bg-background/70"
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5", isActive ? "text-orange-400" : tab.color)} />
+                    <span className={cn("text-[11px] font-medium leading-tight", isActive ? "text-orange-400" : "text-muted-foreground")}>
+                      {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

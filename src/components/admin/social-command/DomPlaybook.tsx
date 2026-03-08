@@ -250,8 +250,8 @@ export default function DomPlaybook() {
             <span className="text-sm font-bold text-orange-400">Morning Post</span>
             <Badge className="bg-zinc-800 text-zinc-400 text-[10px] ml-auto">8-9 AM</Badge>
           </div>
-          <p className="text-[11px] text-zinc-400 font-medium uppercase tracking-wider">
-            "The Hook" &mdash; Controversy / opinion that gets comments
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">
+            "The Hook" - Controversy / opinion that gets comments
           </p>
 
           <div className="rounded-lg bg-zinc-950 border border-amber-500/30 p-4">
@@ -261,14 +261,14 @@ export default function DomPlaybook() {
           </div>
           <div className="flex items-center justify-between">
             <CopyButton text={todaysHook} />
-            <span className="text-[10px] text-zinc-500">Hook #{todaysHookIndex + 1} of {HOOK_BANK.length}</span>
+            <span className="text-xs text-zinc-500">Hook #{todaysHookIndex + 1} of {HOOK_BANK.length}</span>
           </div>
 
           <div className="space-y-1.5 mt-1">
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-xs text-zinc-500">
               <span className="text-amber-400 font-semibold">Format:</span> Text over solid background or Dom's face
             </p>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-xs text-zinc-500">
               <span className="text-amber-400 font-semibold">Rule:</span> End with "Agree or disagree?" &mdash; NO link in bio on this one
             </p>
           </div>
@@ -281,7 +281,7 @@ export default function DomPlaybook() {
             <span className="text-sm font-bold text-yellow-400">Afternoon Post</span>
             <Badge className="bg-zinc-800 text-zinc-400 text-[10px] ml-auto">12-2 PM</Badge>
           </div>
-          <p className="text-[11px] text-zinc-400 font-medium uppercase tracking-wider">
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">
             "The Proof" &mdash; Shows your credibility, lifestyle, real content
           </p>
 
@@ -291,13 +291,13 @@ export default function DomPlaybook() {
               <span className="text-sm font-bold text-zinc-100">{afternoonContent.label}</span>
             </div>
             <p className="text-xs text-zinc-300">{afternoonContent.description}</p>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-xs text-zinc-500">
               <span className="text-yellow-400 font-semibold">Format:</span> {afternoonContent.format}
             </p>
           </div>
 
           <div className="rounded bg-yellow-500/5 border border-yellow-500/15 p-3">
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-xs text-zinc-500">
               <Camera className="h-3 w-3 inline mr-1 text-yellow-400" />
               <span className="text-yellow-400 font-semibold">Filming tip:</span> {afternoonContent.filmTip}
             </p>
@@ -311,7 +311,7 @@ export default function DomPlaybook() {
             <span className="text-sm font-bold text-purple-400">Evening Post</span>
             <Badge className="bg-zinc-800 text-zinc-400 text-[10px] ml-auto">6-8 PM</Badge>
           </div>
-          <p className="text-[11px] text-zinc-400 font-medium uppercase tracking-wider">
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">
             "The Sell" &mdash; Direct CTA to the app
           </p>
 
@@ -326,14 +326,14 @@ export default function DomPlaybook() {
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-zinc-200">{opt.hook}</p>
-                  <p className="text-[10px] text-purple-400 mt-1">CTA: {opt.cta}</p>
+                  <p className="text-xs text-purple-400 mt-1">CTA: {opt.cta}</p>
                 </div>
                 <CopyButton text={`${opt.hook}\n\n${opt.cta}`} />
               </div>
             ))}
           </div>
 
-          <p className="text-[11px] text-zinc-500">
+          <p className="text-xs text-zinc-500">
             <span className="text-purple-400 font-semibold">Always end with:</span> "Link in bio" or "DM me 'READY'"
           </p>
         </div>

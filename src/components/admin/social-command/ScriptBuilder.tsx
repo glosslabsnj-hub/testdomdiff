@@ -199,12 +199,12 @@ export default function ScriptBuilder() {
           {/* Quick Examples */}
           <div className="space-y-1.5">
             <p className="text-[10px] uppercase text-muted-foreground font-medium">Or try one of these:</p>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {QUICK_EXAMPLES.map((ex, i) => (
                 <button
                   key={i}
                   onClick={() => setSituation(ex)}
-                  className="text-[10px] px-2 py-1 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-orange-500/50 transition-colors"
+                  className="text-xs px-3 py-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-orange-500/50 active:bg-orange-500/10 transition-colors"
                 >
                   {ex.length > 50 ? ex.slice(0, 50) + "..." : ex}
                 </button>

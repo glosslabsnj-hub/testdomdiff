@@ -210,13 +210,13 @@ export default function ContentCalendar() {
       {/* Week Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={goToPrevWeek}>
+          <Button variant="outline" size="icon" className="h-10 w-10 sm:h-8 sm:w-8" onClick={goToPrevWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={goToThisWeek} className="text-xs">
+          <Button variant="outline" size="sm" onClick={goToThisWeek} className="text-xs min-h-[40px] sm:min-h-0">
             Today
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={goToNextWeek}>
+          <Button variant="outline" size="icon" className="h-10 w-10 sm:h-8 sm:w-8" onClick={goToNextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <span className="text-sm font-medium ml-2">{formatWeekRange()}</span>
@@ -286,20 +286,20 @@ export default function ContentCalendar() {
 
       {/* Mobile stats */}
       <div className="flex sm:hidden items-center gap-2 text-xs text-muted-foreground">
-        <Badge variant="secondary" className="text-[10px]">{stats.posted} posted</Badge>
-        <Badge variant="secondary" className="text-[10px]">{stats.remaining} remaining</Badge>
+        <Badge variant="secondary" className="text-xs">{stats.posted} posted</Badge>
+        <Badge variant="secondary" className="text-xs">{stats.remaining} remaining</Badge>
       </div>
 
       {/* ═══ MOBILE: Day selector + vertical cards ═══ */}
       <div className="sm:hidden">
         {/* Day Selector - horizontal scroll of day buttons */}
-        <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
           {weekDates.map((date, i) => (
             <button
               key={i}
               onClick={() => setMobileDayIndex(i)}
               className={cn(
-                "flex flex-col items-center min-w-[52px] py-2 px-2 rounded-lg border transition-all shrink-0",
+                "flex flex-col items-center min-w-[48px] min-h-[60px] py-2.5 px-2.5 rounded-lg border transition-all shrink-0 active:scale-95",
                 mobileDayIndex === i
                   ? "bg-orange-500/15 border-orange-500/40 ring-1 ring-orange-500/20"
                   : isToday(date)
@@ -308,7 +308,7 @@ export default function ContentCalendar() {
               )}
             >
               <span className={cn(
-                "text-[10px] font-medium",
+                "text-[11px] font-medium",
                 mobileDayIndex === i ? "text-orange-400" : isToday(date) ? "text-blue-400" : "text-muted-foreground"
               )}>
                 {DAY_NAMES[i]}
@@ -320,7 +320,7 @@ export default function ContentCalendar() {
                 {date.getDate()}
               </span>
               {slotsPerDay[i] > 0 && (
-                <span className="text-[9px] text-muted-foreground">{slotsPerDay[i]} slot{slotsPerDay[i] !== 1 ? "s" : ""}</span>
+                <span className="text-[10px] text-muted-foreground">{slotsPerDay[i]} slot{slotsPerDay[i] !== 1 ? "s" : ""}</span>
               )}
             </button>
           ))}
@@ -339,14 +339,14 @@ export default function ContentCalendar() {
                 <div className="flex items-center justify-between mb-2">
                   <h5 className="text-xs font-bold text-muted-foreground uppercase">{TIME_LABELS[timeSlot]}</h5>
                   <button
-                    className="text-[10px] text-muted-foreground hover:text-orange-400 flex items-center gap-1"
+                    className="text-xs text-muted-foreground hover:text-orange-400 flex items-center gap-1 min-h-[44px] min-w-[44px] justify-center px-2 active:text-orange-400"
                     onClick={() => setAddDialog({ dayIndex: mobileDayIndex, timeSlot, date: weekDates[mobileDayIndex] })}
                   >
-                    <Plus className="h-3 w-3" /> Add
+                    <Plus className="h-4 w-4" /> Add
                   </button>
                 </div>
                 {daySlots.length === 0 ? (
-                  <p className="text-[10px] text-muted-foreground/50 italic">No content scheduled</p>
+                  <p className="text-xs text-muted-foreground/50 italic py-2">No content scheduled</p>
                 ) : (
                   <div className="space-y-2">
                     {daySlots.map((slot) => (

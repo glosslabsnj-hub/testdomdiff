@@ -202,7 +202,7 @@ export default function SocialCommandDashboard({ onNavigate }: Props) {
           </button>
         </div>
         <p className="text-sm font-bold leading-snug">"{todaysHook}"</p>
-        <p className="text-[10px] text-muted-foreground mt-2">Copy and use as your opening line. New hook every day.</p>
+        <p className="text-xs text-muted-foreground mt-2">Copy and use as your opening line. New hook every day.</p>
       </div>
 
       {/* Real IG Stats */}

@@ -36,7 +36,7 @@ export default function AdminMobileDrawer({
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[280px] p-0 bg-charcoal">
+      <SheetContent side="left" className="w-[85vw] max-w-[320px] p-0 bg-charcoal">
         <SheetHeader className="p-4 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -80,7 +80,7 @@ export default function AdminMobileDrawer({
         </div>
 
         {/* Flat scrollable nav */}
-        <div className="overflow-y-auto h-[calc(100vh-180px)] py-2">
+        <div className="overflow-y-auto h-[calc(100dvh-180px)] py-2">
           {navGroups.map((group) => (
             <div key={group.title} className="mb-1">
               {/* Group label as divider */}

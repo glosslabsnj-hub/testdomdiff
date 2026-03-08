@@ -27,7 +27,7 @@ export default function AdminBottomNav({
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-charcoal-dark/95 backdrop-blur-sm border-t border-border pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-16 px-1">
+      <div className="flex items-center justify-around h-[68px] px-1">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
@@ -37,7 +37,7 @@ export default function AdminBottomNav({
             <button
               key={item.id}
               onClick={() => onSectionChange(item.id)}
-              className="flex flex-col items-center justify-center flex-1 py-2 relative active:scale-95 transition-transform"
+              className="flex flex-col items-center justify-center flex-1 min-h-[48px] py-2 relative active:scale-95 transition-transform"
               aria-current={isActive ? "page" : undefined}
             >
               <div className="relative">
@@ -50,12 +50,12 @@ export default function AdminBottomNav({
                   )}
                 />
                 {badgeCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 w-3 h-3 bg-destructive rounded-full ring-2 ring-charcoal-dark" />
+                  <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-destructive rounded-full ring-2 ring-charcoal-dark" />
                 )}
               </div>
               <span
                 className={cn(
-                  "text-[11px] mt-0.5 transition-colors",
+                  "text-xs mt-0.5 transition-colors",
                   isActive ? "text-primary font-medium" : "text-muted-foreground"
                 )}
               >
