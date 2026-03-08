@@ -119,13 +119,15 @@ export default function WelcomeVideosManager() {
       return;
     }
 
-    console.log(`🔊 Starting audio upload:`, {
-      videoId,
-      planType,
-      fileName: file.name,
-      fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-      fileType: file.type
-    });
+    if (import.meta.env.DEV) {
+      console.log(`Starting audio upload:`, {
+        videoId,
+        planType,
+        fileName: file.name,
+        fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        fileType: file.type
+      });
+    }
 
     setUploading({ id: videoId, type: 'walkthrough' });
     
@@ -134,24 +136,24 @@ export default function WelcomeVideosManager() {
       const fileName = `audio-${planType}-${Date.now()}.${fileExt}`;
       const filePath = `${planType}/${fileName}`;
 
-      console.log(`📤 Uploading audio to bucket: tier-walkthroughs, path: ${filePath}`);
+      if (import.meta.env.DEV) console.log(`Uploading audio to bucket: tier-walkthroughs, path: ${filePath}`);
 
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('tier-walkthroughs')
         .upload(filePath, file);
 
       if (uploadError) {
-        console.error("❌ Storage upload error:", uploadError);
+        console.error("Storage upload error:", uploadError);
         throw uploadError;
       }
 
-      console.log("✅ Audio upload successful:", uploadData);
+      if (import.meta.env.DEV) console.log("Audio upload successful:", uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from('tier-walkthroughs')
         .getPublicUrl(filePath);
 
-      console.log("🔗 Public URL:", publicUrl);
+      if (import.meta.env.DEV) console.log("Public URL:", publicUrl);
 
       const { error: updateError } = await supabase
         .from("program_welcome_videos")
@@ -159,11 +161,11 @@ export default function WelcomeVideosManager() {
         .eq("id", videoId);
 
       if (updateError) {
-        console.error("❌ Database update error:", updateError);
+        console.error("Database update error:", updateError);
         throw updateError;
       }
 
-      console.log("✅ Database updated successfully");
+      if (import.meta.env.DEV) console.log("Database updated successfully");
 
       setVideos(videos.map(v => 
         v.id === videoId ? { ...v, walkthrough_audio_url: publicUrl } : v
@@ -171,7 +173,7 @@ export default function WelcomeVideosManager() {
 
       toast({ title: "Success", description: "Narration audio uploaded" });
     } catch (error: any) {
-      console.error("❌ Audio upload error:", error);
+      console.error("Audio upload error:", error);
       toast({ 
         title: "Upload Failed", 
         description: error.message || "Unknown error occurred.", 
@@ -190,7 +192,7 @@ export default function WelcomeVideosManager() {
   ) => {
     // Validate file exists
     if (!file) {
-      console.warn("No file selected");
+      if (import.meta.env.DEV) console.warn("No file selected");
       return;
     }
 
@@ -216,13 +218,15 @@ export default function WelcomeVideosManager() {
       return;
     }
 
-    console.log(`📹 Starting ${type} video upload:`, {
-      videoId,
-      planType,
-      fileName: file.name,
-      fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-      fileType: file.type
-    });
+    if (import.meta.env.DEV) {
+      console.log(`Starting ${type} video upload:`, {
+        videoId,
+        planType,
+        fileName: file.name,
+        fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        fileType: file.type
+      });
+    }
 
     setUploading({ id: videoId, type });
     
@@ -233,28 +237,28 @@ export default function WelcomeVideosManager() {
       const folder = type === 'walkthrough' ? planType : 'welcome-videos';
       const filePath = `${folder}/${fileName}`;
 
-      console.log(`📤 Uploading to bucket: ${bucket}, path: ${filePath}`);
+      if (import.meta.env.DEV) console.log(`Uploading to bucket: ${bucket}, path: ${filePath}`);
 
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from(bucket)
         .upload(filePath, file);
 
       if (uploadError) {
-        console.error("❌ Storage upload error:", uploadError);
+        console.error("Storage upload error:", uploadError);
         throw uploadError;
       }
 
-      console.log("✅ Upload successful:", uploadData);
+      if (import.meta.env.DEV) console.log("Upload successful:", uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
 
-      console.log("🔗 Public URL:", publicUrl);
+      if (import.meta.env.DEV) console.log("Public URL:", publicUrl);
 
       // Update the video record
       const updateField = type === 'walkthrough' ? 'walkthrough_video_url' : 'video_url';
-      console.log(`📝 Updating database field: ${updateField}`);
+      if (import.meta.env.DEV) console.log(`Updating database field: ${updateField}`);
       
       const { error: updateError } = await supabase
         .from("program_welcome_videos")
@@ -262,11 +266,11 @@ export default function WelcomeVideosManager() {
         .eq("id", videoId);
 
       if (updateError) {
-        console.error("❌ Database update error:", updateError);
+        console.error("Database update error:", updateError);
         throw updateError;
       }
 
-      console.log("✅ Database updated successfully");
+      if (import.meta.env.DEV) console.log("Database updated successfully");
 
       // Update local state
       setVideos(videos.map(v => 
@@ -275,7 +279,7 @@ export default function WelcomeVideosManager() {
 
       toast({ title: "Success", description: `${type === 'walkthrough' ? 'Walkthrough' : 'Welcome'} video uploaded` });
     } catch (error: any) {
-      console.error("❌ Upload error details:", error);
+      console.error("Upload error details:", error);
       toast({ 
         title: "Upload Failed", 
         description: error.message || "Unknown error occurred. Check console for details.", 

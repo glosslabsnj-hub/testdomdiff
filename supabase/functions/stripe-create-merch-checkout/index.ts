@@ -1,11 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 // Merchandise: 25% platform, 75% Dom
 const MERCH_PLATFORM_PERCENT = 25;
@@ -19,6 +14,7 @@ interface CartItem {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -119,8 +115,8 @@ Deno.serve(async (req) => {
           shipping_zip: shipping.zipCode,
         },
       },
-      success_url: "https://domdifferent.com/shop/confirmation?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url: "https://domdifferent.com/shop/checkout",
+      success_url: "https://domdifferent.netlify.app/shop/confirmation?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "https://domdifferent.netlify.app/shop/checkout",
       metadata: {
         order_type: "merchandise",
       },

@@ -67,31 +67,32 @@ const Checkout = () => {
         return;
       }
 
-      // DEV/TEST MODE: Skip Stripe, create subscription directly
-      console.log("[Checkout] Creating subscription for", user.id, plan);
-      const res = await supabase.functions.invoke("create-user-subscription", {
+      // Create Stripe Checkout Session and redirect to Stripe
+      console.log("[Checkout] Creating Stripe checkout for", user.id, plan);
+      const res = await supabase.functions.invoke("stripe-create-checkout", {
         body: {
           userId: user.id,
           email: user.email,
           planType: plan,
         },
       });
-      console.log("[Checkout] Subscription response:", { data: res.data, error: res.error });
+      console.log("[Checkout] Stripe response:", { data: res.data, error: res.error });
 
       if (res.error) {
         const errMsg = typeof res.error === "object"
           ? (res.error as any).message || JSON.stringify(res.error)
           : String(res.error);
-        throw new Error(`Subscription failed: ${errMsg}`);
+        throw new Error(`Checkout failed: ${errMsg}`);
       }
-      if (res.data?.error) throw new Error(`Subscription error: ${res.data.error}`);
+      if (res.data?.error) throw new Error(`Checkout error: ${res.data.error}`);
 
-      // Refresh subscription state and redirect to intake
-      await refreshSubscription();
-      sessionStorage.setItem("rs_fresh_signup", "true");
-      const intakeRoute = plan === "coaching" ? "/freeworld-intake" : "/intake";
-      setIsProcessing(false);
-      navigate(intakeRoute, { replace: true });
+      // Redirect to Stripe hosted checkout
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+        return;
+      }
+
+      throw new Error("No checkout URL returned");
     } catch (err: any) {
       toast({
         title: "Checkout Error",

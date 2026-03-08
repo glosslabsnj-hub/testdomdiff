@@ -208,7 +208,7 @@ export function DashboardSidebar() {
           <Link
             to={item.locked ? "#" : item.href}
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+              "flex items-center gap-3 px-3 py-3 rounded-md transition-all duration-200",
               active && !item.locked && "bg-primary/10 text-primary border-l-2 border-primary",
               item.locked && "opacity-50 cursor-not-allowed",
               item.premium && !active && "text-primary/80",
@@ -236,7 +236,7 @@ export function DashboardSidebar() {
                     <Lock className="w-3 h-3 text-muted-foreground" />
                   )}
                   {item.premium && (
-                    <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 border-primary/50 text-primary">
+                    <Badge variant="outline" className="text-xs px-1 py-0 h-4 border-primary/50 text-primary">
                       VIP
                     </Badge>
                   )}
@@ -312,7 +312,7 @@ export function DashboardSidebar() {
                   <Link
                     to="/dashboard/help"
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+                      "flex items-center gap-3 px-3 py-3 rounded-md transition-all duration-200",
                       isActive("/dashboard/help") && "bg-primary/10 text-primary",
                       !isActive("/dashboard/help") && "hover:bg-muted/50"
                     )}
@@ -331,7 +331,7 @@ export function DashboardSidebar() {
                   <Link
                     to="/dashboard/settings"
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+                      "flex items-center gap-3 px-3 py-3 rounded-md transition-all duration-200",
                       isActive("/dashboard/settings") && "bg-primary/10 text-primary",
                       !isActive("/dashboard/settings") && "hover:bg-muted/50"
                     )}

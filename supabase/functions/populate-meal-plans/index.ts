@@ -1,9 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 interface Ingredient {
   item: string;
@@ -2862,6 +2858,16 @@ const TEMPLATE_CONFIGS: TemplateConfig[] = [
   { name: "Active Lifestyle 2150", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2150, max: 2250, p: 190, c: 200, f: 65 },
   { name: "Functional Fitness 2300", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2300, max: 2400, p: 200, c: 215, f: 68 },
 
+  // RECOMPOSITION - HIGH CALORIE (8 templates, 2600-3200 cal for larger/more active users)
+  { name: "Power Recomp 2600", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2600, max: 2700, p: 225, c: 250, f: 78 },
+  { name: "Iron Balance 2700", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2700, max: 2800, p: 230, c: 265, f: 80 },
+  { name: "Alpha Recomp 2800", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2800, max: 2900, p: 240, c: 275, f: 82 },
+  { name: "Beast Mode Balance 2900", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2900, max: 3000, p: 245, c: 290, f: 85 },
+  { name: "Titan Recomp 3000", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 3000, max: 3100, p: 250, c: 305, f: 88 },
+  { name: "Juggernaut Protocol 3100", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 3100, max: 3200, p: 255, c: 320, f: 90 },
+  { name: "High Performance Recomp 2650", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2650, max: 2750, p: 235, c: 245, f: 78 },
+  { name: "Athletic Recomp 2850", goal: "Both - lose fat and build muscle", category: "Recomposition", min: 2850, max: 2950, p: 240, c: 280, f: 84 },
+
   // MUSCLE BUILDING - LEAN (15 templates, 2400-3200 cal)
   { name: "Clean Gains 2400", goal: "Build muscle", category: "Muscle Building - Lean", min: 2400, max: 2500, p: 190, c: 270, f: 70 },
   { name: "Lean Mass 2600", goal: "Build muscle", category: "Muscle Building - Lean", min: 2600, max: 2700, p: 200, c: 300, f: 75 },
@@ -2974,11 +2980,19 @@ function selectMealsForDay(
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Optional: filter by goal type to avoid timeout
+    let goalFilter: string | null = null;
+    try {
+      const body = await req.json();
+      goalFilter = body.goal_filter || null;
+    } catch { /* empty body is fine */ }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
@@ -3025,19 +3039,23 @@ Deno.serve(async (req) => {
     let daysCreated = 0;
     let mealsCreated = 0;
 
-    for (const config of TEMPLATE_CONFIGS) {
-      // Check if template already exists
-      const { data: existingTemplate } = await supabase
-        .from("meal_plan_templates")
-        .select("id")
-        .eq("name", config.name)
-        .single();
+    const allFiltered = goalFilter
+      ? TEMPLATE_CONFIGS.filter(c => c.goal === goalFilter)
+      : TEMPLATE_CONFIGS;
 
-      if (existingTemplate) {
-        console.log(`Template "${config.name}" already exists, skipping...`);
-        continue;
-      }
+    // Limit how many templates to process per call (default 5 to avoid timeout)
+    const limit = goalFilter ? 5 : 3;
 
+    // Find which ones don't exist yet
+    const { data: existingNames } = await supabase
+      .from("meal_plan_templates")
+      .select("name");
+    const existingNameSet = new Set((existingNames || []).map((t: any) => t.name));
+    const filteredConfigs = allFiltered.filter(c => !existingNameSet.has(c.name)).slice(0, limit);
+
+    console.log(`Processing ${filteredConfigs.length} new templates (of ${allFiltered.length} total)${goalFilter ? ` for goal: ${goalFilter}` : ''}`);
+
+    for (const config of filteredConfigs) {
       const categoryId = categoryMap[config.category];
       if (!categoryId) {
         console.error(`Category "${config.category}" not found, skipping template "${config.name}"`);
@@ -3082,81 +3100,78 @@ Deno.serve(async (req) => {
       // Track used meals for variety (reset each week for more variety)
       const targetCalories = (config.min + config.max) / 2;
 
-      // Create 28 days (4 weeks)
-      for (let dayNum = 1; dayNum <= 28; dayNum++) {
+      // Batch insert all 28 days at once
+      const dayRows = Array.from({ length: 28 }, (_, i) => {
+        const dayNum = i + 1;
         const weekNum = Math.ceil(dayNum / 7);
         const dayOfWeek = ((dayNum - 1) % 7);
-        const dayName = `Week ${weekNum} - ${DAY_NAMES[dayOfWeek]}`;
-        
-        // Reset used meals each week for variety within the week
-        const usedMeals = new Set<string>();
-        if (dayOfWeek === 0) {
-          usedMeals.clear();
-        }
+        return {
+          template_id: template.id,
+          day_number: dayNum,
+          day_name: `Week ${weekNum} - ${DAY_NAMES[dayOfWeek]}`
+        };
+      });
 
-        const { data: day, error: dayError } = await supabase
-          .from("meal_plan_days")
-          .insert({
-            template_id: template.id,
-            day_number: dayNum,
-            day_name: dayName
-          })
-          .select()
-          .single();
+      const { data: days, error: dayError } = await supabase
+        .from("meal_plan_days")
+        .insert(dayRows)
+        .select();
 
-        if (dayError) {
-          console.error(`Error creating day ${dayNum}:`, dayError);
-          continue;
-        }
+      if (dayError || !days) {
+        console.error(`Error creating days for "${config.name}":`, dayError);
+        continue;
+      }
 
-        daysCreated++;
+      daysCreated += days.length;
 
-        // Select meals for this day
+      // Generate all meals and batch insert
+      const allMealRows: any[] = [];
+      const usedMeals = new Set<string>();
+
+      for (const day of days) {
+        const dayOfWeek = ((day.day_number - 1) % 7);
+        if (dayOfWeek === 0) usedMeals.clear();
+
         const dayMeals = selectMealsForDay(targetCalories, config.p, usedMeals);
-
-        // Track used meals within the week
         usedMeals.add(dayMeals.breakfast.meal_name);
         usedMeals.add(dayMeals.lunch.meal_name);
         usedMeals.add(dayMeals.dinner.meal_name);
         usedMeals.add(dayMeals.snack.meal_name);
 
-        // Insert all 4 meals
-        const mealsToInsert = [
-          { ...dayMeals.breakfast, day_id: day.id, display_order: 1 },
-          { ...dayMeals.lunch, day_id: day.id, display_order: 2 },
-          { ...dayMeals.dinner, day_id: day.id, display_order: 3 },
-          { ...dayMeals.snack, day_id: day.id, display_order: 4 },
-        ];
-
-        for (const meal of mealsToInsert) {
-          const { error: mealError } = await supabase
-            .from("meal_plan_meals")
-            .insert({
-              day_id: meal.day_id,
-              meal_type: meal.meal_type,
-              meal_name: meal.meal_name,
-              calories: meal.calories,
-              protein_g: meal.protein_g,
-              carbs_g: meal.carbs_g,
-              fats_g: meal.fats_g,
-              prep_time_min: meal.prep_time_min,
-              cook_time_min: meal.cook_time_min,
-              servings: meal.servings,
-              ingredients: meal.ingredients,
-              instructions: meal.instructions,
-              notes: meal.notes,
-              display_order: meal.display_order
-            });
-
-          if (mealError) {
-            console.error(`Error creating meal:`, mealError);
-          } else {
-            mealsCreated++;
-          }
+        for (const [idx, meal] of [dayMeals.breakfast, dayMeals.lunch, dayMeals.dinner, dayMeals.snack].entries()) {
+          allMealRows.push({
+            day_id: day.id,
+            meal_type: meal.meal_type,
+            meal_name: meal.meal_name,
+            calories: meal.calories,
+            protein_g: meal.protein_g,
+            carbs_g: meal.carbs_g,
+            fats_g: meal.fats_g,
+            prep_time_min: meal.prep_time_min,
+            cook_time_min: meal.cook_time_min,
+            servings: meal.servings,
+            ingredients: meal.ingredients,
+            instructions: meal.instructions,
+            notes: meal.notes,
+            display_order: idx + 1
+          });
         }
       }
 
-      console.log(`Created template "${config.name}" with 28 days (4 weeks) and 112 meals`);
+      // Batch insert meals in chunks of 50
+      for (let i = 0; i < allMealRows.length; i += 50) {
+        const chunk = allMealRows.slice(i, i + 50);
+        const { error: mealError } = await supabase
+          .from("meal_plan_meals")
+          .insert(chunk);
+        if (mealError) {
+          console.error(`Error inserting meal batch:`, mealError);
+        } else {
+          mealsCreated += chunk.length;
+        }
+      }
+
+      console.log(`Created template "${config.name}" with ${days.length} days and ${allMealRows.length} meals`);
     }
 
     return new Response(

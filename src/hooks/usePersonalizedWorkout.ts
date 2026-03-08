@@ -12,6 +12,10 @@ export interface PersonalizedExercise {
   notes: string | null;
   modification_reason: string | null;
   display_order: number;
+  muscles_targeted?: string;
+  form_tips?: string;
+  scaling_options?: string;
+  instructions?: string;
 }
 
 interface PersonalizationResult {

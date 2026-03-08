@@ -5,49 +5,81 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
-import { verifySubscription } from "@/lib/verifySubscription";
+import { supabase } from "@/integrations/supabase/client";
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, profile, refreshSubscription } = useAuth();
+  const { user, profile, loading, dataLoaded, refreshSubscription } = useAuth();
   const [verifying, setVerifying] = useState(true);
   const [verified, setVerified] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
+    if (loading) return;
+
     const verify = async () => {
+      if (!sessionId) {
+        setError("No session ID found");
+        setVerifying(false);
+        return;
+      }
+
       if (!user?.id) {
-        // Wait for auth to load
+        setError("Please log in to complete your setup");
+        setVerifying(false);
         return;
       }
 
       try {
-        // Wait for webhook to process and subscription to appear
-        const success = await verifySubscription(user.id);
-        if (success) {
+        const res = await supabase.functions.invoke("verify-checkout-session", {
+          body: { sessionId, userId: user.id },
+        });
+
+        if (res.error) {
+          const errMsg = typeof res.error === "object"
+            ? (res.error as any).message || JSON.stringify(res.error)
+            : String(res.error);
+          setError(errMsg);
+        } else if (res.data?.success) {
           setVerified(true);
           sessionStorage.setItem("rs_fresh_signup", "true");
           await refreshSubscription();
+        } else if (res.data?.error) {
+          setError(res.data.error);
+        } else {
+          setError("Unexpected response from server");
         }
-      } catch {
-        // Verification failed, but payment may still be processing
+      } catch (err: any) {
+        setError(err?.message || "Verification failed");
       } finally {
         setVerifying(false);
       }
     };
 
     verify();
-  }, [user?.id, refreshSubscription]);
+  }, [user?.id, sessionId, loading]);
+
+  const getNextPath = () => {
+    if (!profile?.intake_completed_at) return "/intake";
+    return "/dashboard";
+  };
 
   const handleContinue = () => {
-    if (!profile?.intake_completed_at) {
-      navigate("/intake", { replace: true });
-    } else {
-      navigate("/dashboard", { replace: true });
-    }
+    navigate(getNextPath(), { replace: true });
   };
+
+  // Auto-redirect after successful verification
+  useEffect(() => {
+    if (verified) {
+      const timer = setTimeout(() => {
+        navigate(getNextPath(), { replace: true });
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [verified, profile]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,12 +104,41 @@ const CheckoutSuccess = () => {
                 <h1 className="headline-section mb-4">
                   Welcome to the <span className="text-primary">System</span>
                 </h1>
-                <p className="text-muted-foreground mb-8">
+                <p className="text-muted-foreground mb-4">
                   Your payment has been confirmed. Time to begin your transformation.
+                </p>
+                <p className="text-sm text-muted-foreground mb-8">
+                  Redirecting you now...
                 </p>
                 <Button variant="gold" size="xl" className="w-full" onClick={handleContinue}>
                   {!profile?.intake_completed_at ? "Complete Your Intake" : "Enter Your Cell Block"}
                 </Button>
+              </>
+            ) : error ? (
+              <>
+                <CheckCircle2 className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
+                <h1 className="headline-section mb-4">
+                  Almost <span className="text-primary">There</span>
+                </h1>
+                <p className="text-muted-foreground mb-4">
+                  {!user
+                    ? "Please log in to activate your access."
+                    : "Your access is being set up. This can take a few seconds."}
+                </p>
+                <div className="space-y-3">
+                  {!user ? (
+                    <Button variant="gold" size="xl" className="w-full" onClick={() => navigate("/login", { replace: true })}>
+                      Log In to Continue
+                    </Button>
+                  ) : (
+                    <Button variant="gold" size="xl" className="w-full" onClick={() => window.location.reload()}>
+                      Try Again
+                    </Button>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    If this keeps happening, contact support@domdifferent.com
+                  </p>
+                </div>
               </>
             ) : (
               <>
@@ -87,9 +148,6 @@ const CheckoutSuccess = () => {
                 </h1>
                 <p className="text-muted-foreground mb-4">
                   Your payment is being processed. Your access may take a moment to activate.
-                </p>
-                <p className="text-sm text-muted-foreground mb-8">
-                  If your access isn't ready yet, try refreshing in a few seconds.
                 </p>
                 <div className="space-y-3">
                   <Button variant="gold" size="xl" className="w-full" onClick={handleContinue}>

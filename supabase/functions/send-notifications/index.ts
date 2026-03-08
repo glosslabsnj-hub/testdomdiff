@@ -1,10 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.91.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 interface NotificationRequest {
   type: "check_in_reminder" | "streak_alert" | "weekly_update" | "milestone" | "welcome" | "photo_reminder";
@@ -16,6 +12,7 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 serve(async (req: Request): Promise<Response> => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -183,7 +180,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Don't let the week slip by without documenting your wins and lessons.
                 </p>
-                <a href="https://domdifferent.netlify.app/dashboard/check-in" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.com/dashboard/check-in" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Submit Check-In →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Iron sharpens iron. - Dom</p>
@@ -203,7 +200,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Get back in and complete your routines. Every day matters.
                 </p>
-                <a href="https://domdifferent.netlify.app/dashboard/discipline" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.com/dashboard/discipline" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Complete Today's Routines →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">No excuses. - Dom</p>
@@ -223,7 +220,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Check your dashboard for this week's workouts, faith lesson, and nutrition plan.
                 </p>
-                <a href="https://domdifferent.netlify.app/dashboard" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.com/dashboard" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   View This Week's Plan →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Stay locked in. - Dom</p>
@@ -240,7 +237,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   You just earned a new milestone badge! Your dedication is paying off.
                 </p>
-                <a href="https://domdifferent.netlify.app/dashboard/settings" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.com/dashboard/settings" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   View Your Achievements →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Proud of you. - Dom</p>
@@ -260,7 +257,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Head to your dashboard and complete the "Start Here" checklist to get oriented.
                 </p>
-                <a href="https://domdifferent.netlify.app/dashboard/start-here" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.com/dashboard/start-here" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Start Your Transformation →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Let's get after it. - Dom</p>
@@ -280,7 +277,7 @@ serve(async (req: Request): Promise<Response> => {
                 <p style="color: #ccc; font-size: 16px; line-height: 1.6;">
                   Every photo is proof of the work you're putting in. Don't skip this.
                 </p>
-                <a href="https://domdifferent.netlify.app/dashboard/photos" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
+                <a href="https://domdifferent.com/dashboard/photos" style="display: inline-block; background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px;">
                   Upload Progress Photo →
                 </a>
                 <p style="color: #666; font-size: 12px; margin-top: 40px;">Stay consistent. - Dom</p>
@@ -322,39 +319,41 @@ serve(async (req: Request): Promise<Response> => {
 
       logs.push(logData);
 
-      // Note: Actual email sending requires RESEND_API_KEY
-      // When configured, uncomment and use:
-      /*
+      // Send email via Resend if API key is configured
       const resendKey = Deno.env.get("RESEND_API_KEY");
       if (resendKey) {
-        const response = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${resendKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "Redeemed Strength <notifications@yourdomain.com>",
-            to: [user.email],
-            subject: emailContent.subject,
-            html: emailContent.html,
-          }),
-        });
+        try {
+          const response = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Dom Different <dom@send.getfluxdata.com>",
+              to: [user.email],
+              subject: emailContent.subject,
+              html: emailContent.html,
+            }),
+          });
 
-        if (response.ok) {
-          await supabase
-            .from("email_notification_logs")
-            .update({ status: "sent", sent_at: new Date().toISOString() })
-            .eq("id", logData.id);
-        } else {
-          const error = await response.text();
-          await supabase
-            .from("email_notification_logs")
-            .update({ status: "failed", error_message: error })
-            .eq("id", logData.id);
+          if (response.ok) {
+            await supabase
+              .from("email_notification_logs")
+              .update({ status: "sent", sent_at: new Date().toISOString() })
+              .eq("id", logData.id);
+          } else {
+            const errorText = await response.text();
+            console.error("Resend API error:", errorText);
+            await supabase
+              .from("email_notification_logs")
+              .update({ status: "failed", error_message: errorText })
+              .eq("id", logData.id);
+          }
+        } catch (sendError) {
+          console.error("Email send error:", sendError);
         }
       }
-      */
     }
 
     return new Response(

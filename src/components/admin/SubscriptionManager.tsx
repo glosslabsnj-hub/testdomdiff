@@ -42,18 +42,19 @@ const SubscriptionManager = ({ client, onUpdate }: SubscriptionManagerProps) => 
 
   const handleCancelSubscription = async () => {
     if (!activeSub) return;
-    
+
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("subscriptions")
-        .update({
-          status: "cancelled",
-          cancelled_at: new Date().toISOString(),
-        })
-        .eq("id", activeSub.id);
+      // Call edge function to cancel in Stripe AND update DB
+      const { data, error } = await supabase.functions.invoke("stripe-cancel-subscription", {
+        body: {
+          subscriptionId: activeSub.id,
+          reason: "Admin cancellation",
+        },
+      });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       // Log the action
       await logAction.mutateAsync({
@@ -89,15 +90,14 @@ const SubscriptionManager = ({ client, onUpdate }: SubscriptionManagerProps) => 
     
     setLoading(true);
     try {
-      // Cancel current subscription if exists
+      // Cancel current subscription if exists (in both Stripe and DB)
       if (activeSub) {
-        await supabase
-          .from("subscriptions")
-          .update({
-            status: "cancelled",
-            cancelled_at: new Date().toISOString(),
-          })
-          .eq("id", activeSub.id);
+        const { data: cancelData, error: cancelError } = await supabase.functions.invoke(
+          "stripe-cancel-subscription",
+          { body: { subscriptionId: activeSub.id, reason: "Plan change by admin" } }
+        );
+        if (cancelError) throw cancelError;
+        if (cancelData?.error) throw new Error(cancelData.error);
       }
 
       // Calculate expires_at for transformation plan (98 days = 12 weeks + 14 day grace)

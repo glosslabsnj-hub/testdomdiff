@@ -21,7 +21,7 @@ export default function StickyMobileFooter({
     <div
       className={cn(
         // Mobile: fixed bottom, with safe area padding
-        "fixed bottom-0 left-0 right-0 z-40",
+        "fixed bottom-0 left-0 right-0 z-50",
         "p-4 bg-background/95 backdrop-blur-sm",
         "pb-[calc(1rem+env(safe-area-inset-bottom))]",
         showBorder && "border-t border-border",

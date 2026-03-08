@@ -178,7 +178,7 @@ export function TodayFocusCard() {
                 )}>
                   {pill.label}
                 </span>
-                <span className="text-[10px] text-muted-foreground leading-tight">
+                <span className="text-xs text-muted-foreground leading-tight">
                   {pill.subLabel}
                 </span>
               </div>
@@ -188,7 +188,7 @@ export function TodayFocusCard() {
         
         {/* Compact week strip */}
         <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Week at a glance</span>
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">Week at a glance</span>
           <div className="flex items-center gap-1">
             {weekPlan.days.map((day, idx) => {
               const DayIcon = getDayIcon(day.primary.type);

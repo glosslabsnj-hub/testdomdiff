@@ -132,17 +132,17 @@ export default function AdminAuditLog() {
                 <SelectItem value="settings">Settings</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon" onClick={() => refetch()}>
+            <Button variant="outline" size="icon" className="min-h-[44px] min-w-[44px]" onClick={() => refetch()}>
               <RefreshCw className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExportLog}>
+            <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px]" onClick={handleExportLog}>
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[400px]">
+          <ScrollArea className="h-[calc(100vh-320px)] sm:h-[400px]">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -170,10 +170,10 @@ export default function AdminAuditLog() {
                       className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                     >
                       <div className={`mt-0.5 ${colorClass}`}>
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">
+                        <p className="text-sm font-medium break-words">
                           {getActionDescription(log)}
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">

@@ -218,7 +218,7 @@ const About = () => {
             {timeline.map((item, index) => (
               <div
                 key={index}
-                className="relative pl-8 border-l-2 border-primary/30 hover:border-primary transition-colors"
+                className="relative pl-6 sm:pl-8 border-l-2 border-primary/30 hover:border-primary transition-colors"
               >
                 <div className="absolute -left-2 top-0 w-4 h-4 bg-primary rounded-full" />
                 <p className="text-sm text-primary uppercase tracking-wider mb-1 font-bold">{item.year}</p>
@@ -377,7 +377,7 @@ const About = () => {
               <Link to="/programs">View Programs</Link>
             </Button>
             <Button variant="heroOutline" size="hero" asChild>
-              <Link to="/book-call">Book a Call</Link>
+              <Link to="/checkout?plan=coaching">Book a Call</Link>
             </Button>
           </div>
         </div>

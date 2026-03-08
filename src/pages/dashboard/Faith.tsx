@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { 
-  BookOpen, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
   CheckCircle,
   Circle,
   PenLine,
@@ -19,10 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFaithLessons } from "@/hooks/useFaithLessons";
 import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
+import { useFaithProgress } from "@/hooks/useFaithProgress";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { calculateCurrentWeek } from "@/lib/weekCalculator";
-import { useToast } from "@/hooks/use-toast";
 import { useSermonTTS } from "@/hooks/useSermonTTS";
 import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
@@ -35,48 +35,45 @@ const Faith = () => {
   const { lessons, loading } = useFaithLessons(true);
   const { user } = useAuth();
   const { subscription, isMembership } = useEffectiveSubscription();
-  const { toast } = useToast();
   const tts = useSermonTTS();
   const { streak } = useDailyDiscipline();
-  
+
   // Calculate current week from subscription start date
   const calculatedWeek = useMemo(() => {
     return calculateCurrentWeek(subscription?.started_at);
   }, [subscription?.started_at]);
-  
+
   const [currentWeek, setCurrentWeek] = useState(1);
-  const [journalEntry, setJournalEntry] = useState("");
-  const [prayerList, setPrayerList] = useState<string[]>([]);
   const [newPrayer, setNewPrayer] = useState("");
-  const [completedActions, setCompletedActions] = useState<string[]>([]);
-  const [memorizedScriptures, setMemorizedScriptures] = useState<number[]>([]);
-  const [reflectionAnswers, setReflectionAnswers] = useState<Record<string, string>>({});
-  
+
   // Initialize current week when calculated
   useEffect(() => {
     setCurrentWeek(calculatedWeek);
   }, [calculatedWeek]);
 
-  // Load saved data from localStorage
-  useEffect(() => {
-    if (user?.id) {
-      const savedJournal = localStorage.getItem(`faith_journal_${user.id}_week_${currentWeek}`);
-      const savedPrayers = localStorage.getItem(`faith_prayers_${user.id}`);
-      const savedActions = localStorage.getItem(`faith_actions_${user.id}_week_${currentWeek}`);
-      const savedMemorized = localStorage.getItem(`faith_memorized_${user.id}`);
-      const savedReflections = localStorage.getItem(`faith_reflections_${user.id}_week_${currentWeek}`);
-      
-      if (savedJournal) setJournalEntry(savedJournal);
-      if (savedPrayers) setPrayerList(JSON.parse(savedPrayers));
-      if (savedActions) setCompletedActions(JSON.parse(savedActions));
-      if (savedMemorized) setMemorizedScriptures(JSON.parse(savedMemorized));
-      if (savedReflections) setReflectionAnswers(JSON.parse(savedReflections));
+  // Supabase-backed faith progress (replaces localStorage)
+  const {
+    journalEntry,
+    completedActions,
+    reflectionAnswers,
+    prayers,
+    memorizedWeeks: memorizedScriptures,
+    saveJournal,
+    toggleAction,
+    saveReflection,
+    addPrayer: addPrayerToDb,
+    removePrayer: removePrayerFromDb,
+    toggleMemorized: toggleMemorizedDb,
+    setJournalEntry,
+  } = useFaithProgress(currentWeek);
+
+  // Membership users can only see Week 1 as a preview
+  const isMembershipPreview = isMembership;
+  if (isMembershipPreview) {
+    // Force to week 1 only
+    if (currentWeek !== 1) {
+      setCurrentWeek(1);
     }
-  }, [user?.id, currentWeek]);
-  
-  // Block membership users from accessing Faith content (after all hooks)
-  if (isMembership) {
-    return <UpgradePrompt feature="Chapel (Faith & Mindset)" upgradeTo="transformation" />;
   }
 
   const currentLesson = lessons.find((l) => l.week_number === currentWeek);
@@ -90,61 +87,15 @@ const Faith = () => {
   const completedWeeks = memorizedScriptures.length;
   const progressPercent = Math.min(100, Math.max(0, (completedWeeks / 12) * 100));
 
-  const saveJournal = () => {
-    if (user?.id) {
-      localStorage.setItem(`faith_journal_${user.id}_week_${currentWeek}`, journalEntry);
-      toast({ title: "Journal Saved", description: "Your reflection has been saved." });
-    }
-  };
-
   const addPrayer = () => {
-    if (newPrayer.trim() && user?.id) {
-      const updated = [...prayerList, newPrayer.trim()];
-      setPrayerList(updated);
-      localStorage.setItem(`faith_prayers_${user.id}`, JSON.stringify(updated));
+    if (newPrayer.trim()) {
+      addPrayerToDb(newPrayer.trim());
       setNewPrayer("");
-      toast({ title: "Prayer Added", description: "Added to your prayer list." });
-    }
-  };
-
-  const removePrayer = (index: number) => {
-    if (user?.id) {
-      const updated = prayerList.filter((_, i) => i !== index);
-      setPrayerList(updated);
-      localStorage.setItem(`faith_prayers_${user.id}`, JSON.stringify(updated));
-    }
-  };
-
-  const toggleAction = (action: string) => {
-    if (user?.id) {
-      const updated = completedActions.includes(action)
-        ? completedActions.filter(a => a !== action)
-        : [...completedActions, action];
-      setCompletedActions(updated);
-      localStorage.setItem(`faith_actions_${user.id}_week_${currentWeek}`, JSON.stringify(updated));
     }
   };
 
   const toggleMemorized = () => {
-    if (user?.id) {
-      const updated = memorizedScriptures.includes(currentWeek)
-        ? memorizedScriptures.filter(w => w !== currentWeek)
-        : [...memorizedScriptures, currentWeek];
-      setMemorizedScriptures(updated);
-      localStorage.setItem(`faith_memorized_${user.id}`, JSON.stringify(updated));
-      
-      if (!memorizedScriptures.includes(currentWeek)) {
-        toast({ title: "Scripture Memorized! 🎉", description: `Week ${currentWeek} scripture added to your memory bank.` });
-      }
-    }
-  };
-
-  const saveReflection = (question: string, answer: string) => {
-    if (user?.id) {
-      const updated = { ...reflectionAnswers, [question]: answer };
-      setReflectionAnswers(updated);
-      localStorage.setItem(`faith_reflections_${user.id}_week_${currentWeek}`, JSON.stringify(updated));
-    }
+    toggleMemorizedDb(currentWeek);
   };
 
   if (loading) {
@@ -192,16 +143,40 @@ const Faith = () => {
           </div>
         </div>
 
-        {/* Overall Progress Bar */}
-        <div className="mb-8 p-4 bg-charcoal rounded-lg border border-border">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-muted-foreground">Scripture Memory Progress</p>
-            <p className="text-sm font-medium text-primary">{Math.round(progressPercent)}%</p>
+        {/* Solitary Preview Banner */}
+        {isMembershipPreview && (
+          <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/30">
+            <div className="flex items-start gap-3">
+              <Star className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-medium text-primary text-sm">Week 1 Preview</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  You're in Solitary, so you get Week 1 of Chapel as a preview.
+                  Upgrade to Gen Pop to unlock all 12 weeks of faith and mindset lessons.
+                </p>
+                <Button variant="goldOutline" size="sm" className="mt-3" asChild>
+                  <Link to="/checkout?plan=transformation">
+                    Unlock All 12 Weeks <ArrowRight className="w-3 h-3 ml-1" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
-          <Progress value={progressPercent} className="h-2" />
-        </div>
+        )}
 
-        {/* Week Selector */}
+        {/* Overall Progress Bar */}
+        {!isMembershipPreview && (
+          <div className="mb-8 p-4 bg-charcoal rounded-lg border border-border">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-muted-foreground">Scripture Memory Progress</p>
+              <p className="text-sm font-medium text-primary">{Math.round(progressPercent)}%</p>
+            </div>
+            <Progress value={progressPercent} className="h-2" />
+          </div>
+        )}
+
+        {/* Week Selector - hidden for Solitary preview (locked to week 1) */}
+        {!isMembershipPreview && (
         <div className="flex items-center justify-center gap-4 mb-8">
           <Button
             variant="ghost"
@@ -211,7 +186,7 @@ const Faith = () => {
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
-          <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-center">
+          <div className="flex gap-1 sm:gap-1.5 md:gap-2 flex-wrap justify-center">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((week) => {
               const lesson = lessons.find((l) => l.week_number === week);
               const isPublished = lesson?.is_published;
@@ -220,7 +195,7 @@ const Faith = () => {
                 <button
                   key={week}
                   onClick={() => setCurrentWeek(week)}
-                  className={`w-10 h-10 sm:w-9 sm:h-9 rounded-full text-sm font-medium transition-all relative ${
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full text-sm font-medium transition-all relative ${
                     currentWeek === week
                       ? "bg-primary text-primary-foreground"
                       : isPublished
@@ -246,6 +221,7 @@ const Faith = () => {
             <ChevronRight className="w-5 h-5" />
           </Button>
         </div>
+        )}
 
         {!hasContent ? (
           <EmptyState
@@ -259,10 +235,10 @@ const Faith = () => {
           <Tabs defaultValue="lesson" className="space-y-6">
             <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
               <TabsList className="inline-flex w-auto sm:grid sm:w-full sm:grid-cols-4 bg-charcoal">
-                <TabsTrigger value="lesson" className="min-w-[70px] px-3 sm:px-2 text-xs sm:text-sm">Sermon</TabsTrigger>
-                <TabsTrigger value="journal" className="min-w-[80px] px-3 sm:px-2 text-xs sm:text-sm">Cell Notes</TabsTrigger>
-                <TabsTrigger value="prayers" className="min-w-[85px] px-3 sm:px-2 text-xs sm:text-sm">Prayer Wall</TabsTrigger>
-                <TabsTrigger value="actions" className="min-w-[80px] px-3 sm:px-2 text-xs sm:text-sm">Faith Walk</TabsTrigger>
+                <TabsTrigger value="lesson" className="min-w-[60px] sm:min-w-[70px] px-3 sm:px-2 text-xs sm:text-sm">Sermon</TabsTrigger>
+                <TabsTrigger value="journal" className="min-w-[60px] sm:min-w-[80px] px-3 sm:px-2 text-xs sm:text-sm">Cell Notes</TabsTrigger>
+                <TabsTrigger value="prayers" className="min-w-[60px] sm:min-w-[85px] px-3 sm:px-2 text-xs sm:text-sm">Prayer Wall</TabsTrigger>
+                <TabsTrigger value="actions" className="min-w-[60px] sm:min-w-[80px] px-3 sm:px-2 text-xs sm:text-sm">Faith Walk</TabsTrigger>
               </TabsList>
             </div>
 
@@ -326,7 +302,7 @@ const Faith = () => {
                           variant={memorizedScriptures.includes(currentWeek) ? "gold" : "goldOutline"}
                           size="sm"
                           onClick={toggleMemorized}
-                          className="shrink-0"
+                          className="shrink-0 min-h-[44px]"
                         >
                           {memorizedScriptures.includes(currentWeek) ? (
                             <>
@@ -378,7 +354,7 @@ const Faith = () => {
                   placeholder="What is God speaking to you this week? What stood out from the lesson? How will you apply this to your life?"
                   className="min-h-[200px] mb-4"
                 />
-                <Button variant="gold" onClick={saveJournal}>
+                <Button variant="gold" onClick={() => saveJournal(journalEntry)}>
                   Save Journal Entry
                 </Button>
 
@@ -434,21 +410,21 @@ const Faith = () => {
                   </Button>
                 </div>
 
-                {prayerList.length === 0 ? (
+                {prayers.length === 0 ? (
                   <div className="text-center py-8">
                     <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">No prayer requests yet. Add your first one above.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {prayerList.map((prayer, index) => (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-charcoal rounded-lg">
+                    {prayers.map((prayer) => (
+                      <div key={prayer.id} className="flex items-start gap-3 p-3 bg-charcoal rounded-lg">
                         <Heart className="w-4 h-4 text-primary mt-1 shrink-0" />
-                        <p className="text-sm flex-1">{prayer}</p>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => removePrayer(index)}
+                        <p className="text-sm flex-1">{prayer.content}</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removePrayerFromDb(prayer.id)}
                           className="text-muted-foreground hover:text-destructive shrink-0"
                         >
                           ✕

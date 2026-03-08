@@ -11,6 +11,7 @@ import { ChatWidget } from "@/components/chat/ChatWidget";
 import { FloatingActionStack } from "@/components/FloatingActionStack";
 import CartDrawer from "@/components/shop/CartDrawer";
 import AnimatedRoutes from "@/components/AnimatedRoutes";
+import AdminTestFlowBanner from "@/components/AdminTestFlowBanner";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient({
@@ -37,6 +38,7 @@ const App = () => (
           <AuthProvider>
             <AdminPreviewProvider>
               <CartProvider>
+                <AdminTestFlowBanner />
                 <AnimatedRoutes />
                 <CartDrawer />
                 {/* ChatWidget for public visitors, FloatingActionStack for logged-in users */}

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Lock, ArrowRight, Users, Dumbbell, Utensils, BookOpen, AlertTriangle, Briefcase } from "lucide-react";
+import { ArrowRight, ArrowUp, Users, Dumbbell, Utensils, BookOpen, Briefcase, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,13 @@ interface SolitaryUpgradeModalProps {
 }
 
 const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: SolitaryUpgradeModalProps) => {
+  const { subscription } = useAuth();
+
+  // Calculate days served in Solitary
+  const daysServed = subscription?.started_at
+    ? Math.max(1, Math.floor((Date.now() - new Date(subscription.started_at).getTime()) / (1000 * 60 * 60 * 24)))
+    : 1;
+
   const benefits = [
     {
       icon: Dumbbell,
@@ -25,7 +33,7 @@ const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: 
     {
       icon: Utensils,
       title: "Nutrition Templates",
-      description: "Meal plans and macro guidelines for your goals",
+      description: "Meal plans with swaps and macro tracking",
     },
     {
       icon: Briefcase,
@@ -41,34 +49,33 @@ const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-card border-crimson/30">
+      <DialogContent className="sm:max-w-lg bg-card border-primary/30">
         <DialogHeader className="text-center">
-          {/* Crimson-tinted lock icon for restricted access */}
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-crimson/10 border border-crimson/40 flex items-center justify-center">
-            <Lock className="w-8 h-8 text-crimson" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 border border-primary/40 flex items-center justify-center">
+            <ArrowUp className="w-8 h-8 text-primary" />
           </div>
           <DialogTitle className="text-2xl font-display">
-            <span className="text-crimson">{feature}</span> Restricted
+            Ready for <span className="text-primary">Gen Pop</span>?
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            You're in Solitary—time to earn your way to General Population.
+            You've been putting in work in Solitary. {feature} awaits you in General Population.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Warning banner */}
-        <div className="flex items-center gap-2 p-3 bg-crimson/10 border border-crimson/20 rounded-lg">
-          <AlertTriangle className="w-5 h-5 text-crimson flex-shrink-0" />
-          <p className="text-sm text-crimson/90">
-            This content is locked for Solitary Confinement members.
+        {/* Days served badge */}
+        <div className="flex items-center justify-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+          <Flame className="w-5 h-5 text-primary flex-shrink-0" />
+          <p className="text-sm text-primary font-medium">
+            {daysServed} day{daysServed !== 1 ? "s" : ""} served in Solitary
           </p>
         </div>
 
         <div className="py-4">
           <p className="text-xs text-primary uppercase tracking-wider text-center mb-3">
-            Upgrade to unlock
+            Level up your transformation
           </p>
           <h3 className="text-xl font-display text-center mb-1">General Population</h3>
-          <p className="text-2xl font-display text-primary text-center mb-6">$249</p>
+          <p className="text-2xl font-display text-primary text-center mb-6">$249 <span className="text-sm text-muted-foreground font-normal">one-time</span></p>
 
           <div className="space-y-3">
             {benefits.map((benefit, i) => (
@@ -97,10 +104,10 @@ const SolitaryUpgradeModal = ({ open, onOpenChange, feature = "This feature" }: 
           <Button
             variant="ghost"
             size="sm"
-            className="text-muted-foreground hover:text-crimson"
+            className="text-muted-foreground hover:text-foreground"
             onClick={() => onOpenChange(false)}
           >
-            Stay in Solitary
+            Keep grinding in Solitary
           </Button>
         </div>
 

@@ -157,7 +157,7 @@ export default function Help() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="dashboard-tile hover-lift">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <RotateCcw className="w-6 h-6 text-primary" />
@@ -175,7 +175,7 @@ export default function Help() {
           
           {calendlyUrl && calendlyUrl !== "https://calendly.com/your-link" && (
             <Card className="dashboard-tile hover-lift">
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                     <Calendar className="w-6 h-6 text-primary" />
@@ -198,7 +198,7 @@ export default function Help() {
           )}
           
           <Card className="dashboard-tile hover-lift">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <MessageCircle className="w-6 h-6 text-primary" />
@@ -241,7 +241,7 @@ export default function Help() {
                   <Accordion type="single" collapsible className="border rounded-lg">
                     {category.questions.map((faq, faqIndex) => (
                       <AccordionItem key={faqIndex} value={`${catIndex}-${faqIndex}`}>
-                        <AccordionTrigger className="px-4 hover:no-underline text-left">
+                        <AccordionTrigger className="px-4 hover:no-underline text-left text-sm sm:text-base">
                           {faq.q}
                         </AccordionTrigger>
                         <AccordionContent className="px-4 text-muted-foreground">

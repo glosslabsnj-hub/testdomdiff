@@ -527,7 +527,7 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[85vh] sm:max-h-[90vh] overflow-y-auto overscroll-contain bg-card border-border [&>button]:min-w-[44px] [&>button]:min-h-[44px]">
         <DialogHeader className="pb-4 border-b border-border">
           {/* Header with gradient */}
           <div className="flex items-start gap-4">
@@ -549,23 +549,23 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
         </DialogHeader>
 
         {/* Workout Parameters */}
-        <div className="grid grid-cols-3 gap-3 py-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 py-4">
           {exercise.sets && (
-            <div className="bg-charcoal rounded-lg p-3 text-center">
+            <div className="bg-charcoal rounded-lg p-2 sm:p-3 text-center">
               <p className="text-xs text-muted-foreground mb-1">Sets</p>
-              <p className="text-xl font-bold text-primary">{exercise.sets}</p>
+              <p className="text-lg sm:text-xl font-bold text-primary">{exercise.sets}</p>
             </div>
           )}
           {exercise.reps_or_time && (
-            <div className="bg-charcoal rounded-lg p-3 text-center">
+            <div className="bg-charcoal rounded-lg p-2 sm:p-3 text-center">
               <p className="text-xs text-muted-foreground mb-1">Reps/Time</p>
-              <p className="text-xl font-bold">{exercise.reps_or_time}</p>
+              <p className="text-lg sm:text-xl font-bold">{exercise.reps_or_time}</p>
             </div>
           )}
           {exercise.rest && (
-            <div className="bg-charcoal rounded-lg p-3 text-center">
+            <div className="bg-charcoal rounded-lg p-2 sm:p-3 text-center">
               <p className="text-xs text-muted-foreground mb-1">Rest</p>
-              <p className="text-xl font-bold text-muted-foreground">{exercise.rest}</p>
+              <p className="text-lg sm:text-xl font-bold text-muted-foreground">{exercise.rest}</p>
             </div>
           )}
         </div>
@@ -573,32 +573,32 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 bg-charcoal p-1 rounded-lg">
-            <TabsTrigger 
-              value="howto" 
-              className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
+            <TabsTrigger
+              value="howto"
+              className="min-h-[44px] flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
             >
-              <Target className="w-4 h-4" />
+              <Target className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">How To</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="form" 
-              className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
+            <TabsTrigger
+              value="form"
+              className="min-h-[44px] flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
             >
-              <Shield className="w-4 h-4" />
+              <Shield className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Form</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="timer" 
-              className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
+            <TabsTrigger
+              value="timer"
+              className="min-h-[44px] flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
             >
-              <Timer className="w-4 h-4" />
+              <Timer className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Rest</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="video" 
-              className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
+            <TabsTrigger
+              value="video"
+              className="min-h-[44px] flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_10px_-3px_hsl(43_74%_49%_/_0.3)] transition-all"
             >
-              <Play className="w-4 h-4" />
+              <Play className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Demo</span>
             </TabsTrigger>
           </TabsList>
@@ -628,7 +628,7 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
                     <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold shrink-0">
                       {i + 1}
                     </div>
-                    <p className="text-sm text-muted-foreground pt-1">{step}</p>
+                    <p className="text-sm text-muted-foreground pt-0.5">{step}</p>
                   </div>
                 ))}
               </div>
@@ -649,9 +649,9 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
                 <TrendingUp className="w-4 h-4 text-green-400" />
                 Muscles Worked
               </h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {exerciseData.musclesWorked.map((muscle, i) => (
-                  <Badge key={i} variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
+                  <Badge key={i} variant="secondary" className="min-h-[28px] bg-green-500/20 text-green-400 border-green-500/30">
                     {muscle}
                   </Badge>
                 ))}
@@ -662,14 +662,14 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
           {/* Form Tips Tab */}
           <TabsContent value="form" className="space-y-4 mt-4">
             {/* Form checkpoints */}
-            <div className="bg-charcoal rounded-lg p-4">
+            <div className="bg-charcoal rounded-lg p-3 sm:p-4">
               <h4 className="font-semibold text-green-400 flex items-center gap-2 mb-4">
                 <CheckCircle2 className="w-5 h-5" />
                 Form Checkpoints
               </h4>
               <div className="space-y-3">
                 {exerciseData.formTips.map((tip, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 bg-green-500/5 rounded-lg border border-green-500/10">
+                  <div key={i} className="flex items-start gap-3 p-3 sm:p-4 bg-green-500/5 rounded-lg border border-green-500/10">
                     <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                     <p className="text-sm text-muted-foreground">{tip}</p>
                   </div>
@@ -678,14 +678,14 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
             </div>
 
             {/* Common mistakes */}
-            <div className="bg-charcoal rounded-lg p-4">
+            <div className="bg-charcoal rounded-lg p-3 sm:p-4">
               <h4 className="font-semibold text-destructive flex items-center gap-2 mb-4">
                 <AlertTriangle className="w-5 h-5" />
                 Common Mistakes to Avoid
               </h4>
               <div className="space-y-3">
                 {exerciseData.commonMistakes.map((mistake, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 bg-destructive/5 rounded-lg border border-destructive/10">
+                  <div key={i} className="flex items-start gap-3 p-3 sm:p-4 bg-destructive/5 rounded-lg border border-destructive/10">
                     <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
                     <p className="text-sm text-muted-foreground">{mistake}</p>
                   </div>
@@ -707,7 +707,7 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
 
           {/* Rest Timer Tab */}
           <TabsContent value="timer" className="mt-4">
-            <div className="bg-charcoal rounded-lg p-6">
+            <div className="bg-charcoal rounded-lg p-4 sm:p-6">
               <div className="text-center mb-4">
                 <h4 className="font-semibold text-primary flex items-center justify-center gap-2">
                   <Timer className="w-5 h-5" />
@@ -727,13 +727,20 @@ const ExerciseDetailDialog = ({ exercise, open, onOpenChange }: ExerciseDetailDi
           {/* Video Demo Tab */}
           <TabsContent value="video" className="space-y-4 mt-4">
             {exercise.demo_url ? (
-              <div className="aspect-video rounded-lg overflow-hidden bg-charcoal">
-                <video
-                  src={exercise.demo_url}
-                  controls
-                  autoPlay
-                  className="w-full h-full object-contain"
-                />
+              <div className="space-y-2">
+                <div className="aspect-video rounded-lg overflow-hidden bg-charcoal">
+                  <video
+                    src={exercise.demo_url}
+                    controls
+                    preload="metadata"
+                    playsInline
+                    poster=""
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  Tap the fullscreen icon in the video controls for a larger view.
+                </p>
               </div>
             ) : (
               <div className="aspect-video rounded-lg bg-charcoal flex items-center justify-center">

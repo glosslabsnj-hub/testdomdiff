@@ -1,9 +1,11 @@
 // Service Worker for Push Notifications & Caching
 // Redeemed Strength - Faith-Based Fitness
 
-const CACHE_NAME = "redeemed-strength-v3";
-const STATIC_CACHE = "rs-static-v2";
-const DYNAMIC_CACHE = "rs-dynamic-v2";
+// Cache version — increment on each deploy to bust stale caches
+const CACHE_VERSION = "5";
+const CACHE_NAME = "redeemed-strength-v" + CACHE_VERSION;
+const STATIC_CACHE = "rs-static-v" + CACHE_VERSION;
+const DYNAMIC_CACHE = "rs-dynamic-v" + CACHE_VERSION;
 
 // Assets to pre-cache
 const STATIC_ASSETS = [
@@ -88,18 +90,25 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // HTML pages - network first, fallback to cache
+  // HTML pages - network first with 3s timeout, fallback to cache
   if (request.destination === "document") {
+    const networkWithTimeout = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("timeout")), 3000);
+      fetch(request).then((response) => {
+        clearTimeout(timer);
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
+        }
+        resolve(response);
+      }).catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+    });
+
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(request))
+      networkWithTimeout.catch(() => caches.match(request))
     );
     return;
   }

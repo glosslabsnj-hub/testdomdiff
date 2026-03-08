@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
-  ChefHat, Flame, Beef, Wheat, Droplet, 
-  ShoppingCart, Printer
+  ChefHat, Flame, Beef, Wheat, Droplet,
+  ShoppingCart, Printer, ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,13 +66,17 @@ const Nutrition = () => {
     });
   };
 
-  // Generate shopping list from all meals in the week
-  const generateShoppingList = () => {
+  // Generate shopping list from the currently selected week (7 days)
+  const shoppingList = useMemo(() => {
     if (!assignedPlan) return [];
-    
+
+    // Only generate for the current week's worth of days (7 days)
+    const currentWeekStart = Math.floor((parseInt(selectedDay) - 1) / 7) * 7;
+    const weekDays = assignedPlan.days.slice(currentWeekStart, currentWeekStart + 7);
+
     const ingredientMap = new Map<string, { amount: string; notes?: string }>();
-    
-    assignedPlan.days.forEach(day => {
+
+    weekDays.forEach(day => {
       day.meals.forEach(meal => {
         meal.ingredients.forEach(ing => {
           const key = ing.item.toLowerCase();
@@ -82,12 +86,14 @@ const Nutrition = () => {
         });
       });
     });
-    
-    return Array.from(ingredientMap.entries()).map(([item, details]) => ({
-      item: item.charAt(0).toUpperCase() + item.slice(1),
-      ...details
-    }));
-  };
+
+    return Array.from(ingredientMap.entries())
+      .map(([item, details]) => ({
+        item: item.charAt(0).toUpperCase() + item.slice(1),
+        ...details
+      }))
+      .sort((a, b) => a.item.localeCompare(b.item));
+  }, [assignedPlan, selectedDay]);
 
   // Handle opening swap dialog
   const handleOpenSwap = (meal: MealPlanMeal) => {
@@ -191,23 +197,23 @@ const Nutrition = () => {
               <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-4">
                 <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
                   <Flame className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-orange-500" />
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.targetCalories}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Calories</p>
+                  <p className="text-base sm:text-xl lg:text-2xl font-bold text-foreground">{userCalories.targetCalories}</p>
+                  <p className="text-xs text-muted-foreground">Calories</p>
                 </div>
                 <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
                   <Beef className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-red-500" />
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.protein}g</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Protein</p>
+                  <p className="text-base sm:text-xl lg:text-2xl font-bold text-foreground">{userCalories.protein}g</p>
+                  <p className="text-xs text-muted-foreground">Protein</p>
                 </div>
                 <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
                   <Wheat className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-amber-500" />
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.carbs}g</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Carbs</p>
+                  <p className="text-base sm:text-xl lg:text-2xl font-bold text-foreground">{userCalories.carbs}g</p>
+                  <p className="text-xs text-muted-foreground">Carbs</p>
                 </div>
                 <div className="text-center p-3 sm:p-4 rounded-lg bg-background border border-border">
                   <Droplet className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-1 sm:mb-2 text-blue-500" />
-                  <p className="text-lg sm:text-2xl font-bold text-foreground">{userCalories.fats}g</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">Fats</p>
+                  <p className="text-base sm:text-xl lg:text-2xl font-bold text-foreground">{userCalories.fats}g</p>
+                  <p className="text-xs text-muted-foreground">Fats</p>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground text-center mt-4">
@@ -260,18 +266,22 @@ const Nutrition = () => {
 
             {/* Day Tabs */}
             <Tabs value={selectedDay} onValueChange={setSelectedDay} className="mb-8">
-              <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-                <TabsList className="inline-flex w-auto sm:grid sm:grid-cols-7 sm:w-full bg-charcoal border border-border">
-                  {assignedPlan.days.map(day => (
-                    <TabsTrigger
-                      key={day.id}
-                      value={day.day_number.toString()}
-                      className="text-xs sm:text-sm min-w-[48px] px-3 sm:px-2"
-                    >
-                      {day.day_name.slice(0, 3)}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+              <div className="relative">
+                <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+                  <TabsList className="inline-flex w-auto sm:grid sm:grid-cols-7 sm:w-full bg-charcoal border border-border">
+                    {assignedPlan.days.map(day => (
+                      <TabsTrigger
+                        key={day.id}
+                        value={day.day_number.toString()}
+                        className="text-xs sm:text-sm min-w-[52px] min-h-[40px] px-3 sm:px-2"
+                      >
+                        {day.day_name.slice(0, 3)}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+                {/* Scroll fade indicator (mobile only) */}
+                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none sm:hidden" />
               </div>
 
               {assignedPlan.days.map(day => (
@@ -319,44 +329,51 @@ const Nutrition = () => {
               ))}
             </Tabs>
 
-            {/* Step 3: Shopping List */}
+            {/* Step 3: Shopping List (collapsible) */}
             <Card className="bg-charcoal border-border">
-              <CardHeader>
+              <CardHeader
+                className="cursor-pointer"
+                onClick={() => toggleMealExpanded("shopping-list")}
+              >
                 <CardTitle className="text-lg flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold mr-1">
                     3
                   </div>
                   <ShoppingCart className="h-5 w-5 text-primary" />
                   Shop Your List
+                  <Badge variant="secondary" className="ml-auto text-xs">{shoppingList.length} items</Badge>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedMeals.has("shopping-list") ? "rotate-180" : ""}`} />
                 </CardTitle>
-                <p className="text-sm text-muted-foreground ml-10">Step 3: Get these items for the week</p>
+                <p className="text-sm text-muted-foreground ml-10">Tap to {expandedMeals.has("shopping-list") ? "collapse" : "view"} this week's grocery list</p>
               </CardHeader>
-              <CardContent>
-                {generateShoppingList().length === 0 ? (
-                  <p className="text-muted-foreground text-center py-4">
-                    Shopping list will appear once meals are added.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {generateShoppingList().map((item, i) => (
-                      <div 
-                        key={i} 
-                        className="p-2 rounded bg-background border border-border text-sm"
-                      >
-                        <span className="font-medium">{item.item}</span>
-                        {item.amount && (
-                          <span className="text-muted-foreground ml-1">({item.amount})</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
+              {expandedMeals.has("shopping-list") && (
+                <CardContent>
+                  {shoppingList.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">
+                      Shopping list will appear once meals are added.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {shoppingList.map((item, i) => (
+                        <div
+                          key={i}
+                          className="p-3 sm:p-4 rounded bg-background border border-border text-sm break-words"
+                        >
+                          <span className="font-medium">{item.item}</span>
+                          {item.amount && (
+                            <span className="text-muted-foreground ml-1">({item.amount})</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              )}
             </Card>
           </>
         )}
 
-        <div className="mt-8 flex gap-4">
+        <div className="mt-8 flex flex-col sm:flex-row gap-4">
           <Button variant="gold" asChild>
             <Link to="/dashboard/check-in">Go to Weekly Check-In</Link>
           </Button>

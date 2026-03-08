@@ -397,7 +397,7 @@ const StartHere = () => {
                     {section.category}
                   </h2>
                   <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-5 h-5" />
                     <span>{section.timeEstimate}</span>
                   </div>
                 </div>
@@ -479,7 +479,7 @@ const StartHere = () => {
           </div>
 
           {/* CTA Buttons */}
-          <div className="mt-12 flex flex-col sm:flex-row gap-4">
+          <div className="mt-12 flex flex-col sm:flex-row gap-2 sm:gap-4">
             <Button variant="gold" size="lg" asChild className="flex-1">
               <Link to={tierConfig.ctaHref}>{tierConfig.ctaLabel}</Link>
             </Button>

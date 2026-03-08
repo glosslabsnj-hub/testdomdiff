@@ -135,12 +135,12 @@ export function MealCard({
                   handleAction(onLike!, "like");
                 }}
                 disabled={actionLoading !== null}
-                className={hasLiked ? "bg-red-500 hover:bg-red-600" : ""}
+                className={`min-h-[44px] ${hasLiked ? "bg-red-500 hover:bg-red-600" : ""}`}
               >
                 <Heart className={`h-4 w-4 mr-1 ${hasLiked ? "fill-current" : ""}`} />
                 {hasLiked ? "Liked" : "Like"}
               </Button>
-              
+
               <Button
                 variant={hasMade ? "default" : "outline"}
                 size="sm"
@@ -149,12 +149,12 @@ export function MealCard({
                   handleAction(onMade!, "made");
                 }}
                 disabled={actionLoading !== null}
-                className={hasMade ? "bg-green-600 hover:bg-green-700" : ""}
+                className={`min-h-[44px] ${hasMade ? "bg-green-600 hover:bg-green-700" : ""}`}
               >
                 <Check className="h-4 w-4 mr-1" />
                 {hasMade ? "Made It!" : "Made It"}
               </Button>
-              
+
               <Button
                 variant={hasSkipped ? "secondary" : "outline"}
                 size="sm"
@@ -163,6 +163,7 @@ export function MealCard({
                   handleAction(onSkip!, "skip");
                 }}
                 disabled={actionLoading !== null}
+                className="min-h-[44px]"
               >
                 <SkipForward className="h-4 w-4 mr-1" />
                 {hasSkipped ? "Skipped" : "Skip"}
@@ -176,6 +177,7 @@ export function MealCard({
                     e.stopPropagation();
                     onSwap();
                   }}
+                  className="min-h-[44px]"
                 >
                   <RefreshCw className="h-4 w-4 mr-1" />
                   Swap Meal
@@ -191,6 +193,7 @@ export function MealCard({
                     handleAction(onRevert, "revert");
                   }}
                   disabled={actionLoading !== null}
+                  className="min-h-[44px]"
                 >
                   <RefreshCw className="h-4 w-4 mr-1" />
                   Revert to Original

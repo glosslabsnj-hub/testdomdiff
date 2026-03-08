@@ -218,11 +218,11 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
           </div>
           <div className="flex items-center gap-2">
             {assignedCount > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={clearSchedule}
-                className="text-muted-foreground"
+                className="text-muted-foreground min-h-[44px]"
               >
                 <RotateCcw className="w-4 h-4 mr-1" />
                 Clear
@@ -230,11 +230,11 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="gold" 
-                  size="sm" 
+                <Button
+                  variant="gold"
+                  size="sm"
                   disabled={assignedCount === 0}
-                  className="gap-2"
+                  className="gap-2 min-h-[44px]"
                 >
                   <Calendar className="w-4 h-4" />
                   Export Week
@@ -274,7 +274,7 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
                 onDragEnd={handleDragEnd}
                 onTouchStart={() => handleTouchStart(template)}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-grab active:cursor-grabbing",
+                  "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-grab active:cursor-grabbing min-h-[44px]",
                   "bg-charcoal border-border hover:border-primary/50 transition-all",
                   "touch-none select-none",
                   draggedTemplate?.id === template.id && "opacity-50 border-primary"
@@ -291,11 +291,11 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
         </div>
 
         {/* Week Grid */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
           {DAYS.map((day) => {
             const assigned = schedule[day.key];
             const isDragOver = dragOverDay === day.key;
-            
+
             return (
               <div
                 key={day.key}
@@ -304,7 +304,7 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
                 onDrop={() => handleDrop(day.key)}
                 onTouchEnd={() => draggedTemplate && handleTouchEnd(day.key)}
                 className={cn(
-                  "min-h-[100px] rounded-lg border-2 border-dashed p-2 transition-all flex flex-col",
+                  "min-h-[100px] min-w-[100px] rounded-lg border-2 border-dashed p-2 transition-all flex flex-col",
                   isDragOver 
                     ? "border-primary bg-primary/10" 
                     : assigned 
@@ -312,7 +312,7 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
                       : "border-border bg-charcoal/50",
                 )}
               >
-                <p className="text-[10px] sm:text-xs font-medium text-muted-foreground mb-2 text-center">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-2 text-center">
                   {day.shortLabel}
                 </p>
                 
@@ -321,7 +321,7 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
                     <div className="flex-1 flex items-center justify-center">
                       <div className="text-center">
                         <Dumbbell className="w-4 h-4 text-primary mx-auto mb-1" />
-                        <p className="text-[10px] sm:text-xs font-medium line-clamp-2">
+                        <p className="text-xs font-medium line-clamp-2">
                           {assigned.name}
                         </p>
                       </div>
@@ -330,14 +330,14 @@ export default function WeeklyScheduleBuilder({ templates }: WeeklyScheduleBuild
                       variant="ghost"
                       size="sm"
                       onClick={() => removeFromDay(day.key)}
-                      className="h-6 w-full mt-1 text-muted-foreground hover:text-destructive"
+                      className="h-6 w-full mt-1 text-muted-foreground hover:text-destructive min-w-[44px] min-h-[44px]"
                     >
                       <X className="w-3 h-3" />
                     </Button>
                   </div>
                 ) : (
                   <div className="flex-1 flex items-center justify-center">
-                    <p className="text-[10px] text-muted-foreground/50 text-center">
+                    <p className="text-xs text-muted-foreground/50 text-center">
                       {isDragOver ? "Drop here" : "Rest"}
                     </p>
                   </div>

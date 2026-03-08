@@ -140,7 +140,7 @@ export function WorkoutHeatmap({ className }: WorkoutHeatmapProps) {
       <div className="flex gap-1 mb-2">
         <div className="w-6" /> {/* Spacer for week labels */}
         {dayLabels.map((label, i) => (
-          <div key={i} className="flex-1 text-center text-[10px] text-muted-foreground">
+          <div key={i} className="flex-1 text-center text-xs text-muted-foreground">
             {label}
           </div>
         ))}
@@ -150,7 +150,7 @@ export function WorkoutHeatmap({ className }: WorkoutHeatmapProps) {
       <div className="space-y-1">
         {weeks.map((week, weekIndex) => (
           <div key={weekIndex} className="flex gap-1 items-center">
-            <div className="w-6 text-[10px] text-muted-foreground text-right pr-1">
+            <div className="w-6 text-xs text-muted-foreground text-right pr-1">
               W{weekIndex + 1}
             </div>
             {week.map((date, dayIndex) => {

@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 
 // Pricing assumptions
 const PLAN_PRICES = {
-  membership: 49.99,       // Monthly (Solitary)
-  transformation: 379.99,  // One-time (spread over 3 months for MRR calc) (Gen Pop)
-  coaching: 999.99,        // Monthly (Free World)
+  membership: 19.99,       // Monthly (Solitary)
+  transformation: 249,  // One-time (spread over 3 months for MRR calc) (Gen Pop)
+  coaching: 499,        // Monthly (Free World)
 } as const;
 
 const PLAN_DISPLAY_NAMES = {
@@ -147,7 +147,7 @@ export function RevenueAnalytics() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-400">
+                <div className="text-2xl sm:text-3xl font-bold text-green-400">
                   ${revenueData.totalMRR.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -175,9 +175,9 @@ export function RevenueAnalytics() {
                       <span className="text-muted-foreground">{plan.count} members</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Progress 
-                        value={plan.percentage} 
-                        className="h-2 flex-1"
+                      <Progress
+                        value={plan.percentage}
+                        className="h-2 min-h-[8px] flex-1"
                       />
                       <span className="text-xs text-muted-foreground w-12 text-right">
                         {plan.percentage.toFixed(1)}%
@@ -200,21 +200,21 @@ export function RevenueAnalytics() {
                   Quick Stats
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                  <div className="bg-background/50 rounded-lg p-3">
+                  <div className="bg-background/50 rounded-lg p-3 sm:p-4">
                     <p className="text-muted-foreground text-xs">Avg Revenue/Member</p>
-                    <p className="text-foreground font-semibold">
+                    <p className="text-base sm:text-lg text-foreground font-semibold">
                       ${revenueData.avgRevenuePerMember.toFixed(2)}
                     </p>
                   </div>
-                  <div className="bg-background/50 rounded-lg p-3">
+                  <div className="bg-background/50 rounded-lg p-3 sm:p-4">
                     <p className="text-muted-foreground text-xs">Projected Annual</p>
-                    <p className="text-foreground font-semibold">
+                    <p className="text-base sm:text-lg text-foreground font-semibold">
                       ${revenueData.projectedAnnual.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </p>
                   </div>
-                  <div className="bg-background/50 rounded-lg p-3">
+                  <div className="bg-background/50 rounded-lg p-3 sm:p-4">
                     <p className="text-muted-foreground text-xs">Top Tier Value</p>
-                    <p className="text-foreground font-semibold">
+                    <p className="text-base sm:text-lg text-foreground font-semibold">
                       {revenueData.highestTier.name.split(" ")[0]} ({revenueData.highestTier.percentage.toFixed(1)}%)
                     </p>
                   </div>
@@ -256,7 +256,7 @@ export function RevenueAnalytics() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-3xl font-bold ${
+            <div className={`text-2xl sm:text-3xl font-bold ${
               revenueData.retentionRate >= 80 ? "text-green-400" :
               revenueData.retentionRate >= 60 ? "text-yellow-400" :
               "text-red-400"
@@ -288,7 +288,7 @@ export function RevenueAnalytics() {
             )}
           </CardHeader>
           <CardContent>
-            <div className={`text-3xl font-bold ${revenueData.expiringCount > 0 ? "text-amber-400" : "text-foreground"}`}>
+            <div className={`text-2xl sm:text-3xl font-bold ${revenueData.expiringCount > 0 ? "text-amber-400" : "text-foreground"}`}>
               {revenueData.expiringCount}
             </div>
             <p className="text-xs text-muted-foreground mt-1">

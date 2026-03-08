@@ -43,8 +43,8 @@ export function FloatingActionStack() {
             className={cn(
               "fixed z-40 transition-all duration-300",
               quickActionExpanded
-                ? "bottom-36 right-4 left-4" // Expanded: full width, above Warden
-                : "bottom-36 right-4"        // Collapsed: small pill, above Warden
+                ? "bottom-[calc(5rem+env(safe-area-inset-bottom)+2rem)] right-4 left-4"
+                : "bottom-[calc(5rem+env(safe-area-inset-bottom)+2rem)] right-4"
             )}
           >
             <GlobalQuickAction

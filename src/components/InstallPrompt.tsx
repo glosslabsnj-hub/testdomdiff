@@ -79,7 +79,7 @@ export function InstallPrompt() {
         <X className="w-4 h-4" />
       </button>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
           <Download className="w-6 h-6 text-primary" />
         </div>
@@ -90,9 +90,8 @@ export function InstallPrompt() {
           </p>
         </div>
         <Button
-          size="sm"
           onClick={handleInstall}
-          className="flex-shrink-0"
+          className="flex-shrink-0 min-h-[44px]"
         >
           Install
         </Button>

@@ -82,14 +82,16 @@ export function OnboardingVideoPlayer({
     const video = walkthroughVideoRef.current;
     const audio = audioRef.current;
 
-    console.log("[OnboardingVideoPlayer] Starting walkthrough playback", {
-      hasVideo: !!video,
-      hasAudio: !!audio,
-      hasAudioSource: hasAudio,
-      manualAudioUrl,
-      aiAudioUrl: onboardingData?.audio_url,
-      effectiveAudioUrl,
-    });
+    if (import.meta.env.DEV) {
+      console.log("[OnboardingVideoPlayer] Starting walkthrough playback", {
+        hasVideo: !!video,
+        hasAudio: !!audio,
+        hasAudioSource: hasAudio,
+        manualAudioUrl,
+        aiAudioUrl: onboardingData?.audio_url,
+        effectiveAudioUrl,
+      });
+    }
 
     if (!video) return;
 
@@ -121,7 +123,7 @@ export function OnboardingVideoPlayer({
 
   // Handle welcome video end - transition to walkthrough
   const handleWelcomeVideoEnd = useCallback(() => {
-    console.log("[OnboardingVideoPlayer] Welcome video ended");
+    if (import.meta.env.DEV) console.log("[OnboardingVideoPlayer] Welcome video ended");
     if (walkthroughVideoUrl) {
       setPlaybackPhase("walkthrough");
       autoStartWalkthroughRef.current = true;
@@ -147,7 +149,7 @@ export function OnboardingVideoPlayer({
 
   // Handle walkthrough end
   const handleWalkthroughEnd = useCallback(() => {
-    console.log("[OnboardingVideoPlayer] Walkthrough ended");
+    if (import.meta.env.DEV) console.log("[OnboardingVideoPlayer] Walkthrough ended");
     setPlaybackPhase("complete");
     setHasWatched(true);
     setIsPlaying(false);
@@ -258,7 +260,7 @@ export function OnboardingVideoPlayer({
       
       // If more than 0.3 seconds out of sync, resync video to audio
       if (diff > 0.3) {
-        console.log("[OnboardingVideoPlayer] Syncing video to audio", { videoCurrent, audioCurrent, diff });
+        if (import.meta.env.DEV) console.log("[OnboardingVideoPlayer] Syncing video to audio", { videoCurrent, audioCurrent, diff });
         video.currentTime = audioCurrent;
       }
     }, 500);

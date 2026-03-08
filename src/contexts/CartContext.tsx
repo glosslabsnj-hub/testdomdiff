@@ -85,6 +85,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateQuantity = (productId: string, size: string, quantity: number) => {
+    if (isNaN(quantity) || !isFinite(quantity)) return;
+
     if (quantity <= 0) {
       removeItem(productId, size);
       return;

@@ -18,6 +18,7 @@ import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCheckIns } from "@/hooks/useCheckIns";
+import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
 
 interface MissionItem {
   id: string;
@@ -36,8 +37,9 @@ export function RollCallToday() {
   const { isCoaching, isMembership } = useEffectiveSubscription();
   const { morningRoutines, eveningRoutines, completions, streak } = useDailyDiscipline();
   const { checkIns, getCurrentWeekNumber } = useCheckIns();
-  
+
   const [currentHour] = useState(() => new Date().getHours());
+  const todayDayName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
   const isMorning = currentHour < 12;
   const isEvening = currentHour >= 18;
   
@@ -51,7 +53,11 @@ export function RollCallToday() {
     }
     return getCurrentWeekNumber();
   }, [authSubscription, getCurrentWeekNumber]);
-  
+
+  // Check if today's workout is completed
+  const { completions: workoutCompletions } = useWorkoutCompletions(currentWeek);
+  const todayWorkoutComplete = workoutCompletions.some(c => c.day_of_week === todayDayName);
+
   // Calculate routine completions
   const morningComplete = morningRoutines.every(r => completions.has(r.id));
   const eveningComplete = eveningRoutines.every(r => completions.has(r.id));
@@ -118,7 +124,7 @@ export function RollCallToday() {
       href: isMembership ? "/dashboard/workouts" : "/dashboard/program",
       icon: Dumbbell,
       priority: 3,
-      isComplete: false, // We'd need to track daily workout completion
+      isComplete: todayWorkoutComplete,
       timeEstimate: "45 min",
     });
     
@@ -170,7 +176,16 @@ export function RollCallToday() {
   // All missions complete - show celebration state
   const allComplete = missions.length > 0 && missions.every(m => m.isComplete);
   
-  if (missions.length === 0) return null;
+  if (missions.length === 0) {
+    return (
+      <Card className="mb-8 bg-card border-border">
+        <CardContent className="p-6 text-center">
+          <Sparkles className="w-6 h-6 text-primary mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No missions today. All caught up!</p>
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card className="mb-8 bg-gradient-to-br from-primary/10 via-card to-card border-primary/30 overflow-hidden">

@@ -52,16 +52,16 @@ export default function PeopleHub() {
       <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search by name, email, or phone..." 
-            value={searchQuery} 
-            onChange={(e) => setSearchQuery(e.target.value)} 
-            className="pl-10 bg-charcoal border-border" 
+          <Input
+            placeholder="Search by name, email, or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-11 bg-charcoal border-border"
           />
         </div>
         <div className="flex gap-2">
           <Select value={planFilter} onValueChange={setPlanFilter}>
-            <SelectTrigger className="w-[120px] bg-charcoal border-border text-xs sm:text-sm">
+            <SelectTrigger className="w-[120px] min-h-[44px] bg-charcoal border-border text-xs sm:text-sm">
               <SelectValue placeholder="Plan" />
             </SelectTrigger>
             <SelectContent>
@@ -72,7 +72,7 @@ export default function PeopleHub() {
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[120px] bg-charcoal border-border text-xs sm:text-sm">
+            <SelectTrigger className="w-[120px] min-h-[44px] bg-charcoal border-border text-xs sm:text-sm">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -113,12 +113,13 @@ export default function PeopleHub() {
           }}
         />
       ) : (
-        <ScrollArea className="h-[calc(100vh-400px)] min-h-[400px]">
+        <ScrollArea className="h-[calc(100vh-340px)] sm:h-[calc(100vh-400px)] min-h-[400px]">
           <div className="bg-charcoal rounded-lg border border-border">
             <Table>
               <TableHeader>
                 <TableRow className="border-border">
                   <TableHead className="w-10">
+                    <div className="min-w-[44px] min-h-[44px] flex items-center justify-center">
                     <Checkbox
                       checked={selectedClientIds.size === clientAnalytics?.clients.length && clientAnalytics.clients.length > 0}
                       onCheckedChange={(checked) => {
@@ -129,6 +130,7 @@ export default function PeopleHub() {
                         }
                       }}
                     />
+                    </div>
                   </TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead className="hidden sm:table-cell">Email</TableHead>
@@ -141,11 +143,12 @@ export default function PeopleHub() {
                 {clientAnalytics?.clients.map((client) => (
                   <TableRow 
                     key={client.id} 
-                    className={`border-border cursor-pointer hover:bg-muted/50 transition-colors ${
+                    className={`border-border cursor-pointer hover:bg-muted/50 active:bg-muted/50 transition-colors ${
                       selectedClientIds.has(client.id) ? "bg-primary/10" : ""
                     }`}
                   >
                     <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="min-w-[44px] min-h-[44px] flex items-center justify-center">
                       <Checkbox
                         checked={selectedClientIds.has(client.id)}
                         onCheckedChange={(checked) => {
@@ -158,6 +161,7 @@ export default function PeopleHub() {
                           setSelectedClientIds(newSet);
                         }}
                       />
+                      </div>
                     </TableCell>
                     <TableCell 
                       className="font-medium"

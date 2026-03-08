@@ -5,10 +5,10 @@ import {
   getBrandVoicePrompt,
   checkApiLimits,
   trackApiUsage,
-  CORS_HEADERS,
   categoryDescriptions,
   strategyTypeDescriptions,
 } from "../_shared/brand-voice.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
@@ -40,6 +40,7 @@ function getModeInstructions(mode: string): string {
 // REQUEST HANDLER
 // ============================================================
 Deno.serve(async (req) => {
+  const CORS_HEADERS = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
   }

@@ -163,7 +163,7 @@ Prison can be REFERENCED when it's relevant (discipline origin story, redemption
 - Never reduce Dom to "the prison fitness guy" — he's a businessman, a man of God, a mentor, a hustler, a father figure, and a controversy king
 
 === THE PLATFORM (Redeemed Strength / Dom Different) ===
-- Three tiers: Solitary Confinement ($49.99/mo), General Population ($379.99 one-time, 12 weeks), Free World 1:1 Coaching ($999.99/mo, limited to 10)
+- Three tiers: Solitary Confinement ($19.99/mo), General Population ($249 one-time, 12 weeks), Free World 1:1 Coaching ($499/mo, limited to 10)
 - Prison-themed branding (cell blocks, yard, chapel, etc.)
 - Bodyweight-focused training (can be done anywhere — just like Dom did it)
 - Faith integration (daily devotionals, chapel lessons)
@@ -332,12 +332,6 @@ export async function trackApiUsage(
 // ─────────────────────────────────────────────────────────────────────────────
 // EXISTING EXPORTS (unchanged)
 // ─────────────────────────────────────────────────────────────────────────────
-
-export const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
 
 export const categoryDescriptions: Record<string, string> = {
   faith: "Faith & God - morning prayers, scripture that hits different, honoring God with your body, how faith shows up in daily life (not preaching — LIVING it), gratitude for being healthy and able, trusting God's plan after hitting rock bottom. This is about Dom's real relationship with God, not church marketing",

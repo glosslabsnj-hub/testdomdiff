@@ -102,7 +102,7 @@ export default function ClientSessionsTab({ clientId }: ClientSessionsTabProps) 
         <h3 className="font-semibold">Coaching Sessions</h3>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="gold" size="sm">
+            <Button variant="gold" size="sm" className="min-h-[44px]">
               <Plus className="w-4 h-4 mr-2" />
               Schedule Session
             </Button>
@@ -118,14 +118,14 @@ export default function ClientSessionsTab({ clientId }: ClientSessionsTabProps) 
                   type="datetime-local"
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
-                  className="mt-1"
+                  className="mt-1 h-11"
                 />
               </div>
 
               <div>
                 <Label>Session Type</Label>
                 <Select value={sessionType} onValueChange={setSessionType}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="mt-1 h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -153,7 +153,7 @@ export default function ClientSessionsTab({ clientId }: ClientSessionsTabProps) 
                 <Switch checked={notesVisible} onCheckedChange={setNotesVisible} />
               </div>
 
-              <Button onClick={handleSubmit} className="w-full" variant="gold">
+              <Button onClick={handleSubmit} className="w-full min-h-[44px]" variant="gold">
                 Schedule Session
               </Button>
             </div>
@@ -195,6 +195,7 @@ export default function ClientSessionsTab({ clientId }: ClientSessionsTabProps) 
                     <Button
                       variant="outline"
                       size="sm"
+                      className="min-h-[44px]"
                       onClick={() => handleComplete(session.id)}
                     >
                       <CheckCircle2 className="w-4 h-4 mr-1" />
@@ -239,6 +240,7 @@ export default function ClientSessionsTab({ clientId }: ClientSessionsTabProps) 
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="min-h-[44px] min-w-[44px]"
                       onClick={() => {
                         setEditingSession(session.id);
                         setNotes(session.notes || "");

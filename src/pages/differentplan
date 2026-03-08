@@ -1,0 +1,202 @@
+  Implement the following changes to make this fitness platform ready for test users. Work through each phase sequentially. Read every file before editing it.
+
+  ---
+
+  ## PHASE 2: Enhanced Intake for Transformation Tier
+
+  **File**: `src/pages/Intake.tsx`
+
+  1. Add new state fields:
+     - `equipment` (string[], default []) — available fitness equipment
+     - `trainingDaysPerWeek` (number, default 4)
+     - `sessionLengthPreference` (string, default '45-60')
+
+  2. Make `totalSteps` dynamic: 5 steps for Transformation tier, 4 for Membership/Solitary.
+
+  3. Insert a NEW conditional step (Step 3) titled "Training Setup" that ONLY appears for Transformation tier users. This step has three sections:
+
+     a) **Equipment Selection** — checkbox grid with these options:
+        - No Equipment (Bodyweight Only)
+        - Dumbbells
+        - Barbell + Plates
+        - Pull-Up Bar
+        - Resistance Bands
+        - Kettlebells
+        - Full Gym Access
+
+     b) **Training Days Per Week** — selector for 3, 4, 5, or 6 days/week
+
+     c) **Session Length** — radio/button group: "30-45 min", "45-60 min", "60-90 min"
+
+  4. For Transformation users, shift the remaining steps: Faith/motivation → step 4, Photos → step 5.
+
+  5. Update `handleSubmit` to save `equipment`, `training_days_per_week`, and `session_length_preference` to the profiles table via Supabase update.
+
+  6. Update step validation — the Training Setup step requires at least one equipment option selected.
+
+  7. Match the existing dark theme / gold accent styling used throughout the intake flow.
+
+  Look at `FreeWorldIntake.tsx` for equipment checkbox patterns to reuse if it exists. If not, build the checkbox grid from scratch using the same styling patterns in Intake.tsx.
+
+  ---
+
+  ## PHASE 3: Equipment-Aware Workout Personalization
+
+  ### 3A. Overhaul personalize-workout prompt
+
+  **File**: `supabase/functions/personalize-workout/index.ts`
+
+  Find the AI prompt that personalizes workouts. Make these changes:
+
+  - REMOVE any line that says "All exercises must remain bodyweight-only" or similar restriction
+  - EXPAND the system prompt to include these rules:
+
+  EQUIPMENT ADAPTATION:
+  - If user has "No Equipment (Bodyweight Only)": keep all exercises bodyweight. Push-ups, pull-ups (if bar), squats, lunges, planks, burpees.
+  - If user has "Dumbbells": swap applicable exercises to dumbbell variants (e.g., bodyweight squats → goblet squats, push-ups → dumbbell bench press for advanced users). Keep some bodyweight for conditioning.    
+  - If user has "Barbell + Plates": use compound barbell movements (squats, deadlifts, bench press, overhead press, rows). These are the foundation.
+  - If user has "Resistance Bands": add banded variations for warmup, accessory work, and rehab movements.
+  - If user has "Kettlebells": incorporate swings, Turkish get-ups, goblet squats, cleans.
+  - If user has "Full Gym Access": use the optimal exercise for each muscle group — machines, cables, free weights, bodyweight as appropriate.
+  - Combine equipment intelligently. Someone with dumbbells AND bands gets different programming than dumbbells alone.
+
+  INJURY ADAPTATION:
+  - Shoulder injury: avoid overhead pressing, replace with landmine press or floor press. No behind-the-neck movements.
+  - Knee injury: avoid deep squats and jumping. Replace with box squats, leg press (if gym), or isometric wall sits.
+  - Back injury: avoid heavy deadlifts and good mornings. Replace with hip thrusts, reverse hypers, bird dogs.
+  - Always include appropriate warm-up movements for injured areas.
+
+  EXPERIENCE SCALING:
+  - Beginner (0-6 months): -1 set per exercise, +15 seconds rest between sets, simpler movement patterns.
+  - Intermediate (6-24 months): standard prescription.
+  - Advanced (2+ years): +1-2 sets per exercise, -10 seconds rest, add intensity techniques (drop sets, supersets, pauses).
+
+  TRAINING DAYS COMPENSATION:
+  - 3 days/week: slightly higher volume per session (add 1 set to compound movements), full body focus.
+  - 4 days/week: upper/lower or push/pull split, standard volume.
+  - 5-6 days/week: can use more isolation work, lower volume per session, body part splits.
+
+  SESSION LENGTH:
+  - 30-45 min: 4-5 exercises max, minimal rest, supersets encouraged.
+  - 45-60 min: 5-7 exercises, standard rest periods.
+  - 60-90 min: 7-9 exercises, full rest, can include dedicated warm-up and cool-down blocks.
+
+  VOICE:
+  - Dom's style: direct, motivational, no-nonsense. Prison-forged intensity.
+  - Include brief motivational notes on key exercises.
+  - Form tips should be practical and safety-focused.
+
+  - REQUIRE the AI to return these fields for EVERY exercise in its JSON output:
+    - `muscles_targeted` (string) — primary and secondary muscles
+    - `form_tips` (string) — 1-2 sentence form cue
+    - `scaling_options` (string) — easier and harder variations
+
+  ### 3B. Extend PersonalizedExercise interface
+
+  **File**: `src/hooks/usePersonalizedWorkout.ts`
+
+  Add these optional fields to the PersonalizedExercise interface/type:
+  - `muscles_targeted?: string`
+  - `form_tips?: string`
+  - `scaling_options?: string`
+
+  ### 3C. Pass through new fields in Program.tsx
+
+  **File**: `src/pages/dashboard/Program.tsx`
+
+  When mapping personalized exercises, include `muscles_targeted`, `form_tips`, and `scaling_options` so they're available to display in the workout UI. If the UI already renders exercise details, add these fields   there. If not, add a collapsible "Details" section under each exercise showing muscles targeted, form tips, and scaling options.
+
+  ### 3D. Enrich base exercises in populate-workouts
+
+  **File**: `supabase/functions/populate-workouts/index.ts`
+
+  In the `getExercises()` function (or equivalent that defines the exercise list), add `muscles_targeted`, `form_tips`, and `scaling_options` to every exercise object. This ensures even before AI personalization  
+  runs, exercises have quality metadata.
+
+  For each exercise, add contextually appropriate values. For example:
+  - Push-ups: muscles_targeted: "Chest, triceps, anterior deltoids", form_tips: "Keep core tight, elbows at 45 degrees, full range of motion", scaling_options: "Easier: knee push-ups or incline push-ups. Harder:  
+  decline push-ups or weighted push-ups"
+
+  Do this for ALL exercises in the function. Take the time to write accurate, helpful metadata for each one.
+
+  ---
+
+  ## PHASE 4: Difficulty Adjustment Flow
+
+  ### 4A. Create DifficultyFeedback component
+
+  **NEW FILE**: `src/components/workout/DifficultyFeedback.tsx`
+
+  Create a component with two cards side by side (stacked on mobile):
+
+  **Card 1 — "Not challenging enough?"**
+  - Brief text: "Ready to level up? Let Dom know and he'll adjust your programming."
+  - Button: "Request Upgrade" (gold/accent color)
+  - On click: sends a pre-filled direct message to Dom (admin user) saying something like: "I'm in Week {week} of {trackName} ({planType} tier) and the program isn't challenging enough. I'd like to discuss        
+  upgrading my difficulty."
+  - After send: show success state "Message sent! Dom will get back to you."
+
+  **Card 2 — "Need help with the program?"**
+  - Brief text: "Struggling is part of growth. Don't quit — talk to Dom."
+  - Button: "Talk to Dom" (secondary/outline style)
+  - On click: sends a DM to Dom saying: "I'm in Week {week} of {trackName} ({planType} tier) and I'm having difficulty with the program. I could use some guidance."
+  - After send: show success state + motivational text
+
+  Props interface:
+  ```typescript
+  interface DifficultyFeedbackProps {
+    currentWeek: number;
+    trackName: string;
+    planType: string;
+  }
+
+  Use the existing useDirectMessages hook (or whatever messaging hook exists) to insert messages. If no such hook exists, insert directly into the direct_messages table via Supabase client. Find the admin/Dom user   ID by querying profiles or use a constant if one exists.
+
+  Style with the existing dark theme / gold accent pattern used throughout the app.
+
+  4B. Integrate into Program page
+
+  File: src/pages/dashboard/Program.tsx
+
+  - Import DifficultyFeedback
+  - Render it at the bottom of the Program page, below the workout content
+  - Pass currentWeek, trackName, and planType from existing state/data
+
+  4C. Verify direct_messages RLS
+
+  Run this SQL against Supabase to check if users can insert messages:
+  SELECT * FROM pg_policies WHERE tablename = 'direct_messages';
+
+  If there's no INSERT policy allowing auth.uid() = sender_id, create one:
+  CREATE POLICY "Users can send messages" ON direct_messages
+  FOR INSERT WITH CHECK (auth.uid() = sender_id);
+
+  You can run SQL via: npx supabase db push with a migration, or directly in Supabase Dashboard SQL editor.
+
+  ---
+  PHASE 5: Deploy & Test
+
+  1. Deploy edge functions:
+  npx supabase functions deploy personalize-workout --project-ref oalnbcnvvkoqbatvxssk --no-verify-jwt
+  npx supabase functions deploy populate-workouts --project-ref oalnbcnvvkoqbatvxssk --no-verify-jwt
+
+  2. Build frontend: npm run build
+  3. If build succeeds with zero errors, deploy: netlify deploy --prod --dir=dist
+  4. After deploy, list what manual tests I should run (don't run them yourself):
+    - Signup flow with Transformation tier (verify equipment step appears)
+    - Signup flow with Membership tier (verify equipment step does NOT appear)
+    - Program page shows exercise metadata (muscles, form tips, scaling)
+    - Difficulty feedback sends message successfully
+    - Check email arrives (this depends on Phase 1 SMTP setup which is manual)
+
+  ---
+  IMPORTANT RULES:
+
+  - Read EVERY file before editing it
+  - Match existing code style, naming conventions, and patterns exactly
+  - Use the existing dark theme / gold accent colors already in the project
+  - Do NOT create documentation files or READMEs
+  - Do NOT add unnecessary dependencies
+  - If a file reference in this plan doesn't exist at the expected path, search for it and adapt
+  - If profile columns (equipment, training_days_per_week, session_length_preference) don't exist in the database yet, create a Supabase migration to add them
+  - Show me the build output before deploying

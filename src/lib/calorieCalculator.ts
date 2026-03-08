@@ -9,6 +9,7 @@ export interface CalorieCalculationInput {
   heightInches: number;
   age: number;
   goal: string;
+  gender?: "male" | "female";
 }
 
 export interface CalorieCalculationResult {
@@ -57,7 +58,7 @@ export function parseWeight(weightStr: string): number {
  * for prison-style training programs
  */
 export function calculateDailyCalories(input: CalorieCalculationInput): CalorieCalculationResult {
-  const { weightLbs, heightFeet, heightInches, age, goal } = input;
+  const { weightLbs, heightFeet, heightInches, age, goal, gender = "male" } = input;
 
   // Clamp inputs to sane ranges to prevent garbage output
   const safeWeight = Math.max(50, Math.min(weightLbs, 500));
@@ -69,9 +70,11 @@ export function calculateDailyCalories(input: CalorieCalculationInput): CalorieC
   const weightKg = safeWeight * 0.453592;
   const heightCm = (safeFeet * 12 + safeInches) * 2.54;
   
-  // Mifflin-St Jeor equation for men
-  // BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) + 5
-  const bmr = Math.round(10 * weightKg + 6.25 * heightCm - 5 * safeAge + 5);
+  // Mifflin-St Jeor equation
+  // Men:   BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) + 5
+  // Women: BMR = 10 × weight(kg) + 6.25 × height(cm) − 5 × age(years) − 161
+  const genderOffset = gender === "female" ? -161 : 5;
+  const bmr = Math.round(10 * weightKg + 6.25 * heightCm - 5 * safeAge + genderOffset);
   
   // TDEE with moderate activity multiplier (1.55) for training program
   const tdee = Math.round(bmr * 1.55);

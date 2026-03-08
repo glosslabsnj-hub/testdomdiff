@@ -227,7 +227,7 @@ export default function AdminExerciseDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border">
+      <DialogContent className="max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border">
         <DialogHeader className="pb-4 border-b border-border">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1">
@@ -255,6 +255,7 @@ export default function AdminExerciseDetailModal({
               <Button
                 variant={isEditMode ? "default" : "outline"}
                 size="sm"
+                className="min-h-[44px]"
                 onClick={() => {
                   if (isEditMode) {
                     handleSave();
@@ -278,7 +279,7 @@ export default function AdminExerciseDetailModal({
                 )}
               </Button>
               {isEditMode && (
-                <Button variant="ghost" size="sm" onClick={handleCancel} disabled={saving}>
+                <Button variant="ghost" size="sm" onClick={handleCancel} disabled={saving} className="min-h-[44px]">
                   <X className="w-4 h-4" />
                 </Button>
               )}
@@ -287,31 +288,31 @@ export default function AdminExerciseDetailModal({
         </DialogHeader>
 
         {/* Workout Parameters */}
-        <div className="grid grid-cols-3 gap-3 py-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 py-4">
           {isEditMode ? (
             <>
-              <div className="bg-charcoal rounded-lg p-3">
+              <div className="bg-charcoal rounded-lg p-2 sm:p-3">
                 <p className="text-xs text-muted-foreground mb-1">Sets</p>
                 <Input
                   value={editData.sets}
                   onChange={(e) => setEditData({ ...editData, sets: e.target.value })}
-                  className="h-8 text-center font-bold"
+                  className="h-11 text-center font-bold"
                 />
               </div>
-              <div className="bg-charcoal rounded-lg p-3">
+              <div className="bg-charcoal rounded-lg p-2 sm:p-3">
                 <p className="text-xs text-muted-foreground mb-1">Reps/Time</p>
                 <Input
                   value={editData.reps_or_time}
                   onChange={(e) => setEditData({ ...editData, reps_or_time: e.target.value })}
-                  className="h-8 text-center font-bold"
+                  className="h-11 text-center font-bold"
                 />
               </div>
-              <div className="bg-charcoal rounded-lg p-3">
+              <div className="bg-charcoal rounded-lg p-2 sm:p-3">
                 <p className="text-xs text-muted-foreground mb-1">Rest</p>
                 <Input
                   value={editData.rest}
                   onChange={(e) => setEditData({ ...editData, rest: e.target.value })}
-                  className="h-8 text-center font-bold"
+                  className="h-11 text-center font-bold"
                 />
               </div>
             </>
@@ -335,7 +336,7 @@ export default function AdminExerciseDetailModal({
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 bg-charcoal p-1 rounded-lg">
+          <TabsList className="grid w-full grid-cols-3 bg-charcoal p-1 rounded-lg min-h-[44px]">
             <TabsTrigger
               value="howto"
               className="flex items-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10 data-[state=active]:text-primary transition-all"

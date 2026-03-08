@@ -180,7 +180,7 @@ const ShopCheckout = () => {
             <div className="bg-card p-6 rounded-lg border border-border">
               <h2 className="headline-card mb-4">Shipping Address</h2>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label>First Name</Label>
                     <Input
@@ -209,7 +209,7 @@ const ShopCheckout = () => {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <Label>City</Label>
                     <Input
@@ -274,7 +274,7 @@ const ShopCheckout = () => {
 
           {/* Order Summary */}
           <div>
-            <div className="bg-card p-6 rounded-lg border border-border sticky top-8">
+            <div className="bg-card p-6 rounded-lg border border-border md:sticky md:top-8">
               <h2 className="headline-card mb-4">Order Summary</h2>
 
               <div className="space-y-4 mb-6">

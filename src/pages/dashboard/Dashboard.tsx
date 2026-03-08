@@ -35,6 +35,12 @@ import { DashboardPullToRefresh } from "@/components/DashboardPullToRefresh";
 
 import { RollCallToday } from "@/components/dashboard/RollCallToday";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
+import { GamificationCard, StreakCounter } from "@/components/dashboard/GamificationCard";
+import { WinsWall } from "@/components/dashboard/WinsWall";
+import { NotificationPrompt } from "@/components/dashboard/NotificationPrompt";
+import { DailyChallenge } from "@/components/dashboard/DailyChallenge";
+import { HabitHeatmap } from "@/components/dashboard/HabitHeatmap";
+import { ReleaseCeremony } from "@/components/dashboard/ReleaseCeremony";
 import {
   Tooltip,
   TooltipContent,
@@ -342,9 +348,9 @@ const Dashboard = () => {
   };
 
   // Define locked tiles for Solitary users (Gen Pop features)
+  // Faith is now unlocked (Week 1 preview available for Solitary)
   const lockedTilesForMembership = [
     { ...allTiles.program, locked: true, featureName: "The Sentence (12-Week Program)" },
-    { ...allTiles.faith, locked: true, featureName: "Chapel (Faith & Mindset)" },
     { ...allTiles.skills, locked: true, featureName: "Work Release (Skill-Building)" },
     { ...allTiles.community, locked: true, featureName: "The Yard (Community)" },
   ];
@@ -361,23 +367,25 @@ const Dashboard = () => {
   // Build tier-specific tile order for better user journey
   const getTilesForTier = (): TileType[] => {
     if (isMembership) {
-      // Solitary: Daily actions first, progress second, locked features last
+      // Solitary: Daily actions first, faith preview, progress, locked features last
       return [
         allTiles.startHere,
         allTiles.workouts,
         allTiles.discipline,
         allTiles.nutrition,
+        { ...allTiles.faith, subtitle: "Week 1 Preview" },  // Unlocked preview
         allTiles.checkIn,
         allTiles.progress,
         allTiles.photoGallery,
         // Locked features grouped at bottom as upgrade path
-        lockedTilesForMembership.find(t => t.featureName?.includes("12-Week"))!,
-        lockedTilesForMembership.find(t => t.featureName?.includes("Chapel"))!,
-        lockedTilesForMembership.find(t => t.featureName?.includes("Skill"))!,
-        lockedTilesForMembership.find(t => t.featureName?.includes("Community"))!,
-        lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!,
-        lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!,
-        lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!,
+        ...([
+          lockedTilesForMembership.find(t => t.featureName?.includes("12-Week")),
+          lockedTilesForMembership.find(t => t.featureName?.includes("Skill")),
+          lockedTilesForMembership.find(t => t.featureName?.includes("Community")),
+          lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur")),
+          lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line")),
+          lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal")),
+        ].filter(Boolean)),
       ];
     }
     
@@ -396,9 +404,11 @@ const Dashboard = () => {
         allTiles.community,          // The Yard (community)
         allTiles.workouts,           // Yard Time - moved down (base feature)
         // Locked premium features
-        lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur"))!,
-        lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line"))!,
-        lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal"))!,
+        ...([
+          lockedTilesForTransformation.find(t => t.featureName?.includes("Entrepreneur")),
+          lockedTilesForTransformation.find(t => t.featureName?.includes("Direct Line")),
+          lockedTilesForTransformation.find(t => t.featureName?.includes("Coaching Portal")),
+        ].filter(Boolean)),
       ];
     }
     
@@ -435,12 +445,18 @@ const Dashboard = () => {
   return (
     <DashboardLayout showBreadcrumb={false}>
       <DashboardPullToRefresh queryKeys={["profile", "subscription", "checkIns", "workoutCompletions", "dayCompletions"]}>
-        <div className="section-container py-8">
+        <div className="section-container py-6 sm:py-8 lg:py-12">
           {/* Streak Warning Banner - shows after 6pm if tasks incomplete */}
           <StreakWarningBanner />
 
+          {/* Release Ceremony - shows when 12 weeks complete */}
+          <ReleaseCeremony />
+
         {/* Compact Welcome Card - replaces verbose welcome banner */}
-        <DashboardWelcomeCard userName={profile?.first_name || undefined} />
+        <div className="flex items-center justify-between mb-2 min-w-0">
+          <DashboardWelcomeCard userName={profile?.first_name || undefined} />
+          <StreakCounter />
+        </div>
 
         {/* Daily Mission Card - prioritized next-step guidance */}
         <RollCallToday />
@@ -454,6 +470,41 @@ const Dashboard = () => {
               : "Every rep, every routine, every choice — it all adds up. Stay the course."}
           className="mb-6"
         />
+
+        {/* Solitary Progress Card - shows days served and progression path */}
+        {isMembership && subscription?.started_at && (
+          <div className="mb-6 p-5 rounded-lg bg-gradient-to-br from-charcoal to-charcoal/80 border border-primary/30">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-display text-lg text-primary">
+                    Day {Math.max(1, Math.floor((Date.now() - new Date(subscription.started_at).getTime()) / (1000 * 60 * 60 * 24)))} in Solitary
+                  </p>
+                  <p className="text-xs text-muted-foreground">Building your foundation one day at a time</p>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3 mt-3">
+              <div className="text-center p-2 rounded bg-background/50 border border-border">
+                <p className="text-lg font-bold text-foreground">{currentWeek}</p>
+                <p className="text-xs text-muted-foreground">Week</p>
+              </div>
+              <div className="text-center p-2 rounded bg-background/50 border border-border">
+                <p className="text-lg font-bold text-foreground">4</p>
+                <p className="text-xs text-muted-foreground">Workouts</p>
+              </div>
+              <div className="text-center p-2 rounded bg-primary/10 border border-primary/30">
+                <Link to="/checkout?plan=transformation" className="block">
+                  <p className="text-lg font-bold text-primary">Level Up</p>
+                  <p className="text-xs text-primary/70">Gen Pop</p>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Coaching Plan Status Banner */}
         {isCoaching && profile?.coaching_plan_status && profile.coaching_plan_status !== "approved" && profile.coaching_plan_status !== "none" && (
@@ -482,6 +533,21 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Push Notification Prompt */}
+        <NotificationPrompt />
+
+        {/* Daily Challenge - Rotating bonus challenges */}
+        <DailyChallenge />
+
+        {/* Gamification Card - Streaks, Badges, Accountability Score */}
+        <GamificationCard />
+
+        {/* Habit Heatmap - GitHub-style activity grid */}
+        <HabitHeatmap />
+
+        {/* Community Wins Wall */}
+        {!isMembership && <WinsWall />}
+
         {/* Section Header - Tier-aware */}
         <div className="mb-6">
           <h2 className="headline-section mb-1">
@@ -503,18 +569,18 @@ const Dashboard = () => {
               key={index}
               to={tile.locked ? "#" : tile.href}
               onClick={(e) => handleTileClick(tile, e)}
-              className={`block transition-all duration-300 relative group ${
-                tile.locked 
-                  ? tile.isCoachingOnly 
-                    ? "tile-locked opacity-80 hover:opacity-90 frosted-lock border-crimson/40 bg-gradient-to-br from-crimson/10 to-transparent" 
-                    : "tile-locked opacity-80 hover:opacity-90 frosted-lock" 
+              className={`block transition-all duration-300 transition-transform relative group active:scale-[0.98] ${
+                tile.locked
+                  ? tile.isCoachingOnly
+                    ? "tile-locked opacity-80 hover:opacity-90 frosted-lock border-crimson/40 bg-gradient-to-br from-crimson/10 to-transparent"
+                    : "tile-locked opacity-80 hover:opacity-90 frosted-lock"
                   : `${tile.color} hover-lift`
               }`}
               style={{ animationDelay: `${index * 50}ms` }}
             >
               {/* New User Badge with enhanced animation */}
               {tile.isNew && (
-                <div className="absolute -top-2 -right-2 z-10">
+                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 z-10">
                   <div className="relative">
                     <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-50" />
                     <div className="relative px-2.5 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-lg">
@@ -526,9 +592,9 @@ const Dashboard = () => {
               
               {tile.locked && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
-                  <Lock className={`w-4 h-4 lock-shake ${tile.isCoachingOnly ? "text-crimson" : "text-crimson"}`} />
+                  <Lock className={`w-4 h-4 lock-shake ${tile.isCoachingOnly ? "text-amber-500" : "text-crimson"}`} />
                   {tile.isCoachingOnly && (
-                    <span className="text-[10px] text-crimson font-medium uppercase tracking-wide">Free World</span>
+                    <span className="hidden xs:inline text-xs text-crimson font-medium uppercase tracking-wide">Free World</span>
                   )}
                 </div>
               )}
@@ -547,11 +613,11 @@ const Dashboard = () => {
                   return tooltipText && !tile.locked && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button 
+                        <button
                           onClick={(e) => e.preventDefault()}
-                          className="text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground transition-colors -m-2"
                         >
-                          <Info className="w-4 h-4" />
+                          <Info className="w-5 h-5" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-[180px] text-center z-50">
@@ -566,7 +632,7 @@ const Dashboard = () => {
                 {tile.subtitle}
               </p>
               <h3 className="headline-card mb-2 relative z-10">{tile.title}</h3>
-              <p className="text-sm text-muted-foreground relative z-10 leading-relaxed">{tile.description}</p>
+              <p className="text-sm text-muted-foreground relative z-10 leading-relaxed line-clamp-2">{tile.description}</p>
               
               {tile.locked && tile.featureName && (
                 <div className="mt-3 flex items-center gap-2 relative z-10">
@@ -591,24 +657,24 @@ const Dashboard = () => {
           <h3 className="headline-card mb-4">Quick Actions</h3>
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             {/* Primary workout action - tier-aware */}
-            <Button variant="gold" size="lg" asChild>
+            <Button variant="gold" size="lg" asChild className="w-full sm:w-auto text-sm sm:text-base">
               <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"}>
                 <Dumbbell className="w-5 h-5 mr-2" />
-                {isCoaching 
-                  ? "Start Today's Training" 
-                  : isTransformation 
-                    ? "Continue The Sentence" 
+                {isCoaching
+                  ? "Start Today's Training"
+                  : isTransformation
+                    ? "Continue The Sentence"
                     : "Hit Yard Time"}
               </Link>
             </Button>
-            <Button variant="goldOutline" asChild>
+            <Button variant="goldOutline" asChild className="w-full sm:w-auto text-sm sm:text-base">
               <Link to="/dashboard/check-in">
                 <ClipboardCheck className="w-4 h-4 mr-2" />
                 {isCoaching ? "Submit Weekly Report" : "Submit Roll Call"}
               </Link>
             </Button>
-            <Button variant="steel" asChild>
-              <Link to="/book-call">Book a Coaching Call</Link>
+            <Button variant="steel" asChild className="w-full sm:w-auto text-sm sm:text-base">
+              <Link to="/checkout?plan=coaching">Book a Coaching Call</Link>
             </Button>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { useAdminPreview } from "@/contexts/AdminPreviewContext";
  * to support admin tier preview functionality.
  */
 export function useEffectiveSubscription() {
-  const { effectiveSubscription, isPreviewMode, previewTier } = useAdminPreview();
+  const { effectiveSubscription, isPreviewMode, previewTier, isTestingFlow, startTestFlow, stopTestFlow } = useAdminPreview();
 
   const planType = effectiveSubscription?.plan_type;
   const isCoaching = planType === "coaching";
@@ -21,5 +21,8 @@ export function useEffectiveSubscription() {
     isMembership,
     isPreviewMode,
     previewTier,
+    isTestingFlow,
+    startTestFlow,
+    stopTestFlow,
   };
 }

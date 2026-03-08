@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface AdminCheckIn {
   id: string;
@@ -41,11 +42,13 @@ export interface CheckInFilters {
 }
 
 export function useAdminCheckIns(filters?: CheckInFilters) {
+  const { user, dataLoaded } = useAuth();
   const [checkIns, setCheckIns] = useState<AdminCheckIn[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCheckIns = useCallback(async () => {
+    if (!user || !dataLoaded) return;
     try {
       setLoading(true);
       setError(null);
@@ -114,7 +117,7 @@ export function useAdminCheckIns(filters?: CheckInFilters) {
     } finally {
       setLoading(false);
     }
-  }, [filters?.weekNumber, filters?.needsReview, filters?.userId, filters?.search]);
+  }, [user?.id, dataLoaded, filters?.weekNumber, filters?.needsReview, filters?.userId, filters?.search]);
 
   useEffect(() => {
     fetchCheckIns();

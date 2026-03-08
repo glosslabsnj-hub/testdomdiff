@@ -25,10 +25,10 @@ export function ReplayOrientationButton({
     
     setIsResetting(true);
     try {
-      // Reset first_login_video_watched to false to allow replay
+      // Reset onboarding_video_watched to false to allow replay
       await supabase
         .from("profiles")
-        .update({ first_login_video_watched: false })
+        .update({ onboarding_video_watched: false })
         .eq("user_id", user.id);
       
       // Refresh profile to update state

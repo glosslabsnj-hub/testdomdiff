@@ -1,13 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.39.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -47,21 +43,74 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (cached) {
-      return new Response(
-        JSON.stringify({
-          personalized: true,
-          exercises: cached.personalized_exercises,
-          notes: cached.modification_notes,
-          cached: true,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      let exercises = cached.personalized_exercises;
+      let notes = cached.modification_notes;
+
+      // Normalize old format from generate-workout-plan (object with nested exercises array)
+      if (exercises && !Array.isArray(exercises) && typeof exercises === 'object' && exercises.exercises) {
+        const sectionMap: Record<string, string> = {
+          mobility: 'warmup', bodyweight_foundation: 'warmup',
+          conditioning: 'finisher',
+        };
+        const rawExercises = exercises.exercises || [];
+        notes = notes || exercises.phase_summary || null;
+        exercises = rawExercises.map((ex: any, idx: number) => ({
+          original_exercise_name: ex.exercise_name,
+          exercise_name: ex.exercise_name,
+          section_type: sectionMap[ex.section_type] || ex.section_type,
+          sets: ex.sets,
+          reps_or_time: ex.reps_or_time,
+          rest: ex.rest,
+          notes: ex.notes,
+          modification_reason: null,
+          display_order: ex.display_order ?? idx,
+          muscles_targeted: ex.muscles_targeted,
+          form_tips: [ex.form_breakdown, ex.common_mistakes].filter(Boolean).join('\n'),
+          scaling_options: typeof ex.scaling === 'object'
+            ? Object.entries(ex.scaling).map(([k, v]) => `${k}: ${v}`).join(' | ')
+            : ex.scaling_options || null,
+          instructions: ex.form_breakdown || null,
+        }));
+      }
+
+      // Normalize section types for array format with old type names
+      if (Array.isArray(exercises)) {
+        const sectionMap: Record<string, string> = {
+          mobility: 'warmup', bodyweight_foundation: 'warmup',
+          conditioning: 'finisher',
+        };
+        exercises = exercises.map((ex: any) => ({
+          ...ex,
+          section_type: sectionMap[ex.section_type] || ex.section_type,
+        }));
+      }
+
+      if (Array.isArray(exercises) && exercises.length > 0) {
+        return new Response(
+          JSON.stringify({
+            personalized: true,
+            exercises,
+            notes,
+            cached: true,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Invalid cache data — delete and fall through to on-demand generation
+      console.log(`Invalid cache for user ${userId}, week ${weekNumber}, day ${dayOfWeek} — regenerating`);
+      await supabase
+        .from("workout_personalizations")
+        .delete()
+        .eq("user_id", userId)
+        .eq("week_number", weekNumber)
+        .eq("day_of_week", dayOfWeek);
     }
 
     // Fetch user profile
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("goal, experience, injuries, age, height, weight, equipment, session_length_preference, training_days_per_week, activity_level, body_fat_estimate")
+      .select("goal, experience, injuries, age, height, weight, gender, equipment, session_length_preference, training_days_per_week, activity_level, body_fat_estimate")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -157,12 +206,14 @@ Deno.serve(async (req) => {
     const userContext = [
       `Goal: ${profile.goal || "Not specified"}`,
       `Experience: ${profile.experience || "Not specified"}`,
+      `Gender: ${profile.gender || "male"}`,
       `Age: ${profile.age || "Not specified"}`,
       `Height: ${profile.height || "Not specified"}`,
       `Weight: ${profile.weight || "Not specified"}`,
       profile.injuries ? `Injuries/Limitations: ${profile.injuries}` : null,
       profile.equipment ? `Available Equipment: ${profile.equipment}` : null,
-      profile.session_length_preference ? `Session Length Preference: ${profile.session_length_preference}` : null,
+      profile.session_length_preference ? `Session Length Preference: ${profile.session_length_preference} minutes` : null,
+      profile.training_days_per_week ? `Training Days Per Week: ${profile.training_days_per_week}` : null,
       profile.activity_level ? `Activity Level: ${profile.activity_level}` : null,
       profile.body_fat_estimate ? `Body Fat Estimate: ${profile.body_fat_estimate}` : null,
     ].filter(Boolean).join("\n");
@@ -173,11 +224,11 @@ Deno.serve(async (req) => {
 
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 2000,
+      max_tokens: 8000,
       messages: [
         {
           role: "user",
-          content: `You are a prison-style bodyweight fitness coach personalizing a workout for a specific user.
+          content: `You are Dom — a direct, motivational, no-nonsense fitness coach with prison-forged intensity. You're personalizing a workout for a specific user.
 
 USER PROFILE:
 ${userContext}
@@ -191,15 +242,48 @@ BASE EXERCISES:
 ${exerciseList}
 
 PERSONALIZATION RULES:
-1. Keep the same exercises unless an injury requires a swap
-2. For injuries: swap problematic exercises with safe alternatives that work similar muscles
-3. Adjust sets/reps based on experience:
-   - Beginner: Reduce sets by 1, increase rest by 15s, stick to lower rep ranges
-   - Intermediate: Keep as programmed
-   - Advanced: Add 1-2 sets, reduce rest by 10s, push higher rep ranges
-4. Keep section types (warmup/main/finisher/cooldown) the same
-5. All exercises must remain bodyweight-only (prison-style, no equipment needed)
-6. If user has equipment (dumbbells, bands), you may add optional equipment variations in notes
+
+EQUIPMENT ADAPTATION:
+- If user has "No Equipment (Bodyweight Only)": keep all exercises bodyweight. Push-ups, pull-ups (if bar), squats, lunges, planks, burpees.
+- If user has "Dumbbells": swap applicable exercises to dumbbell variants (e.g., bodyweight squats → goblet squats, push-ups → dumbbell bench press for advanced). Keep some bodyweight for conditioning.
+- If user has "Barbell + Plates": use compound barbell movements (squats, deadlifts, bench press, overhead press, rows). These are the foundation.
+- If user has "Resistance Bands": add banded variations for warmup, accessory work, and rehab movements.
+- If user has "Kettlebells": incorporate swings, Turkish get-ups, goblet squats, cleans.
+- If user has "Full Gym Access": use the optimal exercise for each muscle group — machines, cables, free weights, bodyweight as appropriate.
+- Combine equipment intelligently. Someone with dumbbells AND bands gets different programming than dumbbells alone.
+
+INJURY ADAPTATION:
+- Shoulder injury: avoid overhead pressing, replace with landmine press or floor press. No behind-the-neck movements.
+- Knee injury: avoid deep squats and jumping. Replace with box squats, leg press (if gym), or isometric wall sits.
+- Back injury: avoid heavy deadlifts and good mornings. Replace with hip thrusts, reverse hypers, bird dogs.
+- Always include appropriate warm-up movements for injured areas.
+
+GENDER ADAPTATION:
+- Female users: default to lighter starting weights, prioritize glute/hip work in lower body days, include more unilateral movements for stability. Adjust rep ranges slightly higher (10-15 vs 8-12). Include hip thrusts, Romanian deadlifts, lateral band walks as go-to movements.
+- Male users: standard prescription. Can handle heavier compound focus.
+- These are defaults — override based on experience level and stated goals.
+
+EXPERIENCE SCALING:
+- Beginner (0-6 months): -1 set per exercise, +15 seconds rest between sets, simpler movement patterns.
+- Intermediate (6-24 months): standard prescription.
+- Advanced (2+ years): +1-2 sets per exercise, -10 seconds rest, add intensity techniques (drop sets, supersets, pauses).
+
+TRAINING DAYS COMPENSATION:
+- 3 days/week: slightly higher volume per session (add 1 set to compound movements), full body focus.
+- 4 days/week: upper/lower or push/pull split, standard volume.
+- 5-6 days/week: can use more isolation work, lower volume per session, body part splits.
+
+SESSION LENGTH:
+- 30-45 min: 4-5 exercises max, minimal rest, supersets encouraged.
+- 45-60 min: 5-7 exercises, standard rest periods.
+- 60-90 min: 7-9 exercises, full rest, can include dedicated warm-up and cool-down blocks.
+
+VOICE:
+- Dom's style: direct, motivational, no-nonsense. Prison-forged intensity.
+- Include brief motivational notes on key exercises.
+- Form tips should be practical and safety-focused.
+
+Keep section types (warmup/main/finisher/cooldown) the same.
 
 Respond ONLY with valid JSON matching this structure:
 {
@@ -211,9 +295,13 @@ Respond ONLY with valid JSON matching this structure:
       "sets": "string",
       "reps_or_time": "string",
       "rest": "string",
-      "notes": "string or null",
+      "notes": "string or null — Dom's voice, motivational",
       "modification_reason": "string or null",
-      "display_order": number
+      "display_order": number,
+      "muscles_targeted": "string - primary and secondary muscles, comma separated",
+      "form_tips": "string - 2-3 common mistakes and fixes, newline separated",
+      "scaling_options": "string - Beginner: ... | Intermediate: ... | Advanced: ... | Beast Mode: ...",
+      "instructions": "string - step-by-step form breakdown with breathing and tempo, newline separated"
     }
   ],
   "summary": "Brief 1-2 sentence summary of key modifications made"

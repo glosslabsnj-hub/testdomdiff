@@ -178,48 +178,48 @@ export default function ClientProgressPanel({
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 overflow-x-auto flex-none">
+        <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-auto p-0 overflow-x-auto flex-none scrollbar-none">
           <TabsTrigger
             value="programs"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 sm:px-4 py-3 min-h-[44px] whitespace-nowrap"
           >
-            <Target className="w-4 h-4 mr-2" />
-            Programs
+            <Target className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Programs</span>
           </TabsTrigger>
           <TabsTrigger
             value="overview"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-2 sm:px-4 py-3 min-h-[44px] whitespace-nowrap"
           >
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Overview
+            <TrendingUp className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
           <TabsTrigger
             value="intake"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-2 sm:px-4 py-3 min-h-[44px] whitespace-nowrap"
           >
-            <ClipboardList className="w-4 h-4 mr-2" />
-            Intake
+            <ClipboardList className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Intake</span>
           </TabsTrigger>
           <TabsTrigger
             value="sessions"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-2 sm:px-4 py-3 min-h-[44px] whitespace-nowrap"
           >
-            <Calendar className="w-4 h-4 mr-2" />
-            Sessions
+            <Calendar className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Sessions</span>
           </TabsTrigger>
           <TabsTrigger
             value="goals"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-2 sm:px-4 py-3 min-h-[44px] whitespace-nowrap"
           >
-            <Target className="w-4 h-4 mr-2" />
-            Goals
+            <Target className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Goals</span>
           </TabsTrigger>
           <TabsTrigger
             value="messages"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-4 py-3"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-400 data-[state=active]:bg-transparent px-2 sm:px-4 py-3 min-h-[44px] whitespace-nowrap"
           >
-            <MessageSquare className="w-4 h-4 mr-2" />
-            Messages
+            <MessageSquare className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Messages</span>
           </TabsTrigger>
         </TabsList>
 

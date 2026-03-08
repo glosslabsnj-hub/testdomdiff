@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -28,7 +28,6 @@ interface Profile {
   faith_commitment: boolean | null;
   intake_completed_at: string | null;
   onboarding_video_watched: boolean | null;
-  first_login_video_watched: boolean | null;
   dashboard_video_watched: boolean | null;
   created_at: string;
   display_name: string | null;
@@ -69,95 +68,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  const withTimeout = async <T,>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> => {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) =>
-        window.setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
-      ),
-    ]);
-  };
+  // Track which user's data we already have to avoid redundant fetches
+  const loadedUserIdRef = useRef<string | null>(null);
 
-  // Retry helper with exponential backoff - reduced for faster response
-  const withRetry = async <T,>(
-    fn: () => Promise<T>,
-    maxAttempts: number = 2,
-    baseDelayMs: number = 500,
-    label: string
-  ): Promise<T> => {
-    let lastError: Error | null = null;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        return await fn();
-      } catch (error) {
-        lastError = error as Error;
-        console.warn(`[Auth] ${label} attempt ${attempt}/${maxAttempts} failed:`, error);
-        if (attempt < maxAttempts) {
-          const delay = baseDelayMs * attempt; // Linear backoff: 500ms, 1000ms
-          await new Promise(resolve => window.setTimeout(resolve, delay));
-        }
-      }
-    }
-    throw lastError;
-  };
-
-  const fetchProfile = async (userId: string, isRefresh = false) => {
-    if (import.meta.env.DEV) console.log("[Auth] fetchProfile start", userId, { isRefresh });
+  const fetchProfile = async (userId: string) => {
+    if (import.meta.env.DEV) console.log("[Auth] fetchProfile start", userId);
 
     try {
-      const { data, error } = await withRetry(
-        () => withTimeout<any>(
-          supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
-          5000, // Reduced from 15s to 5s
-          "fetchProfile"
-        ),
-        2, // Reduced from 3 to 2 attempts
-        500,
-        "fetchProfile"
-      );
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
 
       if (import.meta.env.DEV) console.log("[Auth] fetchProfile done", { hasData: !!data, error: error ?? null });
 
       if (error) {
         console.error("[Auth] Profile fetch error:", error);
-        // On refresh, keep existing data rather than clearing it on error
-        if (!isRefresh) {
-          setProfile(null);
-        }
         return;
       }
 
       setProfile(data ? (data as Profile) : null);
     } catch (error) {
-      console.error("[Auth] fetchProfile failed after retries:", error);
-      // On refresh/token events, keep existing profile data to prevent logout
-      if (!isRefresh) {
-        setProfile(null);
-      }
+      console.error("[Auth] fetchProfile failed:", error);
     }
   };
 
-  const fetchSubscription = async (userId: string, isRefresh = false) => {
-    if (import.meta.env.DEV) console.log("[Auth] fetchSubscription start", userId, { isRefresh });
+  const fetchSubscription = async (userId: string) => {
+    if (import.meta.env.DEV) console.log("[Auth] fetchSubscription start", userId);
 
     try {
-      const { data, error } = await withRetry(
-        () => withTimeout<any>(
-          supabase
-            .from("subscriptions")
-            .select("*")
-            .eq("user_id", userId)
-            .eq("status", "active")
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle(),
-          5000, // Reduced from 15s to 5s
-          "fetchSubscription"
-        ),
-        2, // Reduced from 3 to 2 attempts
-        500,
-        "fetchSubscription"
-      );
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (import.meta.env.DEV) {
         console.log("[Auth] fetchSubscription done", {
@@ -170,16 +118,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!error && data) {
         setSubscription(data as Subscription);
-      } else if (!isRefresh) {
-        // Only clear subscription on initial load, not on refresh errors
-        setSubscription(null);
       }
     } catch (error) {
-      console.error("[Auth] fetchSubscription failed after retries:", error);
-      // On refresh/token events, keep existing subscription to prevent access loss
-      if (!isRefresh) {
-        setSubscription(null);
-      }
+      console.error("[Auth] fetchSubscription failed:", error);
     }
   };
 
@@ -195,16 +136,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Calculate access status
+  // Calculate access status — check both status and expiry
   const calculateAccess = (): boolean => {
     if (!subscription) return false;
-
-    // All plans: just check active status (transformation is lifetime access)
-    return subscription.status === "active";
+    if (subscription.status !== "active") return false;
+    // If there's an expiry date, check it
+    if (subscription.expires_at) {
+      const now = new Date();
+      const expiresAt = new Date(subscription.expires_at);
+      if (expiresAt < now) return false;
+    }
+    // Recurring plans (membership/coaching) MUST have an expiry date
+    // If expires_at is null for a recurring plan, deny access (data integrity issue)
+    if (!subscription.expires_at && subscription.plan_type !== "transformation") {
+      return false;
+    }
+    return true;
   };
 
-  // Calculate days remaining — no longer used for transformation (lifetime access)
-  // Kept for potential future use with time-limited promotions
   const calculateDaysRemaining = (): number | null => {
     if (!subscription || !subscription.expires_at) return null;
 
@@ -225,66 +174,81 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     safeSetLoading(true);
 
-    // IMPORTANT: set up the auth state change listener BEFORE fetching the session
-    // to avoid missing updates during initial load.
     const {
       data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      // Token refresh events should not clear data on failure
-      const isRefreshEvent = event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN';
-      if (import.meta.env.DEV) console.log("[Auth] onAuthStateChange", { event, hasSession: !!session, isRefreshEvent });
+      if (import.meta.env.DEV) console.log("[Auth] onAuthStateChange", { event, hasSession: !!session });
 
-      try {
-        setSession(session);
-        setUser(session?.user ?? null);
+      setSession(session);
+      setUser(session?.user ?? null);
 
-        // Reset dataLoaded when user changes to prevent ProtectedRoute from
-        // evaluating redirect conditions with stale subscription/profile data
-        if (session?.user && event !== 'TOKEN_REFRESHED') {
-          setDataLoaded(false);
+      if (session?.user) {
+        const userId = session.user.id;
+
+        // Skip refetch if we already loaded this user's data (e.g. TOKEN_REFRESHED, duplicate SIGNED_IN)
+        if (loadedUserIdRef.current === userId) {
+          if (import.meta.env.DEV) console.log("[Auth] Skipping refetch — data already loaded for", userId);
+          safeSetLoading(false);
+          return;
         }
 
-        if (session?.user) {
-          // Pass isRefresh=true for token refresh events to preserve data on errors
+        // New user or first load — fetch data
+        setDataLoaded(false);
+        try {
           await Promise.all([
-            fetchProfile(session.user.id, isRefreshEvent),
-            fetchSubscription(session.user.id, isRefreshEvent),
+            fetchProfile(userId),
+            fetchSubscription(userId),
           ]);
-          if (mounted) setDataLoaded(true);
-        } else {
+        } catch (err) {
+          console.error("Auth data fetch error:", err);
+        }
+        if (mounted) {
+          loadedUserIdRef.current = userId;
+          setDataLoaded(true);
+        }
+      } else {
+        loadedUserIdRef.current = null;
+        setProfile(null);
+        setSubscription(null);
+        if (mounted) setDataLoaded(true);
+      }
+
+      safeSetLoading(false);
+    });
+
+    // Kick-start auth flow — onAuthStateChange handles the rest
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.error("Error getting initial session:", error);
+        // If the refresh token is invalid/expired, clear stale auth data
+        // so the user isn't stuck on a loading screen
+        if (error.message?.includes("Refresh Token") || error.status === 400) {
+          console.warn("[Auth] Stale refresh token detected — signing out locally");
+          supabase.auth.signOut({ scope: "local" });
+        }
+        if (mounted) {
+          setUser(null);
+          setSession(null);
           setProfile(null);
           setSubscription(null);
-          if (mounted) setDataLoaded(true);
+          loadedUserIdRef.current = null;
+          setDataLoaded(true);
+          safeSetLoading(false);
         }
-      } catch (err) {
-        console.error("Auth state change error:", err);
-        if (mounted) setDataLoaded(true);
-      } finally {
+      } else if (!data.session && mounted) {
+        // No session and no error — user is simply not logged in
+        setDataLoaded(true);
         safeSetLoading(false);
       }
     });
 
-    // Just kick-start the auth flow — onAuthStateChange above handles data fetching.
-    // Calling getSession() triggers onAuthStateChange with the INITIAL_SESSION event,
-    // so we do NOT duplicate fetchProfile/fetchSubscription here.
-    supabase.auth.getSession().then(({ error }) => {
-      if (error) {
-        console.error("Error getting initial session:", error);
-        if (mounted) {
-          setDataLoaded(true);
-          safeSetLoading(false);
-        }
-      }
-      // If no error, onAuthStateChange already handles setting state + loading
-    });
-
-    // Safety net: never spin forever if something upstream hangs unexpectedly.
-    // Reduced to 8s to match 2 retry attempts with 5s timeout each
+    // Safety net timeout — reduced since we removed retries
     const timeout = window.setTimeout(() => {
       safeSetLoading(false);
-    }, 8000);
+      if (mounted && !dataLoaded) setDataLoaded(true);
+    }, 5000);
 
     return () => {
       mounted = false;
@@ -305,6 +269,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    // Clear cached user so data is fetched fresh on sign-in
+    loadedUserIdRef.current = null;
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -314,13 +280,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     // Clear state immediately (optimistic) to prevent UI flash
+    loadedUserIdRef.current = null;
     setUser(null);
     setSession(null);
     setProfile(null);
     setSubscription(null);
     setDataLoaded(false);
-    // Then complete the actual signout
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // If server-side signout fails (e.g. invalid token), clear locally
+      await supabase.auth.signOut({ scope: "local" });
+    }
   };
 
   const hasAccess = calculateAccess();

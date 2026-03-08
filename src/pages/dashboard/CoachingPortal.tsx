@@ -21,19 +21,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardBackLink from "@/components/DashboardBackLink";
+import UpgradePrompt from "@/components/UpgradePrompt";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useCoachingSessions } from "@/hooks/useCoachingSessions";
 import { useCoachingGoals } from "@/hooks/useCoachingGoals";
 import { useCoachingActionItems } from "@/hooks/useCoachingActionItems";
 import { useDirectMessages } from "@/hooks/useDirectMessages";
+import { useCoachId } from "@/hooks/useCoachId";
 import { useToast } from "@/hooks/use-toast";
-
-// Dom's admin user ID - needed for direct messaging
-const DOM_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 const CoachingPortal = () => {
   const { user } = useAuth();
+  const { isCoaching } = useEffectiveSubscription();
   const { toast } = useToast();
+
+  // Only coaching users can access
+  if (!isCoaching) {
+    return <UpgradePrompt feature="P.O. Portal (1:1 Coaching)" upgradeTo="coaching" />;
+  }
+  const { coachId } = useCoachId();
   const { sessions, loading: sessionsLoading } = useCoachingSessions(user?.id);
   const { goals, loading: goalsLoading } = useCoachingGoals(user?.id);
   const { actionItems, toggleComplete, loading: itemsLoading, getPendingItems, getOverdueItems } = useCoachingActionItems(user?.id);
@@ -64,7 +71,7 @@ const CoachingPortal = () => {
     
     setSending(true);
     try {
-      const success = await sendMessage(DOM_USER_ID, quickMessage.trim());
+      const success = coachId ? await sendMessage(coachId, quickMessage.trim()) : false;
       if (success) {
         toast({
           title: "Message Sent",

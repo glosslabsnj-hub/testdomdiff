@@ -25,7 +25,7 @@ const Workouts = () => {
 
   return (
     <DashboardLayout>
-      <div className="section-container py-12">
+      <div className="section-container py-6 sm:py-12">
         <DashboardBackLink className="mb-8" />
 
         <div className="flex items-center justify-between mb-8">
@@ -67,11 +67,11 @@ const Workouts = () => {
           />
         ) : (
           <>
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
               {visibleTemplates.map((template) => (
                 <div
                   key={template.id}
-                  className="p-6 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group"
+                  className="p-4 sm:p-6 rounded-lg bg-charcoal border border-border hover:border-primary/50 transition-all group"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <Dumbbell className="w-8 h-8 text-primary" />

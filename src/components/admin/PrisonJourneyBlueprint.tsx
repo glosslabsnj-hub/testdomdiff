@@ -39,7 +39,7 @@ const tierJourneys: TierJourney[] = [
     description: "Self-discipline foundation with bodyweight training",
     color: "border-muted-foreground/50",
     steps: [
-      { id: "s1", title: "Purchase Solitary", description: "User selects $49.99/mo plan", timeframe: "0 min", isCritical: true },
+      { id: "s1", title: "Purchase Solitary", description: "User selects $19.99/mo plan", timeframe: "0 min", isCritical: true },
       { id: "s2", title: "Signup & Email Confirm", description: "Auto-confirm enabled for speed", timeframe: "1 min" },
       { id: "s3", title: "4-Step Intake", description: "Goal, experience, injuries, commitment", timeframe: "3 min", isCritical: true },
       { id: "s4", title: "Intake Confirmation", description: "Shows what's unlocked, CTA to dashboard", timeframe: "0.5 min" },
@@ -57,7 +57,7 @@ const tierJourneys: TierJourney[] = [
     description: "12-week structured transformation with community",
     color: "border-primary/50",
     steps: [
-      { id: "g1", title: "Purchase Gen Pop", description: "User selects $379.99 one-time", timeframe: "0 min", isCritical: true },
+      { id: "g1", title: "Purchase Gen Pop", description: "User selects $249 one-time", timeframe: "0 min", isCritical: true },
       { id: "g2", title: "Signup & Email Confirm", description: "Auto-confirm enabled for speed", timeframe: "1 min" },
       { id: "g3", title: "4-Step Intake", description: "Goal, experience, injuries, commitment", timeframe: "3 min", isCritical: true },
       { id: "g4", title: "Intake Confirmation", description: "Processing Complete with next steps", timeframe: "0.5 min" },
@@ -77,7 +77,7 @@ const tierJourneys: TierJourney[] = [
     description: "Premium 1:1 coaching with maximum accountability",
     color: "border-crimson/50",
     steps: [
-      { id: "c1", title: "Purchase Free World", description: "User selects $999.99/mo premium", timeframe: "0 min", isCritical: true },
+      { id: "c1", title: "Purchase Free World", description: "User selects $499/mo premium", timeframe: "0 min", isCritical: true },
       { id: "c2", title: "Signup & Email Confirm", description: "Auto-confirm enabled for speed", timeframe: "1 min" },
       { id: "c3", title: "Redirect to Book P.O. Check-In", description: "Coaching tier skips standard intake", timeframe: "0.5 min", isCritical: true },
       { id: "c4", title: "Book Onboarding Call", description: "Schedule first call with Dom", timeframe: "2 min" },

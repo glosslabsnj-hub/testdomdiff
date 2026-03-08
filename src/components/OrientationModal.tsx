@@ -273,7 +273,7 @@ export default function OrientationModal() {
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDismiss()}>
-      <DialogContent className="max-w-lg p-0 bg-card border-border overflow-hidden">
+      <DialogContent className="max-w-lg max-w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto p-0 bg-card border-border overflow-hidden">
         {/* Close button */}
         <button
           onClick={handleDismiss}

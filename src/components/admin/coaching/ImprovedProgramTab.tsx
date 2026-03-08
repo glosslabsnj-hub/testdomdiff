@@ -256,7 +256,7 @@ export default function ImprovedProgramTab({ clientId, client }: ImprovedProgram
                           <CardContent className="p-0">
                             <button
                               onClick={() => setExpandedDay(isExpanded ? null : day.id)}
-                              className="w-full p-4 text-left flex items-center justify-between"
+                              className="w-full p-3 sm:p-4 text-left flex items-center justify-between min-h-[44px]"
                             >
                               <div className="flex items-center gap-3">
                                 <span className="text-sm font-medium text-muted-foreground w-24">
@@ -299,25 +299,29 @@ export default function ImprovedProgramTab({ clientId, client }: ImprovedProgram
                                     day.exercises.map((exercise, idx) => (
                                       <div
                                         key={exercise.id}
-                                        className="flex items-center gap-4 py-2 text-sm"
+                                        className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-2 text-sm"
                                       >
-                                        <span className="text-muted-foreground w-6">
-                                          {idx + 1}.
-                                        </span>
-                                        <span className="flex-1 font-medium">
-                                          {exercise.exercise_name}
-                                        </span>
-                                        <span className="text-muted-foreground">
-                                          {exercise.sets} × {exercise.reps_or_time}
-                                        </span>
-                                        {exercise.rest && (
-                                          <span className="text-muted-foreground text-xs">
-                                            {exercise.rest} rest
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                          <span className="text-muted-foreground w-6 flex-shrink-0">
+                                            {idx + 1}.
                                           </span>
-                                        )}
-                                        <Badge variant="outline" className="text-xs">
-                                          {exercise.section_type}
-                                        </Badge>
+                                          <span className="flex-1 font-medium truncate">
+                                            {exercise.exercise_name}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 sm:gap-4 pl-8 sm:pl-0">
+                                          <span className="text-muted-foreground text-xs sm:text-sm">
+                                            {exercise.sets} x {exercise.reps_or_time}
+                                          </span>
+                                          {exercise.rest && (
+                                            <span className="text-muted-foreground text-xs">
+                                              {exercise.rest} rest
+                                            </span>
+                                          )}
+                                          <Badge variant="outline" className="text-xs">
+                                            {exercise.section_type}
+                                          </Badge>
+                                        </div>
                                       </div>
                                     ))
                                   ) : (

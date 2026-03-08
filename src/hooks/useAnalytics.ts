@@ -39,12 +39,21 @@ async function loadPixelIds() {
 
   pixelLoadPromise = (async () => {
     try {
-      const { data } = await supabase
+      // Add timeout to prevent hanging if Supabase is slow
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+
+      const { data, error } = await supabase
         .from("site_settings")
         .select("key, value")
-        .in("key", ["meta_pixel_id", "ga4_measurement_id", "tiktok_pixel_id"]);
+        .in("key", ["meta_pixel_id", "ga4_measurement_id", "tiktok_pixel_id"])
+        .abortSignal(controller.signal);
 
-      if (data) {
+      clearTimeout(timeout);
+
+      if (error) {
+        console.warn("[Analytics] Failed to load pixel IDs:", error.message);
+      } else if (data) {
         data.forEach((setting) => {
           if (setting.key === "meta_pixel_id" && setting.value) {
             pixelCache.metaId = setting.value;
@@ -57,7 +66,13 @@ async function loadPixelIds() {
       }
       pixelCache.loaded = true;
     } catch (error) {
-      console.error("[Analytics] Failed to load pixel IDs:", error);
+      // Mark as loaded even on failure to prevent infinite retries
+      pixelCache.loaded = true;
+      if (error instanceof DOMException && error.name === "AbortError") {
+        console.warn("[Analytics] Pixel ID loading timed out");
+      } else {
+        console.warn("[Analytics] Failed to load pixel IDs:", error);
+      }
     }
     pixelLoadPromise = null;
     return pixelCache;

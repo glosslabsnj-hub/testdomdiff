@@ -149,7 +149,7 @@ export default function CheckInReviewManager() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <Card className="bg-charcoal border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Total Check-Ins</CardTitle>
@@ -186,18 +186,18 @@ export default function CheckInReviewManager() {
 
       {/* Filters + Bulk Actions */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by client name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-charcoal border-border"
+              className="pl-10 bg-charcoal border-border h-11"
             />
           </div>
           <Select value={filterReview} onValueChange={setFilterReview}>
-            <SelectTrigger className="w-full sm:w-[180px] bg-charcoal border-border">
+            <SelectTrigger className="w-full sm:w-[180px] bg-charcoal border-border min-h-[44px]">
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Filter" />
             </SelectTrigger>
@@ -266,8 +266,8 @@ export default function CheckInReviewManager() {
               <Card className="bg-charcoal border-border overflow-hidden">
                 <CollapsibleTrigger asChild>
                   <div className="p-4 cursor-pointer hover:bg-muted/30 transition-colors">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between gap-2 sm:gap-4">
+                      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
                         {/* Checkbox for pending items */}
                         {!checkIn.coach_reviewed_at && (
                           <Checkbox
@@ -277,51 +277,64 @@ export default function CheckInReviewManager() {
                             className="border-muted-foreground"
                           />
                         )}
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-10 w-10 shrink-0">
                           <AvatarImage src={checkIn.profile?.avatar_url || undefined} />
                           <AvatarFallback className="bg-primary/20 text-primary">
                             {getInitials(checkIn)}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold text-foreground">
+                            <p className="font-semibold text-foreground truncate">
                               {checkIn.profile?.first_name || checkIn.profile?.last_name
                                 ? `${checkIn.profile?.first_name || ""} ${checkIn.profile?.last_name || ""}`.trim()
                                 : "Unknown"}
                             </p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1 mt-0.5">
                             {getPlanBadge(checkIn.subscription?.plan_type)}
                             <Badge variant="outline" className="text-xs">
                               Week {checkIn.week_number}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground mt-0.5">
                             {format(new Date(checkIn.submitted_at), "MMM d, yyyy 'at' h:mm a")}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        {checkIn.coach_reviewed_at ? (
-                          <Badge className="bg-success/20 text-success border-success/30">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Reviewed
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-warning/20 text-warning border-warning/30">
-                            <Clock className="h-3 w-3 mr-1" />
-                            Pending
-                          </Badge>
-                        )}
-                        {expandedCheckIn === checkIn.id ? (
-                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                        )}
+                      <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+                        <span className="hidden sm:inline-flex">
+                          {checkIn.coach_reviewed_at ? (
+                            <Badge className="bg-success/20 text-success border-success/30">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Reviewed
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-warning/20 text-warning border-warning/30">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Pending
+                            </Badge>
+                          )}
+                        </span>
+                        <span className="sm:hidden">
+                          {checkIn.coach_reviewed_at ? (
+                            <CheckCircle2 className="h-4 w-4 text-success" />
+                          ) : (
+                            <Clock className="h-4 w-4 text-warning" />
+                          )}
+                        </span>
+                        <div className="min-w-[44px] flex items-center justify-center">
+                          {expandedCheckIn === checkIn.id ? (
+                            <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     {/* Quick Stats Row */}
-                    <div className="flex gap-6 mt-3 text-sm">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mt-3 text-sm">
                       {checkIn.weight && (
                         <div className="flex items-center gap-1 text-muted-foreground">
                           <Scale className="h-3.5 w-3.5" />
@@ -347,7 +360,7 @@ export default function CheckInReviewManager() {
                 <CollapsibleContent>
                   <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
                     {/* Detailed Metrics */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                       <div className="bg-muted/30 rounded-lg p-3">
                         <p className="text-xs text-muted-foreground mb-1">Weight</p>
                         <p className="font-semibold">{checkIn.weight ? `${checkIn.weight} lbs` : "—"}</p>
@@ -421,13 +434,13 @@ export default function CheckInReviewManager() {
                         onChange={(e) =>
                           setCoachNotes((prev) => ({ ...prev, [checkIn.id]: e.target.value }))
                         }
-                        className="bg-muted/30 border-border min-h-[100px]"
+                        className="bg-muted/30 border-border min-h-[80px]"
                       />
                       <Button
                         variant="gold"
                         onClick={() => handleSubmitNotes(checkIn)}
                         disabled={submitting === checkIn.id}
-                        className="w-full sm:w-auto"
+                        className="min-h-[44px] w-full sm:w-auto"
                       >
                         {submitting === checkIn.id ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />

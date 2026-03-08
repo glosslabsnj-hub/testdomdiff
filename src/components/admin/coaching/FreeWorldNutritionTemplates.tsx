@@ -99,9 +99,9 @@ export default function FreeWorldNutritionTemplates({ selectedClient }: FreeWorl
   return (
     <div className="h-full flex flex-col min-h-0">
       {/* Header */}
-      <div className="flex items-center justify-between py-4 flex-none">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-4 flex-none">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
             <Utensils className="w-5 h-5 text-purple-400" />
           </div>
           <div>
@@ -111,7 +111,7 @@ export default function FreeWorldNutritionTemplates({ selectedClient }: FreeWorl
             </p>
           </div>
         </div>
-        <Button variant="goldOutline" size="sm">
+        <Button variant="goldOutline" size="sm" className="min-h-[44px] w-full sm:w-auto">
           <Plus className="w-4 h-4 mr-2" />
           Add Template
         </Button>
@@ -234,7 +234,7 @@ function NutritionRecommendationBanner({
         <Button
           variant="outline"
           size="sm"
-          className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 shrink-0"
+          className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 shrink-0 min-h-[44px]"
           onClick={onViewRecommended}
         >
           <Utensils className="w-4 h-4 mr-2" />
@@ -289,7 +289,7 @@ function NutritionCategoryAccordion({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="ml-8 mt-2 space-y-2">
+        <div className="ml-2 sm:ml-8 mt-2 space-y-2">
           {templates.map((template) => (
             <NutritionTemplateRow
               key={template.id}
@@ -367,7 +367,7 @@ function NutritionTemplateRow({
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="ml-6 mt-2 p-4 bg-background/50 rounded-lg border border-border">
+          <div className="ml-2 sm:ml-6 mt-2 p-3 sm:p-4 bg-background/50 rounded-lg border border-border">
             {isLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-4 w-1/3" />
@@ -447,7 +447,7 @@ function NutritionDetailsView({
         <p className="text-sm text-muted-foreground">
           This template has no days defined yet.
         </p>
-        <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 text-sm">
           <div>
             <span className="text-muted-foreground">Protein:</span>{" "}
             <span className="font-medium">{template.daily_protein_g}g</span>
@@ -470,7 +470,7 @@ function NutritionDetailsView({
   return (
     <div className="space-y-4">
       {/* Macro summary */}
-      <div className="grid grid-cols-3 gap-4 text-sm p-3 bg-muted/30 rounded-lg">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 text-sm p-3 bg-muted/30 rounded-lg">
         <div>
           <span className="text-muted-foreground">Protein:</span>{" "}
           <span className="font-medium text-green-400">{template.daily_protein_g}g</span>
@@ -518,7 +518,7 @@ function NutritionDetailsView({
                   </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="ml-6 mt-1 space-y-2">
+                  <div className="ml-2 sm:ml-6 mt-1 space-y-2">
                     {getMealsForDay(day.id)
                       .sort((a, b) => getMealTypeOrder(a.meal_type) - getMealTypeOrder(b.meal_type))
                       .map((meal) => (

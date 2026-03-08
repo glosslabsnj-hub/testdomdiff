@@ -24,13 +24,13 @@ export default function SupportInbox() {
             system like Intercom, Crisp, or Help Scout for in-app support.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="min-h-[44px]">
               <a href="mailto:support@domdifferent.com" className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Open Email Client
               </a>
             </Button>
-            <Button variant="ghost" asChild>
+            <Button variant="ghost" asChild className="min-h-[44px]">
               <a 
                 href="https://gmail.com" 
                 target="_blank" 
@@ -44,18 +44,21 @@ export default function SupportInbox() {
         </div>
 
         {/* Quick Stats Placeholder */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
           <div className="text-center p-4 bg-background/50 rounded-lg">
-            <div className="text-2xl font-bold text-foreground">—</div>
+            <div className="text-2xl font-bold text-foreground">0</div>
             <div className="text-xs text-muted-foreground">Open Tickets</div>
+            <p className="text-xs text-muted-foreground/60 mt-1">No tickets yet</p>
           </div>
           <div className="text-center p-4 bg-background/50 rounded-lg">
-            <div className="text-2xl font-bold text-foreground">—</div>
+            <div className="text-2xl font-bold text-foreground">--</div>
             <div className="text-xs text-muted-foreground">Avg Response</div>
+            <p className="text-xs text-muted-foreground/60 mt-1">No data yet</p>
           </div>
           <div className="text-center p-4 bg-background/50 rounded-lg">
-            <div className="text-2xl font-bold text-foreground">—</div>
+            <div className="text-2xl font-bold text-foreground">0</div>
             <div className="text-xs text-muted-foreground">Resolved Today</div>
+            <p className="text-xs text-muted-foreground/60 mt-1">No tickets yet</p>
           </div>
         </div>
 

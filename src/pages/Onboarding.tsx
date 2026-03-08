@@ -13,7 +13,7 @@ type PlaybackPhase = "welcome" | "walkthrough" | "complete";
 const Onboarding = () => {
   const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
-  const { isCoaching, isTransformation } = useEffectiveSubscription();
+  const { isCoaching, isTransformation, isTestingFlow, stopTestFlow } = useEffectiveSubscription();
   
   const [playbackPhase, setPlaybackPhase] = useState<PlaybackPhase>("welcome");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -31,12 +31,12 @@ const Onboarding = () => {
   const tierKey = isCoaching ? "coaching" : isTransformation ? "transformation" : "membership";
   const tierName = isCoaching ? "Free World" : isTransformation ? "General Population" : "Solitary Confinement";
 
-  // Redirect if already watched
+  // Redirect if already watched (skip during admin test flow)
   useEffect(() => {
-    if (profile?.first_login_video_watched) {
+    if (!isTestingFlow && profile?.onboarding_video_watched) {
       navigate("/dashboard", { replace: true });
     }
-  }, [profile, navigate]);
+  }, [profile, navigate, isTestingFlow]);
 
   // Fetch video URLs (including manual audio)
   const { data: videos, isLoading } = useQuery({
@@ -140,16 +140,16 @@ const Onboarding = () => {
         audio.currentTime = 0;
         audio.muted = previousMuted;
         setAudioPrimed(true);
-        console.log("[Onboarding] Audio primed for mobile playback");
+        if (import.meta.env.DEV) console.log("[Onboarding] Audio primed for mobile playback");
       })
       .catch(() => {
         audio.muted = previousMuted;
-        console.log("[Onboarding] Audio priming failed");
+        if (import.meta.env.DEV) console.log("[Onboarding] Audio priming failed");
       });
   };
 
   const startWalkthroughPlayback = async () => {
-    console.log("[Onboarding] Starting walkthrough playback");
+    if (import.meta.env.DEV) console.log("[Onboarding] Starting walkthrough playback");
     setNeedsAudioTap(false);
     
     if (walkthroughVideoRef.current) {
@@ -161,9 +161,9 @@ const Onboarding = () => {
       audioRef.current.currentTime = 0;
       try {
         await audioRef.current.play();
-        console.log("[Onboarding] Audio started successfully");
+        if (import.meta.env.DEV) console.log("[Onboarding] Audio started successfully");
       } catch (error) {
-        console.log("[Onboarding] Audio autoplay blocked, showing tap overlay");
+        if (import.meta.env.DEV) console.log("[Onboarding] Audio autoplay blocked, showing tap overlay");
         // Audio was blocked - pause video and show tap overlay
         walkthroughVideoRef.current?.pause();
         setNeedsAudioTap(true);
@@ -189,20 +189,35 @@ const Onboarding = () => {
   const handleComplete = async () => {
     setPlaybackPhase("complete");
     setIsComplete(true);
-    
+
+    // Skip DB write during admin test flow
+    if (isTestingFlow) return;
+
     // Update profile to mark video as watched
     if (user) {
       await supabase
         .from("profiles")
-        .update({ first_login_video_watched: true })
+        .update({ onboarding_video_watched: true })
         .eq("user_id", user.id);
-      
+
       // Refresh profile to update state
       await refreshProfile();
     }
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // End test flow when admin reaches the dashboard
+    if (isTestingFlow) {
+      stopTestFlow();
+    }
+    // Ensure onboarding is marked complete before navigating
+    if (user && !profile?.onboarding_video_watched) {
+      await supabase
+        .from("profiles")
+        .update({ onboarding_video_watched: true })
+        .eq("user_id", user.id);
+      await refreshProfile();
+    }
     navigate("/dashboard", { replace: true });
   };
 
@@ -321,7 +336,7 @@ const Onboarding = () => {
 
           {/* Controls for welcome video */}
           {isPlaying && (
-            <div className="absolute bottom-4 right-4 safe-area-inset-bottom flex gap-2">
+            <div className="absolute bottom-4 right-4 pb-[env(safe-area-inset-bottom)] flex gap-2">
               <Button
                 variant="secondary"
                 size="icon"
@@ -347,7 +362,7 @@ const Onboarding = () => {
               variant="ghost"
               size="sm"
               onClick={handleComplete}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs safe-area-inset-bottom"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs pb-[env(safe-area-inset-bottom)]"
             >
               Skip Video →
             </Button>
@@ -407,7 +422,7 @@ const Onboarding = () => {
           )}
 
           {/* Controls for walkthrough */}
-          <div className="absolute bottom-4 right-4 safe-area-inset-bottom flex gap-2">
+          <div className="absolute bottom-4 right-4 pb-[env(safe-area-inset-bottom)] flex gap-2">
             <Button
               variant="secondary"
               size="icon"
@@ -432,7 +447,7 @@ const Onboarding = () => {
               variant="ghost"
               size="sm"
               onClick={handleComplete}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs safe-area-inset-bottom"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 hover:text-white text-xs pb-[env(safe-area-inset-bottom)]"
             >
               Skip Video →
             </Button>

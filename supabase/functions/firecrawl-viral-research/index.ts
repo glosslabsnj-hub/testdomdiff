@@ -1,16 +1,17 @@
 // FireCrawl Viral Research — scrapes viral content sources for trends & patterns
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-  CORS_HEADERS,
   getBrandVoicePrompt,
   checkApiLimits,
   trackApiUsage,
 } from "../_shared/brand-voice.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
 Deno.serve(async (req) => {
+  const CORS_HEADERS = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
   }

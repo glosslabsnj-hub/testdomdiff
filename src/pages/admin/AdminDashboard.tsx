@@ -1,13 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Users, ClipboardCheck, MessageSquare, BookOpen, Layers, CreditCard, FileText, BarChart3, Settings, ScrollText, Package, Crown, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Sidebar & Sections
-import AdminSidebar, { type AdminSection } from "@/components/admin/AdminSidebar";
+// Nav config
+import { type AdminSection, type BadgeCounts } from "@/components/admin/adminNavConfig";
+
+// Nav components
+import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
+import AdminBottomNav from "@/components/admin/AdminBottomNav";
+import AdminSectionHeader from "@/components/admin/AdminSectionHeader";
 
 // Section Components
 import CommandCenterCollapsible from "@/components/admin/CommandCenterCollapsible";
@@ -54,9 +59,15 @@ export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<AdminSection>("command");
   const [contentSection, setContentSection] = useState("workouts");
 
-  // Count pending check-ins for badge
   const pendingCheckIns = checkIns.filter(c => !c.coach_reviewed_at).length;
   const coachingClients = clientAnalytics?.clientsByPlan.coaching || 0;
+
+  const badges: BadgeCounts = {
+    pendingCheckIns,
+    pendingSupportTickets: 0,
+    coachingClients,
+    pendingOrders: 0,
+  };
 
   if (adminLoading) {
     return (
@@ -76,7 +87,6 @@ export default function AdminDashboard() {
     );
   }
 
-  // Render the active section content
   const renderSectionContent = () => {
     switch (activeSection) {
       case "command":
@@ -90,50 +100,58 @@ export default function AdminDashboard() {
             onNavigate={setActiveSection}
           />
         );
-      
+
       case "users":
         return (
           <div className="space-y-4">
-            <SectionHeader 
-              title="Users" 
-              description="Manage all members across all tiers. Search, filter, and take action."
+            <AdminSectionHeader
+              icon={Users}
+              title="Users"
+              description="Manage all members across all tiers."
+              iconColor="text-blue-400"
             />
             <PeopleHub />
           </div>
         );
-      
+
       case "check-ins":
         return (
           <div className="space-y-4">
-            <SectionHeader 
-              title="Check-Ins" 
-              description="Review weekly progress submissions from members. Mark as reviewed to track your coaching."
+            <AdminSectionHeader
+              icon={ClipboardCheck}
+              title="Check-Ins"
+              description="Review weekly progress from members."
+              iconColor="text-blue-400"
             />
             <CheckInReviewManager />
           </div>
         );
-      
+
       case "support":
         return (
           <div className="space-y-4">
-            <SectionHeader 
-              title="Support Inbox" 
-              description="Member questions and help requests. Respond directly or flag for follow-up."
+            <AdminSectionHeader
+              icon={MessageSquare}
+              title="Support Inbox"
+              description="Member questions and help requests."
+              iconColor="text-yellow-400"
             />
             <SupportInbox />
           </div>
         );
-      
+
       case "content":
         return (
           <div className="space-y-4">
-            <SectionHeader 
-              title="Programs & Content" 
-              description="Create, edit, and organize all training and lifestyle content."
+            <AdminSectionHeader
+              icon={BookOpen}
+              title="Programs & Content"
+              description="Create and organize training content."
+              iconColor="text-green-400"
             />
             <div className="flex flex-col md:flex-row gap-6">
-              <ContentNavigation 
-                activeSection={contentSection} 
+              <ContentNavigation
+                activeSection={contentSection}
                 onSelectSection={setContentSection}
               />
               <div className="flex-1 min-w-0">
@@ -152,54 +170,124 @@ export default function AdminDashboard() {
             </div>
           </div>
         );
-      
+
       case "tiers":
-        return <TiersAccessManager />;
-      
+        return (
+          <div className="space-y-4">
+            <AdminSectionHeader
+              icon={Layers}
+              title="Tiers & Access"
+              description="Configure tier benefits and access levels."
+              iconColor="text-green-400"
+            />
+            <TiersAccessManager />
+          </div>
+        );
+
       case "freeworld":
         return (
-          <div className="h-full">
+          <div className="space-y-4">
+            <AdminSectionHeader
+              icon={Crown}
+              title="Free World"
+              description="1:1 VIP coaching management."
+              iconColor="text-purple-400"
+            />
             <FreeWorldHub />
           </div>
         );
-      
+
       case "payments":
-        return <PaymentsHub />;
-      
+        return (
+          <div className="space-y-4">
+            <AdminSectionHeader
+              icon={CreditCard}
+              title="Payments & Revenue"
+              description="Track revenue and manage billing."
+              iconColor="text-amber-400"
+            />
+            <PaymentsHub />
+          </div>
+        );
+
       case "intake":
-        return <IntakeManager />;
-      
+        return (
+          <div className="space-y-4">
+            <AdminSectionHeader
+              icon={FileText}
+              title="Intake & Forms"
+              description="View onboarding questionnaires and forms."
+              iconColor="text-purple-400"
+            />
+            <IntakeManager />
+          </div>
+        );
+
       case "commissary":
         return (
           <div className="space-y-4">
-            <SectionHeader 
-              title="Commissary" 
-              description="Manage products and orders for the shop."
+            <AdminSectionHeader
+              icon={Package}
+              title="Commissary"
+              description="Manage products and orders."
+              iconColor="text-amber-400"
             />
             <CommissaryHub />
           </div>
         );
-      
+
       case "analytics":
-        return <AnalyticsHub />;
-      
+        return (
+          <div className="space-y-4">
+            <AdminSectionHeader
+              icon={BarChart3}
+              title="Analytics"
+              description="Engagement, leads, and growth metrics."
+              iconColor="text-amber-400"
+            />
+            <AnalyticsHub />
+          </div>
+        );
+
       case "settings":
         return (
           <div className="space-y-4">
-            <SectionHeader 
-              title="System Settings" 
-              description="Configure platform settings, integrations, and administrative preferences."
+            <AdminSectionHeader
+              icon={Settings}
+              title="System Settings"
+              description="Platform config and integrations."
+              iconColor="text-muted-foreground"
             />
             <SiteSettingsManager />
           </div>
         );
-      
+
       case "logs":
-        return <AdminAuditLog />;
-      
+        return (
+          <div className="space-y-4">
+            <AdminSectionHeader
+              icon={ScrollText}
+              title="Logs & Safety"
+              description="Audit trail and admin activity."
+              iconColor="text-muted-foreground"
+            />
+            <AdminAuditLog />
+          </div>
+        );
+
       case "content-engine":
-        return <SocialCommandCenter />;
-      
+        return (
+          <div className="space-y-4">
+            <AdminSectionHeader
+              icon={Flame}
+              title="Social Command Center"
+              description="Content ideas, scripts, and social growth."
+              iconColor="text-orange-400"
+            />
+            <SocialCommandCenter />
+          </div>
+        );
+
       default:
         return null;
     }
@@ -211,30 +299,28 @@ export default function AdminDashboard() {
       <div className="hidden md:block">
         <Header />
       </div>
-      
+
       <main className="flex-1 min-h-0 overflow-hidden flex flex-col md:flex-row md:pt-16">
         {/* Mobile Header with Drawer */}
         <AdminMobileHeader
           activeSection={activeSection}
           onSectionChange={setActiveSection}
-          pendingCheckIns={pendingCheckIns}
-          coachingClients={coachingClients}
+          badges={badges}
         />
 
-        {/* Desktop Sidebar - Hidden on Mobile */}
+        {/* Desktop Sidebar */}
         <div className="hidden md:block">
-          <AdminSidebar 
+          <AdminSidebar
             activeSection={activeSection}
             onSectionChange={setActiveSection}
-            pendingCheckIns={pendingCheckIns}
-            coachingClients={coachingClients}
+            badges={badges}
           />
         </div>
 
         {/* Main Content Area */}
         <div className="flex-1 min-w-0 overflow-y-auto">
-          <div className="p-4 md:p-6">
-            {/* Desktop Back to Dashboard link - Hidden on Mobile */}
+          <div className={`p-4 md:p-6 ${isMobile ? "pb-24" : ""}`}>
+            {/* Desktop breadcrumb */}
             <div className="hidden md:flex items-center gap-4 mb-6">
               <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
                 <ArrowLeft className="h-5 w-5" />
@@ -245,22 +331,17 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Section Content */}
             {renderSectionContent()}
           </div>
         </div>
       </main>
+
+      {/* Mobile Bottom Nav */}
+      <AdminBottomNav
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        badges={badges}
+      />
     </div>
   );
 }
-
-// Section Header Component
-function SectionHeader({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="mb-4">
-      <h2 className="text-xl font-bold text-foreground">{title}</h2>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </div>
-  );
-}
-

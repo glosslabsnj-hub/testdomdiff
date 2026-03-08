@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { format } from "date-fns";
-import { X, Mail, Phone, Calendar, Target, Dumbbell, Heart, AlertTriangle } from "lucide-react";
+import { X, Mail, Phone, Calendar, Target, Dumbbell, Heart, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import SubscriptionManager from "./SubscriptionManager";
@@ -15,6 +17,8 @@ interface ClientDetailPanelProps {
 }
 
 const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPanelProps) => {
+  const [intakeExpanded, setIntakeExpanded] = useState(false);
+
   if (!client) return null;
 
   const getInitials = () => {
@@ -51,17 +55,26 @@ const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPane
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-lg overflow-y-auto p-4 sm:p-6">
+        {/* Sticky header for mobile navigation */}
+        <div className="sticky top-0 z-10 bg-background pb-2 mb-2 border-b border-border sm:hidden flex items-center justify-between">
+          <span className="font-semibold text-sm truncate">
+            {client.first_name || "Unknown"} {client.last_name || ""}
+          </span>
+          <Button variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
         <SheetHeader className="pb-4">
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
+            <Avatar className="h-12 w-12 sm:h-16 sm:w-16">
               <AvatarImage src={client.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary/20 text-primary text-xl">
+              <AvatarFallback className="bg-primary/20 text-primary text-lg sm:text-xl">
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <SheetTitle className="text-xl">
+              <SheetTitle className="text-lg sm:text-xl">
                 {client.first_name || "Unknown"} {client.last_name || ""}
               </SheetTitle>
               <SheetDescription className="flex items-center gap-2 mt-1">
@@ -109,7 +122,7 @@ const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPane
                   {getPlanBadge(client.activeSubscription.plan_type)}
                   {getStatusBadge(client.activeSubscription.status)}
                 </div>
-                <div className="text-sm space-y-1">
+                <div className="text-sm sm:text-base space-y-2">
                   <p>
                     <span className="text-muted-foreground">Started:</span>{" "}
                     {format(new Date(client.activeSubscription.started_at), "MMM d, yyyy")}
@@ -162,14 +175,26 @@ const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPane
             <>
               <Separator />
 
-              {/* Intake Responses */}
+              {/* Intake Responses (collapsible) */}
               <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                  Intake Responses
-                </h3>
-                <div className="space-y-4">
+                <button
+                  type="button"
+                  className="flex items-center justify-between w-full min-h-[44px] text-left"
+                  onClick={() => setIntakeExpanded(!intakeExpanded)}
+                >
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                    Intake Responses
+                  </h3>
+                  {intakeExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+                {intakeExpanded && (
+                <div className="space-y-4 mt-3">
                   {/* Physical Stats */}
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div className="bg-muted/50 rounded-lg p-3 text-center">
                       <p className="text-xs text-muted-foreground">Age</p>
                       <p className="font-semibold">{client.age || "—"}</p>
@@ -239,6 +264,7 @@ const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPane
                     </div>
                   </div>
                 </div>
+                )}
               </div>
             </>
           )}

@@ -21,6 +21,7 @@ const Index = () => {
       content_name: "landing_page",
       content_category: "marketing",
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const targetAudience = ["You're done making excuses and ready to be held accountable", "You want your faith to be the foundation — not an afterthought", "You need structure that works anywhere, anytime, with minimal equipment", "You're tired of inconsistency and ready for daily discipline", "You want to be part of a community that holds you to a higher standard"];
@@ -54,7 +55,7 @@ const Index = () => {
     price: "$249",
     period: "one-time",
     description: "You've earned your place. Connect with peers, get video instruction, and start building your hustle.",
-    features: ["Complete 12-week framework", "Weekly video coaching", "Nutrition templates + meal guides", "Faith + mindset lessons", "Skill-building lessons", "Community access"],
+    features: ["Complete 12-week framework", "Custom workout programming", "Nutrition templates + meal guides", "Faith + mindset lessons", "Skill-building lessons", "Community access"],
     cta: "Join Gen Pop",
     href: "/checkout?plan=transformation",
     popular: true
@@ -145,11 +146,11 @@ const Index = () => {
             <p className="text-base md:text-lg text-primary/80 italic mb-4 animate-fade-in delay-100 max-w-2xl mx-auto">
               "I can do all things through Christ who strengthens me." — Philippians 4:13
             </p>
-            <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-2xl animate-slide-up opacity-0 delay-200 mx-[35px]">
+            <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-2xl animate-slide-up opacity-0 delay-200 mx-auto px-4">
               12 weeks. Zero excuses. Transform your body,
               anchor your faith, and build discipline that lasts a lifetime.
             </p>
-            <div className="flex items-center justify-center gap-6 mb-10 animate-slide-up opacity-0 delay-250">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-10 animate-slide-up opacity-0 delay-250">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Cross className="w-4 h-4 text-primary" />
                 <span>Faith-led training</span>
@@ -164,19 +165,19 @@ const Index = () => {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up opacity-0 delay-300">
-            <Button variant="hero" size="hero" asChild className="glow-gold animate-glow-pulse">
+            <Button variant="hero" size="hero" asChild className="glow-gold animate-glow-pulse w-full sm:w-auto touch-target">
                 <Link to="/checkout?plan=transformation">
                   <span className="hidden sm:inline">Join General Population</span>
                   <span className="sm:hidden">Join Gen Pop</span>
                 </Link>
               </Button>
-              <Button variant="heroOutline" size="hero" asChild>
+              <Button variant="heroOutline" size="hero" asChild className="w-full sm:w-auto touch-target">
                 <Link to="/checkout?plan=membership">
                   Enter Solitary
                 </Link>
               </Button>
             </div>
-            <Link to="/checkout?plan=coaching" className="inline-flex items-center gap-2 mt-6 text-muted-foreground hover:text-primary transition-colors animate-slide-up opacity-0 delay-400">
+            <Link to="/checkout?plan=coaching" className="inline-flex items-center gap-2 mt-6 text-muted-foreground hover:text-primary transition-colors animate-slide-up opacity-0 delay-400 touch-target">
               Ready for the Free World? <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -242,7 +243,7 @@ const Index = () => {
                   <p>Now helping others break their own chains. Same prison-proof discipline. Same faith-first approach. Different results for everyone who commits.</p>
                 </div>
               </div>
-              <Button variant="goldOutline" size="lg" className="mt-8" asChild>
+              <Button variant="goldOutline" size="lg" className="mt-8 w-full sm:w-auto touch-target" asChild>
                 <Link to="/about">Read the Full Story</Link>
               </Button>
             </div>
@@ -305,7 +306,7 @@ const Index = () => {
                       <span className="text-sm">{feature}</span>
                     </li>)}
                 </ul>
-                <Button variant={program.popular ? "gold" : "goldOutline"} size="lg" className="w-full" asChild>
+                <Button variant={program.popular ? "gold" : "goldOutline"} size="lg" className="w-full touch-target" asChild>
                   <Link to={program.href}>{program.cta}</Link>
                 </Button>
               </div>)}
@@ -422,7 +423,7 @@ const Index = () => {
           </div>
           <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, index) => <details key={index} className="group p-6 rounded-lg bg-background border border-border hover:border-primary/50 transition-colors">
-                <summary className="font-semibold cursor-pointer list-none flex items-center justify-between">
+                <summary className="font-semibold cursor-pointer list-none flex items-center justify-between touch-target">
                   {faq.question}
                   <ChevronDown className="w-5 h-5 text-primary transition-transform group-open:rotate-180" />
                 </summary>
@@ -458,7 +459,7 @@ const Index = () => {
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
             Stop waiting. Start building. Your transformation begins with one decision.
           </p>
-          <Button variant="hero" size="hero" asChild className="glow-gold">
+          <Button variant="hero" size="hero" asChild className="glow-gold w-full sm:w-auto touch-target">
             <Link to="/checkout?plan=transformation">
               Start Your Transformation Now
             </Link>

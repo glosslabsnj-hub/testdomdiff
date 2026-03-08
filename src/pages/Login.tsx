@@ -235,7 +235,7 @@ const Login = () => {
                     {!isSignUp && (
                       <Link
                         to="/forgot-password"
-                        className="text-xs text-primary hover:underline"
+                        className="text-sm text-primary hover:underline py-2"
                       >
                         Forgot your access code?
                       </Link>
@@ -261,7 +261,7 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -293,7 +293,7 @@ const Login = () => {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -315,7 +315,7 @@ const Login = () => {
                           key={plan.value}
                           type="button"
                           onClick={() => setSelectedPlan(plan.value)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+                          className={`w-full flex items-center gap-3 p-3 min-h-[48px] rounded-lg border transition-all text-left ${
                             selectedPlan === plan.value
                               ? "border-primary bg-primary/10"
                               : "border-border bg-charcoal hover:border-primary/50"

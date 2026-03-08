@@ -34,7 +34,6 @@ const Transformation = () => {
       items: [
         "Full progressive workout library (not just bodyweight)",
         "Complete 12-week assigned schedule",
-        "Weekly video coaching from Dom",
         "Phase-based progression (Foundation → Build → Peak)",
       ],
     },
@@ -86,8 +85,8 @@ const Transformation = () => {
     },
     {
       icon: Users,
-      title: "Weekly Video Coaching",
-      description: "New coaching video from Dom each week with guidance, motivation, and teaching.",
+      title: "Phase-Based Progression",
+      description: "Foundation → Build → Peak. Your program adapts and intensifies each phase.",
     },
     {
       icon: Target,
@@ -119,7 +118,7 @@ const Transformation = () => {
       <section className="pt-32 pb-20 bg-charcoal relative">
         <div className="texture-overlay" />
         <div className="section-container relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-6">
                 <Flame className="w-4 h-4 text-primary" />
@@ -283,7 +282,7 @@ const Transformation = () => {
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-primary" />
-                Weekly coaching videos included
+                Custom workout programming included
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Check className="w-4 h-4 text-primary" />

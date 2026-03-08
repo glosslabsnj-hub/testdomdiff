@@ -1,5 +1,5 @@
 
-CREATE TABLE public.social_command_config (
+CREATE TABLE IF NOT EXISTS public.social_command_config (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   onboarding_completed boolean NOT NULL DEFAULT false,
   instagram_handle text,
@@ -15,6 +15,7 @@ CREATE TABLE public.social_command_config (
 
 ALTER TABLE public.social_command_config ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can manage social command config" ON public.social_command_config;
 CREATE POLICY "Admins can manage social command config"
 ON public.social_command_config FOR ALL
 USING (has_role(auth.uid(), 'admin'::app_role))

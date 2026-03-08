@@ -68,7 +68,7 @@ export function AudioPlayButton({
         onClick={handleClick}
         disabled={disabled || isLoading}
         className={cn(
-          "flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full transition-all",
+          "flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 min-h-[44px] rounded-full transition-all",
           isActive
             ? "bg-primary/20 text-primary border border-primary/30"
             : "bg-charcoal text-muted-foreground hover:text-primary hover:bg-charcoal/80 border border-border",

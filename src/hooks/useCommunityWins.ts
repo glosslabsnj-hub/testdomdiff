@@ -164,8 +164,9 @@ export function useCommunityWins(channelId?: string) {
     try {
       // Check if already liked
       const win = wins.find(w => w.id === winId);
-      
-      if (win?.has_liked) {
+      if (!win) return;
+
+      if (win.has_liked) {
         // Unlike
         await supabase
           .from("community_wins_likes")

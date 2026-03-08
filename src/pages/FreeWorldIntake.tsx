@@ -22,6 +22,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { supabase } from "@/integrations/supabase/client";
 
 const STEPS = [
@@ -142,6 +143,7 @@ interface FormData {
 export default function FreeWorldIntake() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isTestingFlow } = useEffectiveSubscription();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -243,6 +245,15 @@ export default function FreeWorldIntake() {
     }
 
     setIsSubmitting(true);
+
+    // Admin test flow — skip DB writes
+    if (isTestingFlow) {
+      toast.success("Intake completed! (Test mode — no data saved)");
+      setIsSubmitting(false);
+      navigate("/intake-complete");
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("profiles")
@@ -337,7 +348,7 @@ export default function FreeWorldIntake() {
                     : "text-muted-foreground"
                 }`}
               >
-                <step.icon className="w-4 h-4" />
+                <step.icon className="w-5 h-5" />
                 <span className="text-[10px] mt-1 hidden sm:block">{step.title}</span>
               </div>
             ))}
@@ -365,7 +376,7 @@ export default function FreeWorldIntake() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <Label htmlFor="first_name">First Name *</Label>
                     <Input
@@ -397,7 +408,7 @@ export default function FreeWorldIntake() {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
                     <Label htmlFor="age">Age</Label>
                     <Input
@@ -445,7 +456,7 @@ export default function FreeWorldIntake() {
                   <RadioGroup
                     value={formData.body_fat_estimate}
                     onValueChange={(val) => updateField("body_fat_estimate", val)}
-                    className="grid grid-cols-2 gap-3 mt-2"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2"
                   >
                     {BODY_FAT_OPTIONS.map((option) => (
                       <div
@@ -497,7 +508,7 @@ export default function FreeWorldIntake() {
                 <div>
                   <Label className="text-base">Equipment Access</Label>
                   <p className="text-sm text-muted-foreground mb-2">Select all that apply</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {EQUIPMENT_OPTIONS.map((item) => (
                       <div
                         key={item}
@@ -601,7 +612,7 @@ export default function FreeWorldIntake() {
                 <div>
                   <Label className="text-base">Preferred Training Style</Label>
                   <p className="text-sm text-muted-foreground mb-2">Select all that apply</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {TRAINING_STYLE_OPTIONS.map((item) => (
                       <div
                         key={item}
@@ -627,7 +638,7 @@ export default function FreeWorldIntake() {
                   <RadioGroup
                     value={formData.session_length_preference}
                     onValueChange={(val) => updateField("session_length_preference", val)}
-                    className="grid grid-cols-3 gap-2 mt-2"
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2"
                   >
                     {SESSION_LENGTH_OPTIONS.map((option) => (
                       <div
@@ -719,7 +730,7 @@ export default function FreeWorldIntake() {
                 <div>
                   <Label className="text-base">Dietary Restrictions</Label>
                   <p className="text-sm text-muted-foreground mb-2">Select all that apply</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {DIETARY_RESTRICTIONS.map((item) => (
                       <div
                         key={item}
@@ -954,13 +965,13 @@ export default function FreeWorldIntake() {
       </main>
 
       {/* Navigation Footer */}
-      <footer className="sticky bottom-0 bg-charcoal/95 backdrop-blur border-t border-border">
+      <footer className="sticky bottom-0 bg-charcoal/95 backdrop-blur border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <Button
             variant="ghost"
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="gap-2"
+            className="gap-2 min-h-[44px]"
           >
             <ChevronLeft className="w-4 h-4" />
             Back
@@ -969,7 +980,7 @@ export default function FreeWorldIntake() {
           <Button
             onClick={nextStep}
             disabled={!canProceed() || isSubmitting}
-            className="gap-2 min-w-32"
+            className="gap-2 min-w-32 min-h-[44px]"
           >
             {isSubmitting ? (
               <>

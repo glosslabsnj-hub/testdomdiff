@@ -31,7 +31,7 @@ const Progress = () => {
   const [togglingHabit, setTogglingHabit] = useState<string | null>(null);
   
   // Handle #metrics hash for deep linking
-  const defaultTab = location.hash === "#metrics" ? "metrics" : "metrics";
+  const defaultTab = location.hash === "#photos" ? "photos" : "metrics";
 
   const isCoaching = subscription?.plan_type === "coaching";
   const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -70,6 +70,28 @@ const Progress = () => {
   };
 
   const handleSave = async (weekNumber: number) => {
+    // Validate numeric inputs
+    if (editValues.weight && (isNaN(parseFloat(editValues.weight)) || parseFloat(editValues.weight) <= 0)) {
+      toast({ title: "Invalid weight", description: "Weight must be a positive number.", variant: "destructive" });
+      return;
+    }
+    if (editValues.waist && (isNaN(parseFloat(editValues.waist)) || parseFloat(editValues.waist) <= 0)) {
+      toast({ title: "Invalid waist", description: "Waist must be a positive number.", variant: "destructive" });
+      return;
+    }
+    if (editValues.workouts && (isNaN(parseInt(editValues.workouts)) || parseInt(editValues.workouts) < 0 || parseInt(editValues.workouts) > 14)) {
+      toast({ title: "Invalid workouts", description: "Workouts must be between 0 and 14.", variant: "destructive" });
+      return;
+    }
+    if (editValues.steps_avg && (isNaN(parseInt(editValues.steps_avg)) || parseInt(editValues.steps_avg) < 0)) {
+      toast({ title: "Invalid steps", description: "Steps must be a non-negative number.", variant: "destructive" });
+      return;
+    }
+    if (editValues.compliance_pct && (isNaN(parseInt(editValues.compliance_pct)) || parseInt(editValues.compliance_pct) < 0 || parseInt(editValues.compliance_pct) > 100)) {
+      toast({ title: "Invalid compliance", description: "Compliance must be between 0 and 100.", variant: "destructive" });
+      return;
+    }
+
     try {
       setSavingWeek(weekNumber);
       await updateEntry(weekNumber, {
@@ -182,21 +204,21 @@ const Progress = () => {
                     <span className="font-bold text-primary">Week {week}</span>
                     {isEditing ? (
                       <div className="flex gap-2">
-                        <Button size="sm" variant="gold" onClick={() => handleSave(week)} disabled={isSaving} className="h-9 px-3">
+                        <Button size="sm" variant="gold" onClick={() => handleSave(week)} disabled={isSaving} className="min-h-[44px] px-3">
                           {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save"}
                         </Button>
-                        <Button size="sm" variant="outline" onClick={handleCancel} className="h-9 px-3">Cancel</Button>
+                        <Button size="sm" variant="outline" onClick={handleCancel} className="min-h-[44px] px-3">Cancel</Button>
                       </div>
                     ) : (
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(week)} className="h-9 min-w-[44px]">Edit</Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleEdit(week)} className="min-h-[44px] min-w-[44px]">Edit</Button>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:text-base">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Weight</span>
                       <span className="flex items-center gap-1 font-medium">
                         {isEditing ? (
-                          <Input className="w-20 h-8 text-center bg-charcoal" type="number" step="0.1" value={editValues.weight || ""} onChange={(e) => setEditValues({ ...editValues, weight: e.target.value })} />
+                          <Input className="flex-1 h-11 text-center bg-charcoal" type="number" step="0.1" value={editValues.weight || ""} onChange={(e) => setEditValues({ ...editValues, weight: e.target.value })} />
                         ) : (
                           <>{getEntryValue(week, "weight") || "—"}{weightTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}{weightTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}</>
                         )}
@@ -206,7 +228,7 @@ const Progress = () => {
                       <span className="text-muted-foreground">Waist</span>
                       <span className="flex items-center gap-1 font-medium">
                         {isEditing ? (
-                          <Input className="w-20 h-8 text-center bg-charcoal" type="number" step="0.1" value={editValues.waist || ""} onChange={(e) => setEditValues({ ...editValues, waist: e.target.value })} />
+                          <Input className="flex-1 h-11 text-center bg-charcoal" type="number" step="0.1" value={editValues.waist || ""} onChange={(e) => setEditValues({ ...editValues, waist: e.target.value })} />
                         ) : (
                           <>{getEntryValue(week, "waist") || "—"}{waistTrend === "down" && <TrendingDown className="w-3 h-3 text-green-500" />}{waistTrend === "up" && <TrendingUp className="w-3 h-3 text-red-500" />}</>
                         )}
@@ -216,7 +238,7 @@ const Progress = () => {
                       <span className="text-muted-foreground">Workouts</span>
                       <span className="font-medium">
                         {isEditing ? (
-                          <Input className="w-16 h-8 text-center bg-charcoal" type="number" value={editValues.workouts || ""} onChange={(e) => setEditValues({ ...editValues, workouts: e.target.value })} />
+                          <Input className="flex-1 h-11 text-center bg-charcoal" type="number" value={editValues.workouts || ""} onChange={(e) => setEditValues({ ...editValues, workouts: e.target.value })} />
                         ) : (getEntryValue(week, "workouts") || "—")}
                       </span>
                     </div>
@@ -224,7 +246,7 @@ const Progress = () => {
                       <span className="text-muted-foreground">Steps</span>
                       <span className="font-medium">
                         {isEditing ? (
-                          <Input className="w-20 h-8 text-center bg-charcoal" type="number" value={editValues.steps_avg || ""} onChange={(e) => setEditValues({ ...editValues, steps_avg: e.target.value })} />
+                          <Input className="flex-1 h-11 text-center bg-charcoal" type="number" value={editValues.steps_avg || ""} onChange={(e) => setEditValues({ ...editValues, steps_avg: e.target.value })} />
                         ) : (getEntryValue(week, "steps_avg") ? Number(getEntryValue(week, "steps_avg")).toLocaleString() : "—")}
                       </span>
                     </div>
@@ -232,7 +254,7 @@ const Progress = () => {
                       <span className="text-muted-foreground">Compliance</span>
                       <span className="font-medium">
                         {isEditing ? (
-                          <Input className="w-16 h-8 text-center bg-charcoal" type="number" max="100" value={editValues.compliance_pct || ""} onChange={(e) => setEditValues({ ...editValues, compliance_pct: e.target.value })} />
+                          <Input className="flex-1 h-11 text-center bg-charcoal" type="number" max="100" value={editValues.compliance_pct || ""} onChange={(e) => setEditValues({ ...editValues, compliance_pct: e.target.value })} />
                         ) : (getEntryValue(week, "compliance_pct") ? `${getEntryValue(week, "compliance_pct")}%` : "—")}
                       </span>
                     </div>
@@ -329,6 +351,7 @@ const Progress = () => {
             </div>
           </div>
 
+          <div className="relative">
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="min-w-[420px]">
               <div className="grid grid-cols-8 gap-1.5 sm:gap-2 text-xs text-center mb-3">
@@ -337,7 +360,7 @@ const Progress = () => {
                   <div key={day.toISOString()} className="text-muted-foreground">
                     {format(day, "EEE")}
                     <br />
-                    <span className="text-[10px]">{format(day, "M/d")}</span>
+                    <span className="text-xs">{format(day, "M/d")}</span>
                   </div>
                 ))}
               </div>
@@ -355,7 +378,7 @@ const Progress = () => {
                         key={day.toISOString()}
                         onClick={() => handleHabitToggle(habit, day)}
                         disabled={isToggling}
-                        className={`aspect-square min-h-[36px] sm:min-h-0 rounded border-2 transition-all flex items-center justify-center ${
+                        className={`aspect-square min-h-[40px] min-w-[40px] sm:min-h-0 sm:min-w-0 rounded border-2 transition-all flex items-center justify-center ${
                           isCompleted
                             ? "bg-primary border-primary"
                             : "bg-charcoal border-border hover:border-primary/50"
@@ -372,6 +395,9 @@ const Progress = () => {
                 </div>
               ))}
             </div>
+          </div>
+          {/* Scroll fade indicator (mobile only) */}
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent pointer-events-none sm:hidden" />
           </div>
           </div>
           </TabsContent>
@@ -402,24 +428,21 @@ const Progress = () => {
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <PhotoUploadCard
-                  photoType="before"
-                  existingPhotoUrl={beforePhotos[0]?.url}
-                  onUpload={(file, options) => uploadPhoto(file, "before", options)}
-                  onDelete={beforePhotos[0] ? () => deletePhoto(beforePhotos[0].id, beforePhotos[0].storage_path) : undefined}
-                />
-                <PhotoUploadCard
-                  photoType="before"
-                  existingPhotoUrl={beforePhotos[1]?.url}
-                  onUpload={(file, options) => uploadPhoto(file, "before", options)}
-                  onDelete={beforePhotos[1] ? () => deletePhoto(beforePhotos[1].id, beforePhotos[1].storage_path) : undefined}
-                />
-                <PhotoUploadCard
-                  photoType="before"
-                  existingPhotoUrl={beforePhotos[2]?.url}
-                  onUpload={(file, options) => uploadPhoto(file, "before", options)}
-                  onDelete={beforePhotos[2] ? () => deletePhoto(beforePhotos[2].id, beforePhotos[2].storage_path) : undefined}
-                />
+                {[0, 1, 2].map(i => beforePhotos.length > i ? (
+                  <PhotoUploadCard
+                    key={i}
+                    photoType="before"
+                    existingPhotoUrl={beforePhotos[i]?.url}
+                    onUpload={(file, options) => uploadPhoto(file, "before", options)}
+                    onDelete={() => deletePhoto(beforePhotos[i].id, beforePhotos[i].storage_path)}
+                  />
+                ) : (
+                  <PhotoUploadCard
+                    key={i}
+                    photoType="before"
+                    onUpload={(file, options) => uploadPhoto(file, "before", options)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -440,7 +463,7 @@ const Progress = () => {
                     <div 
                       key={week}
                       className={cn(
-                        "relative aspect-square rounded-lg border-2 overflow-hidden",
+                        "relative aspect-square rounded-lg border-2 overflow-hidden active:opacity-80 transition-opacity",
                         weekPhoto ? "border-primary" : "border-dashed border-border"
                       )}
                     >
@@ -475,24 +498,21 @@ const Progress = () => {
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <PhotoUploadCard
-                  photoType="after"
-                  existingPhotoUrl={afterPhotos[0]?.url}
-                  onUpload={(file, options) => uploadPhoto(file, "after", options)}
-                  onDelete={afterPhotos[0] ? () => deletePhoto(afterPhotos[0].id, afterPhotos[0].storage_path) : undefined}
-                />
-                <PhotoUploadCard
-                  photoType="after"
-                  existingPhotoUrl={afterPhotos[1]?.url}
-                  onUpload={(file, options) => uploadPhoto(file, "after", options)}
-                  onDelete={afterPhotos[1] ? () => deletePhoto(afterPhotos[1].id, afterPhotos[1].storage_path) : undefined}
-                />
-                <PhotoUploadCard
-                  photoType="after"
-                  existingPhotoUrl={afterPhotos[2]?.url}
-                  onUpload={(file, options) => uploadPhoto(file, "after", options)}
-                  onDelete={afterPhotos[2] ? () => deletePhoto(afterPhotos[2].id, afterPhotos[2].storage_path) : undefined}
-                />
+                {[0, 1, 2].map(i => afterPhotos.length > i ? (
+                  <PhotoUploadCard
+                    key={i}
+                    photoType="after"
+                    existingPhotoUrl={afterPhotos[i]?.url}
+                    onUpload={(file, options) => uploadPhoto(file, "after", options)}
+                    onDelete={() => deletePhoto(afterPhotos[i].id, afterPhotos[i].storage_path)}
+                  />
+                ) : (
+                  <PhotoUploadCard
+                    key={i}
+                    photoType="after"
+                    onUpload={(file, options) => uploadPhoto(file, "after", options)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -502,7 +522,7 @@ const Progress = () => {
         </Tabs>
 
         <div className="mt-8">
-          <Button variant="goldOutline" asChild>
+          <Button variant="goldOutline" asChild className="min-h-[44px]">
             <Link to="/dashboard">Back to {isCoaching ? "Dashboard" : "Cell Block"}</Link>
           </Button>
         </div>

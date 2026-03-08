@@ -7,14 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { useDirectMessages } from "@/hooks/useDirectMessages";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
+import { useCoachId } from "@/hooks/useCoachId";
 import UpgradePrompt from "@/components/UpgradePrompt";
-
-// Dom's user ID - this would typically come from an admin config
-const DOM_USER_ID = "00000000-0000-0000-0000-000000000000";
 
 const DirectMessages = () => {
   const { user } = useAuth();
   const { isCoaching } = useEffectiveSubscription();
+  const { coachId } = useCoachId();
   const { messages, loading, sendMessage } = useDirectMessages();
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -37,7 +36,7 @@ const DirectMessages = () => {
     if (!newMessage.trim() || sending) return;
 
     setSending(true);
-    const success = await sendMessage(DOM_USER_ID, newMessage.trim());
+    const success = coachId ? await sendMessage(coachId, newMessage.trim()) : false;
     if (success) {
       setNewMessage("");
     }
@@ -113,7 +112,7 @@ const DirectMessages = () => {
                     >
                       <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                       <p
-                        className={`text-xs mt-2 ${
+                        className={`text-xs mt-2 whitespace-nowrap ${
                           isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
                         }`}
                       >

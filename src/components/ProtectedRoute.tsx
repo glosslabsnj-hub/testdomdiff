@@ -76,7 +76,7 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
       profile: !!profile,
       subscription: subscription?.status,
       intakeCompleted: !!profile?.intake_completed_at,
-      videoWatched: !!profile?.first_login_video_watched,
+      videoWatched: !!profile?.onboarding_video_watched,
       isVerifying,
       verificationComplete,
       requireAdmin,
@@ -117,15 +117,11 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
   }
 
   // IMPORTANT: Admins ALWAYS have access — they use preview mode to view user dashboards
-  // Fresh signups on onboarding routes get through immediately (subscription was just created)
+  // Fresh signups get through while subscription is being verified
   if (!requireAdmin && dataLoaded && !hasAccess && !isAdmin) {
-    // Let fresh signups through to onboarding routes — subscription exists but may not be visible yet
-    if (isOnboardingRoute && isFreshSignup) {
-      // Fire-and-forget: try to load the subscription in the background
-      if (!isVerifying && !verificationComplete) {
-        // The useEffect will handle this
-      }
-      // Let them through regardless
+    // Let fresh signups through while verification is pending or in progress
+    if (isFreshSignup && !verificationComplete) {
+      // The useEffect will handle verification — don't redirect yet
     } else {
       return <Navigate to="/access-expired" replace />;
     }
@@ -143,7 +139,7 @@ const ProtectedRoute = ({ children, requireIntake = true, requireAdmin = false }
 
   // Check if onboarding video is completed (for dashboard routes, not admin users)
   // The onboarding video teaches users how to navigate the dashboard
-  if (requireIntake && !requireAdmin && !isAdmin && profile && !profile.first_login_video_watched) {
+  if (requireIntake && !requireAdmin && !isAdmin && profile && !profile.onboarding_video_watched) {
     return <Navigate to="/onboarding" replace />;
   }
 

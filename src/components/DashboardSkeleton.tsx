@@ -1,36 +1,35 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface DashboardSkeletonProps {
-  variant?: "cards" | "list" | "grid" | "detail" | "workout" | "table";
+  variant?: "cards" | "list" | "grid" | "detail" | "workout" | "table" | "page";
   count?: number;
 }
 
-// Card skeleton with header and content
+// Card skeleton with header and content — steel-plate styling
 function CardSkeleton() {
   return (
-    <Card className="bg-charcoal border-border">
-      <CardHeader className="pb-2">
-        <Skeleton className="h-4 w-24 bg-muted" />
-      </CardHeader>
-      <CardContent>
-        <Skeleton className="h-8 w-16 bg-muted mb-2" />
-        <Skeleton className="h-3 w-20 bg-muted" />
-      </CardContent>
-    </Card>
+    <div className="cell-block p-0">
+      <div className="p-4 pb-2">
+        <Skeleton className="h-4 w-24" />
+      </div>
+      <div className="px-4 pb-4">
+        <Skeleton className="h-8 w-16 mb-2" />
+        <Skeleton className="h-3 w-20" />
+      </div>
+    </div>
   );
 }
 
 // List item skeleton
 function ListItemSkeleton() {
   return (
-    <div className="flex items-center gap-4 p-4 bg-charcoal rounded-lg border border-border">
-      <Skeleton className="h-12 w-12 rounded-lg bg-muted flex-shrink-0" />
+    <div className="flex items-center gap-4 p-4 cell-block">
+      <Skeleton className="h-12 w-12 rounded-lg flex-shrink-0" />
       <div className="flex-1 space-y-2">
-        <Skeleton className="h-4 w-3/4 bg-muted" />
-        <Skeleton className="h-3 w-1/2 bg-muted" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
       </div>
-      <Skeleton className="h-8 w-20 bg-muted rounded-md" />
+      <Skeleton className="h-8 w-20 rounded-md" />
     </div>
   );
 }
@@ -38,17 +37,17 @@ function ListItemSkeleton() {
 // Grid item skeleton (for workouts, lessons)
 function GridItemSkeleton() {
   return (
-    <Card className="bg-charcoal border-border overflow-hidden">
-      <Skeleton className="h-32 w-full bg-muted" />
-      <CardContent className="p-4 space-y-2">
-        <Skeleton className="h-5 w-3/4 bg-muted" />
-        <Skeleton className="h-3 w-full bg-muted" />
-        <Skeleton className="h-3 w-2/3 bg-muted" />
+    <div className="cell-block overflow-hidden">
+      <Skeleton className="h-32 w-full rounded-none" />
+      <div className="p-4 space-y-2">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-2/3" />
         <div className="pt-2">
-          <Skeleton className="h-8 w-full bg-muted rounded-md" />
+          <Skeleton className="h-8 w-full rounded-md" />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -57,20 +56,18 @@ function DetailSkeleton() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Skeleton className="h-10 w-10 rounded-full bg-muted" />
+        <Skeleton className="h-10 w-10 rounded-full" />
         <div className="space-y-2">
-          <Skeleton className="h-6 w-48 bg-muted" />
-          <Skeleton className="h-4 w-32 bg-muted" />
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-32" />
         </div>
       </div>
-      <Card className="bg-charcoal border-border">
-        <CardContent className="p-6 space-y-4">
-          <Skeleton className="h-4 w-full bg-muted" />
-          <Skeleton className="h-4 w-full bg-muted" />
-          <Skeleton className="h-4 w-3/4 bg-muted" />
-          <Skeleton className="h-32 w-full bg-muted rounded-lg" />
-        </CardContent>
-      </Card>
+      <div className="cell-block p-6 space-y-4">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-32 w-full rounded-lg" />
+      </div>
     </div>
   );
 }
@@ -79,29 +76,29 @@ function DetailSkeleton() {
 function WorkoutSkeleton() {
   return (
     <div className="space-y-4">
-      <Card className="bg-charcoal border-border">
-        <CardHeader>
+      <div className="cell-block">
+        <div className="p-6 pb-4">
           <div className="flex items-center gap-3">
-            <Skeleton className="h-10 w-10 rounded-lg bg-muted" />
+            <Skeleton className="h-10 w-10 rounded-lg" />
             <div className="space-y-2">
-              <Skeleton className="h-5 w-40 bg-muted" />
-              <Skeleton className="h-3 w-24 bg-muted" />
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-3 w-24" />
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
+        </div>
+        <div className="px-6 pb-6 space-y-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center gap-3 p-3 bg-background rounded-lg">
-              <Skeleton className="h-8 w-8 rounded bg-muted" />
+              <Skeleton className="h-8 w-8 rounded" />
               <div className="flex-1 space-y-1">
-                <Skeleton className="h-4 w-32 bg-muted" />
-                <Skeleton className="h-3 w-20 bg-muted" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
               </div>
-              <Skeleton className="h-6 w-16 bg-muted rounded-full" />
+              <Skeleton className="h-6 w-16 rounded-full" />
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -109,25 +106,71 @@ function WorkoutSkeleton() {
 // Table skeleton
 function TableSkeleton({ count = 5 }: { count?: number }) {
   return (
-    <div className="bg-charcoal rounded-lg border border-border overflow-hidden">
+    <div className="cell-block overflow-hidden">
       <div className="border-b border-border p-4">
         <div className="flex gap-4">
-          <Skeleton className="h-4 w-1/4 bg-muted" />
-          <Skeleton className="h-4 w-1/4 bg-muted" />
-          <Skeleton className="h-4 w-1/4 bg-muted" />
-          <Skeleton className="h-4 w-1/4 bg-muted" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-4 w-1/4" />
         </div>
       </div>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="border-b border-border last:border-0 p-4">
           <div className="flex gap-4 items-center">
-            <Skeleton className="h-4 w-1/4 bg-muted" />
-            <Skeleton className="h-4 w-1/4 bg-muted" />
-            <Skeleton className="h-6 w-16 bg-muted rounded-full" />
-            <Skeleton className="h-6 w-16 bg-muted rounded-full" />
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-6 w-16 rounded-full" />
+            <Skeleton className="h-6 w-16 rounded-full" />
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// Full page skeleton — header bar + card grid (used by Suspense fallback)
+function PageSkeleton() {
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header bar skeleton */}
+      <div className="border-b border-border bg-charcoal">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-6 w-32" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content area skeleton */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-4 sm:space-y-6">
+        {/* Page title */}
+        <div className="space-y-2">
+          <Skeleton className="h-7 sm:h-8 w-40 sm:w-48" />
+          <Skeleton className="h-4 w-52 sm:w-64" />
+        </div>
+
+        {/* Card grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
+
+        {/* Content list */}
+        <div className="space-y-2 sm:space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <ListItemSkeleton key={i} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -164,14 +207,16 @@ export default function DashboardSkeleton({ variant = "cards", count = 4 }: Dash
       return <WorkoutSkeleton />;
     case "table":
       return <TableSkeleton count={count} />;
+    case "page":
+      return <PageSkeleton />;
     default:
       return (
         <div className="flex items-center justify-center py-12">
-          <Skeleton className="h-8 w-8 rounded-full bg-muted" />
+          <Skeleton className="h-8 w-8 rounded-full" />
         </div>
       );
   }
 }
 
 // Export individual skeletons for custom use
-export { CardSkeleton, ListItemSkeleton, GridItemSkeleton, DetailSkeleton, WorkoutSkeleton, TableSkeleton };
+export { CardSkeleton, ListItemSkeleton, GridItemSkeleton, DetailSkeleton, WorkoutSkeleton, TableSkeleton, PageSkeleton };

@@ -141,7 +141,7 @@ const Coaching = () => {
       <section className="pt-32 pb-20 bg-charcoal relative">
         <div className="texture-overlay" />
         <div className="section-container relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
             <div>
               <div className="flex items-center gap-3 mb-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full">
@@ -158,27 +158,18 @@ const Coaching = () => {
                 and maximum accountability for those ready to thrive on the outside.
               </p>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-5xl font-display text-primary">$999.99</span>
-                <span className="text-muted-foreground text-xl">/month</span>
+                <span className="text-3xl font-display text-primary">Custom Pricing</span>
               </div>
-              
+              <p className="text-muted-foreground mb-4">
+                Pricing is based on your goals and needs. Apply below and Dom will reach out personally.
+              </p>
+
               {/* Spots banner */}
               <CoachingSpotsDisplay variant="banner" className="mb-6" />
-              
-              {isFull ? (
-                <div className="bg-card p-6 rounded-lg border border-border">
-                  <CoachingWaitlistForm />
-                </div>
-              ) : (
-                <>
-                  <Button variant="hero" size="hero" asChild>
-                    <Link to="/checkout?plan=coaching">Apply for Free World</Link>
-                  </Button>
-                  <p className="text-sm text-muted-foreground mt-4">
-                    * In-person training available in the New Jersey area.
-                  </p>
-                </>
-              )}
+
+              <div className="bg-card p-6 rounded-lg border border-border">
+                <CoachingWaitlistForm />
+              </div>
             </div>
             <div className="relative hidden lg:block">
               <img
@@ -312,8 +303,7 @@ const Coaching = () => {
             </div>
             <h3 className="headline-card mb-4">Free World 1:1 Coaching</h3>
             <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-4xl font-display text-primary">$999.99</span>
-              <span className="text-muted-foreground">/month</span>
+              <span className="text-2xl font-display text-primary">Custom Pricing</span>
             </div>
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-2 text-sm">
@@ -336,23 +326,11 @@ const Coaching = () => {
                 <Check className="w-4 h-4 text-primary" />
                 Everything in Gen Pop included
               </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-primary" />
-                Cancel anytime
-              </li>
             </ul>
-            {isFull ? (
-              <CoachingWaitlistForm />
-            ) : (
-              <>
-                <Button variant="gold" size="xl" className="w-full" asChild>
-                  <Link to="/checkout?plan=coaching">Apply for Free World</Link>
-                </Button>
-                <p className="text-xs text-muted-foreground text-center mt-4">
-                  Limited to 10 clients only
-                </p>
-              </>
-            )}
+            <CoachingWaitlistForm />
+            <p className="text-xs text-muted-foreground text-center mt-4">
+              Limited to 10 clients only. Dom will reach out after you apply.
+            </p>
           </div>
         </div>
       </section>
@@ -367,17 +345,11 @@ const Coaching = () => {
             You've done the time. Now it's time to live free with maximum accountability.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {isFull ? (
-              <Button variant="hero" size="hero" asChild>
-                <Link to="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  Join Waitlist
-                </Link>
-              </Button>
-            ) : (
-              <Button variant="hero" size="hero" asChild>
-                <Link to="/checkout?plan=coaching">Apply for Free World</Link>
-              </Button>
-            )}
+            <Button variant="hero" size="hero" asChild>
+              <Link to="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                Apply Now
+              </Link>
+            </Button>
             <Button variant="heroOutline" size="hero" asChild>
               <Link to="/book-call">Book a Call First</Link>
             </Button>

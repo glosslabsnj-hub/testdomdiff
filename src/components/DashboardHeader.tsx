@@ -101,18 +101,21 @@ const DashboardHeader = () => {
 
   return (
     <header className="bg-charcoal border-b border-border">
-      <div className="section-container py-4">
-        <div className="flex items-center justify-between">
+      <div className="section-container py-4 overflow-hidden">
+        <div className="flex items-center justify-between min-w-0">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <Cross className="w-6 h-6 text-primary" />
-            <span className="font-display text-xl tracking-wider">
+          <Link to="/" className="flex items-center gap-2 min-w-0">
+            <Cross className="w-6 h-6 text-primary flex-shrink-0" />
+            <span className="font-display text-xl tracking-wider hidden sm:inline">
               DOM <span className="text-primary">DIFFERENT</span>
+            </span>
+            <span className="font-display text-xl tracking-wider sm:hidden">
+              D<span className="text-primary">D</span>
             </span>
           </Link>
 
           {/* User Info & Actions */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Admin Tier Preview Toggle */}
             {isAdmin && (
               <div className="hidden md:flex items-center gap-2">
@@ -124,7 +127,7 @@ const DashboardHeader = () => {
                         value={effectiveSubscription?.plan_type || previewTier || "coaching"}
                         onValueChange={(value) => setPreviewTier(value as "membership" | "transformation" | "coaching")}
                       >
-                        <SelectTrigger className="w-[140px] h-8 text-xs bg-muted/30 border-border">
+                        <SelectTrigger className="w-[160px] h-8 text-xs bg-muted/30 border-border">
                           <SelectValue placeholder="Preview as..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -262,7 +265,7 @@ const DashboardHeader = () => {
                         <Button
                           variant={previewTier === "coaching" ? "default" : "outline"}
                           size="sm"
-                          className="flex-1 h-7 text-xs gap-1"
+                          className="flex-1 h-10 min-w-[44px] text-xs gap-1"
                           onClick={() => setPreviewTier("coaching")}
                         >
                           <Crown className="w-3 h-3" />
@@ -271,7 +274,7 @@ const DashboardHeader = () => {
                         <Button
                           variant={previewTier === "transformation" ? "default" : "outline"}
                           size="sm"
-                          className="flex-1 h-7 text-xs gap-1"
+                          className="flex-1 h-10 min-w-[44px] text-xs gap-1"
                           onClick={() => setPreviewTier("transformation")}
                         >
                           <Sparkles className="w-3 h-3" />
@@ -280,7 +283,7 @@ const DashboardHeader = () => {
                         <Button
                           variant={previewTier === "membership" ? "default" : "outline"}
                           size="sm"
-                          className="flex-1 h-7 text-xs gap-1"
+                          className="flex-1 h-10 min-w-[44px] text-xs gap-1"
                           onClick={() => setPreviewTier("membership")}
                         >
                           <User className="w-3 h-3" />

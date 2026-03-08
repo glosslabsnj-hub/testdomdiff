@@ -143,7 +143,7 @@ export default function SubStepItem({
 
       {/* User-created badge */}
       {subStep.is_user_created && (
-        <span className="text-[10px] text-primary/60 uppercase tracking-wider">
+        <span className="text-xs text-primary/60 uppercase tracking-wider">
           Custom
         </span>
       )}

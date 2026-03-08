@@ -21,9 +21,9 @@ import { useClientAnalytics } from "@/hooks/useClientAnalytics";
 import { useOrders } from "@/hooks/useOrders";
 
 const TIER_PRICES = {
-  membership: 49.99,
-  transformation: 379.99,
-  coaching: 999.99,
+  membership: 19.99,
+  transformation: 249,
+  coaching: 499,
 };
 
 export default function PaymentsHub() {
@@ -89,7 +89,7 @@ export default function PaymentsHub() {
       </div>
 
       {/* Revenue Overview Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <Collapsible open={revenueExpanded} onOpenChange={setRevenueExpanded}>
           <CollapsibleTrigger asChild>
             <Card className="bg-charcoal border-border cursor-pointer hover:bg-muted/20 transition-colors">
@@ -100,7 +100,7 @@ export default function PaymentsHub() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-primary">
+                <div className="text-lg sm:text-2xl md:text-3xl font-bold text-primary">
                   {clientsLoading ? "..." : `$${totalMRR.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">Click to expand</p>
@@ -145,7 +145,7 @@ export default function PaymentsHub() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground">
+            <div className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground">
               {ordersLoading ? "..." : `$${oneTimeRevenue30Days.toFixed(0)}`}
             </div>
           </CardContent>
@@ -159,7 +159,7 @@ export default function PaymentsHub() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground">$0</div>
+            <div className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground">$0</div>
             <p className="text-xs text-muted-foreground mt-1">No refunds</p>
           </CardContent>
         </Card>
@@ -172,11 +172,11 @@ export default function PaymentsHub() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-destructive">
+            <div className="text-lg sm:text-2xl md:text-3xl font-bold text-destructive">
               {failedOrders.length}
             </div>
             {failedOrders.length > 0 && (
-              <p className="text-xs text-destructive mt-1">Requires attention</p>
+              <p className="text-xs text-destructive mt-1 font-medium">Requires attention</p>
             )}
           </CardContent>
         </Card>
@@ -204,12 +204,14 @@ export default function PaymentsHub() {
             <CardTitle className="text-base">Recent Transactions</CardTitle>
             <CardDescription>Latest orders and payments</CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={handleExportCSV}>
+          <Button variant="outline" size="sm" onClick={handleExportCSV} className="min-h-[44px]">
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="min-w-[500px] px-4 sm:px-0">
           <ScrollArea className="h-[300px]">
             <Table>
               <TableHeader>
@@ -272,6 +274,8 @@ export default function PaymentsHub() {
               </TableBody>
             </Table>
           </ScrollArea>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

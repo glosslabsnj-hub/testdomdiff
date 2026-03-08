@@ -16,6 +16,7 @@ const Programs = () => {
       content_name: "programs_page",
       content_category: "tiers",
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const programs = [
     {
@@ -47,7 +48,6 @@ const Programs = () => {
       features: [
         "Everything in Solitary included",
         "Full 12-week progressive program",
-        "Weekly video coaching from Dom",
         "Full nutrition templates + meal swaps",
         "Faith + mindset weekly curriculum",
         "Skill-building lessons",
@@ -182,7 +182,7 @@ const Programs = () => {
             ready to commit. Apply for Free World when you need maximum accountability.
           </p>
           <Button variant="goldOutline" asChild>
-            <Link to="/book-call" className="inline-flex items-center gap-2">
+            <Link to="/checkout?plan=coaching" className="inline-flex items-center gap-2">
               Book a Free Consultation <ArrowRight className="w-4 h-4" />
             </Link>
           </Button>

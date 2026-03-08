@@ -100,7 +100,7 @@ export default function CustomRoutineItem({
     >
       {/* Custom badge indicator */}
       <div className="absolute -top-1 -left-1 hidden">
-        <div className="bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+        <div className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
           <User className="w-2.5 h-2.5" /> Custom
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function CustomRoutineItem({
           >
             {routine.action_text}
           </p>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground flex items-center gap-1">
+          <span className="text-xs px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground flex items-center gap-1">
             <User className="w-2.5 h-2.5" /> Custom
           </span>
         </div>

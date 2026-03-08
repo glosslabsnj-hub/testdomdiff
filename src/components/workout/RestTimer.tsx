@@ -168,7 +168,7 @@ export function RestTimer({
             key={seconds}
             onClick={() => selectPreset(seconds)}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+              "py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all min-h-[36px]",
               duration === seconds && !isRunning
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -185,7 +185,7 @@ export function RestTimer({
           variant="ghost"
           size="icon"
           onClick={toggleSound}
-          className="text-muted-foreground"
+          className="text-muted-foreground min-w-[44px] min-h-[44px]"
         >
           {soundEnabled ? (
             <Volume2 className="w-5 h-5" />
@@ -199,7 +199,7 @@ export function RestTimer({
           size="lg"
           onClick={toggleTimer}
           disabled={ttsLoading}
-          className="w-24"
+          className="w-24 min-h-[44px]"
         >
           {isRunning ? (
             <>
@@ -223,14 +223,14 @@ export function RestTimer({
           variant="ghost"
           size="icon"
           onClick={resetTimer}
-          className="text-muted-foreground"
+          className="text-muted-foreground min-w-[44px] min-h-[44px]"
         >
           <RotateCcw className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Helper text */}
-      <p className="text-xs text-muted-foreground mt-3 text-center">
+      <p className="text-xs sm:text-sm text-muted-foreground mt-3 text-center">
         {isRunning ? "Rest up. You've earned it." : "Select duration and hit start."}
       </p>
     </div>

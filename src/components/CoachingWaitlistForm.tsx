@@ -37,8 +37,8 @@ export function CoachingWaitlistForm({ onSuccess }: CoachingWaitlistFormProps) {
       if (error) {
         if (error.code === "23505") {
           toast({
-            title: "Already on the list",
-            description: "You're already on the waitlist. We'll reach out when a spot opens.",
+            title: "Already Applied",
+            description: "You've already submitted an application. Dom will be in touch soon.",
           });
           setIsSubmitted(true);
         } else {
@@ -46,8 +46,8 @@ export function CoachingWaitlistForm({ onSuccess }: CoachingWaitlistFormProps) {
         }
       } else {
         toast({
-          title: "You're on the list!",
-          description: "We'll contact you when a coaching spot opens up.",
+          title: "Application Submitted!",
+          description: "Dom will review your application and reach out personally.",
         });
         setIsSubmitted(true);
         onSuccess?.();
@@ -69,10 +69,10 @@ export function CoachingWaitlistForm({ onSuccess }: CoachingWaitlistFormProps) {
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-success/20 flex items-center justify-center">
           <CheckCircle2 className="w-8 h-8 text-success" />
         </div>
-        <h3 className="headline-card mb-2">You're On The List</h3>
+        <h3 className="headline-card mb-2">Application Received</h3>
         <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          We'll reach out personally when a coaching spot opens up. In the meantime, 
-          consider starting with Gen Pop to begin your transformation.
+          Dom will review your application and reach out personally to discuss pricing and next steps.
+          In the meantime, consider starting with Gen Pop to begin your transformation.
         </p>
       </div>
     );
@@ -83,7 +83,7 @@ export function CoachingWaitlistForm({ onSuccess }: CoachingWaitlistFormProps) {
       <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/30 rounded-lg mb-6">
         <Clock className="w-5 h-5 text-primary flex-shrink-0" />
         <p className="text-sm text-primary">
-          All 10 coaching spots are currently filled. Join the waitlist to be notified first.
+          Apply for 1:1 coaching. Limited spots available. Dom will personally review every application.
         </p>
       </div>
 
@@ -146,15 +146,15 @@ export function CoachingWaitlistForm({ onSuccess }: CoachingWaitlistFormProps) {
         {isSubmitting ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Joining...
+            Submitting...
           </>
         ) : (
-          "Join Waitlist"
+          "Submit Application"
         )}
       </Button>
 
       <p className="text-xs text-muted-foreground text-center">
-        We'll only contact you about coaching availability.
+        Dom will reach out within 24-48 hours to discuss your goals and pricing.
       </p>
     </form>
   );

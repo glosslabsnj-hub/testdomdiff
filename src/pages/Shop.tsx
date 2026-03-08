@@ -177,7 +177,7 @@ const Shop = () => {
           </p>
 
           {/* Category Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mt-8">
+          <div className="flex flex-wrap justify-center gap-1 sm:gap-2 mt-8">
             {CATEGORIES.map((category) => (
               <Button
                 key={category.id}
@@ -245,7 +245,7 @@ const Shop = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                 {filteredProducts.map((product) => {
                   const productCategory = getCategoryFromProduct(product.category, product.name);
                   
@@ -300,7 +300,7 @@ const Shop = () => {
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <Link 
                             to={`/shop/${product.id}`}
-                            className="bg-primary text-primary-foreground px-4 py-2 font-semibold text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors"
+                            className="bg-primary text-primary-foreground px-6 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors"
                           >
                             View Details
                           </Link>

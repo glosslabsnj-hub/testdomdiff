@@ -20,7 +20,6 @@ const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptP
       benefits: [
         "Full progressive workout library",
         "Assigned 12-week program schedule",
-        "Weekly video coaching from Dom",
         "Nutrition templates & meal swaps",
         "Faith + mindset lessons",
         "Skill-building lessons",
@@ -75,11 +74,12 @@ const UpgradePrompt = ({ feature, upgradeTo = "transformation" }: UpgradePromptP
           </div>
 
           <h1 className="headline-section mb-4">
-            <span className="text-primary">{feature}</span> Not Available
+            Unlock <span className="text-primary">{feature}</span>
           </h1>
 
           <p className="text-muted-foreground mb-8">
-            This feature is only available for {upgrade.name} members. Upgrade to unlock access and take your transformation to the next level.
+            You've been putting in the work. {feature} is available with {upgrade.name}.
+            Level up and take your transformation further.
           </p>
 
           <div className="bg-card p-8 rounded-lg border border-border mb-8 relative overflow-hidden">

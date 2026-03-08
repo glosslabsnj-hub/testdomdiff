@@ -331,20 +331,20 @@ function NutritionTemplateEditableRow({
   return (
     <div className="rounded-lg border-2 border-green-500/50 bg-green-500/5 overflow-hidden">
       {/* Edit Header */}
-      <div className="flex items-center justify-between p-3 bg-green-500/10 border-b border-green-500/30">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 bg-green-500/10 border-b border-green-500/30">
         <div className="flex items-center gap-2">
           <Edit2 className="w-4 h-4 text-green-400" />
           <span className="font-medium text-sm">Editing: {template.name}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={onCancel}>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button variant="ghost" size="sm" onClick={onCancel} className="min-h-[44px] flex-1 sm:flex-none">
             <X className="w-4 h-4 mr-1" />
             Cancel
           </Button>
           <Button
             variant="default"
             size="sm"
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 min-h-[44px] flex-1 sm:flex-none"
             onClick={handleSaveTemplate}
           >
             <Save className="w-4 h-4 mr-1" />
@@ -355,12 +355,13 @@ function NutritionTemplateEditableRow({
 
       {/* Template Info Fields */}
       <div className="p-4 space-y-4 border-b border-border">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Template Name</label>
             <Input
               value={editedTemplate.name}
               onChange={(e) => setEditedTemplate({ ...editedTemplate, name: e.target.value })}
+              className="h-11"
             />
           </div>
           <div>
@@ -383,7 +384,7 @@ function NutritionTemplateEditableRow({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Calorie Range</label>
             <div className="flex items-center gap-2">
@@ -420,32 +421,32 @@ function NutritionTemplateEditableRow({
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Daily Macros (g)</label>
-            <div className="flex items-center gap-1 text-xs">
-              <div className="flex-1">
-                <span className="text-muted-foreground">P:</span>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div>
+                <span className="text-muted-foreground block mb-1">P:</span>
                 <Input
                   type="number"
                   value={editedTemplate.daily_protein_g}
                   onChange={(e) => setEditedTemplate({ ...editedTemplate, daily_protein_g: parseInt(e.target.value) || 0 })}
-                  className="h-7 w-14 inline-block ml-1"
+                  className="h-11 w-full"
                 />
               </div>
-              <div className="flex-1">
-                <span className="text-muted-foreground">C:</span>
+              <div>
+                <span className="text-muted-foreground block mb-1">C:</span>
                 <Input
                   type="number"
                   value={editedTemplate.daily_carbs_g}
                   onChange={(e) => setEditedTemplate({ ...editedTemplate, daily_carbs_g: parseInt(e.target.value) || 0 })}
-                  className="h-7 w-14 inline-block ml-1"
+                  className="h-11 w-full"
                 />
               </div>
-              <div className="flex-1">
-                <span className="text-muted-foreground">F:</span>
+              <div>
+                <span className="text-muted-foreground block mb-1">F:</span>
                 <Input
                   type="number"
                   value={editedTemplate.daily_fats_g}
                   onChange={(e) => setEditedTemplate({ ...editedTemplate, daily_fats_g: parseInt(e.target.value) || 0 })}
-                  className="h-7 w-14 inline-block ml-1"
+                  className="h-11 w-full"
                 />
               </div>
             </div>
@@ -623,13 +624,13 @@ function MealEditRow({ meal, isExpanded, onToggle, onSave, onDelete }: MealEditR
         <div className="ml-6 mt-2 p-3 bg-muted/20 rounded-lg space-y-3">
           {isEditing ? (
             <>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs text-muted-foreground">Meal Name</label>
                   <Input
                     value={edited.meal_name}
                     onChange={(e) => setEdited({ ...edited, meal_name: e.target.value })}
-                    className="h-8"
+                    className="h-11"
                   />
                 </div>
                 <div>
@@ -638,11 +639,11 @@ function MealEditRow({ meal, isExpanded, onToggle, onSave, onDelete }: MealEditR
                     type="number"
                     value={edited.prep_time_min}
                     onChange={(e) => setEdited({ ...edited, prep_time_min: parseInt(e.target.value) || 0 })}
-                    className="h-8"
+                    className="h-11"
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div>
                   <label className="text-xs text-muted-foreground">Calories</label>
                   <Input
@@ -688,12 +689,12 @@ function MealEditRow({ meal, isExpanded, onToggle, onSave, onDelete }: MealEditR
                   rows={3}
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <Button size="sm" onClick={handleSave}>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm" onClick={handleSave} className="min-h-[44px]">
                   <Save className="w-3 h-3 mr-1" />
                   Save
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
+                <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)} className="min-h-[44px]">
                   Cancel
                 </Button>
               </div>

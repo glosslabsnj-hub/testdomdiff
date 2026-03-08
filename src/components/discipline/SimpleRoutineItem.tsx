@@ -100,7 +100,7 @@ export default function SimpleRoutineItem({
       >
         {actionText}
         {isCustom && (
-          <span className="ml-2 text-[10px] text-muted-foreground/60 uppercase">
+          <span className="ml-2 text-xs text-muted-foreground/60 uppercase">
             custom
           </span>
         )}

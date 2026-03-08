@@ -415,16 +415,17 @@ function DayCard({
             {/* Day Edit Form */}
             {isEditingDay && (
               <div className="p-3 border border-primary/30 rounded-lg bg-primary/5 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">Workout Name</Label>
                     <Input
                       value={dayName}
                       onChange={(e) => setDayName(e.target.value)}
                       placeholder="e.g., Upper Body Push"
+                      className="h-11"
                     />
                   </div>
-                  <div className="flex items-center gap-3 pt-5">
+                  <div className="flex items-center gap-3 sm:pt-5">
                     <Switch checked={isRestDay} onCheckedChange={setIsRestDay} />
                     <Label>Rest Day</Label>
                   </div>
@@ -438,11 +439,11 @@ function DayCard({
                     rows={2}
                   />
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="gold" onClick={handleSaveDay}>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="gold" onClick={handleSaveDay} className="min-h-[44px] w-full sm:w-auto">
                     Save Day
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setIsEditingDay(false)}>
+                  <Button size="sm" variant="ghost" onClick={() => setIsEditingDay(false)} className="min-h-[44px] w-full sm:w-auto">
                     Cancel
                   </Button>
                 </div>
@@ -528,19 +529,20 @@ function ExerciseRow({
   if (isEditing) {
     return (
       <div className="p-3 border border-primary/30 rounded-lg bg-primary/5 space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Exercise Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Barbell Bench Press"
+              className="h-11"
             />
           </div>
           <div>
             <Label className="text-xs">Section</Label>
             <Select value={sectionType} onValueChange={setSectionType}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -553,18 +555,18 @@ function ExerciseRow({
             </Select>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <div>
             <Label className="text-xs">Sets</Label>
-            <Input value={sets} onChange={(e) => setSets(e.target.value)} placeholder="3" />
+            <Input value={sets} onChange={(e) => setSets(e.target.value)} placeholder="3" className="h-11" />
           </div>
           <div>
             <Label className="text-xs">Reps/Time</Label>
-            <Input value={reps} onChange={(e) => setReps(e.target.value)} placeholder="8-10" />
+            <Input value={reps} onChange={(e) => setReps(e.target.value)} placeholder="8-10" className="h-11" />
           </div>
           <div>
             <Label className="text-xs">Rest</Label>
-            <Input value={rest} onChange={(e) => setRest(e.target.value)} placeholder="90s" />
+            <Input value={rest} onChange={(e) => setRest(e.target.value)} placeholder="90s" className="h-11" />
           </div>
         </div>
         <div>
@@ -576,16 +578,16 @@ function ExerciseRow({
             rows={2}
           />
         </div>
-        <div className="flex gap-2">
-          <Button size="sm" variant="gold" onClick={handleSave}>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="gold" onClick={handleSave} className="min-h-[44px] w-full sm:w-auto">
             Save
           </Button>
-          <Button size="sm" variant="ghost" onClick={onCancelEdit}>
+          <Button size="sm" variant="ghost" onClick={onCancelEdit} className="min-h-[44px] w-full sm:w-auto">
             Cancel
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size="sm" variant="ghost" className="ml-auto text-crimson">
+              <Button size="sm" variant="ghost" className="ml-auto text-crimson min-h-[44px]">
                 <Trash2 className="w-4 h-4" />
               </Button>
             </AlertDialogTrigger>
@@ -614,7 +616,7 @@ function ExerciseRow({
 
   return (
     <div
-      className="flex items-center gap-3 p-2 rounded-lg hover:bg-charcoal cursor-pointer"
+      className="flex items-center gap-3 p-2 sm:p-3 rounded-lg hover:bg-charcoal cursor-pointer min-h-[44px]"
       onClick={onEdit}
     >
       <GripVertical className="w-4 h-4 text-muted-foreground" />

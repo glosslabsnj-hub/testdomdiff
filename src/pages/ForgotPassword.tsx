@@ -48,7 +48,7 @@ const ForgotPassword = () => {
           <div className="max-w-md mx-auto">
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
+              className="min-h-[44px] inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
             >
               <ArrowLeft className="w-4 h-4" /> Back to Login
             </Link>

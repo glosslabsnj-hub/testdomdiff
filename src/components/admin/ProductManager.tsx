@@ -241,6 +241,7 @@ const ProductManager = () => {
         </div>
       ) : (
         <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -297,11 +298,12 @@ const ProductManager = () => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => openEditDialog(product)}
+                        className="min-w-[44px] min-h-[44px] flex items-center justify-center"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -309,7 +311,7 @@ const ProductManager = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(product.id)}
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive hover:text-destructive min-w-[44px] min-h-[44px] flex items-center justify-center"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -319,12 +321,13 @@ const ProductManager = () => {
               ))}
             </TableBody>
           </Table>
+          </div>
         </div>
       )}
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-full sm:max-w-md mx-2 sm:mx-auto max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingProduct ? "Edit Product" : "Add Product"}
@@ -374,7 +377,7 @@ const ProductManager = () => {
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="bg-charcoal border-border"
+                className="bg-charcoal border-border h-11"
               />
             </div>
 
@@ -398,7 +401,7 @@ const ProductManager = () => {
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="bg-charcoal border-border"
+                  className="bg-charcoal border-border h-11"
                   placeholder="0.00"
                 />
               </div>
@@ -408,7 +411,7 @@ const ProductManager = () => {
                   value={formData.category}
                   onValueChange={(value) => setFormData({ ...formData, category: value })}
                 >
-                  <SelectTrigger className="bg-charcoal border-border">
+                  <SelectTrigger className="bg-charcoal border-border h-11">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -433,7 +436,7 @@ const ProductManager = () => {
                     key={size}
                     type="button"
                     onClick={() => toggleSize(size)}
-                    className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 min-h-[44px] rounded-md text-sm font-medium transition-colors ${
                       formData.sizes.includes(size)
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"

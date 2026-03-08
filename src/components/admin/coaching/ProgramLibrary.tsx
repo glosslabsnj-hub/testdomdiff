@@ -166,7 +166,7 @@ function CategorySection({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="ml-8 mt-2 space-y-2">
+        <div className="ml-2 sm:ml-8 mt-2 space-y-2">
           {templates.map((template) => (
             <TemplateRow
               key={template.id}
@@ -228,7 +228,7 @@ function TemplateRow({ template, isExpanded, onToggle, isSelected }: TemplateRow
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="ml-6 mt-2 p-4 bg-background/50 rounded-lg border border-border">
+        <div className="ml-2 sm:ml-6 mt-2 p-3 sm:p-4 bg-background/50 rounded-lg border border-border">
           {isLoading ? (
             <div className="space-y-2">
               <Skeleton className="h-4 w-1/3" />
@@ -320,7 +320,7 @@ function TemplateDetailsView({ details }: TemplateDetailsViewProps) {
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="ml-6 mt-2 space-y-2">
+            <div className="ml-2 sm:ml-6 mt-2 space-y-2">
               {getDaysForWeek(week.id).map((day) => (
                 <DayCard
                   key={day.id}
@@ -449,7 +449,7 @@ function DayCard({ day, exercises, isExpanded, onToggle }: DayCardProps) {
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="ml-6 mt-3 space-y-4 pb-2">
+          <div className="ml-2 sm:ml-6 mt-3 space-y-4 pb-2">
             {SECTION_CONFIG.map(({ key, label, icon: Icon, colorClass }) => {
               const sectionExercises = groupedExercises[key];
               
@@ -464,7 +464,7 @@ function DayCard({ day, exercises, isExpanded, onToggle }: DayCardProps) {
                     {sectionExercises.map((exercise) => (
                       <div
                         key={exercise.id}
-                        className="group flex items-center justify-between p-2 rounded hover:bg-muted/30 cursor-pointer transition-colors"
+                        className="group flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-3 rounded hover:bg-muted/30 cursor-pointer transition-colors min-h-[44px]"
                         onClick={() => handleExerciseClick(exercise)}
                       >
                         <div className="flex-1 min-w-0">
@@ -473,28 +473,28 @@ function DayCard({ day, exercises, isExpanded, onToggle }: DayCardProps) {
                             <span className="text-xs text-muted-foreground ml-2">({exercise.notes})</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 sm:gap-4 text-sm text-muted-foreground mt-1 sm:mt-0">
                           <span className="tabular-nums">{exercise.sets} sets</span>
                           <span className="tabular-nums">{exercise.reps_or_time}</span>
                           {exercise.rest && <span className="tabular-nums">{exercise.rest} rest</span>}
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="h-8 w-8 p-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleExerciseClick(exercise);
                             }}
                           >
-                            <Eye className="w-3 h-3" />
+                            <Eye className="w-3.5 h-3.5" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+                            className="h-8 w-8 p-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-destructive"
                             onClick={(e) => handleDeleteExercise(exercise.id, e)}
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </div>
@@ -506,7 +506,7 @@ function DayCard({ day, exercises, isExpanded, onToggle }: DayCardProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 text-xs mt-1"
+                    className="min-h-[44px] text-xs mt-1"
                     onClick={() => handleAddExercise(key)}
                   >
                     <Plus className="w-3 h-3 mr-1" />

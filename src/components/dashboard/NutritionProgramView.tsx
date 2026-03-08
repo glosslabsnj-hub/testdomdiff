@@ -119,7 +119,9 @@ export default function NutritionProgramView({ clientId }: NutritionProgramViewP
                 )}
               </div>
               <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                {template.calorie_range_min}-{template.calorie_range_max} cal/day
+                {template.calorie_range_min === template.calorie_range_max
+                  ? `${template.calorie_range_min} cal/day`
+                  : `${template.calorie_range_min}-${template.calorie_range_max} cal/day`}
               </Badge>
             </div>
           </CardContent>

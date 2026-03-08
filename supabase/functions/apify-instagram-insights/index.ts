@@ -1,6 +1,6 @@
 // Apify Instagram Insights — fetches real IG profile data via Apify scraper
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { CORS_HEADERS } from "../_shared/brand-voice.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const APIFY_API_TOKEN = Deno.env.get("APIFY_API_TOKEN");
 
@@ -11,6 +11,7 @@ interface ApifyRunInput {
 }
 
 Deno.serve(async (req) => {
+  const CORS_HEADERS = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
   }

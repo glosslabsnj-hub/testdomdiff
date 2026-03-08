@@ -135,11 +135,11 @@ export default function IntakeManager() {
             placeholder="Search by name or email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-charcoal border-border"
+            className="pl-10 bg-charcoal border-border h-11"
           />
         </div>
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-[160px] bg-charcoal border-border">
+          <SelectTrigger className="w-full sm:w-[160px] min-h-[44px] bg-charcoal border-border">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent>
@@ -179,7 +179,7 @@ export default function IntakeManager() {
                         <button
                           key={client.id}
                           onClick={() => setSelectedClient(client)}
-                          className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                          className={`w-full text-left p-3 sm:p-4 rounded-lg border transition-colors min-h-[44px] ${
                             isSelected
                               ? "bg-purple-500/20 border-purple-500/50"
                               : "bg-muted/30 border-border hover:bg-muted/50"
@@ -221,26 +221,26 @@ export default function IntakeManager() {
           {selectedClient ? (
             <Card className="bg-charcoal border-border">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                       <User className="w-5 h-5 text-purple-400" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">
+                    <div className="min-w-0">
+                      <CardTitle className="text-lg truncate">
                         {selectedClient.first_name || selectedClient.last_name
                           ? `${selectedClient.first_name || ""} ${selectedClient.last_name || ""}`.trim()
                           : "Unknown"}
                       </CardTitle>
-                      <CardDescription>{selectedClient.email}</CardDescription>
+                      <CardDescription className="truncate">{selectedClient.email}</CardDescription>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="min-h-[44px] flex-1 sm:flex-initial">
                       <Flag className="h-4 w-4 mr-2" />
                       Flag
                     </Button>
-                    <Button variant="gold" size="sm">
+                    <Button variant="gold" size="sm" className="min-h-[44px] flex-1 sm:flex-initial">
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Mark Reviewed
                     </Button>
@@ -266,11 +266,11 @@ export default function IntakeManager() {
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="p-3 space-y-2">
+                            <div className="p-3 sm:p-4 space-y-2">
                               {section.fields.map((field) => (
-                                <div key={field.label} className="flex justify-between text-sm">
+                                <div key={field.label} className="flex flex-col sm:flex-row sm:justify-between text-sm gap-0.5 sm:gap-2">
                                   <span className="text-muted-foreground">{field.label}</span>
-                                  <span className={field.value ? "text-foreground" : "text-muted-foreground/50"}>
+                                  <span className={`${field.value ? "text-foreground" : "text-muted-foreground/50"} sm:text-right`}>
                                     {field.value || "Not provided"}
                                   </span>
                                 </div>

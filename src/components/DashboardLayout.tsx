@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
@@ -45,6 +46,9 @@ const routeLabels: Record<string, string> = {
   coaching: "Coaching Portal",
   settings: "Settings",
   "book-po-checkin": "Book Check-In",
+  help: "CO Desk",
+  "custom-program": "Custom Program",
+  cellmate: "Cellmate",
 };
 
 // Coaching-tier labels
@@ -65,22 +69,30 @@ const coachingLabels: Record<string, string> = {
   messages: "Direct Line",
   coaching: "Coaching Portal",
   settings: "Settings",
+  help: "Support",
+  "custom-program": "Custom Program",
+  cellmate: "Cellmate",
 };
 
 export function DashboardLayout({ children, showBreadcrumb = true }: DashboardLayoutProps) {
   const location = useLocation();
   const { isCoaching } = useEffectiveSubscription();
   const isMobile = useIsMobile();
-  
+
   // Parse current path into breadcrumb segments
   const pathSegments = location.pathname.split("/").filter(Boolean);
+
+  // Set document title based on current page
+  const lastSegment = pathSegments[pathSegments.length - 1] || "dashboard";
+  const pageLabel = (isCoaching && coachingLabels[lastSegment]) ? coachingLabels[lastSegment] : (routeLabels[lastSegment] || "Dashboard");
+  usePageTitle(pageLabel);
   
   // Get appropriate labels based on subscription
   const getLabel = (segment: string) => {
     if (isCoaching && coachingLabels[segment]) {
       return coachingLabels[segment];
     }
-    return routeLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+    return routeLabels[segment] || segment.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   };
 
   // Build breadcrumb items
@@ -139,7 +151,7 @@ export function DashboardLayout({ children, showBreadcrumb = true }: DashboardLa
           </header>
           
           {/* Main content */}
-          <main className={cn("flex-1", isMobile && "pb-[calc(5rem+env(safe-area-inset-bottom))]")}>
+          <main className={cn("flex-1", isMobile && "pb-[calc(4rem+env(safe-area-inset-bottom))]")}>
             {children}
           </main>
           

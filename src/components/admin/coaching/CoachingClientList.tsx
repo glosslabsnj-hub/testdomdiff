@@ -42,7 +42,7 @@ export default function CoachingClientList({
             placeholder="Search clients..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 h-9 bg-background/50 border-border text-sm"
+            className="pl-9 h-11 bg-background/50 border-border text-sm"
           />
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function CoachingClientList({
                 key={client.id}
                 onClick={() => onSelectClient(client)}
                 className={cn(
-                  "w-full p-3 rounded-lg text-left transition-colors",
+                  "w-full p-3 sm:p-4 rounded-lg text-left transition-colors min-h-[44px]",
                   isSelected
                     ? "bg-purple-500/20 border border-purple-500/40"
                     : "hover:bg-background/50 border border-transparent"

@@ -131,7 +131,7 @@ export default function NutritionGroceryList({ weekNumber, days, meals }: Nutrit
   return (
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
       <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+        <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]">
           <div className="flex items-center gap-2">
             {isExpanded ? (
               <ChevronDown className="w-4 h-4 text-purple-400" />
@@ -147,7 +147,7 @@ export default function NutritionGroceryList({ weekNumber, days, meals }: Nutrit
           <Button
             variant="ghost"
             size="sm"
-            className="h-7"
+            className="h-11 w-11"
             onClick={(e) => {
               e.stopPropagation();
               copyToClipboard();

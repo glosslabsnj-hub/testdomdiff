@@ -159,13 +159,13 @@ const Discipline = () => {
             <h1 className="headline-section">
               Lights On / Lights <span className="text-primary">Out</span>
             </h1>
-            <TemplateSelector 
+            <TemplateSelector
               currentTemplateId={currentTemplateId}
               onTemplateChange={handleTemplateChange}
               trigger={
-                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+                <Button variant="goldOutline" size="sm" className="gap-2 min-h-[44px]">
                   <Settings2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Template</span>
+                  Choose Template
                 </Button>
               }
             />
@@ -174,7 +174,7 @@ const Discipline = () => {
         </div>
 
         {/* Progress Bar + Stats */}
-        <div className="bg-card rounded-lg border border-border p-4 mb-6">
+        <div className="bg-card rounded-lg border border-border p-3 sm:p-4 mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium">
@@ -204,7 +204,7 @@ const Discipline = () => {
           <div className="space-y-6">
             {/* Morning Routine */}
             <div id="morning-routine" className="bg-card rounded-lg border border-border overflow-hidden">
-              <div className="flex items-center gap-3 p-4 border-b border-border/50">
+              <div className="flex items-center gap-3 p-4 border-b border-border/70">
                 <div className="p-2 rounded-lg bg-primary/20">
                   <Sun className="w-5 h-5 text-primary" />
                 </div>
@@ -214,7 +214,7 @@ const Discipline = () => {
                 </div>
               </div>
 
-              <div className="divide-y divide-border/30">
+              <div className="divide-y divide-border/70">
                 {morningRoutines.map((item) => (
                   <SimpleRoutineItem
                     key={item.id}
@@ -252,7 +252,7 @@ const Discipline = () => {
 
             {/* Evening Routine */}
             <div id="evening-routine" className="bg-card rounded-lg border border-border overflow-hidden">
-              <div className="flex items-center gap-3 p-4 border-b border-border/50">
+              <div className="flex items-center gap-3 p-4 border-b border-border/70">
                 <div className="p-2 rounded-lg bg-secondary/20">
                   <Moon className="w-5 h-5 text-secondary-foreground" />
                 </div>
@@ -262,7 +262,7 @@ const Discipline = () => {
                 </div>
               </div>
 
-              <div className="divide-y divide-border/30">
+              <div className="divide-y divide-border/70">
                 {eveningRoutines.map((item) => (
                   <SimpleRoutineItem
                     key={item.id}
@@ -310,13 +310,13 @@ const Discipline = () => {
 
         {/* Bottom Actions */}
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button variant="gold" asChild>
+          <Button variant="gold" asChild className="w-full sm:w-auto">
             <Link to="/dashboard/check-in" className="gap-2">
               Report to Roll Call
               <ChevronRight className="w-4 h-4" />
             </Link>
           </Button>
-          <Button variant="goldOutline" asChild>
+          <Button variant="goldOutline" asChild className="w-full sm:w-auto">
             <Link to="/dashboard">Back to Cell Block</Link>
           </Button>
         </div>

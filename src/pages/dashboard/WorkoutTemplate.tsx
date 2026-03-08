@@ -52,7 +52,7 @@ const WorkoutTemplate = () => {
         <div className="section-container py-12">
           <Link
             to="/dashboard/workouts"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8 min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Workouts
           </Link>
@@ -90,15 +90,16 @@ const WorkoutTemplate = () => {
           {icon}
           <h2 className="headline-card">{title}</h2>
         </div>
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent sm:hidden z-10" />
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left p-3 text-sm font-semibold">Exercise</th>
-                <th className="text-center p-3 text-sm font-semibold">Sets</th>
-                <th className="text-center p-3 text-sm font-semibold">Reps/Time</th>
-                <th className="text-center p-3 text-sm font-semibold">Rest</th>
-                <th className="text-left p-3 text-sm font-semibold">Notes</th>
+                <th className="text-left p-2 sm:p-3 text-sm font-semibold">Exercise</th>
+                <th className="text-center p-2 sm:p-3 text-sm font-semibold">Sets</th>
+                <th className="text-center p-2 sm:p-3 text-sm font-semibold">Reps/Time</th>
+                <th className="text-center p-2 sm:p-3 text-sm font-semibold">Rest</th>
+                <th className="text-left p-2 sm:p-3 text-sm font-semibold">Notes</th>
               </tr>
             </thead>
             <tbody>
@@ -118,22 +119,24 @@ const WorkoutTemplate = () => {
                     scaling_options: null
                   })}
                 >
-                  <td className="p-3">
-                    <span className="font-medium flex items-center gap-2">
+                  <td className="p-2 sm:p-3">
+                    <span className="font-medium text-sm flex items-center gap-2">
                       {exercise.exercise_name}
-                      <Info className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <span className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] -m-2">
+                        <Info className="w-4 h-4 text-primary opacity-50 sm:opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </span>
                     </span>
                   </td>
-                  <td className="p-3 text-center text-primary font-semibold">
+                  <td className="p-2 sm:p-3 text-center text-primary font-semibold">
                     {exercise.sets || "-"}
                   </td>
-                  <td className="p-3 text-center">
+                  <td className="p-2 sm:p-3 text-center">
                     {exercise.reps_or_time || "-"}
                   </td>
-                  <td className="p-3 text-center text-muted-foreground">
+                  <td className="p-2 sm:p-3 text-center text-muted-foreground">
                     {exercise.rest || "-"}
                   </td>
-                  <td className="p-3 text-sm text-muted-foreground">
+                  <td className="p-2 sm:p-3 text-sm text-muted-foreground">
                     {exercise.notes ? (
                       <span className="line-clamp-1">{exercise.notes}</span>
                     ) : "-"}
@@ -152,7 +155,7 @@ const WorkoutTemplate = () => {
       <div className="section-container py-12">
         <Link
           to="/dashboard/workouts"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8 min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Workouts
         </Link>
@@ -204,7 +207,7 @@ const WorkoutTemplate = () => {
         )}
 
         <div className="mt-8 flex gap-4">
-          <Button variant="gold" asChild>
+          <Button variant="gold" asChild className="min-h-[44px]">
             <Link to="/dashboard/workouts">Back to All Workouts</Link>
           </Button>
         </div>

@@ -75,7 +75,7 @@ export function WeekSentenceCard() {
         )}
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-7 gap-1 sm:gap-2">
+        <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
           {weekPlan.days.map((day) => {
             const Icon = getActivityIcon(day.primary.type);
             const colorClass = getActivityColor(day.primary.type);
@@ -90,18 +90,18 @@ export function WeekSentenceCard() {
                   day.isToday && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                 )}
               >
-                <span className="text-[10px] sm:text-xs font-medium uppercase tracking-wider opacity-70">
+                <span className="text-xs font-medium uppercase tracking-wider opacity-70">
                   {day.dayName.slice(0, 3)}
                 </span>
                 <Icon className="w-4 h-4 sm:w-5 sm:h-5 my-1" />
-                <span className="text-[9px] sm:text-xs text-center line-clamp-2 hidden sm:block">
-                  {day.primary.type === "workout" 
+                <span className="text-xs text-center line-clamp-2 hidden sm:block">
+                  {day.primary.type === "workout"
                     ? (isMembership ? "Train" : day.primary.title.split(" - ")[1] || "Train")
                     : day.primary.type === "rest" ? "Rest" : "Recovery"
                   }
                 </span>
                 {day.isToday && (
-                  <Badge className="mt-1 text-[8px] px-1.5 py-0 h-4 hidden sm:flex">
+                  <Badge className="mt-1 text-xs px-1.5 py-0 h-4">
                     TODAY
                   </Badge>
                 )}

@@ -101,7 +101,7 @@ export default function AnalyticsHub() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold">Analytics</h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -109,7 +109,7 @@ export default function AnalyticsHub() {
           </p>
         </div>
         <Tabs value={timeRange} onValueChange={setTimeRange}>
-          <TabsList className="bg-charcoal border border-border">
+          <TabsList className="bg-charcoal border border-border min-h-[44px]">
             <TabsTrigger value="7d" className="text-xs">7 days</TabsTrigger>
             <TabsTrigger value="30d" className="text-xs">30 days</TabsTrigger>
             <TabsTrigger value="90d" className="text-xs">90 days</TabsTrigger>
@@ -119,10 +119,10 @@ export default function AnalyticsHub() {
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {metricCards.map((metric) => (
           <Card key={metric.title} className="bg-charcoal border-border">
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-3 sm:p-4 sm:pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm text-muted-foreground">
                   {metric.title}
@@ -138,8 +138,8 @@ export default function AnalyticsHub() {
                 {metric.question}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className={`text-3xl font-bold ${metric.color}`}>
+            <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
+              <div className={`text-2xl sm:text-3xl font-bold ${metric.color}`}>
                 {clientsLoading || leadsLoading ? "..." : metric.value}
               </div>
               <p className="text-sm text-muted-foreground mt-1">{metric.subValue}</p>
@@ -199,15 +199,15 @@ export default function AnalyticsHub() {
       </Card>
 
       {/* Engagement Insights */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="bg-charcoal border-border">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-3 sm:p-4 sm:pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Activity className="h-4 w-4" />
               Avg. Messages per Lead
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
             <div className="text-2xl font-bold">
               {leadsLoading ? "..." : (leadAnalytics?.avgMessageCount?.toFixed(1) || "0")}
             </div>
@@ -218,13 +218,13 @@ export default function AnalyticsHub() {
         </Card>
 
         <Card className="bg-charcoal border-border">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-3 sm:p-4 sm:pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <ClipboardCheck className="h-4 w-4" />
               Pending Check-Ins
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
             <div className="text-2xl font-bold">
               {checkIns.filter(c => !c.coach_reviewed_at).length}
             </div>
@@ -235,13 +235,13 @@ export default function AnalyticsHub() {
         </Card>
 
         <Card className="bg-charcoal border-border">
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-3 sm:p-4 sm:pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Target className="h-4 w-4" />
               Top Goal
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 sm:p-4 pt-0 sm:pt-0">
             <div className="text-lg font-bold truncate">
               {leadsLoading ? "..." : (
                 leadAnalytics?.topGoals && Object.keys(leadAnalytics.topGoals).length > 0

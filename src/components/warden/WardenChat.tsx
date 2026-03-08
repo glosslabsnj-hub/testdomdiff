@@ -203,7 +203,7 @@ export function WardenChat({ className }: WardenChatProps) {
         <button
           onClick={() => setIsOpen(true)}
           className={cn(
-            "fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full",
+            "fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] right-4 z-40 h-12 w-12 rounded-full",
             "bg-gold text-charcoal-dark shadow-lg",
             "hover:bg-gold-light transition-all duration-300",
             "flex items-center justify-center",

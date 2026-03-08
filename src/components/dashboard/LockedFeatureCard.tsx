@@ -102,7 +102,7 @@ export function LockedFeatureCard({
       {/* Premium badge */}
       {isPremium && (
         <div className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-full bg-crimson/20 border border-crimson/30">
-          <span className="text-[10px] font-bold text-crimson uppercase tracking-wider">
+          <span className="text-xs font-bold text-crimson uppercase tracking-wider">
             Free World
           </span>
         </div>

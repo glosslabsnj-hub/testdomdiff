@@ -1,8 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
 
-const TRANSFORMATION_DURATION_DAYS = 84; // 12 weeks
-
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
@@ -84,12 +82,27 @@ Deno.serve(async (req) => {
         }
 
         const now = new Date();
-        // Transformation is lifetime access — no expiration
-        const expiresAt = null;
 
-        // Create or update subscription
-        const { error: subError } = await supabase.from("subscriptions").upsert(
-          {
+        // Transformation is lifetime access — no expiration
+        // Monthly plans (membership/coaching) get expiry from Stripe subscription period
+        let expiresAt: string | null = null;
+        if (planType !== "transformation" && session.subscription) {
+          try {
+            const stripeSub = await stripe.subscriptions.retrieve(session.subscription as string);
+            expiresAt = new Date(stripeSub.current_period_end * 1000).toISOString();
+          } catch (err) {
+            // Fallback: set expiry to 30 days from now for monthly plans
+            console.error("Failed to retrieve Stripe subscription period:", err);
+            const fallback = new Date(now);
+            fallback.setDate(fallback.getDate() + 30);
+            expiresAt = fallback.toISOString();
+          }
+        }
+
+        // Create or update subscription — use upsert to avoid race conditions
+        const { error: subError } = await supabase
+          .from("subscriptions")
+          .upsert({
             user_id: userId,
             plan_type: planType,
             status: "active",
@@ -97,9 +110,7 @@ Deno.serve(async (req) => {
             expires_at: expiresAt,
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string | null,
-          },
-          { onConflict: "user_id" }
-        );
+          }, { onConflict: "user_id" });
 
         if (subError) {
           console.error("Error creating subscription:", subError);
@@ -153,19 +164,33 @@ Deno.serve(async (req) => {
 
         if (!subscriptionId) break;
 
-        // Keep subscription active on successful renewal
+        // Get the new period end from Stripe to extend expiry
+        let newExpiresAt: string | undefined;
+        try {
+          const stripeSub = await stripe.subscriptions.retrieve(subscriptionId);
+          newExpiresAt = new Date(stripeSub.current_period_end * 1000).toISOString();
+        } catch (err) {
+          console.error("Failed to retrieve subscription period on renewal:", err);
+        }
+
+        // Keep subscription active on successful renewal and extend expiry
+        const updateData: Record<string, string> = {
+          status: "active",
+          updated_at: new Date().toISOString(),
+        };
+        if (newExpiresAt) {
+          updateData.expires_at = newExpiresAt;
+        }
+
         const { error } = await supabase
           .from("subscriptions")
-          .update({
-            status: "active",
-            updated_at: new Date().toISOString(),
-          })
+          .update(updateData)
           .eq("stripe_subscription_id", subscriptionId);
 
         if (error) {
           console.error("Error updating subscription on invoice.paid:", error);
         } else {
-          console.log(`Subscription ${subscriptionId} confirmed active`);
+          console.log(`Subscription ${subscriptionId} confirmed active, expires ${newExpiresAt || "unchanged"}`);
         }
         break;
       }

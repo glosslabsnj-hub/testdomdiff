@@ -135,7 +135,7 @@ const ImageGallery = ({ images, productName }: { images: string[]; productName: 
       
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
           {images.map((image, index) => (
             <button
               key={index}
@@ -324,7 +324,7 @@ const ProductDetail = () => {
           <ArrowLeft className="w-4 h-4" /> Back to Shop
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
           {/* Product Image Gallery */}
           <div className="relative">
             {isOutOfStock && (
@@ -395,6 +395,7 @@ const ProductDetail = () => {
                 <Button
                   variant="outline"
                   size="icon"
+                  className="min-h-[44px] min-w-[44px]"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1 || isOutOfStock}
                 >
@@ -404,6 +405,7 @@ const ProductDetail = () => {
                 <Button
                   variant="outline"
                   size="icon"
+                  className="min-h-[44px] min-w-[44px]"
                   onClick={() => setQuantity(quantity + 1)}
                   disabled={isOutOfStock}
                 >

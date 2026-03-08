@@ -1,24 +1,59 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { email, password, firstName, lastName, planType, isAdmin, action, userId: deleteUserId } = await req.json();
+    // Verify the caller is an authenticated admin
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+    // Create a client with the caller's JWT to verify identity
+    const callerClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data: { user: callerUser }, error: authError } = await callerClient.auth.getUser();
+    if (authError || !callerUser) {
+      return new Response(JSON.stringify({ error: "Invalid or expired token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Use service role client for admin operations
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
+
+    // Check that caller is an admin
+    const { data: adminRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", callerUser.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!adminRole) {
+      return new Response(JSON.stringify({ error: "Forbidden: admin access required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { email, password, firstName, lastName, planType, isAdmin, action, userId: deleteUserId } = await req.json();
 
     // Handle delete action
     if (action === "delete" && deleteUserId) {
@@ -67,9 +102,9 @@ Deno.serve(async (req) => {
     }
 
     // Step 3: Create subscription
-    const expiresAt = planType === "transformation" 
-      ? new Date(Date.now() + 84 * 24 * 60 * 60 * 1000).toISOString() 
-      : null;
+    // Transformation is a one-time purchase with lifetime access (no expiry)
+    // Monthly plans (membership/coaching) get expiry managed by Stripe webhooks
+    const expiresAt = null;
 
     const { error: subError } = await supabase.from("subscriptions").insert({
       user_id: userId,

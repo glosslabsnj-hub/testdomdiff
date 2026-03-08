@@ -28,6 +28,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import DashboardLayout from "@/components/DashboardLayout";
 import DashboardBackLink from "@/components/DashboardBackLink";
 import NutritionProgramView from "@/components/dashboard/NutritionProgramView";
+import UpgradePrompt from "@/components/UpgradePrompt";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClientCustomPrograms, ClientCustomProgram } from "@/hooks/useClientCustomPrograms";
@@ -57,6 +58,11 @@ const SECTION_LABELS: Record<string, string> = {
 const CustomProgram = () => {
   const { isCoaching, subscription } = useEffectiveSubscription();
   const { user } = useAuth();
+
+  // Only coaching users can access custom programs
+  if (!isCoaching) {
+    return <UpgradePrompt feature="Custom Programming" upgradeTo="coaching" />;
+  }
   const { programs: files, loading: filesLoading, getSignedUrl } = useClientCustomPrograms(user?.id || null);
   const { 
     weeks, 

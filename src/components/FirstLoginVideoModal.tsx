@@ -136,7 +136,7 @@ export function FirstLoginVideoModal({
       
       // Sync video to audio if more than 0.3s out of sync
       if (diff > 0.3) {
-        console.log("[FirstLoginVideoModal] Syncing video to audio", { videoCurrent, audioCurrent, diff });
+        if (import.meta.env.DEV) console.log("[FirstLoginVideoModal] Syncing video to audio", { videoCurrent, audioCurrent, diff });
         video.currentTime = audioCurrent;
       }
     }, 500);
@@ -157,16 +157,16 @@ export function FirstLoginVideoModal({
         audio.currentTime = 0;
         audio.muted = previousMuted;
         setAudioPrimed(true);
-        console.log("[FirstLoginVideoModal] Audio primed for mobile playback");
+        if (import.meta.env.DEV) console.log("[FirstLoginVideoModal] Audio primed for mobile playback");
       })
       .catch(() => {
         audio.muted = previousMuted;
-        console.log("[FirstLoginVideoModal] Audio priming failed");
+        if (import.meta.env.DEV) console.log("[FirstLoginVideoModal] Audio priming failed");
       });
   };
 
   const startWalkthroughPlayback = async () => {
-    console.log("[FirstLoginVideoModal] Starting walkthrough playback");
+    if (import.meta.env.DEV) console.log("[FirstLoginVideoModal] Starting walkthrough playback");
     setNeedsAudioTap(false);
     
     if (walkthroughVideoRef.current) {
@@ -178,9 +178,9 @@ export function FirstLoginVideoModal({
       audioRef.current.currentTime = 0;
       try {
         await audioRef.current.play();
-        console.log("[FirstLoginVideoModal] Audio started successfully");
+        if (import.meta.env.DEV) console.log("[FirstLoginVideoModal] Audio started successfully");
       } catch (error) {
-        console.log("[FirstLoginVideoModal] Audio autoplay blocked, showing tap overlay");
+        if (import.meta.env.DEV) console.log("[FirstLoginVideoModal] Audio autoplay blocked, showing tap overlay");
         // Audio was blocked - pause video and show tap overlay
         walkthroughVideoRef.current?.pause();
         setNeedsAudioTap(true);
@@ -189,7 +189,7 @@ export function FirstLoginVideoModal({
   };
 
   const handleWelcomeVideoEnd = () => {
-    console.log("[FirstLoginVideoModal] Welcome video ended");
+    if (import.meta.env.DEV) console.log("[FirstLoginVideoModal] Welcome video ended");
     if (videos?.walkthrough_video_url) {
       setPlaybackPhase("walkthrough");
       setTimeout(() => {
@@ -210,7 +210,7 @@ export function FirstLoginVideoModal({
     // Update profile to mark video as watched
     await supabase
       .from("profiles")
-      .update({ first_login_video_watched: true })
+      .update({ onboarding_video_watched: true })
       .eq("user_id", userId);
     
     onComplete();
@@ -223,7 +223,7 @@ export function FirstLoginVideoModal({
     // Mark as watched even if they close early
     await supabase
       .from("profiles")
-      .update({ first_login_video_watched: true })
+      .update({ onboarding_video_watched: true })
       .eq("user_id", userId);
     
     onComplete();
@@ -314,7 +314,7 @@ export function FirstLoginVideoModal({
         />
         
         {/* Close button with countdown */}
-        <div className="absolute top-4 right-4 z-50">
+        <div className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 z-50">
           <Button
             variant="ghost"
             size="icon"
@@ -373,7 +373,7 @@ export function FirstLoginVideoModal({
 
             {/* Controls for welcome video */}
             {isPlaying && (
-              <div className="absolute bottom-4 right-4 flex gap-2">
+              <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 flex gap-2">
                 <Button
                   variant="secondary"
                   size="icon"
@@ -459,7 +459,7 @@ export function FirstLoginVideoModal({
             )}
 
             {/* Controls for walkthrough */}
-            <div className="absolute bottom-4 right-4 flex gap-2">
+            <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 flex gap-2">
               <Button
                 variant="secondary"
                 size="icon"

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  Briefcase, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Briefcase,
+  CheckCircle,
   Loader2,
   FileText,
   GraduationCap,
@@ -11,7 +11,9 @@ import {
   DollarSign,
   Users,
   Lightbulb,
-  Eye
+  Eye,
+  Wallet,
+  Monitor
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +27,9 @@ import ResumeBuilder from "@/components/skills/ResumeBuilder";
 import InterviewPrep from "@/components/skills/InterviewPrep";
 import JobSearchTools from "@/components/skills/JobSearchTools";
 import HustleIdeas from "@/components/skills/HustleIdeas";
+
+const PersonalFinance = lazy(() => import("@/components/skills/PersonalFinance"));
+const ModernTechSkills = lazy(() => import("@/components/skills/ModernTechSkills"));
 
 const SkillBuilding = () => {
   const { subscription, isMembership, isCoaching } = useEffectiveSubscription();
@@ -78,6 +83,20 @@ const SkillBuilding = () => {
       title: "Yard Businesses",
       description: "Start making money while you build your career",
       tab: "hustle"
+    },
+    {
+      id: "finance",
+      icon: Wallet,
+      title: "Commissary to Commerce",
+      description: "Personal finance from zero to financially free",
+      tab: "finance"
+    },
+    {
+      id: "tech",
+      icon: Monitor,
+      title: "Digital Yard",
+      description: "Modern tech skills, AI tools, and coding",
+      tab: "tech"
     }
   ];
 
@@ -116,7 +135,7 @@ const SkillBuilding = () => {
         </div>
 
         {/* Quick Access Tools */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
           {toolCards.map((tool) => (
             <button
               key={tool.id}
@@ -145,6 +164,7 @@ const SkillBuilding = () => {
                 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
             >
               <GraduationCap className="w-4 h-4" />
+              <span className="sm:hidden" aria-hidden="true">Learn</span>
               <span className="hidden sm:inline">Lessons</span>
             </TabsTrigger>
             <TabsTrigger 
@@ -156,6 +176,7 @@ const SkillBuilding = () => {
                 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
             >
               <FileText className="w-4 h-4" />
+              <span className="sm:hidden" aria-hidden="true">CV</span>
               <span className="hidden sm:inline">Resume</span>
             </TabsTrigger>
             <TabsTrigger 
@@ -167,6 +188,7 @@ const SkillBuilding = () => {
                 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
             >
               <Users className="w-4 h-4" />
+              <span className="sm:hidden" aria-hidden="true">Prep</span>
               <span className="hidden sm:inline">Interview</span>
             </TabsTrigger>
             <TabsTrigger 
@@ -178,18 +200,44 @@ const SkillBuilding = () => {
                 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
             >
               <Target className="w-4 h-4" />
+              <span className="sm:hidden" aria-hidden="true">Jobs</span>
               <span className="hidden sm:inline">Job Search</span>
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="hustle"
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
                 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-amber-500/10
-                data-[state=active]:border data-[state=active]:border-primary/40 data-[state=active]:text-primary 
+                data-[state=active]:border data-[state=active]:border-primary/40 data-[state=active]:text-primary
                 data-[state=active]:shadow-[0_0_15px_-5px_hsl(43_74%_49%_/_0.4)]
                 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
             >
               <DollarSign className="w-4 h-4" />
+              <span className="sm:hidden" aria-hidden="true">$$</span>
               <span className="hidden sm:inline">Hustle</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="finance"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-emerald-500/5
+                data-[state=active]:border data-[state=active]:border-emerald-500/40 data-[state=active]:text-emerald-400
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(160_84%_39%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Wallet className="w-4 h-4" />
+              <span className="sm:hidden" aria-hidden="true">Fin</span>
+              <span className="hidden sm:inline">Finance</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="tech"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-cyan-500/5
+                data-[state=active]:border data-[state=active]:border-cyan-500/40 data-[state=active]:text-cyan-400
+                data-[state=active]:shadow-[0_0_15px_-5px_hsl(190_95%_39%_/_0.3)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Monitor className="w-4 h-4" />
+              <span className="sm:hidden" aria-hidden="true">Dev</span>
+              <span className="hidden sm:inline">Tech</span>
             </TabsTrigger>
           </TabsList>
 
@@ -229,7 +277,7 @@ const SkillBuilding = () => {
                     {/* Lesson Header */}
                     <div className="p-5 border-b border-border/50">
                       <div className="flex flex-col md:flex-row md:items-start gap-4">
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-amber-500 text-primary-foreground flex items-center justify-center font-display text-2xl flex-shrink-0 shadow-lg">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary to-amber-500 text-primary-foreground flex items-center justify-center font-display text-2xl flex-shrink-0 shadow-lg">
                           {lesson.week_number}
                         </div>
 
@@ -274,7 +322,7 @@ const SkillBuilding = () => {
                     {/* Video Section */}
                     {lesson.video_url && (
                       <div className="bg-charcoal">
-                        <div className="aspect-video">
+                        <div className="aspect-video rounded-lg overflow-hidden">
                           <iframe
                             src={lesson.video_url}
                             className="w-full h-full"
@@ -349,7 +397,7 @@ const SkillBuilding = () => {
                             if (!cleanStep) return null;
                             return (
                               <div key={stepIdx} className="flex items-start gap-3 p-3 bg-charcoal rounded-lg">
-                                <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                <div className="w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
                                   {stepIdx + 1}
                                 </div>
                                 <p className="text-sm text-foreground">{cleanStep}</p>
@@ -395,6 +443,28 @@ const SkillBuilding = () => {
           {/* Side Hustle Tab */}
           <TabsContent value="hustle">
             <HustleIdeas />
+          </TabsContent>
+
+          {/* Personal Finance Tab */}
+          <TabsContent value="finance">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+              </div>
+            }>
+              <PersonalFinance />
+            </Suspense>
+          </TabsContent>
+
+          {/* Modern Tech Skills Tab */}
+          <TabsContent value="tech">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+              </div>
+            }>
+              <ModernTechSkills />
+            </Suspense>
           </TabsContent>
         </Tabs>
 

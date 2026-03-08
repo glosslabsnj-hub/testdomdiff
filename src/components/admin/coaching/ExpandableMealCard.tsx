@@ -74,7 +74,7 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
   return (
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
-        <div className="p-3 rounded-lg text-sm bg-muted/50 flex items-center justify-between cursor-pointer hover:bg-muted/70 transition-colors">
+        <div className="p-3 rounded-lg text-sm bg-muted/50 flex items-center justify-between cursor-pointer hover:bg-muted/70 transition-colors min-h-[44px]">
           <div className="flex items-center gap-2">
             {isExpanded ? (
               <ChevronDown className="w-4 h-4 text-purple-400" />
@@ -104,17 +104,17 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
       </CollapsibleTrigger>
       
       <CollapsibleContent>
-        <div className="ml-6 mt-2 p-4 rounded-lg bg-background border border-border space-y-4">
+        <div className="ml-2 sm:ml-6 mt-2 p-3 sm:p-4 rounded-lg bg-background border border-border space-y-4">
           {isEditing ? (
             /* Edit Mode */
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground">Meal Name</label>
                   <Input
                     value={editData.meal_name}
                     onChange={(e) => setEditData({ ...editData, meal_name: e.target.value })}
-                    className="h-8 text-sm"
+                    className="h-11 text-sm"
                   />
                 </div>
                 <div className="grid grid-cols-4 gap-2">
@@ -124,7 +124,7 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
                       type="number"
                       value={editData.calories}
                       onChange={(e) => setEditData({ ...editData, calories: parseInt(e.target.value) || 0 })}
-                      className="h-8 text-sm"
+                      className="h-11 text-sm"
                     />
                   </div>
                   <div>
@@ -133,7 +133,7 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
                       type="number"
                       value={editData.protein_g}
                       onChange={(e) => setEditData({ ...editData, protein_g: parseInt(e.target.value) || 0 })}
-                      className="h-8 text-sm"
+                      className="h-11 text-sm"
                     />
                   </div>
                   <div>
@@ -142,7 +142,7 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
                       type="number"
                       value={editData.carbs_g}
                       onChange={(e) => setEditData({ ...editData, carbs_g: parseInt(e.target.value) || 0 })}
-                      className="h-8 text-sm"
+                      className="h-11 text-sm"
                     />
                   </div>
                   <div>
@@ -151,20 +151,20 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
                       type="number"
                       value={editData.fats_g}
                       onChange={(e) => setEditData({ ...editData, fats_g: parseInt(e.target.value) || 0 })}
-                      className="h-8 text-sm"
+                      className="h-11 text-sm"
                     />
                   </div>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-3 gap-3">
+
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground">Prep Time (min)</label>
                   <Input
                     type="number"
                     value={editData.prep_time_min}
                     onChange={(e) => setEditData({ ...editData, prep_time_min: parseInt(e.target.value) || 0 })}
-                    className="h-8 text-sm"
+                    className="h-11 text-sm"
                   />
                 </div>
                 <div>
@@ -173,7 +173,7 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
                     type="number"
                     value={editData.cook_time_min}
                     onChange={(e) => setEditData({ ...editData, cook_time_min: parseInt(e.target.value) || 0 })}
-                    className="h-8 text-sm"
+                    className="h-11 text-sm"
                   />
                 </div>
                 <div>
@@ -182,7 +182,7 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
                     type="number"
                     value={editData.servings}
                     onChange={(e) => setEditData({ ...editData, servings: parseInt(e.target.value) || 1 })}
-                    className="h-8 text-sm"
+                    className="h-11 text-sm"
                   />
                 </div>
               </div>
@@ -209,11 +209,11 @@ export default function ExpandableMealCard({ meal, isExpanded, onToggle }: Expan
               </div>
 
               <div className="flex gap-2">
-                <Button size="sm" onClick={handleSave} disabled={updateMeal.isPending}>
+                <Button size="sm" onClick={handleSave} disabled={updateMeal.isPending} className="min-h-[44px] w-full sm:w-auto">
                   <Check className="w-4 h-4 mr-1" />
                   Save
                 </Button>
-                <Button size="sm" variant="outline" onClick={handleCancel}>
+                <Button size="sm" variant="outline" onClick={handleCancel} className="min-h-[44px] w-full sm:w-auto">
                   <X className="w-4 h-4 mr-1" />
                   Cancel
                 </Button>

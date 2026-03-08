@@ -67,7 +67,7 @@ export default function PhotoComparison({ photos }: PhotoComparisonProps) {
                     : "border-transparent hover:border-primary/50"
                 )}
               >
-                <img src={photo.url} alt="" className="w-full h-full object-cover" />
+                <img src={photo.url} alt="Progress photo" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -97,7 +97,7 @@ export default function PhotoComparison({ photos }: PhotoComparisonProps) {
                     : "border-transparent hover:border-primary/50"
                 )}
               >
-                <img src={photo.url} alt="" className="w-full h-full object-cover" />
+                <img src={photo.url} alt="Progress photo" className="w-full h-full object-cover" />
               </button>
             ))}
           </div>

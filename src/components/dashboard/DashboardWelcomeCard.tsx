@@ -29,7 +29,7 @@ export function DashboardWelcomeCard({ userName }: DashboardWelcomeCardProps) {
   const compliance = getTodayCompliance();
   
   // Count unique workout days this week
-  const workoutsThisWeek = new Set(completions.map(c => c.day_of_week)).size;
+  const workoutsThisWeek = new Set((completions || []).map(c => c.day_of_week)).size;
   
   // Get tier-specific greeting
   const getGreeting = () => {

@@ -139,7 +139,7 @@ Deno.serve(async (req) => {
     // Fetch user profile
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("goal, goal_type, experience, age, height, weight, equipment, activity_level, body_fat_estimate, dietary_restrictions, meal_prep_preference, food_dislikes, nutrition_style, training_days_per_week")
+      .select("goal, goal_type, experience, age, height, weight, gender, equipment, activity_level, body_fat_estimate, dietary_restrictions, meal_prep_preference, food_dislikes, nutrition_style, training_days_per_week")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -173,6 +173,7 @@ Deno.serve(async (req) => {
     // Build user nutrition context
     const nutritionContext = [
       `GOAL: ${userGoal}`,
+      `GENDER: ${profile.gender || "male"}`,
       `AGE: ${profile.age || "Not specified"}`,
       `HEIGHT: ${profile.height || "Not specified"}`,
       `WEIGHT: ${profile.weight || "Not specified"}`,
@@ -215,6 +216,7 @@ CRITICAL REQUIREMENTS:
 - Include meal prep tips, storage instructions, and reheat instructions where relevant
 - Respect any dietary restrictions or food dislikes completely
 - Aim for the appropriate calorie/macro targets based on their goal
+- CRITICAL: For EACH day, the sum of all 4 meals' calories/protein/carbs/fats MUST EXACTLY equal the daily_targets. Calculate each meal's macros so they add up precisely. Do NOT generate daily_targets separately — build meals first, then set daily_targets to match. If daily target is 2200 cal, then breakfast + lunch + dinner + snack MUST total exactly 2200 cal. Same for protein, carbs, and fats.
 - Variety across the 7 days — don't repeat the same meal twice
 - Include at least 2-3 meals that can be batch-prepped
 - Every meal MUST include 1-2 SWAP OPTIONS — alternative meals with similar macros that the user can substitute if they don't like the original or want variety. Each swap must include the meal name, brief description, and matching macros.
@@ -295,14 +297,39 @@ Generate all 7 days with 4 meals each (28 total meals). Every meal must be UNIQU
 
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 8000,
+      max_tokens: 16000,
       messages: [{ role: "user", content: prompt }],
     });
 
+    const stopReason = response.stop_reason;
     const aiText = response.content[0].type === "text" ? response.content[0].text : "";
-    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+    console.log(`Meal plan AI response: stop=${stopReason}, length=${aiText.length}`);
 
-    if (!jsonMatch) {
+    if (stopReason === "max_tokens") {
+      console.warn("Meal plan response was truncated — attempting to fix JSON");
+    }
+
+    // Try to extract valid JSON, even if truncated
+    let jsonStr = "";
+    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonStr = jsonMatch[0];
+    } else {
+      // If truncated, try to close the JSON
+      const openBrace = aiText.indexOf("{");
+      if (openBrace >= 0) {
+        jsonStr = aiText.substring(openBrace);
+        // Attempt to close truncated arrays/objects
+        const openBraces = (jsonStr.match(/\{/g) || []).length;
+        const closeBraces = (jsonStr.match(/\}/g) || []).length;
+        const openBrackets = (jsonStr.match(/\[/g) || []).length;
+        const closeBrackets = (jsonStr.match(/\]/g) || []).length;
+        jsonStr += "]".repeat(Math.max(0, openBrackets - closeBrackets));
+        jsonStr += "}".repeat(Math.max(0, openBraces - closeBraces));
+      }
+    }
+
+    if (!jsonStr) {
       console.error("Failed to parse meal plan AI response:", aiText.substring(0, 500));
       return new Response(
         JSON.stringify({ error: "AI response parsing failed" }),
@@ -312,14 +339,45 @@ Generate all 7 days with 4 meals each (28 total meals). Every meal must be UNIQU
 
     let parsed;
     try {
-      parsed = JSON.parse(jsonMatch[0]);
+      parsed = JSON.parse(jsonStr);
     } catch (e) {
-      console.error("Meal plan JSON parse error:", e);
+      console.error("Meal plan JSON parse error:", (e as Error).message, "first 300 chars:", jsonStr.substring(0, 300));
       return new Response(
         JSON.stringify({ error: "Failed to parse meal plan response" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log(`Meal plan parsed: ${(parsed.days || []).length} days, plan: ${parsed.plan_name}`);
+
+    // Calculate ACTUAL daily targets from the meal data (not the AI's separate targets)
+    // This ensures displayed targets always match what the meals add up to
+    let actualCalories = 0;
+    let actualProtein = 0;
+    let actualCarbs = 0;
+    let actualFats = 0;
+    let dayCount = 0;
+
+    for (const day of parsed.days || []) {
+      let dayCal = 0, dayPro = 0, dayCarb = 0, dayFat = 0;
+      for (const meal of day.meals || []) {
+        dayCal += meal.calories || 0;
+        dayPro += meal.protein_g || 0;
+        dayCarb += meal.carbs_g || 0;
+        dayFat += meal.fats_g || 0;
+      }
+      actualCalories += dayCal;
+      actualProtein += dayPro;
+      actualCarbs += dayCarb;
+      actualFats += dayFat;
+      dayCount++;
+    }
+
+    // Average across all days for the template targets
+    const avgCalories = dayCount > 0 ? Math.round(actualCalories / dayCount) : (parsed.daily_targets?.calories || 2000);
+    const avgProtein = dayCount > 0 ? Math.round(actualProtein / dayCount) : (parsed.daily_targets?.protein_g || 150);
+    const avgCarbs = dayCount > 0 ? Math.round(actualCarbs / dayCount) : (parsed.daily_targets?.carbs_g || 200);
+    const avgFats = dayCount > 0 ? Math.round(actualFats / dayCount) : (parsed.daily_targets?.fats_g || 60);
 
     // Store the meal plan in the database
     const { data: template, error: templateError } = await supabase
@@ -329,11 +387,11 @@ Generate all 7 days with 4 meals each (28 total meals). Every meal must be UNIQU
         name: parsed.plan_name || `${userGoal} Meal Plan`,
         goal_type: parsed.goal_type || userGoal,
         description: parsed.plan_notes || null,
-        calorie_range_min: Math.round((parsed.daily_targets?.calories || 2000) * 0.9),
-        calorie_range_max: Math.round((parsed.daily_targets?.calories || 2000) * 1.1),
-        daily_protein_g: parsed.daily_targets?.protein_g || 150,
-        daily_carbs_g: parsed.daily_targets?.carbs_g || 200,
-        daily_fats_g: parsed.daily_targets?.fats_g || 60,
+        calorie_range_min: avgCalories,
+        calorie_range_max: avgCalories,
+        daily_protein_g: avgProtein,
+        daily_carbs_g: avgCarbs,
+        daily_fats_g: avgFats,
         is_active: true,
         display_order: 1,
       })

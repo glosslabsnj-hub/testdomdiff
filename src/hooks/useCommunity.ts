@@ -215,7 +215,32 @@ export function useCommunityMessages(channelId: string | null) {
         });
 
       if (error) throw error;
-      
+
+      // Send mention notifications
+      if (mentionedUserIds && mentionedUserIds.length > 0) {
+        try {
+          const notifications = mentionedUserIds.map((mentionedUserId) => ({
+            user_id: mentionedUserId,
+            type: "mention",
+            content: `You were mentioned in #${channelId}`,
+            read: false,
+            created_at: new Date().toISOString(),
+            metadata: {
+              message_id: null, // Will be filled by realtime if needed
+              channel_id: channelId,
+              mentioned_by: user.id,
+            },
+          }));
+
+          await supabase
+            .from("notifications" as any)
+            .insert(notifications);
+        } catch (notifError) {
+          // Gracefully skip if notifications table doesn't exist
+          console.warn("Could not insert mention notifications:", notifError);
+        }
+      }
+
       // Message will appear via realtime subscription
     } catch (e: any) {
       toast({

@@ -74,15 +74,17 @@ export function useMealPlanAssignment() {
     
     const { feet, inches } = parseHeight(profile.height || "");
     const weight = parseWeight(profile.weight || "");
-    const age = profile.age || 30; // Default age if not set
+    const age = profile.age || 30;
     const goal = profile.goal || "Both - lose fat and build muscle";
-    
+    const gender = ((profile as any)?.gender === "female" ? "female" : "male") as "male" | "female";
+
     return calculateDailyCalories({
       weightLbs: weight,
       heightFeet: feet,
       heightInches: inches,
       age,
-      goal
+      goal,
+      gender,
     });
   }, [profile]);
 

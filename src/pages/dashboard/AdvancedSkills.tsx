@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  GraduationCap, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  GraduationCap,
+  CheckCircle,
   Loader2,
   Rocket,
   Crown,
-  BookOpen
+  BookOpen,
+  Wallet,
+  Monitor
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +20,9 @@ import { useTTS } from "@/hooks/useTTS";
 import { AudioPlayButton } from "@/components/AudioPlayButton";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import EmpireBuilding from "@/components/skills/EmpireBuilding";
+
+const PersonalFinance = lazy(() => import("@/components/skills/PersonalFinance"));
+const ModernTechSkills = lazy(() => import("@/components/skills/ModernTechSkills"));
 
 const AdvancedSkills = () => {
   const { isCoaching } = useEffectiveSubscription();
@@ -90,16 +95,38 @@ const AdvancedSkills = () => {
               <Crown className="w-5 h-5" /> 
               <span>Empire Building</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="lessons" 
+            <TabsTrigger
+              value="lessons"
               className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
                 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/20 data-[state=active]:to-blue-500/5
-                data-[state=active]:border data-[state=active]:border-blue-500/40 data-[state=active]:text-blue-400 
+                data-[state=active]:border data-[state=active]:border-blue-500/40 data-[state=active]:text-blue-400
                 data-[state=active]:shadow-[0_0_20px_-5px_hsl(210_100%_50%_/_0.4)]
                 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
             >
-              <BookOpen className="w-5 h-5" /> 
+              <BookOpen className="w-5 h-5" />
               <span>Coach's Lessons</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="finance"
+              className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-emerald-500/5
+                data-[state=active]:border data-[state=active]:border-emerald-500/40 data-[state=active]:text-emerald-400
+                data-[state=active]:shadow-[0_0_20px_-5px_hsl(160_84%_39%_/_0.4)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Wallet className="w-5 h-5" />
+              <span>Finance</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="tech"
+              className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all
+                data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-cyan-500/5
+                data-[state=active]:border data-[state=active]:border-cyan-500/40 data-[state=active]:text-cyan-400
+                data-[state=active]:shadow-[0_0_20px_-5px_hsl(190_95%_39%_/_0.4)]
+                data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-charcoal"
+            >
+              <Monitor className="w-5 h-5" />
+              <span>Tech Skills</span>
             </TabsTrigger>
           </TabsList>
 
@@ -197,6 +224,28 @@ const AdvancedSkills = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Personal Finance Tab */}
+          <TabsContent value="finance">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+              </div>
+            }>
+              <PersonalFinance />
+            </Suspense>
+          </TabsContent>
+
+          {/* Modern Tech Skills Tab */}
+          <TabsContent value="tech">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+              </div>
+            }>
+              <ModernTechSkills />
+            </Suspense>
           </TabsContent>
         </Tabs>
 

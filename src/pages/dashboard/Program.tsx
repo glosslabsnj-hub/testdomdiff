@@ -17,8 +17,7 @@ import {
   CheckCircle2,
   Moon,
   Lock,
-  Info,
-  Sparkles
+  Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +38,9 @@ import { useToast } from "@/hooks/use-toast";
 import jailSounds from "@/lib/sounds";
 import { fireVictoryConfetti, fireTaskConfetti } from "@/lib/confetti";
 import { usePersonalizedWorkout, type PersonalizedExercise } from "@/hooks/usePersonalizedWorkout";
+import { useAIGeneratedProgram } from "@/hooks/useAIGeneratedProgram";
 import DifficultyFeedback from "@/components/workout/DifficultyFeedback";
+import { WorkoutTimerButton } from "@/components/workout/WorkoutTimer";
 
 interface ProgramDayWorkout {
   id: string;
@@ -82,14 +83,35 @@ const Program = () => {
     return getTrackByGoal(profile?.goal || null);
   }, [tracks, tracksLoading, profile?.goal, getTrackByGoal]);
 
-  const { weeks, loading: weeksLoading } = useProgramWeeks(userTrack?.id);
+  const { weeks: templateWeeks, loading: weeksLoading } = useProgramWeeks(userTrack?.id);
+
+  // AI fallback: load from workout_personalizations when no admin templates exist
+  const useAIFallback = !weeksLoading && templateWeeks.length === 0;
+  const {
+    weeks: aiWeeks,
+    dayWorkouts: aiDayWorkouts,
+    exercisesByDay: aiExercisesByDay,
+    loading: aiLoading,
+    hasData: hasAIData,
+  } = useAIGeneratedProgram(useAIFallback);
+
   const [expandedWeek, setExpandedWeek] = useState<number | null>(null);
   const [dayWorkouts, setDayWorkouts] = useState<ProgramDayWorkout[]>([]);
   const [exercisesByDay, setExercisesByDay] = useState<Record<string, ProgramDayExercise[]>>({});
-  const [loadingWorkouts, setLoadingWorkouts] = useState(true);
+  const [loadingWorkouts, setLoadingWorkouts] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<ProgramDayExercise | null>(null);
   // Track expanded workout cards separately to prevent collapse on exercise toggle
   const [expandedWorkouts, setExpandedWorkouts] = useState<Set<string>>(new Set());
+  // Safety: force loading off after 8 seconds to prevent infinite skeleton
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setLoadingTimedOut(true), 8000);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  // Effective data: use AI data when no templates exist
+  const weeks = templateWeeks.length > 0 ? templateWeeks : (aiWeeks as unknown as ProgramWeek[]);
+  const isAIMode = templateWeeks.length === 0 && hasAIData;
   
   // Calculate current week from subscription start date
   const currentWeek = useMemo(() => {
@@ -111,13 +133,25 @@ const Program = () => {
     loading: completionsLoading 
   } = useDayCompletions(currentWeek);
 
-  // Fetch all day workouts and exercises
+  // Fetch all day workouts and exercises (from templates or AI fallback)
   useEffect(() => {
+    // If using AI fallback, use AI data directly
+    if (isAIMode) {
+      setDayWorkouts(aiDayWorkouts as unknown as ProgramDayWorkout[]);
+      setExercisesByDay(aiExercisesByDay as unknown as Record<string, ProgramDayExercise[]>);
+      setLoadingWorkouts(false);
+      return;
+    }
+
+    // No weeks from either source — nothing to load
+    if (templateWeeks.length === 0) {
+      setLoadingWorkouts(false);
+      return;
+    }
+
     const fetchWorkoutsAndExercises = async () => {
-      if (weeks.length === 0) return;
-      
       setLoadingWorkouts(true);
-      const weekIds = weeks.map(w => w.id);
+      const weekIds = templateWeeks.map(w => w.id);
 
       try {
         // Fetch day workouts
@@ -156,7 +190,7 @@ const Program = () => {
     };
 
     fetchWorkoutsAndExercises();
-  }, [weeks]);
+  }, [templateWeeks, isAIMode, aiDayWorkouts, aiExercisesByDay]);
 
   // Only transformation and coaching users can access
   if (isMembership) {
@@ -175,7 +209,7 @@ const Program = () => {
   const completedWeeks = Math.min(currentWeek - 1, 12);
   const progressPercent = (completedWeeks / 12) * 100;
 
-  const loading = weeksLoading || loadingWorkouts || tracksLoading || completionsLoading;
+  const loading = !loadingTimedOut && (weeksLoading || loadingWorkouts || tracksLoading || completionsLoading || (useAIFallback && aiLoading));
 
   if (loading) {
     return (
@@ -200,6 +234,45 @@ const Program = () => {
     );
   }
 
+  // No data from either source — program is still generating
+  if (weeks.length === 0 && !loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="section-container py-12">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          </Link>
+
+          <div className="max-w-xl mx-auto text-center py-16">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            </div>
+            <h1 className="font-display text-3xl mb-4">
+              Building Your <span className="text-primary">Program</span>
+            </h1>
+            <p className="text-muted-foreground mb-6">
+              Your personalized 12-week workout program is being generated based on your profile, goals, and equipment. This typically takes 2-5 minutes after completing intake.
+            </p>
+            <p className="text-sm text-muted-foreground mb-8">
+              Come back in a few minutes, or explore other areas of your dashboard while you wait.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="gold" asChild>
+                <Link to="/dashboard/workouts">Browse Workout Templates</Link>
+              </Button>
+              <Button variant="goldOutline" asChild>
+                <Link to="/dashboard">Back to Dashboard</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Helper to get workouts for a specific week
   const getWorkoutsForWeek = (weekId: string) => {
     return dayWorkouts
@@ -216,22 +289,25 @@ const Program = () => {
     isMain?: boolean; 
   }) => {
     return (
-      <div 
+      <div
         className={cn(
-          "flex items-start gap-3 p-3 sm:p-3 py-3.5 rounded transition-all cursor-pointer group min-h-[44px]",
+          "flex items-start gap-3 p-3 sm:p-3 rounded transition-all cursor-pointer group min-h-[48px] active:bg-muted/30",
           isMain ? "bg-charcoal hover:bg-charcoal/80" : "bg-charcoal/50 hover:bg-charcoal/70"
         )}
         onClick={() => setSelectedExercise(exercise)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedExercise(exercise); } }}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className={cn(
-              "font-medium",
+              "font-medium text-sm sm:text-base",
               isMain ? "text-foreground" : "text-muted-foreground"
             )}>
               {exercise.exercise_name}
             </p>
-            <Info className="w-4 h-4 text-primary sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
+            <Info className="w-4 h-4 text-primary flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
           </div>
           {exercise.muscles_targeted && (
             <p className="text-xs text-primary/70 mt-0.5">{exercise.muscles_targeted}</p>
@@ -240,19 +316,21 @@ const Program = () => {
             <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{exercise.notes}</p>
           )}
         </div>
-        <div className="flex items-center gap-2 text-sm flex-wrap justify-end flex-shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 flex-wrap justify-end">
           {exercise.sets && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs px-2 py-0.5">
               {exercise.sets} sets
             </Badge>
           )}
           {exercise.reps_or_time && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs px-2 py-0.5">
               {exercise.reps_or_time}
             </Badge>
           )}
           {exercise.rest && (
-            <span className="text-xs text-muted-foreground hidden sm:inline">Rest: {exercise.rest}</span>
+            <Badge variant="outline" className="text-xs px-2 py-0.5 text-muted-foreground hidden sm:inline-flex">
+              {exercise.rest}
+            </Badge>
           )}
         </div>
       </div>
@@ -268,7 +346,8 @@ const Program = () => {
     const cardRef = useRef<HTMLDivElement>(null);
 
     // AI Personalization (only fetches when card is expanded, only for non-membership users)
-    const shouldPersonalize = isOpen && !isMembership;
+    // In AI mode, exercises are already personalized — skip the extra fetch
+    const shouldPersonalize = isOpen && !isMembership && !isAIMode;
     const {
       isPersonalized,
       personalizedExercises,
@@ -291,13 +370,11 @@ const Program = () => {
         sets: pe.sets || null,
         reps_or_time: pe.reps_or_time || null,
         rest: pe.rest || null,
-        notes: pe.modification_reason
-          ? `${pe.notes || ""} [Modified: ${pe.modification_reason}]`.trim()
-          : pe.notes || null,
+        notes: pe.notes || null,
         demo_url: null,
         display_order: pe.display_order,
         scaling_options: pe.scaling_options || null,
-        instructions: null,
+        instructions: pe.instructions || null,
         form_tips: pe.form_tips || null,
         muscles_targeted: pe.muscles_targeted || null,
       })) as ProgramDayExercise[];
@@ -379,9 +456,9 @@ const Program = () => {
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger className="w-full">
             <div className={cn(
-              "flex items-center justify-between p-4 rounded-lg border transition-all group",
-              isCompleted 
-                ? "bg-destructive/10 border-destructive/30" 
+              "flex items-center justify-between p-4 rounded-lg border transition-all group active:bg-muted/30",
+              isCompleted
+                ? "bg-destructive/10 border-destructive/30"
                 : "bg-charcoal border-border hover:border-primary/50"
             )}>
             <div className="flex items-center gap-4">
@@ -397,11 +474,11 @@ const Program = () => {
               </div>
               <div className="text-left">
                 <p className={cn(
-                  "text-xs uppercase tracking-wider font-medium",
+                  "text-xs sm:text-sm uppercase tracking-wider font-semibold",
                   isCompleted ? "text-destructive" : "text-primary"
                 )}>{dayLabel}</p>
                 <h4 className={cn(
-                  "font-display text-lg",
+                  "font-display text-base sm:text-lg",
                   isCompleted && "line-through text-muted-foreground"
                 )}>{workout.workout_name}</h4>
                 {workout.workout_description && (
@@ -421,12 +498,15 @@ const Program = () => {
               <Badge variant="outline" className="text-xs hidden sm:inline-flex">
                 {exercises.length} exercise{exercises.length !== 1 ? 's' : ''}
               </Badge>
+              <Badge variant="outline" className="text-xs sm:hidden">
+                {exercises.length}x
+              </Badge>
               {/* Quick-complete button on collapsed card */}
               <Button
                 variant={isCompleted ? "outline" : "gold"}
                 size="sm"
                 className={cn(
-                  "shrink-0 gap-1.5 px-3",
+                  "shrink-0 gap-1.5 px-3 min-w-[44px] min-h-[44px] active:scale-[0.97]",
                   isCompleted && "border-destructive/50 text-destructive hover:bg-destructive/10"
                 )}
                 onClick={(e) => {
@@ -453,27 +533,17 @@ const Program = () => {
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="mt-2 p-4 rounded-lg bg-background border border-border space-y-4">
-            {/* AI Personalization indicator */}
-            {isPersonalized && modificationNotes && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/10 border border-primary/30">
-                <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-medium text-primary">Personalized for you</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{modificationNotes}</p>
-                </div>
-              </div>
-            )}
+          <div className="mt-2 p-2 sm:p-4 rounded-lg bg-background border border-border space-y-4">
             {personalizationLoading && shouldPersonalize && (
               <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/20">
                 <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                <p className="text-xs text-muted-foreground">Personalizing workout...</p>
+                <p className="text-xs text-muted-foreground">Loading your program...</p>
               </div>
             )}
             {warmupExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-2">
-                  <Clock className="w-3 h-3" /> Warm-Up
+                <h5 className="text-xs sm:text-sm uppercase tracking-wider text-amber-400 font-semibold mb-2 flex items-center gap-2 px-1">
+                  <Clock className="w-3.5 h-3.5" /> Warm-Up
                 </h5>
                 <div className="space-y-2">
                   {warmupExercises.map((ex) => (
@@ -485,8 +555,8 @@ const Program = () => {
 
             {mainExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
-                  <Dumbbell className="w-3 h-3" /> Main Workout
+                <h5 className="text-xs sm:text-sm uppercase tracking-wider text-primary font-semibold mb-2 flex items-center gap-2 px-1">
+                  <Dumbbell className="w-3.5 h-3.5" /> Main Workout
                 </h5>
                 <div className="space-y-2">
                   {mainExercises.map((ex) => (
@@ -498,8 +568,8 @@ const Program = () => {
 
             {finisherExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-destructive mb-2 flex items-center gap-2">
-                  <Flame className="w-3 h-3" /> Finisher
+                <h5 className="text-xs sm:text-sm uppercase tracking-wider text-destructive font-semibold mb-2 flex items-center gap-2 px-1">
+                  <Flame className="w-3.5 h-3.5" /> Finisher
                 </h5>
                 <div className="space-y-2">
                   {finisherExercises.map((ex) => (
@@ -511,8 +581,8 @@ const Program = () => {
 
             {cooldownExercises.length > 0 && (
               <div>
-                <h5 className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
-                  <Heart className="w-3 h-3" /> Cool-Down
+                <h5 className="text-xs sm:text-sm uppercase tracking-wider text-green-400 font-semibold mb-2 flex items-center gap-2 px-1">
+                  <Heart className="w-3.5 h-3.5" /> Cool-Down
                 </h5>
                 <div className="space-y-2">
                   {cooldownExercises.map((ex) => (
@@ -528,23 +598,40 @@ const Program = () => {
               </p>
             )}
 
-            {/* Day Completion Button */}
-            <div className="pt-4 border-t border-border">
+            {/* Workout Timer + Day Completion */}
+            <div className="pt-4 border-t border-border space-y-3">
+              {!isCompleted && exercises.length > 0 && (
+                <WorkoutTimerButton
+                  exercises={exercises.map(ex => ({
+                    id: ex.id,
+                    exercise_name: ex.exercise_name,
+                    sets: ex.sets,
+                    reps_or_time: ex.reps_or_time,
+                    rest: ex.rest,
+                    notes: ex.notes,
+                    demo_url: ex.demo_url,
+                    section_type: ex.section_type,
+                    form_tips: ex.form_tips,
+                  }))}
+                  workoutName={workout.workout_name}
+                  onComplete={handleMarkComplete}
+                />
+              )}
               <Button
                 onClick={handleMarkComplete}
                 disabled={completing}
                 variant={isCompleted ? "outline" : "gold"}
                 className={cn(
-                  "w-full gap-2",
+                  "w-full gap-2 min-h-[48px] h-12 text-base font-semibold active:scale-[0.97] transition-transform",
                   isCompleted && "border-destructive/30 text-destructive hover:bg-destructive/10"
                 )}
               >
                 {completing ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                 ) : isCompleted ? (
-                  <Lock className="w-4 h-4" />
+                  <Lock className="w-5 h-5" />
                 ) : (
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-5 h-5" />
                 )}
                 {isCompleted ? "UNDO COMPLETION" : "MARK DAY COMPLETE"}
               </Button>
@@ -572,18 +659,28 @@ const Program = () => {
     const isWeekServed = isWeekFullyCompleted || week.week_number < currentWeek;
 
     return (
-      <div className={cn(
-        "rounded-xl border transition-all",
+      <div id={`week-card-${week.week_number}`} className={cn(
+        "rounded-xl border transition-all scroll-mt-4",
         isCurrentWeek && !isWeekFullyCompleted
-          ? "border-primary shadow-[0_0_30px_-10px_hsl(43_74%_49%_/_0.3)] bg-charcoal" 
-          : isWeekServed 
+          ? "border-primary shadow-[0_0_30px_-10px_hsl(43_74%_49%_/_0.3)] bg-charcoal"
+          : isWeekServed
             ? "border-destructive/30 bg-destructive/5"
             : "border-border bg-card hover:border-primary/30"
       )}>
         {/* Week Header */}
         <button
-          onClick={() => setExpandedWeek(isExpanded ? null : week.week_number)}
-          className="w-full p-6 text-left"
+          onClick={() => {
+            const newExpanded = isExpanded ? null : week.week_number;
+            setExpandedWeek(newExpanded);
+            // Scroll into view when expanding
+            if (newExpanded !== null) {
+              requestAnimationFrame(() => {
+                const el = document.getElementById(`week-card-${week.week_number}`);
+                el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              });
+            }
+          }}
+          className="w-full p-4 sm:p-6 text-left active:bg-muted/30 transition-colors"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -643,10 +740,16 @@ const Program = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm text-muted-foreground">{workoutCount} workout{workoutCount !== 1 ? 's' : ''}</p>
-                {isCurrentWeek && weekProgress > 0 && (
-                  <p className="text-xs text-primary">{completedDays}/{workoutCount} days</p>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground hidden sm:block">{workoutCount} workout{workoutCount !== 1 ? 's' : ''}</p>
+                <p className="text-xs text-muted-foreground sm:hidden">{workoutCount}x</p>
+                {weekProgress > 0 && (
+                  <p className={cn(
+                    "text-xs font-medium",
+                    weekProgress === 100 ? "text-destructive" : "text-primary"
+                  )}>
+                    {weekProgress}% {weekProgress === 100 ? "served" : "done"}
+                  </p>
                 )}
               </div>
               {isExpanded ? (
@@ -786,7 +889,7 @@ const Program = () => {
         </div>
 
         {/* Phase Progress Cards */}
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
+        <div className="grid md:grid-cols-3 gap-3 sm:gap-4 mb-8">
           {phases.map((phase, index) => {
             const phaseWeeks = weeks.filter(w => w.phase === phase.phase);
             const firstWeek = phaseWeeks[0]?.week_number || (index * 4 + 1);
@@ -802,7 +905,7 @@ const Program = () => {
                   if (firstWeekOfPhase) setExpandedWeek(firstWeekOfPhase.week_number);
                 }}
                 className={cn(
-                  "p-5 rounded-xl border transition-all text-left",
+                  "p-5 rounded-xl border transition-all text-left active:scale-[0.98]",
                   isActive 
                     ? `${phase.bgColor} ${phase.borderColor} border-2` 
                     : isComplete
@@ -834,7 +937,7 @@ const Program = () => {
         </div>
 
         {/* Week Cards */}
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-4">
           {weeks.map((week) => (
             <WeekCard key={week.id} week={week} />
           ))}
@@ -848,14 +951,14 @@ const Program = () => {
         />
 
         {/* Bottom Actions */}
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Button variant="gold" asChild>
+        <div className="mt-8 pb-24 sm:pb-8 flex flex-wrap gap-4">
+          <Button variant="gold" asChild className="w-full sm:w-auto min-h-[48px] active:scale-[0.97]">
             <Link to="/dashboard/workouts">View All Workouts</Link>
           </Button>
-          <Button variant="goldOutline" asChild>
+          <Button variant="goldOutline" asChild className="w-full sm:w-auto min-h-[48px] active:scale-[0.97]">
             <Link to="/dashboard/check-in">Submit Weekly Check-In</Link>
           </Button>
-          <Button variant="dark" asChild>
+          <Button variant="dark" asChild className="w-full sm:w-auto min-h-[48px] active:scale-[0.97]">
             <Link to="/dashboard">Back to Dashboard</Link>
           </Button>
         </div>

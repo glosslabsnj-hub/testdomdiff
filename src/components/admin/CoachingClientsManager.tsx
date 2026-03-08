@@ -58,7 +58,7 @@ export default function CoachingClientsManager() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-primary">
-              ${loading ? "..." : (coachingClients.length * 999.99).toLocaleString()}
+              ${loading ? "..." : (coachingClients.length * 499).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground mt-1">from coaching</p>
           </CardContent>

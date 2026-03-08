@@ -19,15 +19,23 @@ interface AdminPreviewContextType {
   isPreviewMode: boolean;
   isAdmin: boolean;
   isAdminLoading: boolean;
+  isTestingFlow: boolean;
+  startTestFlow: (tier: PlanType) => void;
+  stopTestFlow: () => void;
 }
 
 const AdminPreviewContext = createContext<AdminPreviewContextType | undefined>(undefined);
 
 const STORAGE_KEY = "admin_preview_tier";
+const TEST_FLOW_KEY = "admin_test_flow";
 
 export function AdminPreviewProvider({ children }: { children: ReactNode }) {
   const { subscription } = useAuth();
   const { isAdmin, isLoading: isAdminLoading } = useAdminCheck();
+  const [isTestingFlow, setIsTestingFlow] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem(TEST_FLOW_KEY) === "true";
+  });
   const [previewTier, setPreviewTierState] = useState<PlanType | null>(() => {
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -51,12 +59,26 @@ export function AdminPreviewProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isAdminLoading && !isAdmin && previewTier) {
       setPreviewTierState(null);
+      setIsTestingFlow(false);
+      sessionStorage.removeItem(TEST_FLOW_KEY);
     }
   }, [isAdmin, isAdminLoading, previewTier]);
 
   const setPreviewTier = (tier: PlanType | null) => {
     if (!isAdmin) return;
     setPreviewTierState(tier);
+  };
+
+  const startTestFlow = (tier: PlanType) => {
+    if (!isAdmin) return;
+    setPreviewTierState(tier);
+    setIsTestingFlow(true);
+    sessionStorage.setItem(TEST_FLOW_KEY, "true");
+  };
+
+  const stopTestFlow = () => {
+    setIsTestingFlow(false);
+    sessionStorage.removeItem(TEST_FLOW_KEY);
   };
 
   // Build effective subscription
@@ -89,6 +111,9 @@ export function AdminPreviewProvider({ children }: { children: ReactNode }) {
         isPreviewMode,
         isAdmin,
         isAdminLoading,
+        isTestingFlow,
+        startTestFlow,
+        stopTestFlow,
       }}
     >
       {children}

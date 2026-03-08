@@ -32,7 +32,8 @@ export function OfflineIndicator() {
     >
       <div className="flex items-center justify-center gap-2">
         <WifiOff className="w-4 h-4" />
-        <span>You're offline. Some features may be unavailable.</span>
+        <span className="sm:hidden">Offline</span>
+        <span className="hidden sm:inline">You're offline. Some features may be unavailable.</span>
       </div>
     </div>
   );

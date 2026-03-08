@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ClientProfile {
   id: string;
@@ -81,13 +82,15 @@ export const useClientAnalytics = (filters?: {
   status?: string;
   search?: string;
 }) => {
+  const { user, dataLoaded } = useAuth();
   const [analytics, setAnalytics] = useState<ClientAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user || !dataLoaded) return;
     fetchClientData();
-  }, [filters?.planType, filters?.status, filters?.search]);
+  }, [user?.id, dataLoaded, filters?.planType, filters?.status, filters?.search]);
 
   const fetchClientData = async () => {
     try {

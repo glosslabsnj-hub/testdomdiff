@@ -13,5 +13,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    // Bypass navigator.locks which can hang indefinitely after cross-origin redirects (e.g. Stripe)
+    lock: (name: string, acquireTimeout: number, fn: () => Promise<any>) => fn(),
+  } as any,
 });

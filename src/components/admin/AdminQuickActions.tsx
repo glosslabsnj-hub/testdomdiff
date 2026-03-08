@@ -110,16 +110,16 @@ export default function AdminQuickActions({ onNavigate, pendingCheckIns = 0 }: A
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Navigation Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
           {QUICK_ACTIONS.map((action) => (
             <button
               key={action.tabValue}
               onClick={() => onNavigate(action.tabValue)}
-              className="flex flex-col items-center p-4 rounded-lg bg-background border border-border hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98] group"
+              className="flex flex-col items-center p-3 sm:p-4 rounded-lg bg-background border border-border hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98] group"
             >
               <action.icon className={`w-6 h-6 ${action.color} mb-2 group-hover:scale-110 transition-transform`} />
               <span className="text-sm font-medium text-center">{action.label}</span>
-              <span className="text-xs text-muted-foreground text-center mt-0.5">
+              <span className="text-xs text-muted-foreground text-center mt-0.5 line-clamp-2">
                 {action.tabValue === "checkins" && pendingCheckIns > 0
                   ? `${pendingCheckIns} pending`
                   : action.description}
@@ -140,7 +140,7 @@ export default function AdminQuickActions({ onNavigate, pendingCheckIns = 0 }: A
             <Button
               variant="outline"
               size="sm"
-              className="w-full justify-start"
+              className="w-full justify-start min-h-[44px]"
               onClick={() => sendNotification("check_in_reminder")}
               disabled={sendingNotification !== null}
             >
@@ -156,7 +156,7 @@ export default function AdminQuickActions({ onNavigate, pendingCheckIns = 0 }: A
             <Button
               variant="outline"
               size="sm"
-              className="w-full justify-start"
+              className="w-full justify-start min-h-[44px]"
               onClick={() => sendNotification("photo_reminder")}
               disabled={sendingNotification !== null}
             >

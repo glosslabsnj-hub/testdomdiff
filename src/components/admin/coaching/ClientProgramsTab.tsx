@@ -240,12 +240,12 @@ export default function ClientProgramsTab({
                     {workoutAssignment.template.difficulty || "Standard"}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={onBrowseWorkouts}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={onBrowseWorkouts} className="min-h-[44px]">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Change Program
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="min-h-[44px]">
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
@@ -260,11 +260,11 @@ export default function ClientProgramsTab({
                   <CardContent className="pt-5 pb-5">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                           <Sparkles className="h-6 w-6 text-primary" />
                         </div>
                         <div>
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span className="text-xs text-primary font-semibold uppercase tracking-wide">
                               AI Recommended
                             </span>
@@ -297,11 +297,11 @@ export default function ClientProgramsTab({
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-3 pt-2 border-t border-border">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 border-t border-border">
                       <Button
                         onClick={handleAssignWorkout}
                         disabled={assigningWorkout}
-                        className="flex-1"
+                        className="flex-1 min-h-[44px]"
                         size="lg"
                       >
                         {assigningWorkout ? (
@@ -313,7 +313,7 @@ export default function ClientProgramsTab({
                           </>
                         )}
                       </Button>
-                      <Button variant="outline" size="lg" onClick={onBrowseWorkouts}>
+                      <Button variant="outline" size="lg" onClick={onBrowseWorkouts} className="min-h-[44px]">
                         <Search className="h-4 w-4 mr-2" />
                         Browse All
                       </Button>
@@ -327,7 +327,7 @@ export default function ClientProgramsTab({
                     <p className="text-muted-foreground mb-4">
                       No AI recommendation available. Browse templates to assign manually.
                     </p>
-                    <Button onClick={onBrowseWorkouts}>
+                    <Button onClick={onBrowseWorkouts} className="min-h-[44px]">
                       <Search className="h-4 w-4 mr-2" />
                       Browse Workout Templates
                     </Button>
@@ -372,12 +372,12 @@ export default function ClientProgramsTab({
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={onBrowseNutrition}>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={onBrowseNutrition} className="min-h-[44px]">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Change Plan
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="min-h-[44px]">
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
@@ -431,11 +431,11 @@ export default function ClientProgramsTab({
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3 pt-2 border-t border-border">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 border-t border-border">
                       <Button
                         onClick={handleAssignNutrition}
                         disabled={assigningNutrition}
-                        className="flex-1"
+                        className="flex-1 min-h-[44px]"
                         variant="gold"
                         size="lg"
                       >
@@ -448,7 +448,7 @@ export default function ClientProgramsTab({
                           </>
                         )}
                       </Button>
-                      <Button variant="outline" size="lg" onClick={onBrowseNutrition}>
+                      <Button variant="outline" size="lg" onClick={onBrowseNutrition} className="min-h-[44px]">
                         <Search className="h-4 w-4 mr-2" />
                         Browse All
                       </Button>
@@ -462,7 +462,7 @@ export default function ClientProgramsTab({
                     <p className="text-muted-foreground mb-4">
                       No AI recommendation available. Browse templates to assign manually.
                     </p>
-                    <Button onClick={onBrowseNutrition}>
+                    <Button onClick={onBrowseNutrition} className="min-h-[44px]">
                       <Search className="h-4 w-4 mr-2" />
                       Browse Nutrition Templates
                     </Button>

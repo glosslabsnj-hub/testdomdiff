@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, ArrowRight, ArrowLeft, Loader2, User, Target, Cross, Dumbbell, Activity, Shield, Camera, SkipForward } from "lucide-react";
+import { Check, ArrowRight, ArrowLeft, Loader2, User, Target, Cross, Dumbbell, Activity, Shield, Camera, SkipForward, Settings2 } from "lucide-react";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useProgressPhotos } from "@/hooks/useProgressPhotos";
@@ -45,15 +46,15 @@ const step3Schema = z.object({
 
 const Intake = () => {
   const navigate = useNavigate();
-  const { user, profile, subscription, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
+  const { isCoaching, isTransformation, isTestingFlow, stopTestFlow } = useEffectiveSubscription();
   const { toast } = useToast();
   const { uploadPhoto, getPhotosByType } = useProgressPhotos();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [skippedPhotos, setSkippedPhotos] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const totalSteps = 4;
-  const isCoaching = subscription?.plan_type === "coaching";
+  const totalSteps = isTransformation ? 5 : 4;
   const [formData, setFormData] = useState({
     firstName: profile?.first_name || "",
     lastName: profile?.last_name || "",
@@ -62,15 +63,23 @@ const Intake = () => {
     age: profile?.age?.toString() || "",
     height: profile?.height || "",
     weight: profile?.weight || "",
+    gender: (profile as any)?.gender || "male",
     goal: profile?.goal || "",
     experience: profile?.experience || "",
     injuries: profile?.injuries || "",
+    dietaryRestrictions: (profile as any)?.dietary_restrictions || "",
+    foodDislikes: (profile as any)?.food_dislikes || "",
+    mealPrepPreference: (profile as any)?.meal_prep_preference || "batch",
     faithCommitment: profile?.faith_commitment || false,
+    equipment: (profile?.equipment?.split(", ").filter(Boolean)) || [] as string[],
+    trainingDaysPerWeek: profile?.training_days_per_week || 4,
+    sessionLengthPreference: profile?.session_length_preference || "45-60",
   });
 
   // Sync form data when profile loads
   useEffect(() => {
     if (profile) {
+      const p = profile as any;
       setFormData(prev => ({
         ...prev,
         firstName: profile.first_name || prev.firstName,
@@ -79,15 +88,22 @@ const Intake = () => {
         age: profile.age?.toString() || prev.age,
         height: profile.height || prev.height,
         weight: profile.weight || prev.weight,
+        gender: p?.gender || prev.gender,
         goal: profile.goal || prev.goal,
         experience: profile.experience || prev.experience,
         injuries: profile.injuries || prev.injuries,
+        dietaryRestrictions: p?.dietary_restrictions || prev.dietaryRestrictions,
+        foodDislikes: p?.food_dislikes || prev.foodDislikes,
+        mealPrepPreference: p?.meal_prep_preference || prev.mealPrepPreference,
         faithCommitment: profile.faith_commitment || prev.faithCommitment,
+        equipment: profile.equipment?.split(", ").filter(Boolean) || prev.equipment,
+        trainingDaysPerWeek: profile.training_days_per_week || prev.trainingDaysPerWeek,
+        sessionLengthPreference: profile.session_length_preference || prev.sessionLengthPreference,
       }));
     }
   }, [profile]);
 
-  const updateForm = (field: string, value: string | boolean) => {
+  const updateForm = (field: string, value: string | boolean | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when field is edited
     if (errors[field]) {
@@ -98,20 +114,47 @@ const Intake = () => {
     }
   };
 
-  const getTierName = () => {
-    switch (subscription?.plan_type) {
-      case "coaching": return "Free World";
-      case "transformation": return "General Population";
-      default: return "Solitary Confinement";
+  const toggleEquipment = (item: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      equipment: prev.equipment.includes(item)
+        ? prev.equipment.filter((e) => e !== item)
+        : [...prev.equipment, item],
+    }));
+    if (errors.equipment) {
+      setErrors((prev) => {
+        const { equipment: _, ...rest } = prev;
+        return rest;
+      });
     }
   };
 
+  const EQUIPMENT_OPTIONS = [
+    "No Equipment (Bodyweight Only)",
+    "Dumbbells",
+    "Barbell + Plates",
+    "Pull-Up Bar",
+    "Resistance Bands",
+    "Kettlebells",
+    "Full Gym Access",
+  ];
+
+  const SESSION_LENGTH_OPTIONS = [
+    { value: "30-45", label: "30-45 min" },
+    { value: "45-60", label: "45-60 min" },
+    { value: "60-90", label: "60-90 min" },
+  ];
+
+  const getTierName = () => {
+    if (isCoaching) return "Free World";
+    if (isTransformation) return "General Population";
+    return "Solitary Confinement";
+  };
+
   const getTierColor = () => {
-    switch (subscription?.plan_type) {
-      case "coaching": return "text-green-400";
-      case "transformation": return "text-primary";
-      default: return "text-muted-foreground";
-    }
+    if (isCoaching) return "text-green-400";
+    if (isTransformation) return "text-primary";
+    return "text-muted-foreground";
   };
 
   const handleSubmit = async () => {
@@ -126,6 +169,17 @@ const Intake = () => {
 
     setIsSubmitting(true);
 
+    // Admin test flow — skip DB writes, just navigate forward
+    if (isTestingFlow) {
+      toast({
+        title: isCoaching ? "Welcome Aboard!" : "Processing Complete!",
+        description: "(Test mode — no data saved)",
+      });
+      setIsSubmitting(false);
+      navigate("/intake-complete");
+      return;
+    }
+
     try {
       const { data: existingProfile } = await supabase
         .from("profiles")
@@ -133,7 +187,7 @@ const Intake = () => {
         .eq("user_id", user.id)
         .single();
 
-      const profileData = {
+      const profileData: Record<string, any> = {
         user_id: user.id,
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -142,12 +196,23 @@ const Intake = () => {
         age: formData.age ? parseInt(formData.age) : null,
         height: formData.height,
         weight: formData.weight,
+        gender: formData.gender,
         goal: formData.goal,
         experience: formData.experience,
         injuries: formData.injuries,
+        dietary_restrictions: formData.dietaryRestrictions || null,
+        food_dislikes: formData.foodDislikes || null,
+        meal_prep_preference: formData.mealPrepPreference || null,
         faith_commitment: formData.faithCommitment,
         intake_completed_at: new Date().toISOString(),
       };
+
+      // Save training setup for Transformation+ users
+      if (isTransformation || isCoaching) {
+        profileData.equipment = formData.equipment.join(", ");
+        profileData.training_days_per_week = formData.trainingDaysPerWeek;
+        profileData.session_length_preference = formData.sessionLengthPreference;
+      }
 
       let error;
       if (existingProfile) {
@@ -167,7 +232,7 @@ const Intake = () => {
 
       toast({
         title: isCoaching ? "Welcome Aboard!" : "Processing Complete!",
-        description: isCoaching 
+        description: isCoaching
           ? "You're ready to begin. Let's get to work."
           : "Welcome to the program. Your sentence begins now.",
       });
@@ -186,26 +251,32 @@ const Intake = () => {
   };
 
   const stepConfig = [
-    { 
-      title: "Profile", 
+    {
+      title: "Profile",
       subtitle: "Your Profile",
       icon: User,
       description: "We need these basics to personalize your experience"
     },
-    { 
-      title: "Mission", 
+    {
+      title: "Mission",
       subtitle: "Your Mission",
       icon: Target,
       description: "This helps us match you with the right program"
     },
-    { 
-      title: "Foundation", 
+    ...(isTransformation ? [{
+      title: "Training",
+      subtitle: "Training Setup",
+      icon: Settings2,
+      description: "Tell us about your equipment and schedule"
+    }] : []),
+    {
+      title: "Foundation",
       subtitle: "The Foundation",
       icon: Cross,
       description: "Your commitment seals the deal"
     },
-    { 
-      title: "Photos", 
+    {
+      title: "Photos",
       subtitle: isCoaching ? "Starting Point" : "Day 1 Mugshot",
       icon: Camera,
       description: "Document where you're starting (optional but encouraged)"
@@ -228,9 +299,26 @@ const Intake = () => {
   ];
 
 
+  // Map step number to content type based on tier
+  const getStepType = (stepNum: number): "profile" | "mission" | "training" | "faith" | "photos" => {
+    if (stepNum === 1) return "profile";
+    if (stepNum === 2) return "mission";
+    if (isTransformation) {
+      if (stepNum === 3) return "training";
+      if (stepNum === 4) return "faith";
+      if (stepNum === 5) return "photos";
+    } else {
+      if (stepNum === 3) return "faith";
+      if (stepNum === 4) return "photos";
+    }
+    return "profile";
+  };
+
   const renderStep = () => {
-    switch (step) {
-      case 1:
+    const stepType = getStepType(step);
+
+    switch (stepType) {
+      case "profile":
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -307,6 +395,32 @@ const Intake = () => {
               )}
             </div>
 
+            {/* Gender */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Biological Sex <span className="text-destructive">*</span></Label>
+              <p className="text-xs text-muted-foreground">Used for accurate calorie and macro calculations</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {[
+                  { value: "male", label: "Male" },
+                  { value: "female", label: "Female" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => updateForm("gender", option.value)}
+                    className={cn(
+                      "p-3 rounded-lg border-2 transition-all text-center font-medium",
+                      formData.gender === option.value
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-background hover:border-primary/50"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="age" className="text-sm font-medium">Age <span className="text-destructive">*</span></Label>
@@ -373,7 +487,7 @@ const Intake = () => {
           </div>
         );
 
-      case 2:
+      case "mission":
         return (
           <div className="space-y-8">
             {/* Goal Selection */}
@@ -452,10 +566,170 @@ const Intake = () => {
                 className="bg-background border-border min-h-[100px]"
               />
             </div>
+
+            {/* Dietary Restrictions */}
+            <div className="space-y-2">
+              <Label htmlFor="dietaryRestrictions" className="text-base font-semibold">Dietary Restrictions</Label>
+              <p className="text-sm text-muted-foreground">We use this to build your custom meal plan</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {["None", "Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Keto/Low-Carb", "Halal", "Kosher", "Pescatarian"].map((item) => {
+                  const isSelected = formData.dietaryRestrictions.split(", ").filter(Boolean).includes(item);
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        const current = formData.dietaryRestrictions.split(", ").filter(Boolean);
+                        if (item === "None") {
+                          updateForm("dietaryRestrictions", "None");
+                        } else {
+                          const filtered = current.filter(i => i !== "None");
+                          const updated = isSelected
+                            ? filtered.filter(i => i !== item)
+                            : [...filtered, item];
+                          updateForm("dietaryRestrictions", updated.join(", "));
+                        }
+                      }}
+                      className={cn(
+                        "p-2.5 rounded-lg border transition-all text-sm",
+                        isSelected
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-border bg-background hover:border-primary/50"
+                      )}
+                    >
+                      {item}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Food Dislikes */}
+            <div className="space-y-2">
+              <Label htmlFor="foodDislikes" className="text-base font-semibold">Foods You Hate</Label>
+              <Textarea
+                id="foodDislikes"
+                value={formData.foodDislikes}
+                onChange={(e) => updateForm("foodDislikes", e.target.value)}
+                placeholder="Anything you absolutely refuse to eat? We'll keep it off your plate..."
+                className="bg-background border-border min-h-[80px]"
+              />
+            </div>
+
+            {/* Meal Prep Preference */}
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">How Do You Eat?</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { value: "batch", label: "Meal Prep", description: "Cook once, eat all week" },
+                  { value: "daily", label: "Cook Daily", description: "Fresh meals every day" },
+                  { value: "simple", label: "Keep It Simple", description: "Minimal cooking, fast meals" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => updateForm("mealPrepPreference", option.value)}
+                    className={cn(
+                      "p-4 rounded-lg border-2 transition-all text-center",
+                      formData.mealPrepPreference === option.value
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-background hover:border-primary/50"
+                    )}
+                  >
+                    <p className="font-medium text-sm">{option.label}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{option.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         );
 
-      case 3:
+      case "training":
+        return (
+          <div className="space-y-8">
+            {/* Equipment Selection */}
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">Available Equipment <span className="text-destructive">*</span></Label>
+              <p className="text-sm text-muted-foreground">Select everything you have access to</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {EQUIPMENT_OPTIONS.map((item) => {
+                  const isSelected = formData.equipment.includes(item);
+                  return (
+                    <div
+                      key={item}
+                      className={cn(
+                        "flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all",
+                        isSelected
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-background hover:border-primary/50"
+                      )}
+                      onClick={() => toggleEquipment(item)}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleEquipment(item)}
+                        className="min-w-[20px] min-h-[20px]"
+                      />
+                      <span className="ml-3 text-sm font-medium">{item}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {errors.equipment && (
+                <p className="text-sm text-destructive">{errors.equipment}</p>
+              )}
+            </div>
+
+            {/* Training Days Per Week */}
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">Training Days Per Week</Label>
+              <p className="text-sm text-muted-foreground">How many days can you commit to training?</p>
+              <div className="flex gap-3">
+                {[3, 4, 5, 6].map((days) => (
+                  <button
+                    key={days}
+                    type="button"
+                    onClick={() => updateForm("trainingDaysPerWeek", days)}
+                    className={cn(
+                      "flex-1 p-4 rounded-lg border-2 transition-all text-center font-bold text-lg",
+                      formData.trainingDaysPerWeek === days
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-background hover:border-primary/50"
+                    )}
+                  >
+                    {days}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Session Length */}
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">Preferred Session Length</Label>
+              <p className="text-sm text-muted-foreground">How long do you want each workout to be?</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {SESSION_LENGTH_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => updateForm("sessionLengthPreference", option.value)}
+                    className={cn(
+                      "p-4 rounded-lg border-2 transition-all text-center",
+                      formData.sessionLengthPreference === option.value
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border bg-background hover:border-primary/50"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case "faith":
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
@@ -513,7 +787,7 @@ const Intake = () => {
           </div>
         );
 
-      case 4:
+      case "photos":
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
@@ -574,10 +848,11 @@ const Intake = () => {
 
   const validateStep = (stepNum: number): boolean => {
     setErrors({});
-    
+    const stepType = getStepType(stepNum);
+
     try {
-      switch (stepNum) {
-        case 1:
+      switch (stepType) {
+        case "profile":
           step1Schema.parse({
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -587,18 +862,29 @@ const Intake = () => {
             weight: formData.weight,
           });
           return true;
-        case 2:
+        case "mission":
           step2Schema.parse({
             goal: formData.goal,
             experience: formData.experience,
           });
           return true;
-        case 3:
+        case "training":
+          if (formData.equipment.length === 0) {
+            setErrors({ equipment: "Please select at least one equipment option" });
+            toast({
+              title: "Please fix the errors",
+              description: "Select at least one equipment option",
+              variant: "destructive",
+            });
+            return false;
+          }
+          return true;
+        case "faith":
           step3Schema.parse({
             faithCommitment: formData.faithCommitment,
           });
           return true;
-        case 4:
+        case "photos":
           return true;
         default:
           return false;
@@ -612,7 +898,7 @@ const Intake = () => {
           }
         });
         setErrors(fieldErrors);
-        
+
         toast({
           title: "Please fix the errors",
           description: "Some required fields need attention",
@@ -624,15 +910,17 @@ const Intake = () => {
   };
 
   const canProceed = () => {
-    switch (step) {
-      case 1:
+    const stepType = getStepType(step);
+    switch (stepType) {
+      case "profile":
         return formData.firstName && formData.lastName && formData.phone && formData.age && formData.height && formData.weight;
-      case 2:
+      case "mission":
         return formData.goal && formData.experience;
-      case 3:
+      case "training":
+        return formData.equipment.length > 0;
+      case "faith":
         return formData.faithCommitment;
-      case 4:
-        // Photo step is optional - can always proceed
+      case "photos":
         return true;
       default:
         return false;
@@ -648,7 +936,7 @@ const Intake = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-b from-charcoal to-background pt-20 pb-12">
+      <div className={cn("relative bg-gradient-to-b from-charcoal to-background pb-12", isTestingFlow ? "pt-28" : "pt-20")}>
         <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-5" />
         <div className="section-container relative">
           <div className="max-w-2xl mx-auto text-center">
@@ -670,8 +958,29 @@ const Intake = () => {
       <section className="pb-20 -mt-2 sm:-mt-4">
         <div className="section-container">
           <div className="max-w-2xl mx-auto">
+            {/* Progress Bar */}
+            <div className="mb-6 pt-4 sm:pt-0">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Step {step} of {totalSteps}
+                </span>
+                <span className="text-sm font-medium text-primary">
+                  {Math.round((step / totalSteps) * 100)}%
+                </span>
+              </div>
+              <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full progress-fill"
+                  style={{
+                    width: `${(step / totalSteps) * 100}%`,
+                    background: "linear-gradient(90deg, hsl(42 85% 45%), hsl(48 85% 58%))",
+                  }}
+                />
+              </div>
+            </div>
+
             {/* Step Indicators */}
-            <div className="flex items-center justify-center mb-8 pt-4 sm:pt-0">
+            <div className="flex items-center justify-center mb-8">
               {stepConfig.map((s, index) => {
                 const Icon = s.icon;
                 const stepNum = index + 1;
@@ -741,7 +1050,7 @@ const Intake = () => {
 
                 {step < totalSteps ? (
                   <div className="flex gap-2">
-                    {step === 4 && beforePhotos.length === 0 && !skippedPhotos && (
+                    {getStepType(step) === "photos" && beforePhotos.length === 0 && !skippedPhotos && (
                       <Button
                         variant="ghost"
                         onClick={() => setSkippedPhotos(true)}
@@ -788,7 +1097,7 @@ const Intake = () => {
                   variant="ghost"
                   onClick={() => setStep((s) => Math.max(1, s - 1))}
                   disabled={step === 1}
-                  className="gap-2 flex-shrink-0"
+                  className="gap-2 flex-shrink-0 min-h-[44px]"
                   size="lg"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -812,7 +1121,7 @@ const Intake = () => {
                       variant="gold"
                       onClick={handleNextStep}
                       disabled={!canProceed()}
-                      className="gap-2 flex-1 max-w-[200px]"
+                      className="gap-2 flex-1 max-w-[200px] min-h-[44px]"
                       size="lg"
                     >
                       Continue <ArrowRight className="w-4 h-4" />
@@ -822,7 +1131,7 @@ const Intake = () => {
                       variant="gold"
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="gap-2 flex-1"
+                      className="gap-2 flex-1 min-h-[44px]"
                       size="lg"
                     >
                       {isSubmitting ? (

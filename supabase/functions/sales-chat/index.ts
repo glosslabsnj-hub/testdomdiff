@@ -2,12 +2,9 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.91.0";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://domdifferent.com',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
-const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
@@ -21,19 +18,19 @@ BRAND VOICE:
 - Challenge men when needed, but always with respect
 
 THE THREE PROGRAMS:
-1. SOLITARY CONFINEMENT ($49.99/month)
+1. SOLITARY CONFINEMENT ($19.99/month)
    - The foundation - strip away the distractions
    - Just the essentials: bodyweight workouts, discipline routines, basic nutrition
    - Weekly check-ins, progress tracking
    - Best for: Men who need to build the basics first
 
-2. GENERAL POPULATION ($379.99 one-time, 12 weeks)
+2. GENERAL POPULATION ($249 one-time, 12 weeks)
    - You've earned your place in Gen Pop
    - Full program: video coaching, nutrition plans, skill-building, faith lessons
    - Community access, connect with peers
    - Best for: Men ready to go all-in on transformation
 
-3. FREE WORLD 1:1 COACHING ($999.99/month) - LIMITED TO 10 CLIENTS
+3. FREE WORLD 1:1 COACHING ($499/month) - LIMITED TO 10 CLIENTS
    - You've done the time, now live free
    - Direct access to Dom, custom programming
    - Weekly calls, unlimited messaging, maximum accountability
@@ -71,31 +68,30 @@ async function extractInsights(messages: Array<{role: string, content: string}>)
   interested_program: string | null;
   recommended_program: string | null;
 }> {
-  if (!LOVABLE_API_KEY || messages.length < 2) {
+  if (!ANTHROPIC_API_KEY || messages.length < 2) {
     return { goal: null, experience_level: null, pain_points: [], interested_program: null, recommended_program: null };
   }
 
   try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
-        messages: [
-          {
-            role: 'system',
-            content: `Analyze this fitness coaching conversation and extract insights. Return a JSON object with:
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: `Analyze this fitness coaching conversation and extract insights. Return a JSON object with:
 - goal: The user's primary fitness goal (e.g., "lose weight", "build muscle", "get disciplined", "transform lifestyle")
 - experience_level: Their fitness experience ("beginner", "intermediate", "advanced", or null)
 - pain_points: Array of struggles they mentioned (e.g., ["consistency", "motivation", "time management"])
 - interested_program: Which program they seem interested in ("membership", "transformation", "coaching", or null)
 - recommended_program: Which program the assistant recommended ("membership", "transformation", "coaching", or null)
 
-Only return the JSON object, nothing else.`
-          },
+Only return the JSON object, nothing else.`,
+        messages: [
           {
             role: 'user',
             content: `Conversation:\n${messages.map(m => `${m.role}: ${m.content}`).join('\n')}`
@@ -107,7 +103,7 @@ Only return the JSON object, nothing else.`
     if (!response.ok) return { goal: null, experience_level: null, pain_points: [], interested_program: null, recommended_program: null };
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '';
+    const content = data.content?.[0]?.text || '';
     
     // Parse JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -199,6 +195,7 @@ async function trackLead(
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -206,8 +203,8 @@ serve(async (req) => {
   try {
     const { messages, sessionId, userId } = await req.json();
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
     // Track lead analytics (don't await - fire and forget)
@@ -215,19 +212,20 @@ serve(async (req) => {
       trackLead(sessionId, messages, userId).catch(e => console.error('Lead tracking error:', e));
     }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages,
-        ],
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [...messages],
         stream: true,
+        temperature: 0.8,
       }),
     });
 
@@ -249,8 +247,46 @@ serve(async (req) => {
       throw new Error(`AI API error: ${response.status}`);
     }
 
-    // Return streaming response
-    return new Response(response.body, {
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        let buffer = '';
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+              controller.close();
+              break;
+            }
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') continue;
+              try {
+                const event = JSON.parse(data);
+                if (event.type === 'content_block_delta' && event.delta?.text) {
+                  const openaiEvent = {
+                    choices: [{ delta: { content: event.delta.text } }]
+                  };
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiEvent)}\n\n`));
+                }
+              } catch {}
+            }
+          }
+        } catch (e) {
+          controller.error(e);
+        }
+      }
+    });
+
+    return new Response(stream, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'text/event-stream',

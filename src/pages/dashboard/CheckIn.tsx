@@ -104,6 +104,15 @@ const CheckIn = () => {
   };
 
   const handleSubmit = async () => {
+    if (formData.week_number < 1 || formData.week_number > 12) {
+      toast({
+        title: "Invalid week",
+        description: "Week number must be between 1 and 12.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!validateForm()) {
       toast({
         title: "Please fix the errors",
@@ -120,9 +129,9 @@ const CheckIn = () => {
         title: isCoaching ? "Report submitted!" : "Check-in submitted!",
         description: `Week ${formData.week_number} ${isCoaching ? "report" : "check-in"} saved successfully.`,
       });
-      // Reset form for next week
+      // Reset form for next week (capped at 12)
       setFormData({
-        week_number: currentWeek + 1,
+        week_number: Math.min(currentWeek + 1, 12),
         weight: "",
         waist: "",
         steps_avg: "",
@@ -158,7 +167,7 @@ const CheckIn = () => {
   return (
     <DashboardLayout>
       <div className="section-container py-6 sm:py-12">
-        <DashboardBackLink className="mb-4 sm:mb-8" />
+        <DashboardBackLink className="mb-4 sm:mb-8 min-h-[44px] inline-flex items-center" />
 
         <div className="max-w-2xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
@@ -199,20 +208,20 @@ const CheckIn = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
                       <div>
-                        <p className="text-xs text-muted-foreground">Weight</p>
-                        <p className="font-semibold">{checkIn.weight || "—"} lbs</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Weight</p>
+                        <p className="font-semibold text-sm sm:text-base">{checkIn.weight || "—"} lbs</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Waist</p>
-                        <p className="font-semibold">{checkIn.waist || "—"}"</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Waist</p>
+                        <p className="font-semibold text-sm sm:text-base">{checkIn.waist || "—"}"</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Avg Steps</p>
-                        <p className="font-semibold">{checkIn.steps_avg?.toLocaleString() || "—"}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Avg Steps</p>
+                        <p className="font-semibold text-sm sm:text-base">{checkIn.steps_avg?.toLocaleString() || "—"}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Workouts</p>
-                        <p className="font-semibold">{checkIn.workouts_completed || "—"}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Workouts</p>
+                        <p className="font-semibold text-sm sm:text-base">{checkIn.workouts_completed || "—"}</p>
                       </div>
                     </div>
                     {checkIn.wins && (
@@ -239,9 +248,9 @@ const CheckIn = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1">
-                  <Label>Weight (lbs)</Label>
+                  <Label className="text-sm">Weight (lbs)</Label>
                   <Input
-                    className={`bg-charcoal ${validationErrors.weight ? 'border-destructive' : ''}`}
+                    className={`bg-charcoal h-11 ${validationErrors.weight ? 'border-destructive' : ''}`}
                     placeholder="Current weight"
                     type="number"
                     step="0.1"
@@ -253,9 +262,9 @@ const CheckIn = () => {
                   )}
                 </div>
                 <div className="space-y-1">
-                  <Label>Waist (inches)</Label>
+                  <Label className="text-sm">Waist (inches)</Label>
                   <Input
-                    className={`bg-charcoal ${validationErrors.waist ? 'border-destructive' : ''}`}
+                    className={`bg-charcoal h-11 ${validationErrors.waist ? 'border-destructive' : ''}`}
                     placeholder="Waist measurement"
                     type="number"
                     step="0.1"
@@ -269,9 +278,9 @@ const CheckIn = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1">
-                  <Label>Avg Daily Steps</Label>
+                  <Label className="text-sm">Avg Daily Steps</Label>
                   <Input
-                    className={`bg-charcoal ${validationErrors.steps_avg ? 'border-destructive' : ''}`}
+                    className={`bg-charcoal h-11 ${validationErrors.steps_avg ? 'border-destructive' : ''}`}
                     placeholder="Average steps"
                     type="number"
                     value={formData.steps_avg}
@@ -282,9 +291,9 @@ const CheckIn = () => {
                   )}
                 </div>
                 <div className="space-y-1">
-                  <Label>Workouts Completed</Label>
+                  <Label className="text-sm">Workouts Completed</Label>
                   <Input
-                    className={`bg-charcoal ${validationErrors.workouts_completed ? 'border-destructive' : ''}`}
+                    className={`bg-charcoal h-11 ${validationErrors.workouts_completed ? 'border-destructive' : ''}`}
                     placeholder="# of workouts"
                     type="number"
                     value={formData.workouts_completed}
@@ -296,52 +305,52 @@ const CheckIn = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label>This Week's Wins</Label>
+                <Label className="text-sm">This Week's Wins</Label>
                 <Textarea
-                  className={`bg-charcoal ${validationErrors.wins ? 'border-destructive' : ''}`}
+                  className={`bg-charcoal min-h-[80px] sm:min-h-0 ${validationErrors.wins ? 'border-destructive' : ''}`}
                   rows={3}
                   placeholder="What went well this week?"
                   value={formData.wins}
                   onChange={(e) => handleChange("wins", e.target.value)}
                   maxLength={1000}
                 />
-                <p className="text-xs text-muted-foreground text-right">{formData.wins?.length || 0}/1000</p>
+                <p className={`text-xs text-right ${(formData.wins?.length || 0) > 900 ? 'text-orange-500' : 'text-muted-foreground'}`}>{formData.wins?.length || 0}/1000</p>
               </div>
               <div className="space-y-1">
-                <Label>Struggles</Label>
+                <Label className="text-sm">Struggles</Label>
                 <Textarea
-                  className={`bg-charcoal ${validationErrors.struggles ? 'border-destructive' : ''}`}
+                  className={`bg-charcoal min-h-[80px] sm:min-h-0 ${validationErrors.struggles ? 'border-destructive' : ''}`}
                   rows={3}
                   placeholder="What was hard this week?"
                   value={formData.struggles}
                   onChange={(e) => handleChange("struggles", e.target.value)}
                   maxLength={1000}
                 />
-                <p className="text-xs text-muted-foreground text-right">{formData.struggles?.length || 0}/1000</p>
+                <p className={`text-xs text-right ${(formData.struggles?.length || 0) > 900 ? 'text-orange-500' : 'text-muted-foreground'}`}>{formData.struggles?.length || 0}/1000</p>
               </div>
               <div className="space-y-1">
-                <Label>What Changes Next Week?</Label>
+                <Label className="text-sm">What Changes Next Week?</Label>
                 <Textarea
-                  className={`bg-charcoal ${validationErrors.changes ? 'border-destructive' : ''}`}
+                  className={`bg-charcoal min-h-[64px] sm:min-h-0 ${validationErrors.changes ? 'border-destructive' : ''}`}
                   rows={2}
                   placeholder="What adjustments will you make?"
                   value={formData.changes}
                   onChange={(e) => handleChange("changes", e.target.value)}
                   maxLength={500}
                 />
-                <p className="text-xs text-muted-foreground text-right">{formData.changes?.length || 0}/500</p>
+                <p className={`text-xs text-right ${(formData.changes?.length || 0) > 450 ? 'text-orange-500' : 'text-muted-foreground'}`}>{formData.changes?.length || 0}/500</p>
               </div>
               <div className="space-y-1">
-                <Label>Faith Reflection (Optional)</Label>
+                <Label className="text-sm">Faith Reflection <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                 <Textarea
-                  className={`bg-charcoal ${validationErrors.faith_reflection ? 'border-destructive' : ''}`}
+                  className={`bg-charcoal min-h-[64px] sm:min-h-0 ${validationErrors.faith_reflection ? 'border-destructive' : ''}`}
                   rows={2}
                   placeholder="How did you honor God this week?"
                   value={formData.faith_reflection}
                   onChange={(e) => handleChange("faith_reflection", e.target.value)}
                   maxLength={1000}
                 />
-                <p className="text-xs text-muted-foreground text-right">{formData.faith_reflection?.length || 0}/1000</p>
+                <p className={`text-xs text-right ${(formData.faith_reflection?.length || 0) > 900 ? 'text-orange-500' : 'text-muted-foreground'}`}>{formData.faith_reflection?.length || 0}/1000</p>
               </div>
 
               {/* Weekly Progress Photo (Optional) */}
@@ -361,7 +370,7 @@ const CheckIn = () => {
                 </div>
                 
                 {!hasWeeklyPhoto && (
-                  <div className="max-w-full sm:max-w-xs">
+                  <div className="w-full sm:max-w-xs">
                     <PhotoUploadCard
                       photoType="during"
                       onUpload={handlePhotoUpload}
@@ -400,7 +409,7 @@ const CheckIn = () => {
             <Button
               variant="gold"
               size="lg"
-              className="w-full gap-2"
+              className="w-full gap-2 min-h-[44px]"
               onClick={handleSubmit}
               disabled={isSubmitting}
             >

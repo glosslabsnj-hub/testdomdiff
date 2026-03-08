@@ -22,7 +22,7 @@ const TIERS: TierConfig[] = [
     id: "membership",
     name: "Solitary Confinement",
     displayName: "Tier 1",
-    price: "$49.99/month",
+    price: "$19.99/month",
     billing: "Monthly subscription",
     color: "from-blue-500/10 to-blue-500/5",
     borderColor: "border-blue-500/30",
@@ -47,7 +47,7 @@ const TIERS: TierConfig[] = [
     id: "transformation",
     name: "General Population",
     displayName: "Tier 2",
-    price: "$379.99 one-time",
+    price: "$249 one-time",
     billing: "Single payment, 98-day access",
     color: "from-primary/10 to-primary/5",
     borderColor: "border-primary/30",
@@ -72,7 +72,7 @@ const TIERS: TierConfig[] = [
     id: "coaching",
     name: "Free World",
     displayName: "Tier 3",
-    price: "$999.99/month",
+    price: "$499/month",
     billing: "Monthly subscription",
     color: "from-purple-500/10 to-purple-500/5",
     borderColor: "border-purple-500/30",
@@ -133,10 +133,10 @@ export default function TiersAccessManager() {
       </div>
 
       {/* Tier Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {TIERS.map((tier) => (
           <Card key={tier.id} className={`bg-gradient-to-br ${tier.color} ${tier.borderColor}`}>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-4 sm:p-6 sm:pb-2">
               <div className="flex items-center justify-between">
                 <Badge variant="outline" className="text-xs">
                   {tier.displayName}
@@ -151,7 +151,7 @@ export default function TiersAccessManager() {
                 <span className="block text-xs mt-0.5">{tier.billing}</span>
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 p-4 sm:p-6 pt-0 sm:pt-0">
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
                   Access Includes
@@ -208,7 +208,7 @@ export default function TiersAccessManager() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border border-border overflow-hidden">
+          <div className="rounded-lg border border-border overflow-hidden overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
@@ -229,25 +229,31 @@ export default function TiersAccessManager() {
                   <TableRow key={row.feature} className="border-border">
                     <TableCell className="font-medium">{row.feature}</TableCell>
                     <TableCell className="text-center">
-                      {row.membership ? (
-                        <Unlock className="h-4 w-4 text-green-400 mx-auto" />
-                      ) : (
-                        <Lock className="h-4 w-4 text-muted-foreground/30 mx-auto" />
-                      )}
+                      <div className="flex items-center justify-center min-h-[44px]">
+                        {row.membership ? (
+                          <Unlock className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Lock className="h-4 w-4 text-muted-foreground/30" />
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      {row.transformation ? (
-                        <Unlock className="h-4 w-4 text-green-400 mx-auto" />
-                      ) : (
-                        <Lock className="h-4 w-4 text-muted-foreground/30 mx-auto" />
-                      )}
+                      <div className="flex items-center justify-center min-h-[44px]">
+                        {row.transformation ? (
+                          <Unlock className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Lock className="h-4 w-4 text-muted-foreground/30" />
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      {row.coaching ? (
-                        <Unlock className="h-4 w-4 text-green-400 mx-auto" />
-                      ) : (
-                        <Lock className="h-4 w-4 text-muted-foreground/30 mx-auto" />
-                      )}
+                      <div className="flex items-center justify-center min-h-[44px]">
+                        {row.coaching ? (
+                          <Unlock className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Lock className="h-4 w-4 text-muted-foreground/30" />
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

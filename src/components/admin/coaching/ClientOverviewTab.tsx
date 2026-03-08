@@ -25,7 +25,7 @@ export default function ClientOverviewTab({ client, progress }: ClientOverviewTa
   return (
     <div className="space-y-6">
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <Card className="bg-background/50 border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
@@ -112,7 +112,7 @@ export default function ClientOverviewTab({ client, progress }: ClientOverviewTa
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 text-xs">
                     <div>
                       <span className="text-muted-foreground">Weight:</span>{" "}
                       <span className="font-medium">{checkIn.weight || "—"} lbs</span>

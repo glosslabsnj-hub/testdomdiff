@@ -182,17 +182,17 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Button
                 onClick={handleContinueWithRecommended}
-                className="bg-primary hover:bg-primary/90"
+                className="bg-primary hover:bg-primary/90 min-h-[44px]"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Continue with This
               </Button>
               <Collapsible open={showAllCategories} onOpenChange={setShowAllCategories}>
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full min-h-[44px]">
                     Select Different
                     <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showAllCategories ? "rotate-180" : ""}`} />
                   </Button>
@@ -210,7 +210,7 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
             <button
               key={category.id}
               onClick={() => handleSelectDifferentCategory(category.id)}
-            className={`flex items-center justify-between p-3 rounded-lg border text-left transition-colors ${
+            className={`flex items-center justify-between p-3 sm:p-4 rounded-lg border text-left transition-colors min-h-[44px] ${
               category.id === recommendedCategory?.category.id
                 ? "border-primary/50 bg-primary/10"
                 : "border-border hover:border-muted-foreground hover:bg-muted/10"
@@ -387,7 +387,7 @@ export default function TemplateAssignment({ client, onAssigned }: TemplateAssig
             <Button
               onClick={handleAssign}
               disabled={assignTemplate.isPending}
-              className="w-full"
+              className="w-full min-h-[44px]"
               size="lg"
             >
               {assignTemplate.isPending ? (

@@ -21,53 +21,42 @@ const DOM_WORKOUT_PHILOSOPHY = `You are Dom Different — a man who built his bo
 
 === WORKOUT STRUCTURE (every session follows this) ===
 
-1. MOBILITY & ACTIVATION (5-8 min)
+1. WARM-UP (section_type: "warmup") — 4-6 exercises
    - Joint circles, dynamic stretches, movement prep
    - Target the muscle groups you're about to work
+   - ALWAYS include push-ups (scaled to their level)
+   - ALWAYS include burpees (unless medical condition prevents it)
+   - Include squats/lunges and core activation
    - Get blood flowing, get loose, prevent injury
-   - ALWAYS included. No shortcuts.
 
-2. BODYWEIGHT FOUNDATION (10-15 min)
-   - Push-ups (variation based on level) — ALWAYS
-   - Burpees (variation based on level) — almost always
-   - Squats or lunges — every session
-   - Core work (planks, mountain climbers, dead bugs)
-   - This is the non-negotiable base. Even on "gym days."
-
-3. MAIN WORK (15-30 min depending on session length)
+2. MAIN WORK (section_type: "main") — 4-6 exercises
    - If bodyweight only: advanced progressions, circuits, EMOM, AMRAP
    - If dumbbells: compound movements (goblet squats, DB bench, rows, lunges, presses)
    - If barbell: big compound lifts (squat, bench, deadlift, OHP, rows)
    - If full gym: strategic mix of free weights, cables, machines + bodyweight supersets
    - ALWAYS pair exercises (supersets or circuits) to keep heart rate up
 
-4. CONDITIONING FINISHER (5-10 min)
+3. FINISHER (section_type: "finisher") — 1-2 exercises/circuits
    - AMRAP, Tabata, EMOM, or timed circuit
    - Full-body, maximum effort
-   - This is where you find out who you really are
    - Burpees, mountain climbers, squat jumps, push-ups — the basics at max intensity
 
-5. COOLDOWN & STRETCH (3-5 min)
+4. COOL-DOWN (section_type: "cooldown") — 2-3 stretches
    - Static stretching for worked muscles
    - Deep breathing
-   - Dom's faith moment: brief scripture or reflection (optional, included naturally)
 
-=== PROGRESSION PHILOSOPHY ===
-- Weeks 1-4 (FOUNDATION): Learn the movements. Build the habit. Establish the baseline. Still hard. Still intense. But focused on FORM and CONSISTENCY. RPE 7-8.
-- Weeks 5-8 (BUILD): Add volume. Reduce rest. Introduce harder variations. More conditioning. RPE 8-9.
-- Weeks 9-12 (PEAK): Maximum intensity. Advanced progressions. Minimal rest. Complex circuits. This is where you break through or break down. RPE 9-10.
+=== EXERCISE DETAIL REQUIREMENTS ===
+Every exercise must include:
+- "instructions": Step-by-step form breakdown. How to set up, execute, and finish the rep. Include breathing pattern and tempo. Write so someone who has NEVER done this exercise can do it perfectly.
+- "form_tips": 2-3 common mistakes and how to fix them. Practical cues, not clinical.
+- "muscles_targeted": Primary and secondary muscles, comma-separated.
+- "scaling_options": Four tiers in one string — "Beginner: [version] | Intermediate: [version] | Advanced: [version] | Beast Mode: [version]"
+- "notes": Dom's voice. Direct, motivational, no-nonsense. Brief form cue or motivational push.
 
-=== DOM'S VOICE IN THE WORKOUT ===
+=== DOM'S VOICE ===
 - Every workout has a title that sounds like it came from prison: "Cell Block Push," "Yard Time Conditioning," "Solitary Strength," "The Warden's Circuit"
 - Exercise notes should be motivational and direct: "No half reps. Full range of motion or it doesn't count." / "This is where most people quit. You're not most people." / "30 seconds rest. Not 31. Not 35. Thirty."
-- Include form cues that are practical, not clinical: "Chest to the floor on push-ups. If your chest doesn't touch, you didn't do a push-up." / "Squat until your hip crease is below your knee. Anything above parallel is a curtsy, not a squat."
-
-=== SCALING RULES ===
-Every exercise must have scaling options:
-- BEGINNER: The version a 500lb person who's never exercised can attempt. Wall push-ups. Step-back burpees. Chair-assisted squats. EVERYONE starts. No one gets excused.
-- INTERMEDIATE: Standard versions with good form expectations.
-- ADVANCED: Added complexity, tempo, load, or volume.
-- BEAST MODE: For people who need to be humbled. Decline diamond push-ups with pause. Burpee + pull-up combos. Pistol squats. Muscle-ups.`;
+- Form cues should be practical: "Chest to the floor on push-ups. If your chest doesn't touch, you didn't do a push-up." / "Squat until your hip crease is below your knee."`;
 
 // Phase descriptions for the 12-week program
 const PHASE_DESCRIPTIONS = {
@@ -92,6 +81,12 @@ const PHASE_DESCRIPTIONS = {
     intensity: "RPE 9-10. Go until failure, rest, go again. Leave nothing.",
     focus: "Peak performance, maximum conditioning, program mastery, mental fortitude."
   }
+};
+
+// Map day names to actual day-of-week indices (matches frontend: Monday=0 through Sunday=6)
+const DAY_TO_INDEX: Record<string, number> = {
+  Monday: 0, Tuesday: 1, Wednesday: 2, Thursday: 3,
+  Friday: 4, Saturday: 5, Sunday: 6,
 };
 
 interface UserProfile {
@@ -147,12 +142,6 @@ function buildUserContext(profile: UserProfile, planType: string): string {
   return lines.join("\n");
 }
 
-function getPhaseForWeek(weekNumber: number): keyof typeof PHASE_DESCRIPTIONS {
-  if (weekNumber <= 4) return "foundation";
-  if (weekNumber <= 8) return "build";
-  return "peak";
-}
-
 function getDayNames(trainingDays: number): string[] {
   switch (trainingDays) {
     case 3: return ["Monday", "Wednesday", "Friday"];
@@ -161,6 +150,42 @@ function getDayNames(trainingDays: number): string[] {
     case 6: return ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     default: return ["Monday", "Tuesday", "Thursday", "Friday"];
   }
+}
+
+// Apply progressive overload for weeks 2-4 within a phase
+function applyProgression(exercises: any[], weekOffset: number, _phaseKey: string): any[] {
+  if (weekOffset === 0) return exercises;
+
+  return exercises.map(ex => {
+    const modified = { ...ex };
+
+    // Increase reps (e.g., "12-15" → "14-17" for week 2)
+    if (modified.reps_or_time && /^\d+(-\d+)?$/.test(modified.reps_or_time)) {
+      const parts = modified.reps_or_time.split('-');
+      const increase = weekOffset * 2;
+      modified.reps_or_time = parts.map((p: string) => String(parseInt(p) + increase)).join('-');
+    }
+
+    // Decrease rest (e.g., "45s" → "40s" for week 2)
+    if (modified.rest) {
+      const restMatch = modified.rest.match(/(\d+)/);
+      if (restMatch) {
+        const baseRest = parseInt(restMatch[1]);
+        const newRest = Math.max(15, baseRest - (weekOffset * 5));
+        modified.rest = modified.rest.replace(/\d+/, String(newRest));
+      }
+    }
+
+    // Add sets on week 3+ for main exercises
+    if (weekOffset >= 2 && modified.section_type === 'main' && modified.sets) {
+      const baseSets = parseInt(modified.sets);
+      if (!isNaN(baseSets)) {
+        modified.sets = String(baseSets + 1);
+      }
+    }
+
+    return modified;
+  });
 }
 
 Deno.serve(async (req) => {
@@ -194,22 +219,33 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Check if plan already exists (unless regenerating)
-    if (!regenerate) {
+    // Check if this specific phase already exists (unless regenerating)
+    const phaseStartWeek = requestedPhase === "foundation" ? 1 : requestedPhase === "build" ? 5 : 9;
+    if (!regenerate && requestedPhase) {
       const { data: existing } = await supabase
         .from("workout_personalizations")
         .select("id")
         .eq("user_id", userId)
+        .eq("week_number", phaseStartWeek)
         .limit(1);
 
       if (existing && existing.length > 0) {
         return new Response(
-          JSON.stringify({ success: true, message: "Workout plan already exists", cached: true }),
+          JSON.stringify({ success: true, message: "Phase already generated", cached: true }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-    } else {
-      // Clear existing plan for regeneration
+    }
+
+    // Clear only the requested phase on regeneration
+    if (regenerate && requestedPhase) {
+      await supabase
+        .from("workout_personalizations")
+        .delete()
+        .eq("user_id", userId)
+        .gte("week_number", phaseStartWeek)
+        .lte("week_number", phaseStartWeek + 3);
+    } else if (regenerate) {
       await supabase
         .from("workout_personalizations")
         .delete()
@@ -240,7 +276,7 @@ Deno.serve(async (req) => {
 
     const planType = subscription?.plan_type || "transformation";
 
-    // Membership (Solitary) doesn't get AI-generated plans
+    // Membership (Solitary) doesn't get custom plans
     if (planType === "membership") {
       return new Response(
         JSON.stringify({ error: "Custom workout plans are not available for Solitary Confinement tier. Upgrade to General Population or Free World." }),
@@ -264,7 +300,7 @@ Deno.serve(async (req) => {
     const trainingDays = profile.training_days_per_week || 4;
     const dayNames = getDayNames(trainingDays);
 
-    // If a specific phase is requested, only generate that phase (avoids timeout)
+    // Determine which phases to generate
     const phases = requestedPhase
       ? [requestedPhase as "foundation" | "build" | "peak"]
       : ["foundation", "build", "peak"] as const;
@@ -279,194 +315,117 @@ Deno.serve(async (req) => {
 
       let tierContext: string;
       if (planType === "coaching") {
-        tierContext = `\n\nTHIS IS A FREE WORLD (1:1 COACHING) CLIENT — Premium tier. Generate MORE detailed coach notes, MORE specific scaling options, MORE personalized exercise selection based on their detailed profile. Include advanced techniques, tempo prescriptions, and RPE targets for each exercise. This person is paying top dollar for the most detailed, personalized program possible.`;
+        tierContext = `\n\nTHIS IS A FREE WORLD (1:1 COACHING) CLIENT — Premium tier. Generate MORE detailed coach notes, MORE specific scaling options, MORE personalized exercise selection based on their detailed profile. Include advanced techniques, tempo prescriptions, and RPE targets for each exercise.`;
         if (coachingApproach) {
-          tierContext += `\n\nDOM'S APPROVED APPROACH FOR THIS CLIENT:\nTitle: ${coachingApproach.title}\nApproach: ${coachingApproach.summary}\nKey Focus Areas: ${(coachingApproach.differentiators || []).join(", ")}`;
+          tierContext += `\n\nAPPROVED APPROACH FOR THIS CLIENT:\nTitle: ${coachingApproach.title}\nApproach: ${coachingApproach.summary}\nKey Focus Areas: ${(coachingApproach.differentiators || []).join(", ")}`;
           if (coachingApproach.domNotes) {
-            tierContext += `\nDom's Personal Notes: ${coachingApproach.domNotes}`;
+            tierContext += `\nPersonal Notes: ${coachingApproach.domNotes}`;
           }
-          tierContext += `\n\nFOLLOW THIS APPROVED APPROACH. The workout style, exercise selection, and programming should reflect these specific choices Dom made for this client.`;
+          tierContext += `\n\nFOLLOW THIS APPROVED APPROACH. The workout style, exercise selection, and programming should reflect these specific choices.`;
         }
       } else {
-        tierContext = `\n\nTHIS IS A GENERAL POPULATION CLIENT — 12-week transformation tier. Generate solid, comprehensive workouts with clear scaling options and form cues. Dom's energy in every note.`;
+        tierContext = `\n\nTHIS IS A GENERAL POPULATION CLIENT — 12-week transformation tier. Generate solid, comprehensive workouts with clear scaling options and form cues. Dom's energy in every note. Tailor every exercise to their exact body weight, equipment, injuries, and experience level.`;
       }
 
-      const prompt = `${DOM_WORKOUT_PHILOSOPHY}
+      // Generate all days in PARALLEL to stay within edge function timeout
+      const dayPromises = dayNames.map(async (dayName) => {
+        const dayIndex = DAY_TO_INDEX[dayName];
+        if (dayIndex === undefined) return [];
+
+        const prompt = `You are Dom Different — built his body in a federal prison cell. High intensity. High reps. No bullshit. Generate ${dayName}'s workout.
+
+USER: ${profile.experience || "Intermediate"} | ${profile.weight || "N/A"} | Equipment: ${profile.equipment || "Bodyweight only"} | Goal: ${userGoal} | Session: ${profile.session_length_preference || "45-60 min"}${profile.injuries ? ` | Injuries: ${profile.injuries}` : ''}
 ${tierContext}
 
-USER PROFILE:
-${userContext}
+PHASE: ${phase.title} — ${phase.description}
+INTENSITY: ${phase.intensity}
 
-CURRENT PHASE: ${phase.title} (Weeks ${phase.weeks})
-PHASE DESCRIPTION: ${phase.description}
-INTENSITY TARGET: ${phase.intensity}
-PHASE FOCUS: ${phase.focus}
+=== DOM'S NON-NEGOTIABLE RULES ===
+1. PUSH-UPS IN EVERY WARMUP. Wall push-ups if they're 500 lbs, decline diamonds if they're advanced. Non-negotiable.
+2. BURPEES IN EVERY WARMUP. Modified step-back for beginners, full burpee+push-up+jump for beasts. Unless medical condition prevents it.
+3. HIGH REPS, ALWAYS: Compound lifts 12-20 reps (NOT 6-8). Bodyweight 20-30+ reps. This is NOT powerlifting.
+4. SHORT REST: 30-45 seconds. 60 seconds absolute max on heavy compounds. No standing around texting.
+5. SUPERSETS EVERYTHING: Pair exercises. Push/pull, upper/lower. Keep the heart rate up.
+6. BODYWEIGHT IS KING: Even with full gym, every session has bodyweight work. Equipment adds to the foundation, never replaces it.
+7. FINISHER IS BRUTAL: AMRAP, Tabata, or timed circuit. Burpees, mountain climbers, squat jumps. Leave nothing.
+8. DIFFERENT EXERCISES EACH DAY: ${dayName} must NOT repeat the same lead exercises as other days. Vary movements, grips, angles, tempos.
+9. PROGRESSIVE OVERLOAD: ${phaseKey === "foundation" ? "Build the base. 3-4 sets. Learn form." : phaseKey === "build" ? "Push harder. 4-5 sets. Less rest. Harder variations." : "Maximum intensity. 4-5 sets. Drop sets, giant sets, AMRAP. Empty the tank."}
 
-PROGRAM TRACK: ${userTrack?.name || "General Fitness"}
+STRUCTURE: warmup (4-6 exercises w/ mobility + push-ups + burpees), main (4-6 exercises in supersets), finisher (1-2 AMRAP/circuits), cooldown (2-3 stretches).
 
-Generate a COMPLETE week of workouts for this phase. The user trains ${trainingDays} days per week on these days: ${dayNames.join(", ")}.
+Dom's voice in notes: "No half reps." / "30 seconds rest. Not 31." / "This is where most people quit. You're not most people."
 
-For EACH training day, generate the full workout following the exact structure:
-1. MOBILITY & ACTIVATION (3-5 exercises)
-2. BODYWEIGHT FOUNDATION (3-5 exercises — MUST include push-ups and usually burpees)
-3. MAIN WORK (4-8 exercises based on session length)
-4. CONDITIONING FINISHER (1-3 exercises/circuits)
-5. COOLDOWN (2-4 stretches)
+Respond ONLY with valid JSON — no markdown, no explanation:
+{"exercises":[{"exercise_name":"string","section_type":"warmup|main|finisher|cooldown","sets":"string","reps_or_time":"string","rest":"string","notes":"Dom's voice, 1 sentence","instructions":"Form breakdown","form_tips":"Common mistakes","muscles_targeted":"comma separated","scaling_options":"Beginner: X | Intermediate: X | Advanced: X | Beast Mode: X"}]}`;
 
-Remember:
-- PUSH-UPS are in EVERY session. Scale appropriately for their level.
-- BURPEES are in ALMOST every session (skip only if they have a condition preventing floor work or jumping).
-- BODYWEIGHT exercises are in EVERY session, even if they have a full gym.
-- Equipment exercises ADD to the bodyweight base, they don't replace it.
-- Include 4 progression tiers for each exercise: Beginner, Intermediate, Advanced, Beast Mode.
+        try {
+          const response = await client.messages.create({
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 4000,
+            messages: [{ role: "user", content: prompt }],
+          });
 
-=== EXERCISE DETAIL REQUIREMENTS (NON-NEGOTIABLE) ===
-Every single exercise must be EXTREMELY well-explained. A user should be able to read the description and perform the exercise perfectly with ZERO prior experience. Include:
+          const aiText = response.content[0].type === "text" ? response.content[0].text : "";
+          console.log(`${phaseKey}/${dayName}: stop=${response.stop_reason}, len=${aiText.length}`);
 
-1. FORM BREAKDOWN: Step-by-step how to perform the movement. Where to place hands/feet, body position, range of motion, tempo. Write it like you're coaching someone who has never done this exercise.
-
-2. BREATHING PATTERN: When to inhale, when to exhale. "Inhale on the way down, exhale as you push up." This matters for every exercise.
-
-3. COMMON MISTAKES: 2-3 things people do wrong and how to fix them. "Don't let your hips sag — squeeze your glutes like you're cracking a walnut. If your lower back hurts, your core isn't engaged."
-
-4. MUSCLE ACTIVATION CUES: What should they FEEL working? "You should feel this in your chest and triceps. If you feel it in your shoulders, bring your hands wider."
-
-5. TEMPO: Specify the tempo for each exercise (e.g., "3 seconds down, 1 second pause, 2 seconds up" or "explosive up, controlled 3-count down").
-
-Also generate PROGRESSION NOTES for weeks 2-4 of this phase:
-- Week 2: What changes from week 1 (e.g., +2 reps, -5s rest, new variation)
-- Week 3: What changes from week 2
-- Week 4: What changes from week 3
-
-Respond ONLY with valid JSON:
-{
-  "phase": "${phaseKey}",
-  "phase_title": "${phase.title}",
-  "workouts": {
-    "Day1Name": {
-      "workout_name": "string — prison-style name",
-      "workout_description": "string — 1-2 sentences, Dom's voice",
-      "estimated_duration": "string — e.g., '45 min'",
-      "sections": [
-        {
-          "section_type": "mobility|bodyweight_foundation|main|conditioning|cooldown",
-          "section_title": "string",
-          "exercises": [
-            {
-              "exercise_name": "string",
-              "sets": "string (e.g., '4')",
-              "reps_or_time": "string (e.g., '15-20' or '45s')",
-              "rest": "string (e.g., '30s')",
-              "tempo": "string — e.g., '3-1-2-0' (eccentric-pause-concentric-pause in seconds)",
-              "notes": "string — Dom's voice, motivational + practical",
-              "form_breakdown": "string — detailed step-by-step form instructions. How to set up, execute, and finish the rep. Write this so someone who has NEVER done this exercise can do it perfectly.",
-              "breathing": "string — when to inhale and exhale during the movement",
-              "common_mistakes": "string — 2-3 mistakes people make and how to fix them",
-              "muscles_targeted": "string — primary and secondary muscles",
-              "muscle_activation_cue": "string — what they should FEEL and where",
-              "scaling": {
-                "beginner": "string — the 500lb beginner version with full form explanation",
-                "intermediate": "string — standard version",
-                "advanced": "string — harder version with technique details",
-                "beast_mode": "string — for people who need humbling"
-              }
-            }
-          ]
-        }
-      ]
-    }
-  },
-  "weekly_progression": {
-    "week_2": "string — specific changes (reps, rest, tempo, variations)",
-    "week_3": "string — specific changes",
-    "week_4": "string — specific changes"
-  },
-  "phase_summary": "string — 2-3 sentences summarizing this phase, Dom's voice"
-}
-
-Use the actual day names (${dayNames.join(", ")}) as keys in the workouts object. Generate REAL, SPECIFIC exercises — not placeholders. Every exercise must have COMPLETE form instructions.`;
-
-      const response = await client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 8000,
-        messages: [{ role: "user", content: prompt }],
-      });
-
-      const aiText = response.content[0].type === "text" ? response.content[0].text : "";
-      const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-
-      if (!jsonMatch) {
-        console.error(`Failed to parse AI response for phase ${phaseKey}:`, aiText.substring(0, 500));
-        continue;
-      }
-
-      let parsed;
-      try {
-        parsed = JSON.parse(jsonMatch[0]);
-      } catch (e) {
-        console.error(`JSON parse error for phase ${phaseKey}:`, e);
-        continue;
-      }
-
-      // Store 4 weeks for this phase
-      for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
-        const weekNumber = startWeek + weekOffset;
-        const progressionKey = weekOffset === 0 ? null : `week_${weekOffset + 1}`;
-        const progressionNote = progressionKey ? parsed.weekly_progression?.[progressionKey] || null : null;
-
-        for (let dayIndex = 0; dayIndex < dayNames.length; dayIndex++) {
-          const dayName = dayNames[dayIndex];
-          const dayWorkout = parsed.workouts?.[dayName];
-
-          if (!dayWorkout) continue;
-
-          // Flatten all exercises with section info
-          const exercises: any[] = [];
-          let displayOrder = 0;
-
-          for (const section of dayWorkout.sections || []) {
-            for (const ex of section.exercises || []) {
-              exercises.push({
-                exercise_name: ex.exercise_name,
-                section_type: section.section_type,
-                section_title: section.section_title,
-                sets: ex.sets,
-                reps_or_time: ex.reps_or_time,
-                rest: ex.rest,
-                tempo: ex.tempo,
-                notes: ex.notes,
-                form_breakdown: ex.form_breakdown,
-                breathing: ex.breathing,
-                common_mistakes: ex.common_mistakes,
-                muscles_targeted: ex.muscles_targeted,
-                muscle_activation_cue: ex.muscle_activation_cue,
-                scaling: ex.scaling,
-                display_order: displayOrder++,
-              });
-            }
+          const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+          if (!jsonMatch) {
+            console.error(`No JSON for ${phaseKey}/${dayName}`);
+            return [];
           }
 
-          allPersonalizations.push({
-            user_id: userId,
-            track_id: userTrack?.id || null,
-            week_number: weekNumber,
-            day_of_week: dayIndex,
-            personalized_exercises: {
-              workout_name: dayWorkout.workout_name,
-              workout_description: dayWorkout.workout_description,
-              estimated_duration: dayWorkout.estimated_duration,
-              phase: phaseKey,
-              phase_title: parsed.phase_title,
-              phase_summary: parsed.phase_summary,
-              progression_note: progressionNote,
-              exercises,
-            },
-            modification_notes: `${parsed.phase_title} — Week ${weekNumber}${progressionNote ? ` | Progression: ${progressionNote}` : ""}`,
-          });
+          const parsed = JSON.parse(jsonMatch[0]);
+          const dayExercises = parsed.exercises;
+          if (!Array.isArray(dayExercises) || dayExercises.length === 0) {
+            console.error(`No exercises for ${phaseKey}/${dayName}`);
+            return [];
+          }
+
+          console.log(`${phaseKey}/${dayName}: ${dayExercises.length} exercises`);
+
+          const results: any[] = [];
+          for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
+            const weekNumber = startWeek + weekOffset;
+            const progressedExercises = applyProgression(dayExercises, weekOffset, phaseKey);
+
+            const finalExercises = progressedExercises.map((ex: any, idx: number) => ({
+              original_exercise_name: ex.exercise_name,
+              exercise_name: ex.exercise_name,
+              section_type: ex.section_type,
+              sets: ex.sets,
+              reps_or_time: ex.reps_or_time,
+              rest: ex.rest,
+              notes: ex.notes,
+              modification_reason: null,
+              display_order: idx,
+              muscles_targeted: ex.muscles_targeted,
+              form_tips: ex.form_tips,
+              scaling_options: ex.scaling_options,
+              instructions: ex.instructions,
+            }));
+
+            results.push({
+              user_id: userId,
+              track_id: userTrack?.id || null,
+              week_number: weekNumber,
+              day_of_week: dayIndex,
+              personalized_exercises: finalExercises,
+              modification_notes: `${phase.title} — Week ${weekNumber}`,
+            });
+          }
+          return results;
+        } catch (dayError) {
+          console.error(`Error ${phaseKey}/${dayName}:`, dayError);
+          return [];
         }
+      });
+
+      const dayResults = await Promise.all(dayPromises);
+      for (const results of dayResults) {
+        allPersonalizations.push(...results);
       }
 
-      console.log(`Phase ${phaseKey} generated: ${Object.keys(parsed.workouts || {}).length} days`);
+      console.log(`Phase ${phaseKey} complete: ${dayResults.reduce((sum, r) => sum + r.length, 0)} records`);
     }
 
     // Batch insert all personalizations
@@ -484,7 +443,7 @@ Use the actual day names (${dayNames.join(", ")}) as keys in the workouts object
       }
     }
 
-    console.log(`Workout plan generated and stored: ${allPersonalizations.length} total day-workouts for user ${userId}`);
+    console.log(`Workout plan stored: ${allPersonalizations.length} total day-workouts for user ${userId}`);
 
     return new Response(
       JSON.stringify({

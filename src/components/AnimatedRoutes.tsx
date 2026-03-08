@@ -3,14 +3,10 @@ import { AnimatePresence } from "framer-motion";
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PageTransition from "@/components/PageTransition";
-import { Loader2 } from "lucide-react";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
 
-// Lazy loading fallback
-const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-  </div>
-);
+// Lazy loading fallback — full page skeleton instead of a spinner
+const PageLoader = () => <DashboardSkeleton variant="page" />;
 
 // Public pages — lazy loaded
 const Index = lazy(() => import("@/pages/Index"));

@@ -70,9 +70,12 @@ const ResetPassword = () => {
     setSuccess(true);
     setIsLoading(false);
 
-    // Redirect after a short delay
+    // Sign out so user re-authenticates with new password
+    await supabase.auth.signOut({ scope: "local" });
+
+    // Redirect to login after a short delay
     setTimeout(() => {
-      navigate("/dashboard");
+      navigate("/login");
     }, 2000);
   };
 
@@ -115,7 +118,7 @@ const ResetPassword = () => {
                   </div>
                   <h3 className="font-display text-xl mb-2">Password Updated!</h3>
                   <p className="text-muted-foreground text-sm">
-                    Your access code has been reset. Redirecting you to the dashboard...
+                    Your access code has been reset. Redirecting you to log in...
                   </p>
                 </div>
               ) : (
@@ -137,7 +140,7 @@ const ResetPassword = () => {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -161,7 +164,7 @@ const ResetPassword = () => {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
                         aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                       >
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

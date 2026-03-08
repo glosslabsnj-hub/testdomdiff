@@ -65,22 +65,22 @@ const Community = () => {
 
       <main className="flex-1 flex flex-col pt-16">
         {/* Top Bar */}
-        <div className="border-b border-border bg-charcoal px-4 py-3 flex items-center gap-4">
+        <div className="border-b border-border bg-charcoal px-3 sm:px-4 py-3 flex items-center gap-4">
           <Link
             to="/dashboard"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          
+
           {/* Mobile Menu Toggle */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="md:hidden min-w-[44px] min-h-[44px]">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64">
+            <SheetContent side="left" className="p-0 w-64 max-w-[80vw]">
               <ChannelSidebar
                 channels={channels}
                 selectedChannelId={selectedChannelId}
@@ -99,7 +99,7 @@ const Community = () => {
               <Hash className="w-5 h-5 text-primary" />
             )}
             <div>
-              <h1 className="font-display text-lg">
+              <h1 className="font-display text-lg truncate">
                 {selectedChannel?.name.replace(/-/g, " ") || "Community"}
               </h1>
               {selectedChannel?.description && (

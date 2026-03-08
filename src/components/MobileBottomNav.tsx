@@ -23,7 +23,7 @@ export function MobileBottomNav() {
     } else if (isTransformation) {
       return { href: "/dashboard/program", label: "Program", icon: Calendar };
     } else if (isCoaching) {
-      return { href: "/dashboard/program", label: "Training", icon: Calendar };
+      return { href: "/dashboard/custom-program", label: "Training", icon: Calendar };
     }
     return { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell };
   };
@@ -44,8 +44,8 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-charcoal-dark/95 backdrop-blur-sm border-t border-border pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-charcoal-dark/95 backdrop-blur-sm border-t border-border pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-around h-16 px-1">
         {navItems.map((item) => {
           const isActive = item.href === "/dashboard"
             ? location.pathname === "/dashboard"
@@ -58,16 +58,16 @@ export function MobileBottomNav() {
               <button
                 key={item.label}
                 onClick={handleWardenClick}
-                className="flex flex-col items-center justify-center flex-1 py-2 group"
+                className="flex flex-col items-center justify-center flex-1 py-2 group active:scale-95 active:opacity-80 transition-transform"
                 aria-label="Open Warden AI Coach"
               >
                 <div className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-all",
+                  "w-11 h-11 rounded-full flex items-center justify-center transition-all",
                   "bg-gold text-charcoal-dark shadow-lg shadow-gold/20"
                 )}>
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-6 h-6" />
                 </div>
-                <span className="text-[10px] mt-0.5 text-gold font-medium">
+                <span className="text-[11px] mt-0.5 text-gold font-medium">
                   Warden
                 </span>
               </button>
@@ -78,14 +78,14 @@ export function MobileBottomNav() {
             <Link
               key={item.label}
               to={item.href}
-              className="flex flex-col items-center justify-center flex-1 py-2 group"
+              className="flex flex-col items-center justify-center flex-1 py-2 group active:scale-95 active:opacity-80 transition-transform"
             >
               <Icon className={cn(
                 "w-6 h-6 transition-colors",
                 isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
               )} />
               <span className={cn(
-                "text-[10px] mt-0.5 transition-colors",
+                "text-[11px] mt-0.5 transition-colors",
                 isActive ? "text-primary font-medium" : "text-muted-foreground"
               )}>
                 {item.label}

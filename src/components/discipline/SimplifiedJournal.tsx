@@ -162,7 +162,7 @@ export default function SimplifiedJournal({
           variant="gold"
           onClick={handleSave}
           disabled={saving || !draft.trim()}
-          className="gap-2"
+          className="gap-2 min-h-[44px]"
         >
           {saving ? (
             <Loader2 className="w-4 h-4 animate-spin" />

@@ -1,12 +1,12 @@
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://domdifferent.com",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+// Stripe Connect onboarding for Dom's connected account.
+// Platform (Jack) owns STRIPE_SECRET_KEY. Dom is the connected account
+// receiving automatic transfers on every payment.
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
 
     let accountId = Deno.env.get("STRIPE_DOM_CONNECTED_ACCOUNT_ID");
 
-    // If Dom's account doesn't exist yet, create an Express account
+    // If Dom's connected account doesn't exist yet, create an Express account
     if (!accountId) {
       const account = await stripe.accounts.create({
         type: "express",
@@ -41,6 +41,21 @@ Deno.serve(async (req) => {
       console.log(`IMPORTANT: Set STRIPE_DOM_CONNECTED_ACCOUNT_ID=${accountId} in your Supabase env vars`);
     }
 
+    // Check if account is already fully onboarded
+    const account = await stripe.accounts.retrieve(accountId);
+    if (account.charges_enabled && account.payouts_enabled) {
+      return new Response(
+        JSON.stringify({
+          accountId,
+          status: "active",
+          charges_enabled: true,
+          payouts_enabled: true,
+          message: "Dom's account is fully onboarded and ready to receive transfers.",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Generate onboarding link
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
@@ -53,6 +68,9 @@ Deno.serve(async (req) => {
       JSON.stringify({
         url: accountLink.url,
         accountId,
+        status: "pending_onboarding",
+        charges_enabled: account.charges_enabled,
+        payouts_enabled: account.payouts_enabled,
         message: `Send this URL to Dom to complete identity verification. Account ID: ${accountId}`,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

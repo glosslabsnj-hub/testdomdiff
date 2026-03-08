@@ -2,8 +2,16 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock, Shield, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardHeader from "@/components/DashboardHeader";
+import UpgradePrompt from "@/components/UpgradePrompt";
+import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 
 const BookPOCheckin = () => {
+  const { isCoaching } = useEffectiveSubscription();
+
+  if (!isCoaching) {
+    return <UpgradePrompt feature="P.O. Check-In Scheduling" upgradeTo="coaching" />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />

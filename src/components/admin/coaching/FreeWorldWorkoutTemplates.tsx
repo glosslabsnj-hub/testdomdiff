@@ -635,44 +635,40 @@ function ExerciseRow({ exercise }: { exercise: TemplateExercise }) {
   if (isEditing) {
     return (
       <div className="p-3 rounded-lg bg-charcoal border border-purple-500/50 space-y-2">
-        <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-5">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <div className="sm:col-span-5">
             <Input
               value={editData.exercise_name}
               onChange={(e) => setEditData({ ...editData, exercise_name: e.target.value })}
               placeholder="Exercise name"
-              className="h-8 text-sm"
+              className="h-11 text-sm"
             />
           </div>
-          <div className="col-span-2">
+          <div className="grid grid-cols-3 gap-2 sm:col-span-6 sm:grid-cols-3">
             <Input
               value={editData.sets}
               onChange={(e) => setEditData({ ...editData, sets: e.target.value })}
               placeholder="Sets"
-              className="h-8 text-sm text-center"
+              className="h-11 text-sm text-center"
             />
-          </div>
-          <div className="col-span-2">
             <Input
               value={editData.reps_or_time}
               onChange={(e) => setEditData({ ...editData, reps_or_time: e.target.value })}
               placeholder="Reps"
-              className="h-8 text-sm text-center"
+              className="h-11 text-sm text-center"
             />
-          </div>
-          <div className="col-span-2">
             <Input
               value={editData.rest}
               onChange={(e) => setEditData({ ...editData, rest: e.target.value })}
               placeholder="Rest"
-              className="h-8 text-sm text-center"
+              className="h-11 text-sm text-center"
             />
           </div>
-          <div className="col-span-1 flex items-center gap-1">
+          <div className="sm:col-span-1 flex items-center gap-1 justify-end sm:justify-start">
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-green-400 hover:text-green-300"
+              className="h-11 w-11 p-0 text-green-400 hover:text-green-300"
               onClick={handleSave}
               disabled={saving}
             >
@@ -681,7 +677,7 @@ function ExerciseRow({ exercise }: { exercise: TemplateExercise }) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              className="h-11 w-11 p-0 text-muted-foreground hover:text-foreground"
               onClick={handleCancel}
               disabled={saving}
             >
@@ -693,7 +689,7 @@ function ExerciseRow({ exercise }: { exercise: TemplateExercise }) {
           value={editData.notes}
           onChange={(e) => setEditData({ ...editData, notes: e.target.value })}
           placeholder="Notes (optional)"
-          className="h-8 text-sm"
+          className="h-11 text-sm"
         />
       </div>
     );
@@ -701,7 +697,7 @@ function ExerciseRow({ exercise }: { exercise: TemplateExercise }) {
 
   return (
     <div
-      className="group flex items-center justify-between p-2 rounded hover:bg-muted/30 cursor-pointer transition-colors"
+      className="group flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-3 rounded hover:bg-muted/30 cursor-pointer transition-colors min-h-[44px]"
       onClick={() => setIsEditing(true)}
     >
       <div className="flex-1 min-w-0">
@@ -710,14 +706,14 @@ function ExerciseRow({ exercise }: { exercise: TemplateExercise }) {
           <span className="text-xs text-muted-foreground ml-2">({exercise.notes})</span>
         )}
       </div>
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-0">
         <span className="tabular-nums">{exercise.sets} sets</span>
         <span className="tabular-nums">{exercise.reps_or_time}</span>
         {exercise.rest && <span className="tabular-nums">{exercise.rest} rest</span>}
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="h-8 w-8 p-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={(e) => {
             e.stopPropagation();
             setIsEditing(true);

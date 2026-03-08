@@ -2,6 +2,7 @@ const ALLOWED_ORIGINS = [
   "https://domdifferent.netlify.app",
   "https://domdifferent.com",
   "https://www.domdifferent.com",
+  "https://dist-fawn-gamma.vercel.app",
   "http://localhost:8080",
   "http://localhost:5173",
 ];

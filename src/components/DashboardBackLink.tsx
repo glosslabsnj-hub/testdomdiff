@@ -26,7 +26,7 @@ export function DashboardBackLink({ className = "" }: DashboardBackLinkProps) {
   return (
     <Link
       to="/dashboard"
-      className={`inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 ${className}`}
+      className={`inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 min-h-[44px] ${className}`}
     >
       <ArrowLeft className="w-4 h-4" />
       {getLabel()}

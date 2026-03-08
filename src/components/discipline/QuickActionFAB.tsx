@@ -129,7 +129,7 @@ export default function QuickActionFAB({
         onClick={() => setIsMinimized(false)}
         className={cn(
           // Position above Warden FAB (which is at bottom-20 mobile, bottom-6 desktop)
-          "fixed bottom-36 right-4 z-50 md:bottom-20",
+          "fixed bottom-36 right-4 z-50 md:bottom-24",
           "w-12 h-12 rounded-full",
           "bg-charcoal border-2 border-primary/50",
           "flex items-center justify-center",
@@ -155,7 +155,7 @@ export default function QuickActionFAB({
     <div
       className={cn(
         // Position above Warden FAB (which is at bottom-20 mobile, bottom-6 desktop)
-        "fixed bottom-36 right-4 z-50 md:bottom-20",
+        "fixed bottom-36 right-4 z-50 md:bottom-24",
         "w-72 max-w-[calc(100vw-2rem)]",
         "transition-all duration-300"
       )}

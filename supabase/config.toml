@@ -1,5 +1,18 @@
 project_id = "oalnbcnvvkoqbatvxssk"
 
+# === AUTH CONFIGURATION ===
+
+[auth]
+site_url = "https://domdifferent.com"
+additional_redirect_urls = [
+  "https://domdifferent.com",
+  "https://domdifferent.com/reset-password",
+  "https://domdifferent.com/login",
+  "https://domdifferent.com/dashboard",
+  "http://localhost:8080",
+  "http://localhost:5173"
+]
+
 # === PUBLIC FUNCTIONS (no auth required) ===
 
 [functions.email-subscribe]
@@ -91,4 +104,26 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.social-engagement-coach]
+verify_jwt = false
+
+# === PAYMENT & SUBSCRIPTION FUNCTIONS ===
+
+[functions.stripe-create-checkout]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.stripe-create-merch-checkout]
+verify_jwt = false
+
+[functions.stripe-cancel-subscription]
+verify_jwt = false
+
+[functions.stripe-connect-onboarding]
+verify_jwt = false
+
+# === WORKOUT PERSONALIZATION ===
+
+[functions.personalize-workout]
 verify_jwt = false

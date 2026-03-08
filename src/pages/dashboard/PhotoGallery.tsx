@@ -112,17 +112,24 @@ export default function PhotoGallery() {
 
   const handleDownload = async () => {
     if (!selectedPhoto?.url) return;
-    
-    const response = await fetch(selectedPhoto.url);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `progress-${selectedPhoto.photo_type}-${format(new Date(selectedPhoto.created_at), "yyyy-MM-dd")}.jpg`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+
+    try {
+      const response = await fetch(selectedPhoto.url);
+      if (!response.ok) throw new Error("Failed to download photo");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `progress-${selectedPhoto.photo_type}-${format(new Date(selectedPhoto.created_at), "yyyy-MM-dd")}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed:", err);
+      // Toast import is not available here, so use a basic alert as fallback
+      alert("Failed to download photo. Please try again.");
+    }
   };
 
   const currentLightboxIndex = filteredPhotos.findIndex(p => p.id === selectedPhoto?.id);
@@ -224,7 +231,7 @@ export default function PhotoGallery() {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={cn(
-                    "p-2 transition-colors",
+                    "p-2.5 sm:p-2 min-w-[40px] min-h-[40px] flex items-center justify-center transition-colors",
                     viewMode === "grid" ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"
                   )}
                 >
@@ -233,7 +240,7 @@ export default function PhotoGallery() {
                 <button
                   onClick={() => setViewMode("timeline")}
                   className={cn(
-                    "p-2 transition-colors",
+                    "p-2.5 sm:p-2 min-w-[40px] min-h-[40px] flex items-center justify-center transition-colors",
                     viewMode === "timeline" ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"
                   )}
                 >
@@ -275,7 +282,7 @@ export default function PhotoGallery() {
             </div>
           ) : viewMode === "grid" ? (
             /* Grid View */
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-4">
               {filteredPhotos.map((photo) => {
                 const PrivacyIcon = privacyIcons[photo.privacy_level];
                 const isSelected = comparisonPhotos.some(p => p?.id === photo.id);
@@ -347,7 +354,7 @@ export default function PhotoGallery() {
               {Object.entries(photosByWeek).map(([week, weekPhotos]) => (
                 <div key={week} className="bg-card border border-border rounded-lg p-6">
                   <h3 className="font-display text-lg text-primary mb-4">{week}</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                     {weekPhotos.map((photo) => {
                       const isSelected = comparisonPhotos.some(p => p?.id === photo.id);
                       return (
@@ -459,7 +466,7 @@ export default function PhotoGallery() {
                 </div>
 
                 {/* Info Panel */}
-                <div className="w-full md:w-80 p-6 border-t md:border-t-0 md:border-l border-border bg-card">
+                <div className="w-full md:w-80 p-4 sm:p-6 border-t md:border-t-0 md:border-l border-border bg-card">
                   <div className={cn(
                     "inline-block px-3 py-1 rounded-lg text-sm font-medium border mb-4",
                     typeColors[selectedPhoto.photo_type]

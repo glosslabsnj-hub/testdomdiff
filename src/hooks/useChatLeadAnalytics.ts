@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ChatLead {
   id: string;
@@ -29,11 +30,13 @@ interface LeadAnalytics {
 }
 
 export function useChatLeadAnalytics() {
+  const { user, dataLoaded } = useAuth();
   const [analytics, setAnalytics] = useState<LeadAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user || !dataLoaded) return;
     async function fetchAnalytics() {
       try {
         const { data: leads, error: fetchError } = await supabase
@@ -110,7 +113,7 @@ export function useChatLeadAnalytics() {
     }
 
     fetchAnalytics();
-  }, []);
+  }, [user?.id, dataLoaded]);
 
   return { analytics, isLoading, error };
 }

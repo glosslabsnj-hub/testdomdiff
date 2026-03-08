@@ -159,7 +159,7 @@ export default function ClientBulkActions({
         variant="outline"
         size="sm"
         onClick={allSelected ? onDeselectAll : onSelectAll}
-        className="text-xs"
+        className="text-xs min-h-[44px] w-full sm:w-auto"
       >
         {allSelected ? (
           <CheckSquare className="w-4 h-4 mr-2" />
@@ -182,7 +182,7 @@ export default function ClientBulkActions({
         size="sm"
         onClick={exportToCSV}
         disabled={isExporting}
-        className="text-xs"
+        className="text-xs min-h-[44px] w-full sm:w-auto"
       >
         {isExporting ? (
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -200,7 +200,7 @@ export default function ClientBulkActions({
               variant="outline"
               size="sm"
               disabled={isUpdating}
-              className="text-xs"
+              className="text-xs min-h-[44px] w-full sm:w-auto"
             >
               {isUpdating ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

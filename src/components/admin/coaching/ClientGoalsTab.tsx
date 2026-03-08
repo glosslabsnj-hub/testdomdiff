@@ -119,7 +119,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
           </h3>
           <Dialog open={goalDialogOpen} onOpenChange={setGoalDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="min-h-[44px]">
                 <Plus className="w-4 h-4 mr-1" />
                 Add Goal
               </Button>
@@ -135,7 +135,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                     value={goalTitle}
                     onChange={(e) => setGoalTitle(e.target.value)}
                     placeholder="e.g., Lose 20 lbs"
-                    className="mt-1"
+                    className="mt-1 h-11"
                   />
                 </div>
                 <div>
@@ -154,10 +154,10 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                     type="date"
                     value={goalTargetDate}
                     onChange={(e) => setGoalTargetDate(e.target.value)}
-                    className="mt-1"
+                    className="mt-1 h-11"
                   />
                 </div>
-                <Button onClick={handleCreateGoal} className="w-full" variant="gold">
+                <Button onClick={handleCreateGoal} className="w-full min-h-[44px]" variant="gold">
                   Create Goal
                 </Button>
               </div>
@@ -186,7 +186,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-11 w-11"
                         onClick={() => completeGoal(goal.id)}
                       >
                         <CheckCircle2 className="w-4 h-4 text-green-400" />
@@ -194,7 +194,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-11 w-11"
                         onClick={() => deleteGoal(goal.id)}
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
@@ -238,7 +238,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
           </h3>
           <Dialog open={actionDialogOpen} onOpenChange={setActionDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="min-h-[44px]">
                 <Plus className="w-4 h-4 mr-1" />
                 Add Task
               </Button>
@@ -254,7 +254,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                     value={actionTitle}
                     onChange={(e) => setActionTitle(e.target.value)}
                     placeholder="e.g., Increase protein to 180g/day"
-                    className="mt-1"
+                    className="mt-1 h-11"
                   />
                 </div>
                 <div>
@@ -267,20 +267,20 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                     rows={2}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label>Due Date</Label>
                     <Input
                       type="date"
                       value={actionDueDate}
                       onChange={(e) => setActionDueDate(e.target.value)}
-                      className="mt-1"
+                      className="mt-1 h-11"
                     />
                   </div>
                   <div>
                     <Label>Priority</Label>
                     <Select value={actionPriority} onValueChange={setActionPriority}>
-                      <SelectTrigger className="mt-1">
+                      <SelectTrigger className="mt-1 h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -291,7 +291,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={handleCreateAction} className="w-full" variant="gold">
+                <Button onClick={handleCreateAction} className="w-full min-h-[44px]" variant="gold">
                   Assign Task
                 </Button>
               </div>
@@ -347,7 +347,7 @@ export default function ClientGoalsTab({ clientId }: ClientGoalsTabProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-11 w-11"
                     onClick={() => deleteActionItem(item.id)}
                   >
                     <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />

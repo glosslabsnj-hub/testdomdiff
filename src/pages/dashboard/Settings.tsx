@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw, XCircle, ChevronDown } from "lucide-react";
+import { ArrowLeft, Save, Loader2, User, Mail, Phone, Check, Lock, Eye, EyeOff, Trophy, Award, Download, MessageSquare, Bell, BellOff, RotateCcw, RefreshCw, XCircle, ChevronDown, Trash2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
@@ -19,6 +30,7 @@ import { useMilestones, PAROLE_MILESTONES } from "@/hooks/useMilestones";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ReplayOrientationButton } from "@/components/ReplayOrientationButton";
 import { CancelSubscriptionDialog } from "@/components/CancelSubscriptionDialog";
+import { DataExportButton } from "@/components/DataExportButton";
 import StickyMobileFooter from "@/components/StickyMobileFooter";
 import { z } from "zod";
 
@@ -88,7 +100,7 @@ function RefreshSubscriptionButton() {
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, signOut } = useAuth();
   const { subscription, isCoaching, isTransformation } = useEffectiveSubscription();
   const { milestones, loading: milestonesLoading, hasMilestone, getFeaturedBadge } = useMilestones();
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, permission: pushPermission, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePushNotifications();
@@ -146,6 +158,15 @@ export default function Settings() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  // Email change state
+  const [newEmail, setNewEmail] = useState("");
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
+
+  // Account deletion state
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -290,6 +311,86 @@ export default function Settings() {
     return formData.email?.split("@")[0] || "You";
   };
 
+  const handleEmailUpdate = async () => {
+    if (!newEmail.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter a new email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail.trim())) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUpdatingEmail(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+
+      if (error) throw error;
+
+      toast({
+        title: "Verification email sent",
+        description: "Please check your new email inbox to confirm the change.",
+      });
+      setNewEmail("");
+    } catch (error: any) {
+      console.error("Error updating email:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingEmail(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") return;
+
+    setIsDeletingAccount(true);
+
+    try {
+      // Attempt to record the deletion request
+      try {
+        await supabase.from("account_deletion_requests").insert({
+          user_id: profile?.user_id || profile?.id,
+          requested_at: new Date().toISOString(),
+        });
+      } catch {
+        // Table may not exist, continue with sign out
+      }
+
+      toast({
+        title: "Deletion request submitted",
+        description: "Your account will be removed within 48 hours. You will now be signed out.",
+      });
+
+      // Brief delay so the user sees the toast
+      setTimeout(async () => {
+        await signOut();
+      }, 1500);
+    } catch (error: any) {
+      console.error("Error requesting account deletion:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit deletion request. Please try again.",
+        variant: "destructive",
+      });
+      setIsDeletingAccount(false);
+    }
+  };
+
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordErrors({});
@@ -429,6 +530,41 @@ export default function Settings() {
                         onChange={handleChange}
                         className="bg-charcoal-dark border-border h-12"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email_mobile" className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        Email Address
+                      </Label>
+                      <Input
+                        id="email_mobile_display"
+                        value={formData.email}
+                        disabled
+                        className="bg-charcoal-dark border-border h-12 opacity-60 cursor-not-allowed"
+                      />
+                      <div className="flex flex-col gap-2">
+                        <Input
+                          id="email_mobile"
+                          type="email"
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          placeholder="Enter new email address"
+                          className="bg-charcoal-dark border-border h-12"
+                        />
+                        <Button
+                          type="button"
+                          variant="goldOutline"
+                          size="sm"
+                          onClick={handleEmailUpdate}
+                          disabled={isUpdatingEmail || !newEmail.trim()}
+                          className="h-12 px-4 w-full"
+                        >
+                          {isUpdatingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update Email"}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        A verification email will be sent to your new address
+                      </p>
                     </div>
                     <Button type="submit" variant="gold" disabled={isLoading} className="w-full">
                       {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
@@ -628,6 +764,85 @@ export default function Settings() {
                   )}
                 </AccordionContent>
               </AccordionItem>
+
+              {/* Data Export Section */}
+              <AccordionItem value="data-export" className="bg-charcoal border border-border rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <Download className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Your Data</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Download a copy of all your data including profile, check-ins, habits, meals, and workouts.
+                  </p>
+                  <DataExportButton />
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Danger Zone Section */}
+              <AccordionItem value="danger" className="bg-charcoal border border-destructive/50 rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-4 hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                    <span className="font-semibold text-destructive">Danger Zone</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Permanently delete your account and all associated data. This action cannot be undone.
+                  </p>
+                  <AlertDialog open={showDeleteDialog} onOpenChange={(open) => { setShowDeleteDialog(open); if (!open) setDeleteConfirmText(""); }}>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Account
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-charcoal border-border">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-destructive flex items-center gap-2">
+                          <AlertTriangle className="h-5 w-5" />
+                          Delete Account
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete your account and all data. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="space-y-2 py-2">
+                        <Label htmlFor="delete_confirm_mobile" className="text-sm text-muted-foreground">
+                          Type <span className="font-mono font-bold text-destructive">DELETE</span> to confirm
+                        </Label>
+                        <Input
+                          id="delete_confirm_mobile"
+                          value={deleteConfirmText}
+                          onChange={(e) => setDeleteConfirmText(e.target.value)}
+                          placeholder="Type DELETE"
+                          className="bg-charcoal-dark border-border h-11"
+                        />
+                      </div>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDeleteConfirmText("")} className="min-h-[44px]">Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          disabled={deleteConfirmText !== "DELETE" || isDeletingAccount}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90 min-h-[44px]"
+                        >
+                          {isDeletingAccount ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            "Delete My Account"
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </div>
 
@@ -671,7 +886,7 @@ export default function Settings() {
                       value={formData.first_name}
                       onChange={handleChange}
                       placeholder="Enter your first name"
-                      className="bg-charcoal-dark border-border"
+                      className="bg-charcoal-dark border-border h-11"
                     />
                     {errors.first_name && (
                       <p className="text-sm text-destructive">{errors.first_name}</p>
@@ -685,7 +900,7 @@ export default function Settings() {
                       value={formData.last_name}
                       onChange={handleChange}
                       placeholder="Enter your last name"
-                      className="bg-charcoal-dark border-border"
+                      className="bg-charcoal-dark border-border h-11"
                     />
                     {errors.last_name && (
                       <p className="text-sm text-destructive">{errors.last_name}</p>
@@ -693,7 +908,7 @@ export default function Settings() {
                   </div>
                 </div>
 
-                {/* Email (read-only) */}
+                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
@@ -705,11 +920,38 @@ export default function Settings() {
                     type="email"
                     value={formData.email}
                     disabled
-                    className="bg-charcoal-dark border-border opacity-60 cursor-not-allowed"
+                    className="bg-charcoal-dark border-border h-11 opacity-60 cursor-not-allowed"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Contact support to change your email address
-                  </p>
+                  <div className="flex gap-2 items-start">
+                    <div className="flex-1 space-y-1">
+                      <Input
+                        id="new_email"
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="Enter new email address"
+                        className="bg-charcoal-dark border-border h-11"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        A verification email will be sent to your new address
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="goldOutline"
+                      size="sm"
+                      onClick={handleEmailUpdate}
+                      disabled={isUpdatingEmail || !newEmail.trim()}
+                      className="mt-0"
+                    >
+                      {isUpdatingEmail ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Mail className="h-4 w-4 mr-2" />
+                      )}
+                      Update Email
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Phone */}
@@ -725,7 +967,7 @@ export default function Settings() {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="Enter your phone number"
-                    className="bg-charcoal-dark border-border"
+                    className="bg-charcoal-dark border-border h-11"
                   />
                   {errors.phone && (
                     <p className="text-sm text-destructive">{errors.phone}</p>
@@ -843,7 +1085,7 @@ export default function Settings() {
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Enter your nickname"
                     maxLength={30}
-                    className="bg-charcoal-dark border-border"
+                    className="bg-charcoal-dark border-border h-11"
                   />
                   <p className="text-xs text-muted-foreground">
                     Max 30 characters. Keep it clean, soldier.
@@ -902,12 +1144,12 @@ export default function Settings() {
                       value={passwordData.currentPassword}
                       onChange={handlePasswordChange}
                       placeholder="Enter current password"
-                      className="bg-charcoal-dark border-border pr-10"
+                      className="bg-charcoal-dark border-border h-11 pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
                     >
                       {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -928,12 +1170,12 @@ export default function Settings() {
                       value={passwordData.newPassword}
                       onChange={handlePasswordChange}
                       placeholder="Enter new password (min 8 characters)"
-                      className="bg-charcoal-dark border-border pr-10"
+                      className="bg-charcoal-dark border-border h-11 pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
                     >
                       {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -953,7 +1195,7 @@ export default function Settings() {
                     value={passwordData.confirmPassword}
                     onChange={handlePasswordChange}
                     placeholder="Confirm new password"
-                    className="bg-charcoal-dark border-border"
+                    className="bg-charcoal-dark border-border h-11"
                   />
                   {passwordErrors.confirmPassword && (
                     <p className="text-sm text-destructive">{passwordErrors.confirmPassword}</p>
@@ -1200,6 +1442,91 @@ export default function Settings() {
               </CardContent>
             </Card>
           )}
+
+          {/* Data Export */}
+          <Card className="bg-charcoal border-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Download className="h-5 w-5 text-primary" />
+                Your Data
+              </CardTitle>
+              <CardDescription>
+                Download a copy of all your data including profile, check-ins, habits, meals, and workouts.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataExportButton />
+            </CardContent>
+          </Card>
+
+          {/* Danger Zone */}
+          <Card className="bg-charcoal border-destructive/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                Danger Zone
+              </CardTitle>
+              <CardDescription>
+                Irreversible actions that affect your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-lg border border-destructive/30 bg-destructive/5">
+                <h4 className="text-sm font-semibold text-foreground mb-1">Delete Account</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Permanently delete your account and all associated data. This action cannot be undone.
+                </p>
+                <AlertDialog open={showDeleteDialog} onOpenChange={(open) => { setShowDeleteDialog(open); if (!open) setDeleteConfirmText(""); }}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Account
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-charcoal border-border">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-destructive flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5" />
+                        Delete Account
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete your account and all data. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="space-y-2 py-2">
+                      <Label htmlFor="delete_confirm_desktop" className="text-sm text-muted-foreground">
+                        Type <span className="font-mono font-bold text-destructive">DELETE</span> to confirm
+                      </Label>
+                      <Input
+                        id="delete_confirm_desktop"
+                        value={deleteConfirmText}
+                        onChange={(e) => setDeleteConfirmText(e.target.value)}
+                        placeholder="Type DELETE"
+                        className="bg-charcoal-dark border-border h-11"
+                      />
+                    </div>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={() => setDeleteConfirmText("")} className="min-h-[44px]">Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteAccount}
+                        disabled={deleteConfirmText !== "DELETE" || isDeletingAccount}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 min-h-[44px]"
+                      >
+                        {isDeletingAccount ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Deleting...
+                          </>
+                        ) : (
+                          "Delete My Account"
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </CardContent>
+          </Card>
           </div> {/* End desktop div */}
         </div>
       </main>

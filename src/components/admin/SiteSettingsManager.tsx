@@ -48,7 +48,7 @@ export default function SiteSettingsManager() {
             Configure your marketing pixels to track conversions from Instagram, Facebook, Google, and TikTok.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* Meta Pixel */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -59,10 +59,10 @@ export default function SiteSettingsManager() {
                 rel="noopener noreferrer"
                 className="text-xs text-primary hover:underline flex items-center gap-1"
               >
-                Get Pixel ID <ExternalLink className="h-3 w-3" />
+                Get Pixel ID <ExternalLink className="h-4 w-4" />
               </a>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 id="meta_pixel_id"
                 placeholder="e.g., 123456789012345"
@@ -72,7 +72,7 @@ export default function SiteSettingsManager() {
               />
               <Button
                 variant="gold"
-                size="sm"
+                className="min-h-[44px]"
                 onClick={() => handleSave("meta_pixel_id")}
                 disabled={saving === "meta_pixel_id"}
               >
@@ -94,10 +94,10 @@ export default function SiteSettingsManager() {
                 rel="noopener noreferrer"
                 className="text-xs text-primary hover:underline flex items-center gap-1"
               >
-                Get GA4 ID <ExternalLink className="h-3 w-3" />
+                Get GA4 ID <ExternalLink className="h-4 w-4" />
               </a>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 id="ga4_measurement_id"
                 placeholder="e.g., G-XXXXXXXXXX"
@@ -107,7 +107,7 @@ export default function SiteSettingsManager() {
               />
               <Button
                 variant="gold"
-                size="sm"
+                className="min-h-[44px]"
                 onClick={() => handleSave("ga4_measurement_id")}
                 disabled={saving === "ga4_measurement_id"}
               >
@@ -126,10 +126,10 @@ export default function SiteSettingsManager() {
                 rel="noopener noreferrer"
                 className="text-xs text-primary hover:underline flex items-center gap-1"
               >
-                Get TikTok Pixel <ExternalLink className="h-3 w-3" />
+                Get TikTok Pixel <ExternalLink className="h-4 w-4" />
               </a>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 id="tiktok_pixel_id"
                 placeholder="e.g., CXXXXXXXXXXXXXXXXX"
@@ -139,7 +139,7 @@ export default function SiteSettingsManager() {
               />
               <Button
                 variant="gold"
-                size="sm"
+                className="min-h-[44px]"
                 onClick={() => handleSave("tiktok_pixel_id")}
                 disabled={saving === "tiktok_pixel_id"}
               >
@@ -171,10 +171,10 @@ export default function SiteSettingsManager() {
                 rel="noopener noreferrer"
                 className="text-xs text-primary hover:underline flex items-center gap-1"
               >
-                Manage Events <ExternalLink className="h-3 w-3" />
+                Manage Events <ExternalLink className="h-4 w-4" />
               </a>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 id="calendly_url"
                 placeholder="https://calendly.com/your-username/consultation"
@@ -184,7 +184,7 @@ export default function SiteSettingsManager() {
               />
               <Button
                 variant="gold"
-                size="sm"
+                className="min-h-[44px]"
                 onClick={() => handleSave("calendly_url")}
                 disabled={saving === "calendly_url"}
               >
@@ -204,7 +204,7 @@ export default function SiteSettingsManager() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Input
               id="support_email"
               type="email"
@@ -215,7 +215,7 @@ export default function SiteSettingsManager() {
             />
             <Button
               variant="gold"
-              size="sm"
+              className="min-h-[44px]"
               onClick={() => handleSave("support_email")}
               disabled={saving === "support_email"}
             >

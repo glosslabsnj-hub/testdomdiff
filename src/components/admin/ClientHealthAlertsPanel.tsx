@@ -111,7 +111,7 @@ export default function ClientHealthAlertsPanel() {
             <p className="text-xs text-muted-foreground mt-1">No health alerts at this time</p>
           </div>
         ) : (
-          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-2">
             {alerts.slice(0, 10).map((alert) => {
               const styles = getSeverityStyles(alert.severity);
               return (
@@ -129,8 +129,8 @@ export default function ClientHealthAlertsPanel() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className={styles.icon}>{getAlertIcon(alert.alert_type)}</span>
-                        <p className="font-medium text-sm truncate">{alert.title}</p>
-                        <Badge className={`${styles.badge} text-[10px] px-1.5 py-0`}>
+                        <p className="font-medium text-sm break-words">{alert.title}</p>
+                        <Badge className={`${styles.badge} text-xs px-1.5 py-0`}>
                           {alert.severity}
                         </Badge>
                       </div>
@@ -138,9 +138,9 @@ export default function ClientHealthAlertsPanel() {
                     </div>
                     <Link
                       to={`/dashboard/messages?client=${alert.user_id}`}
-                      className="text-muted-foreground hover:text-primary transition-colors"
+                      className="text-muted-foreground hover:text-primary transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                     >
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight className="h-5 w-5" />
                     </Link>
                   </div>
                 </div>
