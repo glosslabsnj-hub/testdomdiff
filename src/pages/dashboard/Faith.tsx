@@ -176,7 +176,7 @@ const Faith = () => {
         )}
 
         {/* Week Selector - hidden for Solitary preview (locked to week 1) */}
-        {!isMembershipPreview && (
+        {!isMembershipPreview && (<>
         <div className="flex items-center justify-center gap-4 mb-8">
           <Button
             variant="ghost"
@@ -191,6 +191,7 @@ const Faith = () => {
               const lesson = lessons.find((l) => l.week_number === week);
               const isPublished = lesson?.is_published;
               const isMemorized = memorizedScriptures.includes(week);
+              const isCurrentWeek = week === calculatedWeek;
               return (
                 <button
                   key={week}
@@ -198,13 +199,19 @@ const Faith = () => {
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full text-sm font-medium transition-all relative ${
                     currentWeek === week
                       ? "bg-primary text-primary-foreground"
+                      : isCurrentWeek && isPublished
+                      ? "bg-charcoal border-2 border-primary hover:border-primary/80"
                       : isPublished
                       ? "bg-charcoal border border-border hover:border-primary/50"
                       : "bg-muted text-muted-foreground cursor-not-allowed"
                   }`}
                   disabled={!isPublished}
+                  title={isCurrentWeek ? "Current week" : undefined}
                 >
                   {week}
+                  {isCurrentWeek && currentWeek !== week && (
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary" />
+                  )}
                   {isMemorized && (
                     <Star className="w-3 h-3 text-primary absolute -top-1 -right-1 fill-primary" />
                   )}
@@ -221,7 +228,20 @@ const Faith = () => {
             <ChevronRight className="w-5 h-5" />
           </Button>
         </div>
+        {currentWeek !== calculatedWeek && (
+          <div className="flex justify-center -mt-4 mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-primary hover:text-primary/80"
+              onClick={() => setCurrentWeek(calculatedWeek)}
+            >
+              <ArrowRight className="w-3 h-3 mr-1" />
+              Jump to Current Week (Week {calculatedWeek})
+            </Button>
+          </div>
         )}
+        </>)}
 
         {!hasContent ? (
           <EmptyState

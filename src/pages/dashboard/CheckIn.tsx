@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Send, Check, History, Camera, Loader2 } from "lucide-react";
+import { Send, Check, History, Camera, Loader2, CheckCircle2, Dumbbell, BookOpen, BarChart3, LayoutDashboard, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +47,9 @@ const CheckIn = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [submittedWeek, setSubmittedWeek] = useState<number>(0);
+  const navigate = useNavigate();
 
   const isCoaching = subscription?.plan_type === "coaching";
   const currentWeek = getCurrentWeekNumber();
@@ -125,22 +129,8 @@ const CheckIn = () => {
     try {
       setIsSubmitting(true);
       await submitCheckIn(formData);
-      toast({
-        title: isCoaching ? "Report submitted!" : "Check-in submitted!",
-        description: `Week ${formData.week_number} ${isCoaching ? "report" : "check-in"} saved successfully.`,
-      });
-      // Reset form for next week (capped at 12)
-      setFormData({
-        week_number: Math.min(currentWeek + 1, 12),
-        weight: "",
-        waist: "",
-        steps_avg: "",
-        workouts_completed: "",
-        wins: "",
-        struggles: "",
-        changes: "",
-        faith_reflection: "",
-      });
+      setSubmittedWeek(formData.week_number);
+      setShowSuccess(true);
       setValidationErrors({});
     } catch (err: any) {
       toast({
@@ -152,6 +142,24 @@ const CheckIn = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleDismissSuccess = () => {
+    setShowSuccess(false);
+    // Reset form for next week (capped at 12)
+    setFormData({
+      week_number: Math.min(currentWeek + 1, 12),
+      weight: "",
+      waist: "",
+      steps_avg: "",
+      workouts_completed: "",
+      wins: "",
+      struggles: "",
+      changes: "",
+      faith_reflection: "",
+    });
+  };
+
+  const hasProgram = subscription?.plan_type === "transformation" || subscription?.plan_type === "coaching";
 
   if (loading) {
     return (
@@ -191,7 +199,94 @@ const CheckIn = () => {
             </Button>
           </div>
 
-          {showHistory ? (
+          {showSuccess ? (
+            <div className="space-y-6 bg-card p-6 sm:p-10 rounded-lg border border-border text-center">
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-primary" />
+                </div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-2">
+                  Week {submittedWeek} {isCoaching ? "Report" : "Check-In"} Submitted
+                </h2>
+                <p className="text-muted-foreground">
+                  Your progress has been logged. Consistency is what separates those who make it from those who don't. Keep showing up.
+                </p>
+              </div>
+
+              <div className="border-t border-border pt-6">
+                <h3 className="text-lg font-semibold mb-4 text-left">What's Next</h3>
+                <div className="space-y-3">
+                  {hasProgram ? (
+                    <button
+                      onClick={() => navigate("/dashboard/program")}
+                      className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-charcoal hover:border-primary/50 transition-colors text-left group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <BookOpen className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="font-semibold text-sm">Continue The Sentence</p>
+                          <p className="text-xs text-muted-foreground">Pick up your 12-week program</p>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </button>
+                  ) : null}
+                  <button
+                    onClick={() => navigate("/dashboard/workouts")}
+                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-charcoal hover:border-primary/50 transition-colors text-left group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Dumbbell className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="font-semibold text-sm">Hit the Iron Pile</p>
+                        <p className="text-xs text-muted-foreground">Get your next workout in</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </button>
+                  <button
+                    onClick={() => navigate("/dashboard/progress")}
+                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-charcoal hover:border-primary/50 transition-colors text-left group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <BarChart3 className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="font-semibold text-sm">View Your Progress</p>
+                        <p className="text-xs text-muted-foreground">See how far you've come</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </button>
+                  <button
+                    onClick={() => navigate("/dashboard")}
+                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border bg-charcoal hover:border-primary/50 transition-colors text-left group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <LayoutDashboard className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="font-semibold text-sm">Back to Cell Block</p>
+                        <p className="text-xs text-muted-foreground">Return to your dashboard</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  variant="goldOutline"
+                  onClick={handleDismissSuccess}
+                  className="gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  Submit Another Check-In
+                </Button>
+              </div>
+            </div>
+          ) : showHistory ? (
             <div className="space-y-4">
               {checkIns.length === 0 ? (
                 <div className="bg-card p-8 rounded-lg border border-border text-center">
@@ -404,7 +499,7 @@ const CheckIn = () => {
         </div>
         
         {/* Mobile sticky submit button */}
-        {!showHistory && (
+        {!showHistory && !showSuccess && (
           <StickyMobileFooter className="md:hidden">
             <Button
               variant="gold"

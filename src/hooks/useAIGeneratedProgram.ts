@@ -83,6 +83,9 @@ export function useAIGeneratedProgram(enabled: boolean) {
   const [exercisesByDay, setExercisesByDay] = useState<Record<string, AIExercise[]>>({});
   const [loading, setLoading] = useState(true);
   const [hasData, setHasData] = useState(false);
+  const [refetchCounter, setRefetchCounter] = useState(0);
+
+  const refetch = () => setRefetchCounter((c) => c + 1);
 
   useEffect(() => {
     if (!enabled || !user?.id) {
@@ -203,7 +206,7 @@ export function useAIGeneratedProgram(enabled: boolean) {
     };
 
     fetchAIProgram();
-  }, [enabled, user?.id]);
+  }, [enabled, user?.id, refetchCounter]);
 
-  return { weeks, dayWorkouts, exercisesByDay, loading, hasData };
+  return { weeks, dayWorkouts, exercisesByDay, loading, hasData, refetch };
 }

@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   Moon,
   Lock,
-  Info
+  Info,
+  RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +72,92 @@ interface ProgramDayExercise {
 
 const DAYS_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
+const AUTO_REFRESH_INTERVAL = 15; // seconds
+
+const ProgramEmptyState = ({ onRefresh }: { onRefresh: () => void }) => {
+  const [countdown, setCountdown] = useState(AUTO_REFRESH_INTERVAL);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto-refresh every 15 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          onRefresh();
+          return AUTO_REFRESH_INTERVAL;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [onRefresh]);
+
+  const handleManualRefresh = () => {
+    setIsRefreshing(true);
+    onRefresh();
+    setCountdown(AUTO_REFRESH_INTERVAL);
+    // Reset the spinning icon after a brief moment
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
+  const progressPercent = ((AUTO_REFRESH_INTERVAL - countdown) / AUTO_REFRESH_INTERVAL) * 100;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="section-container py-12">
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+        </Link>
+
+        <div className="max-w-xl mx-auto text-center py-16">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+          </div>
+          <h1 className="font-display text-3xl mb-4">
+            Building Your <span className="text-primary">Program</span>
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            Your personalized 12-week workout program is being generated based on your profile, goals, and equipment. This typically takes 2-5 minutes after completing intake.
+          </p>
+
+          {/* Auto-refresh countdown */}
+          <div className="mb-6 p-4 rounded-lg bg-charcoal border border-border">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Clock className="w-4 h-4 text-primary" />
+              <p className="text-sm text-muted-foreground">
+                Auto-checking in <span className="font-semibold text-primary">{countdown}s</span>
+              </p>
+            </div>
+            <Progress value={progressPercent} className="h-1.5" />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              variant="gold"
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              className="gap-2"
+            >
+              <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+              {isRefreshing ? "Checking..." : "Refresh Now"}
+            </Button>
+            <Button variant="goldOutline" asChild>
+              <Link to="/dashboard/workouts">Browse Workout Templates</Link>
+            </Button>
+            <Button variant="dark" asChild>
+              <Link to="/dashboard">Back to Dashboard</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Program = () => {
   const { tracks, loading: tracksLoading, getTrackByGoal } = useProgramTracks();
   const { subscription, isMembership } = useEffectiveSubscription();
@@ -83,7 +170,7 @@ const Program = () => {
     return getTrackByGoal(profile?.goal || null);
   }, [tracks, tracksLoading, profile?.goal, getTrackByGoal]);
 
-  const { weeks: templateWeeks, loading: weeksLoading } = useProgramWeeks(userTrack?.id);
+  const { weeks: templateWeeks, loading: weeksLoading, fetchWeeks } = useProgramWeeks(userTrack?.id);
 
   // AI fallback: load from workout_personalizations when no admin templates exist
   const useAIFallback = !weeksLoading && templateWeeks.length === 0;
@@ -93,6 +180,7 @@ const Program = () => {
     exercisesByDay: aiExercisesByDay,
     loading: aiLoading,
     hasData: hasAIData,
+    refetch: refetchAI,
   } = useAIGeneratedProgram(useAIFallback);
 
   const [expandedWeek, setExpandedWeek] = useState<number | null>(null);
@@ -237,39 +325,12 @@ const Program = () => {
   // No data from either source — program is still generating
   if (weeks.length === 0 && !loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="section-container py-12">
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Cell Block
-          </Link>
-
-          <div className="max-w-xl mx-auto text-center py-16">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-              <Loader2 className="w-10 h-10 text-primary animate-spin" />
-            </div>
-            <h1 className="font-display text-3xl mb-4">
-              Building Your <span className="text-primary">Program</span>
-            </h1>
-            <p className="text-muted-foreground mb-6">
-              Your personalized 12-week workout program is being generated based on your profile, goals, and equipment. This typically takes 2-5 minutes after completing intake.
-            </p>
-            <p className="text-sm text-muted-foreground mb-8">
-              Come back in a few minutes, or explore other areas of your dashboard while you wait.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="gold" asChild>
-                <Link to="/dashboard/workouts">Browse Workout Templates</Link>
-              </Button>
-              <Button variant="goldOutline" asChild>
-                <Link to="/dashboard">Back to Dashboard</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ProgramEmptyState
+        onRefresh={() => {
+          fetchWeeks(userTrack?.id);
+          refetchAI();
+        }}
+      />
     );
   }
 
@@ -432,18 +493,88 @@ const Program = () => {
     const cooldownExercises = exercises.filter(e => e.section_type === "cooldown");
 
     if (workout.is_rest_day) {
+      const restCompleted = isDayCompleted(workout.id);
+      const [restCompleting, setRestCompleting] = useState(false);
+
+      const handleRestComplete = async () => {
+        setRestCompleting(true);
+        const success = await toggleDayCompletion(workout.id, weekNumber);
+        if (success && !restCompleted) {
+          jailSounds.haptic('medium');
+          toast({
+            title: "Rest Day Honored",
+            description: "Recovery is discipline. Well done.",
+          });
+        }
+        setRestCompleting(false);
+      };
+
       return (
-        <div className="flex items-center gap-4 p-4 rounded-lg bg-charcoal/50 border border-border">
-          <div className="w-12 h-12 rounded-lg bg-muted/20 flex items-center justify-center">
-            <Moon className="w-5 h-5 text-muted-foreground" />
+        <div className={cn(
+          "p-4 rounded-lg border transition-all",
+          restCompleted
+            ? "bg-destructive/10 border-destructive/30"
+            : "bg-charcoal/50 border-border"
+        )}>
+          <div className="flex items-center gap-4">
+            <div className={cn(
+              "w-12 h-12 rounded-lg flex items-center justify-center",
+              restCompleted ? "bg-destructive/20" : "bg-muted/20"
+            )}>
+              {restCompleted ? (
+                <Lock className="w-5 h-5 text-destructive" />
+              ) : (
+                <Moon className="w-5 h-5 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{dayLabel}</p>
+              <h4 className={cn(
+                "font-medium",
+                restCompleted ? "text-muted-foreground line-through" : "text-muted-foreground"
+              )}>{workout.workout_name}</h4>
+              {workout.workout_description && (
+                <p className="text-sm text-muted-foreground/70">{workout.workout_description}</p>
+              )}
+            </div>
+            <Button
+              variant={restCompleted ? "outline" : "ghost"}
+              size="sm"
+              className={cn(
+                "shrink-0 min-w-[44px] min-h-[44px] active:scale-[0.97]",
+                restCompleted && "border-destructive/50 text-destructive hover:bg-destructive/10"
+              )}
+              onClick={handleRestComplete}
+              disabled={restCompleting}
+            >
+              {restCompleting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : restCompleted ? (
+                <Lock className="w-4 h-4" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
+            </Button>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">{dayLabel}</p>
-            <h4 className="font-medium text-muted-foreground">{workout.workout_name}</h4>
-            {workout.workout_description && (
-              <p className="text-sm text-muted-foreground/70">{workout.workout_description}</p>
-            )}
-          </div>
+
+          {/* Recovery guidance */}
+          {!restCompleted && (
+            <div className="mt-3 ml-16 space-y-2">
+              <p className="text-sm text-primary/80 italic">Recovery is part of the process.</p>
+              <div className="flex flex-wrap gap-2">
+                {["Stretching", "Foam Rolling", "Walking", "Meditation"].map((activity) => (
+                  <Badge key={activity} variant="outline" className="text-xs text-muted-foreground">
+                    {activity}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {restCompleted && (
+            <div className="mt-3 ml-16">
+              <p className="text-xs text-destructive/70">Rest day honored. Back at it tomorrow.</p>
+            </div>
+          )}
         </div>
       );
     }
@@ -486,6 +617,9 @@ const Program = () => {
                     "text-sm",
                     isCompleted ? "text-muted-foreground/50" : "text-muted-foreground"
                   )}>{workout.workout_description}</p>
+                )}
+                {!isOpen && exercises.length > 0 && (
+                  <p className="text-xs text-primary/60 mt-1">Tap to view exercises</p>
                 )}
               </div>
             </div>
