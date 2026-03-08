@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, KeyboardEvent } from "react";
+import { useState, useRef, useCallback, useEffect, KeyboardEvent } from "react";
 import { Send, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,14 +9,24 @@ interface MentionInputProps {
   onSend: (content: string, mentionedUserIds: string[]) => void;
   disabled?: boolean;
   placeholder?: string;
+  initialValue?: string;
 }
 
 export default function MentionInput({
   onSend,
   disabled = false,
   placeholder = "Type a message... Use @ to mention someone",
+  initialValue,
 }: MentionInputProps) {
   const [content, setContent] = useState("");
+
+  // Pre-fill content when initialValue changes (e.g. from seed prompt selection)
+  useEffect(() => {
+    if (initialValue) {
+      setContent(initialValue);
+      setTimeout(() => textareaRef.current?.focus(), 0);
+    }
+  }, [initialValue]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionStartIndex, setMentionStartIndex] = useState<number | null>(null);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
-import { 
-  Sun, Moon, Loader2, Flame, ChevronRight, Settings2
+import {
+  Sun, Moon, Loader2, Flame, ChevronRight, Settings2, RefreshCw, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -57,6 +57,14 @@ const Discipline = () => {
   const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(
     (profile as any)?.discipline_template_id || null
   );
+
+  // Comeback banner dismissal (resets daily)
+  const [comebackDismissed, setComebackDismissed] = useState(() => {
+    const val = localStorage.getItem("comebackBannerDismissed");
+    if (!val) return false;
+    const today = format(new Date(), "yyyy-MM-dd");
+    return val === today;
+  });
 
   // Time overrides hook
   const { getTime, saveTimeOverride } = useRoutineTimeOverrides(currentTemplateId);
@@ -152,6 +160,37 @@ const Discipline = () => {
     <div className="min-h-screen bg-background">
       <div className="section-container py-8 pb-24">
         <DashboardBackLink className="mb-6" />
+
+        {/* Comeback Banner - shows when streak is broken */}
+        {streak === 0 && !comebackDismissed && (
+          <div className={cn(
+            "relative overflow-hidden rounded-lg border p-4 mb-6",
+            "bg-gradient-to-r from-primary/10 via-primary/5 to-transparent",
+            "border-primary/40"
+          )}>
+            <button
+              onClick={() => {
+                setComebackDismissed(true);
+                localStorage.setItem("comebackBannerDismissed", format(new Date(), "yyyy-MM-dd"));
+              }}
+              className="absolute top-3 right-3 text-primary/50 hover:text-primary transition-colors"
+              aria-label="Dismiss banner"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-start gap-3 pr-8">
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
+                <RefreshCw className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-primary mb-0.5">Time for a Comeback</p>
+                <p className="text-sm text-muted-foreground">
+                  Yesterday's over. Complete today's full routine to start a comeback streak.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Compact Header */}
         <div className="mb-6">

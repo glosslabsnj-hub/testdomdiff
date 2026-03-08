@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import DashboardLayout from "@/components/DashboardLayout";
 import ShareCollageDialog from "@/components/progress/ShareCollageDialog";
+import BeforeAfterSlider from "@/components/progress/BeforeAfterSlider";
 
 type ViewMode = "grid" | "timeline";
 type FilterType = "all" | "before" | "during" | "after";
@@ -61,8 +62,28 @@ export default function PhotoGallery() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [showSlider, setShowSlider] = useState(false);
 
   const isCoaching = subscription?.plan_type === "coaching";
+
+  // Auto-select before/after photos when entering comparison mode
+  useEffect(() => {
+    if (comparisonMode && !comparisonPhotos[0] && !comparisonPhotos[1]) {
+      const beforePhotos = photos
+        .filter(p => p.photo_type === "before")
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      const afterOrDuringPhotos = photos
+        .filter(p => p.photo_type === "after" || p.photo_type === "during")
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      if (beforePhotos.length > 0 && afterOrDuringPhotos.length > 0) {
+        setComparisonPhotos([beforePhotos[0], afterOrDuringPhotos[0]]);
+      }
+    }
+    if (!comparisonMode) {
+      setShowSlider(false);
+    }
+  }, [comparisonMode, photos]);
 
   // Filter and organize photos
   const filteredPhotos = useMemo(() => {
@@ -202,13 +223,21 @@ export default function PhotoGallery() {
                 {comparisonPhotos[0] && !comparisonPhotos[1] && " Now select the second photo."}
               </p>
               {comparisonPhotos[0] && comparisonPhotos[1] && (
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   <Button
                     variant="gold"
                     size="sm"
                     onClick={() => setLightboxOpen(true)}
                   >
-                    View Comparison
+                    View Side by Side
+                  </Button>
+                  <Button
+                    variant={showSlider ? "gold" : "goldOutline"}
+                    size="sm"
+                    onClick={() => setShowSlider(!showSlider)}
+                  >
+                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                    {showSlider ? "Hide Slider" : "Before/After Slider"}
                   </Button>
                   <Button
                     variant="goldOutline"
@@ -220,6 +249,16 @@ export default function PhotoGallery() {
                   </Button>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Before/After Slider */}
+          {comparisonMode && showSlider && comparisonPhotos[0] && comparisonPhotos[1] && (
+            <div className="mb-6">
+              <BeforeAfterSlider
+                beforePhoto={comparisonPhotos[0]}
+                afterPhoto={comparisonPhotos[1]}
+              />
             </div>
           )}
 

@@ -21,6 +21,7 @@ const Community = () => {
   const { channels, loading: channelsLoading } = useCommunityChannels();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [prefillMessage, setPrefillMessage] = useState<string | undefined>(undefined);
   
   const { messages, loading: messagesLoading, sendMessage, deleteMessage } = 
     useCommunityMessages(selectedChannelId);
@@ -151,10 +152,16 @@ const Community = () => {
                   messages={messages}
                   loading={messagesLoading}
                   onDeleteMessage={deleteMessage}
+                  channelName={selectedChannel?.name}
+                  onPromptSelect={(prompt) => setPrefillMessage(prompt)}
                 />
                 <MentionInput
-                  onSend={(content, mentionedUserIds) => sendMessage(content, undefined, mentionedUserIds)}
+                  onSend={(content, mentionedUserIds) => {
+                    sendMessage(content, undefined, mentionedUserIds);
+                    setPrefillMessage(undefined);
+                  }}
                   placeholder={`Message #${selectedChannel?.name || "channel"}... Use @ to mention`}
+                  initialValue={prefillMessage}
                 />
               </>
             )}

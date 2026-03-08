@@ -1,6 +1,6 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from "react";
 import { format } from "date-fns";
-import { Loader2, Trash2, Flag, CornerDownRight } from "lucide-react";
+import { Loader2, Trash2, Flag, CornerDownRight, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,9 +20,54 @@ interface MessageListProps {
   messages: CommunityMessage[];
   loading: boolean;
   onDeleteMessage: (messageId: string) => void;
+  channelName?: string;
+  onPromptSelect?: (prompt: string) => void;
 }
 
 const REPORT_REASONS = ["Spam", "Inappropriate", "Harassment", "Other"] as const;
+
+// Seed prompts for empty channels based on channel name keywords
+const SEED_PROMPTS: Record<string, string[]> = {
+  general: [
+    "Welcome to The Yard. Introduce yourself - where are you from and what's your goal?",
+    "What made you decide to start this journey?",
+    "What's one thing you want to accomplish this week?",
+  ],
+  welcome: [
+    "Welcome to The Yard. Introduce yourself - where are you from and what's your goal?",
+    "What made you decide to start this journey?",
+    "What's one thing you want to accomplish this week?",
+  ],
+  wins: [
+    "Share your first win. Even showing up counts.",
+    "What's something you did today that you're proud of?",
+    "Drop a win from this week, no matter how small.",
+  ],
+  faith: [
+    "What verse is carrying you right now?",
+    "How has your faith helped you through a tough moment recently?",
+    "Share a prayer or scripture that keeps you grounded.",
+  ],
+  workout: [
+    "What workout did you crush today?",
+    "What's your go-to exercise when motivation is low?",
+    "Share your PR or a personal best you're chasing.",
+  ],
+  training: [
+    "What workout did you crush today?",
+    "What's your go-to exercise when motivation is low?",
+    "Share your PR or a personal best you're chasing.",
+  ],
+};
+
+function getSeedPrompts(channelName?: string): string[] {
+  if (!channelName) return SEED_PROMPTS.general;
+  const lower = channelName.toLowerCase();
+  for (const [key, prompts] of Object.entries(SEED_PROMPTS)) {
+    if (lower.includes(key)) return prompts;
+  }
+  return SEED_PROMPTS.general;
+}
 
 // Helper to get display name based on preference
 function getDisplayName(message: CommunityMessage): string {
@@ -103,7 +148,7 @@ function parseMessageContent(content: string): React.ReactNode {
   return parts.length > 0 ? parts : content;
 }
 
-export default function MessageList({ messages, loading, onDeleteMessage }: MessageListProps) {
+export default function MessageList({ messages, loading, onDeleteMessage, channelName, onPromptSelect }: MessageListProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -196,9 +241,29 @@ export default function MessageList({ messages, loading, onDeleteMessage }: Mess
   }
 
   if (messages.length === 0) {
+    const prompts = getSeedPrompts(channelName);
     return (
-      <div className="flex-1 flex items-center justify-center text-muted-foreground">
-        <p>No messages yet. Be the first to post!</p>
+      <div className="flex-1 flex items-center justify-center px-4">
+        <div className="w-full max-w-md space-y-4">
+          <div className="text-center mb-6">
+            <Sparkles className="w-8 h-8 text-primary/60 mx-auto mb-3" />
+            <h3 className="font-display text-lg text-foreground">Start the conversation</h3>
+            <p className="text-sm text-muted-foreground mt-1">Tap a prompt to break the ice</p>
+          </div>
+          <div className="space-y-3">
+            {prompts.map((prompt, i) => (
+              <button
+                key={i}
+                onClick={() => onPromptSelect?.(prompt)}
+                className="w-full text-left p-4 rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/30 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 group cursor-pointer"
+              >
+                <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                  {prompt}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

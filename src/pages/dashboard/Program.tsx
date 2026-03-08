@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { 
   ArrowLeft, 
   Dumbbell, 
@@ -42,6 +42,8 @@ import { usePersonalizedWorkout, type PersonalizedExercise } from "@/hooks/usePe
 import { useAIGeneratedProgram } from "@/hooks/useAIGeneratedProgram";
 import DifficultyFeedback from "@/components/workout/DifficultyFeedback";
 import { WorkoutTimerButton } from "@/components/workout/WorkoutTimer";
+import { useOfflineWorkout } from "@/hooks/useOfflineWorkout";
+import { WifiOff, Download } from "lucide-react";
 
 interface ProgramDayWorkout {
   id: string;
@@ -163,6 +165,7 @@ const Program = () => {
   const { subscription, isMembership } = useEffectiveSubscription();
   const { profile } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   
   // Get user's track based on their goal
   const userTrack = useMemo(() => {
@@ -206,6 +209,13 @@ const Program = () => {
     return calculateCurrentWeek(subscription?.started_at);
   }, [subscription?.started_at]);
   
+  // Offline workout cache
+  const currentWeekData = weeks.find(w => w.week_number === currentWeek);
+  const { isOffline, hasCachedData, cacheWorkoutData } = useOfflineWorkout(
+    currentWeekData?.id,
+    currentWeek
+  );
+
   // Auto-expand current week on first load
   useEffect(() => {
     if (!expandedWeek && currentWeek) {
@@ -279,6 +289,47 @@ const Program = () => {
 
     fetchWorkoutsAndExercises();
   }, [templateWeeks, isAIMode, aiDayWorkouts, aiExercisesByDay]);
+
+  // Cache current week's workout data for offline use
+  useEffect(() => {
+    if (dayWorkouts.length > 0 && currentWeekData) {
+      const weekWorkouts = dayWorkouts.filter(w => w.week_id === currentWeekData.id);
+      if (weekWorkouts.length > 0) {
+        const weekExercises: Record<string, any[]> = {};
+        weekWorkouts.forEach(w => {
+          if (exercisesByDay[w.id]) {
+            weekExercises[w.id] = exercisesByDay[w.id];
+          }
+        });
+        cacheWorkoutData(weekWorkouts, weekExercises);
+      }
+    }
+  }, [dayWorkouts, exercisesByDay, currentWeekData]);
+
+  // Handle scrollTo=today deep link: auto-expand today's workout and scroll to it
+  useEffect(() => {
+    if (searchParams.get("scrollTo") !== "today") return;
+    if (dayWorkouts.length === 0) return;
+
+    const todayDayName = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()];
+    const todayWorkout = dayWorkouts.find(w => w.day_of_week === todayDayName);
+    if (!todayWorkout) return;
+
+    // Auto-expand today's workout card
+    setExpandedWorkouts(prev => {
+      const next = new Set(prev);
+      next.add(todayWorkout.id);
+      return next;
+    });
+
+    // Scroll to the workout card after it renders
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const el = document.getElementById(`workout-${todayDayName}`);
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    });
+  }, [searchParams, dayWorkouts]);
 
   // Only transformation and coaching users can access
   if (isMembership) {
@@ -510,7 +561,7 @@ const Program = () => {
       };
 
       return (
-        <div className={cn(
+        <div id={`workout-${workout.day_of_week}`} className={cn(
           "p-4 rounded-lg border transition-all",
           restCompleted
             ? "bg-destructive/10 border-destructive/30"
@@ -580,7 +631,7 @@ const Program = () => {
     }
 
     return (
-      <div ref={cardRef} className="relative">
+      <div ref={cardRef} id={`workout-${workout.day_of_week}`} className="relative">
         {/* Stamp animation overlay */}
         <ServedStamp show={showStamp} />
         
@@ -848,6 +899,11 @@ const Program = () => {
                       Current Week
                     </Badge>
                   )}
+                  {isCurrentWeek && hasCachedData && (
+                    <Badge variant="outline" className="text-xs text-green-400 border-green-400/30">
+                      <Download className="w-3 h-3 mr-1" /> Available Offline
+                    </Badge>
+                  )}
                   {isWeekServed && (
                     <Badge className="bg-destructive/20 text-destructive border-destructive/30 text-xs">
                       Served
@@ -979,6 +1035,12 @@ const Program = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {isOffline && (
+        <div className="bg-amber-500/20 border-b border-amber-500/30 px-4 py-2 flex items-center justify-center gap-2">
+          <WifiOff className="w-4 h-4 text-amber-400" />
+          <span className="text-sm font-medium text-amber-400">Offline Mode</span>
+        </div>
+      )}
       <div className="section-container py-8">
         <Link
           to="/dashboard"

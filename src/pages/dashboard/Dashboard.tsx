@@ -32,15 +32,18 @@ import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
 import OnboardingTooltip from "@/components/OnboardingTooltip";
 import { DashboardPullToRefresh } from "@/components/DashboardPullToRefresh";
+import { useNotificationScheduler } from "@/hooks/useNotificationScheduler";
 
 import { RollCallToday } from "@/components/dashboard/RollCallToday";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
 import { GamificationCard, StreakCounter } from "@/components/dashboard/GamificationCard";
 import { WinsWall } from "@/components/dashboard/WinsWall";
+import { UpgradeNudge } from "@/components/dashboard/UpgradeNudge";
 import { NotificationPrompt } from "@/components/dashboard/NotificationPrompt";
 import { DailyChallenge } from "@/components/dashboard/DailyChallenge";
 import { HabitHeatmap } from "@/components/dashboard/HabitHeatmap";
 import { ReleaseCeremony } from "@/components/dashboard/ReleaseCeremony";
+import { PhaseMilestone } from "@/components/dashboard/PhaseMilestone";
 import {
   Tooltip,
   TooltipContent,
@@ -138,6 +141,9 @@ function getWeekSpecificMessage(week: number, isCoaching: boolean, isMembership:
 const Dashboard = () => {
   const { profile } = useAuth();
   const { subscription, isCoaching, isTransformation, isMembership } = useEffectiveSubscription();
+
+  // Schedule local reminder notifications (fire-and-forget)
+  useNotificationScheduler();
   
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [lockedFeature, setLockedFeature] = useState("");
@@ -452,6 +458,9 @@ const Dashboard = () => {
           {/* Release Ceremony - shows when 12 weeks complete */}
           <ReleaseCeremony />
 
+          {/* Phase Milestone - shows when Foundation (Week 4) or Build (Week 8) completes */}
+          <PhaseMilestone />
+
         {/* Compact Welcome Card - replaces verbose welcome banner */}
         <div className="flex items-center justify-between mb-2 min-w-0">
           <DashboardWelcomeCard userName={profile?.first_name || undefined} />
@@ -505,6 +514,9 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Upgrade Nudge for Solitary users in week 2+ */}
+        {currentWeek >= 2 && <UpgradeNudge trigger="week_2" className="mb-6" />}
 
         {/* Coaching Plan Status Banner */}
         {isCoaching && profile?.coaching_plan_status && profile.coaching_plan_status !== "approved" && profile.coaching_plan_status !== "none" && (

@@ -121,7 +121,7 @@ export function RollCallToday() {
         : isMembership 
           ? "Your Iron Pile session is ready" 
           : `Week ${currentWeek} training`,
-      href: isMembership ? "/dashboard/workouts" : "/dashboard/program",
+      href: isMembership ? "/dashboard/workouts" : "/dashboard/program?scrollTo=today",
       icon: Dumbbell,
       priority: 3,
       isComplete: todayWorkoutComplete,

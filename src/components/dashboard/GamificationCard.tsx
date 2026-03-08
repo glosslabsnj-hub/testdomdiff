@@ -12,6 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useGamification, type Badge } from "@/hooks/useGamification";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { UpgradeNudge } from "@/components/dashboard/UpgradeNudge";
 
 const iconMap: Record<string, any> = {
   Star, Shield, ShieldCheck, Crown, Award, Swords,
@@ -140,6 +141,9 @@ export function GamificationCard() {
             <p className="text-xs text-muted-foreground">Inmate Rating</p>
           </div>
         </div>
+
+        {/* Upgrade nudge for Solitary users with 7+ day streak */}
+        {currentStreak >= 7 && <UpgradeNudge trigger="streak_7" />}
 
         {/* Score Breakdown */}
         <div className="space-y-2">
