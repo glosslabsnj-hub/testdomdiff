@@ -15,11 +15,13 @@ import {
   MessageCircle,
   Trophy,
   ChevronDown,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSocialCommand } from "@/hooks/useSocialCommand";
 import ContentStrategyOnboarding from "./ContentStrategyOnboarding";
 import SocialCommandDashboard from "./SocialCommandDashboard";
+import WhatsNextWizard from "./WhatsNextWizard";
 import InstagramInsights from "./InstagramInsights";
 import ScriptBuilder from "./ScriptBuilder";
 import ContentCalendar from "./ContentCalendar";
@@ -30,15 +32,16 @@ import CompetitorAnalysis from "./CompetitorAnalysis";
 import BrandVoiceManager from "./BrandVoiceManager";
 import CollabFinder from "./CollabFinder";
 import CommentCoach from "./CommentCoach";
-import GrowthPlaybook from "./GrowthPlaybook";
+import DomPlaybook from "./DomPlaybook";
 
 const TABS = [
   { value: "dashboard", label: "Dashboard", icon: LayoutDashboard, color: "text-orange-400", description: "Overview & stats" },
+  { value: "whats-next", label: "What to Post", icon: Zap, color: "text-green-400", description: "Tell me what to film" },
   { value: "scripts", label: "Scripts", icon: FileText, color: "text-orange-400", description: "Film-ready scripts" },
   { value: "calendar", label: "Calendar", icon: CalendarDays, color: "text-blue-400", description: "Content schedule" },
   { value: "comments", label: "Comments", icon: MessageCircle, color: "text-green-400", description: "Reply coach" },
   { value: "collabs", label: "Collabs", icon: Users, color: "text-purple-400", description: "Find partners" },
-  { value: "growth", label: "Growth", icon: Trophy, color: "text-amber-400", description: "Daily playbook" },
+  { value: "growth", label: "Playbook", icon: Trophy, color: "text-amber-400", description: "Dom's daily guide" },
   { value: "ig-insights", label: "IG Insights", icon: Instagram, color: "text-pink-400", description: "Real IG data" },
   { value: "generator", label: "Generator", icon: Sparkles, color: "text-purple-400", description: "Content ideas" },
   { value: "library", label: "Library", icon: Library, color: "text-cyan-400", description: "Saved content" },
@@ -177,6 +180,7 @@ export default function SocialCommandCenter() {
       {/* === TAB CONTENT === */}
       <div className="mt-4">
         {activeTab === "dashboard" && <SocialCommandDashboard onNavigate={handleNavigate} />}
+        {activeTab === "whats-next" && <WhatsNextWizard />}
         {activeTab === "ig-insights" && <InstagramInsights />}
         {activeTab === "scripts" && <ScriptBuilder />}
         {activeTab === "calendar" && <ContentCalendar />}
@@ -185,7 +189,7 @@ export default function SocialCommandCenter() {
         {activeTab === "trends" && <TrendScanner platform="instagram" onGenerateFromTrend={() => handleNavigate("generator")} />}
         {activeTab === "comments" && <CommentCoach />}
         {activeTab === "collabs" && <CollabFinder />}
-        {activeTab === "growth" && <GrowthPlaybook />}
+        {activeTab === "growth" && <DomPlaybook />}
         {activeTab === "competitors" && <CompetitorAnalysis />}
         {activeTab === "brand-voice" && <BrandVoiceManager />}
       </div>

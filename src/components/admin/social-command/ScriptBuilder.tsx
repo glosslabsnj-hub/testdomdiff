@@ -62,12 +62,27 @@ const CATEGORIES = [
 ];
 
 const QUICK_EXAMPLES = [
-  "I'm at the beach at sunrise about to do a crazy bodyweight workout in the sand",
-  "I'm at work on break and I just want to talk about why most people stay broke",
-  "I'm walking my neighborhood early morning, it's cold, I want to talk about discipline",
-  "I just finished praying and I feel locked in, want to film something about faith",
-  "I'm cooking meal prep and want to talk about how I used to eat garbage in prison",
-  "I'm with my little brother and want to show how I mentor him",
+  "I'm at the gym at 5 AM, nobody else is here, want to talk about why most people fail",
+  "I'm cooking meal prep, want to compare prison food vs what I eat now",
+  "I'm walking my neighborhood at sunrise, feeling grateful, want to talk about second chances",
+  "I just finished praying, want to film something raw about faith and the gym",
+  "A new member just signed up to the app, want to show what their first week looks like",
+  "I'm training a client in person, want to show the coaching difference",
+  "I'm in my car after the gym, sweating, want to go off about discipline",
+  "I just read a comment that pissed me off, want to address it on camera",
+  "It's Sunday, want to film a faith and fitness message",
+  "I want to film a controversial take that gets people arguing in the comments",
+];
+
+const FILMING_TIPS = [
+  "Hold phone vertically. Always. Reels are vertical.",
+  "Look at the camera lens, not the screen.",
+  "Start talking IMMEDIATELY. No \"hey guys, so...\" - just drop the line.",
+  "Keep it under 60 seconds. 30 is better. 15 is best for hooks.",
+  "Natural light > ring light. Outside or by a window.",
+  "Background matters. Gym, kitchen, car, walking outside. Never a messy room.",
+  "One take is fine. Raw > polished. Don't overthink it.",
+  "If you mess up, keep going. Real > perfect.",
 ];
 
 export default function ScriptBuilder() {
@@ -436,6 +451,46 @@ export default function ScriptBuilder() {
           ))
         )}
       </div>
+
+      {/* Dom's Filming Tips */}
+      <FilmingTips />
+    </div>
+  );
+}
+
+function FilmingTips() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="rounded-lg bg-orange-500/5 border border-orange-500/20 overflow-hidden">
+      <button
+        className="w-full p-3 flex items-center justify-between text-left"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-2">
+          <Camera className="h-4 w-4 text-orange-400" />
+          <span className="text-sm font-bold text-orange-400">DOM'S FILMING TIPS</span>
+        </div>
+        {isOpen ? (
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+      {isOpen && (
+        <div className="px-3 pb-3 border-t border-orange-500/20 pt-3">
+          <ol className="space-y-2">
+            {FILMING_TIPS.map((tip, i) => (
+              <li key={i} className="flex items-start gap-2.5 text-xs">
+                <span className="w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                  {i + 1}
+                </span>
+                <span className="pt-0.5">{tip}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }

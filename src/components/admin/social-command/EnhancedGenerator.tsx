@@ -125,6 +125,43 @@ export default function EnhancedGenerator({ onSchedule, onGenerateScript }: Prop
     });
   };
 
+  const QUICK_WINS = [
+    { label: "Hot Take for Today", category: "controversy" as ContentCategory, strategy: "hot_take" as ContentStrategyType, emoji: "\uD83D\uDD25" },
+    { label: "Prison Story Piece", category: "story" as ContentCategory, strategy: "story" as ContentStrategyType, emoji: "\u26D3\uFE0F" },
+    { label: "Faith Post", category: "faith" as ContentCategory, strategy: "value" as ContentStrategyType, emoji: "\u271D\uFE0F" },
+    { label: "Client Win", category: "transformations" as ContentCategory, strategy: "engagement" as ContentStrategyType, emoji: "\uD83C\uDFC6" },
+    { label: "Sell the App", category: "platform" as ContentCategory, strategy: "promo" as ContentStrategyType, emoji: "\uD83D\uDCF1" },
+    { label: "Workout Content", category: "training" as ContentCategory, strategy: "value" as ContentStrategyType, emoji: "\uD83D\uDCAA" },
+  ];
+
+  const handleQuickWin = async (qw: typeof QUICK_WINS[number]) => {
+    setCategory(qw.category);
+    setStrategy(qw.strategy);
+    setPlatform("instagram");
+    setContentType("");
+    setMode("done_for_you");
+    setGenerating(true);
+    setIdeas([]);
+    try {
+      const { data, error } = await supabase.functions.invoke("social-generate-content", {
+        body: {
+          platform: "instagram",
+          category: qw.category,
+          mode: "done_for_you",
+          strategy_type: qw.strategy,
+        },
+      });
+      if (error) throw error;
+      setIdeas(data.ideas || []);
+      if (data.ideas?.length > 0) setExpandedIdea(0);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate content. Check your API key.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const platformColor: Record<string, string> = {
     instagram: "bg-pink-500/20 text-pink-400 border-pink-500/30",
     tiktok: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
@@ -134,6 +171,25 @@ export default function EnhancedGenerator({ onSchedule, onGenerateScript }: Prop
 
   return (
     <div className="space-y-6">
+      {/* Quick Wins */}
+      <div className="space-y-2">
+        <h4 className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Quick Wins — One Tap, Instant Ideas</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {QUICK_WINS.map((qw) => (
+            <Button
+              key={qw.label}
+              variant="outline"
+              disabled={generating}
+              onClick={() => handleQuickWin(qw)}
+              className="h-auto py-3 px-3 flex flex-col items-center gap-1.5 text-center bg-charcoal border-border hover:border-orange-500/50 hover:bg-orange-500/10 transition-colors"
+            >
+              <span className="text-2xl">{qw.emoji}</span>
+              <span className="text-xs font-medium leading-tight">{qw.label}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+
       {/* Controls */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div>

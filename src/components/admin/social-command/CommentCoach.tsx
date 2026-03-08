@@ -110,6 +110,40 @@ export default function CommentCoach() {
         </div>
       </div>
 
+      {/* Comment Rules */}
+      <div className="rounded-lg bg-orange-500/5 border border-orange-500/20 p-3">
+        <p className="text-xs font-bold text-orange-400 mb-2 flex items-center gap-1.5">
+          <Shield className="h-3.5 w-3.5" />
+          DOM'S COMMENT RULES
+        </p>
+        <ul className="text-xs space-y-1.5">
+          <li className="flex items-start gap-2">
+            <span className="text-orange-400 font-bold shrink-0">1.</span>
+            <span>Never use emojis excessively (1-2 max per reply)</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-orange-400 font-bold shrink-0">2.</span>
+            <span>Reply to haters with confidence, not defensiveness</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-orange-400 font-bold shrink-0">3.</span>
+            <span>Thank supporters with specific callbacks ("appreciate you being here since day one")</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-orange-400 font-bold shrink-0">4.</span>
+            <span>Never ignore a question - answer or point them to the app</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-orange-400 font-bold shrink-0">5.</span>
+            <span>DM anyone who asks about coaching or the program</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-orange-400 font-bold shrink-0">6.</span>
+            <span>Block trolls after one warning. Don't feed them.</span>
+          </li>
+        </ul>
+      </div>
+
       {/* How This Works */}
       <div className="rounded-lg bg-green-500/5 border border-green-500/20 p-3">
         <p className="text-xs font-bold text-green-400 mb-1">How This Works (Simple Version):</p>
