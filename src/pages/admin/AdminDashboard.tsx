@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Users, ClipboardCheck, MessageSquare, BookOpen, Layers, CreditCard, FileText, BarChart3, Settings, ScrollText, Package, Crown, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,40 +8,49 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // Nav config
 import { type AdminSection, type BadgeCounts } from "@/components/admin/adminNavConfig";
 
-// Nav components
+// Nav components (always visible, keep static)
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminMobileHeader from "@/components/admin/AdminMobileHeader";
 import AdminBottomNav from "@/components/admin/AdminBottomNav";
 import AdminSectionHeader from "@/components/admin/AdminSectionHeader";
-
-// Section Components
 import CommandCenterCollapsible from "@/components/admin/CommandCenterCollapsible";
-import PeopleHub from "@/components/admin/PeopleHub";
-import FreeWorldHub from "@/components/admin/FreeWorldHub";
-import CommissaryHub from "@/components/admin/CommissaryHub";
-import CheckInReviewManager from "@/components/admin/CheckInReviewManager";
-import SupportInbox from "@/components/admin/SupportInbox";
-import TiersAccessManager from "@/components/admin/TiersAccessManager";
-import PaymentsHub from "@/components/admin/PaymentsHub";
-import IntakeManager from "@/components/admin/IntakeManager";
-import AnalyticsHub from "@/components/admin/AnalyticsHub";
-import SiteSettingsManager from "@/components/admin/SiteSettingsManager";
-import AdminAuditLog from "@/components/admin/AdminAuditLog";
-import SocialCommandCenter from "@/components/admin/social-command/SocialCommandCenter";
 
-// Content CMS
+// Content CMS navigation (lightweight, keep static)
 import ContentNavigation from "@/components/admin/ContentNavigation";
-import ProgramBuilder from "@/components/admin/ProgramBuilder";
-import WorkoutContentManager from "@/components/admin/WorkoutContentManager";
-import FaithLessonsManager from "@/components/admin/FaithLessonsManager";
-import NutritionManager from "@/components/admin/NutritionManager";
-import MealPlanManager from "@/components/admin/MealPlanManager";
-import MealAnalyticsPanel from "@/components/admin/MealAnalyticsPanel";
-import DisciplineManager from "@/components/admin/DisciplineManager";
-import SkillLessonsManager from "@/components/admin/SkillLessonsManager";
-import WelcomeVideosManager from "@/components/admin/WelcomeVideosManager";
-import TierOnboardingManager from "@/components/admin/TierOnboardingManager";
-import ProgramTemplateManager from "@/components/admin/ProgramTemplateManager";
+
+// Lazy-loaded section components
+const PeopleHub = lazy(() => import("@/components/admin/PeopleHub"));
+const FreeWorldHub = lazy(() => import("@/components/admin/FreeWorldHub"));
+const CommissaryHub = lazy(() => import("@/components/admin/CommissaryHub"));
+const CheckInReviewManager = lazy(() => import("@/components/admin/CheckInReviewManager"));
+const SupportInbox = lazy(() => import("@/components/admin/SupportInbox"));
+const TiersAccessManager = lazy(() => import("@/components/admin/TiersAccessManager"));
+const PaymentsHub = lazy(() => import("@/components/admin/PaymentsHub"));
+const IntakeManager = lazy(() => import("@/components/admin/IntakeManager"));
+const AnalyticsHub = lazy(() => import("@/components/admin/AnalyticsHub"));
+const SiteSettingsManager = lazy(() => import("@/components/admin/SiteSettingsManager"));
+const AdminAuditLog = lazy(() => import("@/components/admin/AdminAuditLog"));
+const SocialCommandCenter = lazy(() => import("@/components/admin/social-command/SocialCommandCenter"));
+
+// Lazy-loaded content CMS components
+const ProgramBuilder = lazy(() => import("@/components/admin/ProgramBuilder"));
+const ProgramTemplateManager = lazy(() => import("@/components/admin/ProgramTemplateManager"));
+const WorkoutContentManager = lazy(() => import("@/components/admin/WorkoutContentManager"));
+const FaithLessonsManager = lazy(() => import("@/components/admin/FaithLessonsManager"));
+const NutritionManager = lazy(() => import("@/components/admin/NutritionManager"));
+const MealPlanManager = lazy(() => import("@/components/admin/MealPlanManager"));
+const MealAnalyticsPanel = lazy(() => import("@/components/admin/MealAnalyticsPanel"));
+const DisciplineManager = lazy(() => import("@/components/admin/DisciplineManager"));
+const SkillLessonsManager = lazy(() => import("@/components/admin/SkillLessonsManager"));
+const WelcomeVideosManager = lazy(() => import("@/components/admin/WelcomeVideosManager"));
+const TierOnboardingManager = lazy(() => import("@/components/admin/TierOnboardingManager"));
+
+// Loading fallback for lazy components
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+  </div>
+);
 
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useChatLeadAnalytics } from "@/hooks/useChatLeadAnalytics";
@@ -110,7 +119,9 @@ export default function AdminDashboard() {
               description="Manage all members across all tiers."
               iconColor="text-blue-400"
             />
-            <PeopleHub />
+            <Suspense fallback={<SectionLoader />}>
+              <PeopleHub />
+            </Suspense>
           </div>
         );
 
@@ -123,7 +134,9 @@ export default function AdminDashboard() {
               description="Review weekly progress from members."
               iconColor="text-blue-400"
             />
-            <CheckInReviewManager />
+            <Suspense fallback={<SectionLoader />}>
+              <CheckInReviewManager />
+            </Suspense>
           </div>
         );
 
@@ -136,7 +149,9 @@ export default function AdminDashboard() {
               description="Member questions and help requests."
               iconColor="text-yellow-400"
             />
-            <SupportInbox />
+            <Suspense fallback={<SectionLoader />}>
+              <SupportInbox />
+            </Suspense>
           </div>
         );
 
@@ -155,17 +170,19 @@ export default function AdminDashboard() {
                 onSelectSection={setContentSection}
               />
               <div className="flex-1 min-w-0">
-                {contentSection === "program" && <ProgramBuilder />}
-                {contentSection === "workouts" && <WorkoutContentManager />}
-                {contentSection === "freeworld-templates" && <ProgramTemplateManager />}
-                {contentSection === "faith" && <FaithLessonsManager />}
-                {contentSection === "nutrition" && <NutritionManager />}
-                {contentSection === "mealplans" && <MealPlanManager />}
-                {contentSection === "meal-analytics" && <MealAnalyticsPanel />}
-                {contentSection === "discipline" && <DisciplineManager />}
-                {contentSection === "skills" && <SkillLessonsManager />}
-                {contentSection === "welcome-videos" && <WelcomeVideosManager />}
-                {contentSection === "tier-onboarding" && <TierOnboardingManager />}
+                <Suspense fallback={<SectionLoader />}>
+                  {contentSection === "program" && <ProgramBuilder />}
+                  {contentSection === "workouts" && <WorkoutContentManager />}
+                  {contentSection === "freeworld-templates" && <ProgramTemplateManager />}
+                  {contentSection === "faith" && <FaithLessonsManager />}
+                  {contentSection === "nutrition" && <NutritionManager />}
+                  {contentSection === "mealplans" && <MealPlanManager />}
+                  {contentSection === "meal-analytics" && <MealAnalyticsPanel />}
+                  {contentSection === "discipline" && <DisciplineManager />}
+                  {contentSection === "skills" && <SkillLessonsManager />}
+                  {contentSection === "welcome-videos" && <WelcomeVideosManager />}
+                  {contentSection === "tier-onboarding" && <TierOnboardingManager />}
+                </Suspense>
               </div>
             </div>
           </div>
@@ -180,7 +197,9 @@ export default function AdminDashboard() {
               description="Configure tier benefits and access levels."
               iconColor="text-green-400"
             />
-            <TiersAccessManager />
+            <Suspense fallback={<SectionLoader />}>
+              <TiersAccessManager />
+            </Suspense>
           </div>
         );
 
@@ -193,7 +212,9 @@ export default function AdminDashboard() {
               description="1:1 VIP coaching management."
               iconColor="text-purple-400"
             />
-            <FreeWorldHub />
+            <Suspense fallback={<SectionLoader />}>
+              <FreeWorldHub />
+            </Suspense>
           </div>
         );
 
@@ -206,7 +227,9 @@ export default function AdminDashboard() {
               description="Track revenue and manage billing."
               iconColor="text-amber-400"
             />
-            <PaymentsHub />
+            <Suspense fallback={<SectionLoader />}>
+              <PaymentsHub />
+            </Suspense>
           </div>
         );
 
@@ -219,7 +242,9 @@ export default function AdminDashboard() {
               description="View onboarding questionnaires and forms."
               iconColor="text-purple-400"
             />
-            <IntakeManager />
+            <Suspense fallback={<SectionLoader />}>
+              <IntakeManager />
+            </Suspense>
           </div>
         );
 
@@ -232,7 +257,9 @@ export default function AdminDashboard() {
               description="Manage products and orders."
               iconColor="text-amber-400"
             />
-            <CommissaryHub />
+            <Suspense fallback={<SectionLoader />}>
+              <CommissaryHub />
+            </Suspense>
           </div>
         );
 
@@ -245,7 +272,9 @@ export default function AdminDashboard() {
               description="Engagement, leads, and growth metrics."
               iconColor="text-amber-400"
             />
-            <AnalyticsHub />
+            <Suspense fallback={<SectionLoader />}>
+              <AnalyticsHub />
+            </Suspense>
           </div>
         );
 
@@ -258,7 +287,9 @@ export default function AdminDashboard() {
               description="Platform config and integrations."
               iconColor="text-muted-foreground"
             />
-            <SiteSettingsManager />
+            <Suspense fallback={<SectionLoader />}>
+              <SiteSettingsManager />
+            </Suspense>
           </div>
         );
 
@@ -271,7 +302,9 @@ export default function AdminDashboard() {
               description="Audit trail and admin activity."
               iconColor="text-muted-foreground"
             />
-            <AdminAuditLog />
+            <Suspense fallback={<SectionLoader />}>
+              <AdminAuditLog />
+            </Suspense>
           </div>
         );
 
@@ -284,7 +317,9 @@ export default function AdminDashboard() {
               description="Content ideas, scripts, and social growth."
               iconColor="text-orange-400"
             />
-            <SocialCommandCenter />
+            <Suspense fallback={<SectionLoader />}>
+              <SocialCommandCenter />
+            </Suspense>
           </div>
         );
 

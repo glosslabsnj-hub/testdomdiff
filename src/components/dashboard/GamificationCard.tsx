@@ -70,7 +70,7 @@ function BadgeItem({ badge }: { badge: Badge }) {
       )}>
         {badge.name}
       </span>
-      <span className="text-[10px] text-muted-foreground text-center leading-tight">
+      <span className="text-xs text-muted-foreground text-center leading-tight">
         {earned ? badge.description : badge.requirement}
       </span>
     </motion.div>
@@ -122,7 +122,7 @@ export function GamificationCard() {
             </div>
             <p className="text-xs text-muted-foreground">Days of Good Behavior</p>
             {longestStreak > currentStreak && (
-              <p className="text-[10px] text-muted-foreground/70 mt-0.5">Best: {longestStreak} days</p>
+              <p className="text-xs text-muted-foreground/70 mt-0.5">Best: {longestStreak} days</p>
             )}
           </div>
 
@@ -138,7 +138,7 @@ export function GamificationCard() {
                 {accountabilityScore}%
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">Inmate Rating</p>
+            <p className="text-xs text-muted-foreground">Weekly Score</p>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export function GamificationCard() {
                     style={{ width: `${(item.value / item.max) * 100}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-muted-foreground">{item.label}</span>
+                <span className="text-xs text-muted-foreground">{item.label}</span>
                 <span className="block text-xs font-medium">{item.value}/{item.max}</span>
               </div>
             ))}

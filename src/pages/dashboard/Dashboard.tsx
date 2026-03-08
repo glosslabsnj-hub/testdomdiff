@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { 
-  Play, 
-  Dumbbell, 
-  Calendar, 
-  Clock, 
-  Utensils, 
-  ClipboardCheck, 
-  BookOpen, 
+import {
+  Play,
+  Dumbbell,
+  Calendar,
+  Clock,
+  Utensils,
+  ClipboardCheck,
+  BookOpen,
   TrendingUp,
   Users,
   Crown,
@@ -15,128 +15,25 @@ import {
   GraduationCap,
   MessageCircle,
   Lock,
-  AlertTriangle,
-  Info,
   Sparkles,
   Camera,
-  ChevronDown
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import SolitaryUpgradeModal from "@/components/SolitaryUpgradeModal";
 import DashboardLayout from "@/components/DashboardLayout";
-import { WardenBrief, WardenTip } from "@/components/warden";
-import { TransformationWidget } from "@/components/TransformationWidget";
-import WeeklyProgressCard from "@/components/WeeklyProgressCard";
 import StreakWarningBanner from "@/components/StreakWarningBanner";
-import OnboardingTooltip from "@/components/OnboardingTooltip";
 import { DashboardPullToRefresh } from "@/components/DashboardPullToRefresh";
 import { useNotificationScheduler } from "@/hooks/useNotificationScheduler";
 
 import { RollCallToday } from "@/components/dashboard/RollCallToday";
 import { DashboardWelcomeCard } from "@/components/dashboard/DashboardWelcomeCard";
 import { GamificationCard, StreakCounter } from "@/components/dashboard/GamificationCard";
-import { WinsWall } from "@/components/dashboard/WinsWall";
 import { UpgradeNudge } from "@/components/dashboard/UpgradeNudge";
 import { NotificationPrompt } from "@/components/dashboard/NotificationPrompt";
-import { DailyChallenge } from "@/components/dashboard/DailyChallenge";
-import { HabitHeatmap } from "@/components/dashboard/HabitHeatmap";
 import { ReleaseCeremony } from "@/components/dashboard/ReleaseCeremony";
 import { PhaseMilestone } from "@/components/dashboard/PhaseMilestone";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-// Tooltip explanations for prison terminology (used for non-coaching tiers)
-const prisonTooltips: Record<string, string> = {
-  "Intake Processing": "Complete your orientation and get set up",
-  "The Sentence": "Your structured 12-week transformation program",
-  "Iron Pile": "Your workout library — hit the Iron Pile",
-  "Lights On / Lights Out": "Morning and evening discipline routines",
-  "Chow Hall": "Nutrition guidance and meal planning",
-  "Chapel": "Weekly faith lessons and mindset training",
-  "Roll Call": "Submit your weekly check-in for accountability",
-  "Time Served": "Track your transformation progress",
-  "Work Release": "Build income-generating skills for life outside",
-  "The Yard": "Connect with your community",
-  "Mugshots": "View and compare your progress photos",
-};
-
-// Tooltip explanations for coaching/Free World tier
-const coachingTooltips: Record<string, string> = {
-  "Welcome Home": "Your probation orientation - complete your checklist",
-  "Your Program": "Your personalized 12-week journey",
-  "Training Sessions": "Your complete workout library",
-  "Daily Structure": "Morning and evening habit routines",
-  "Meal Planning": "Nutrition guidance and meal templates",
-  "Faith & Mindset": "Weekly growth lessons",
-  "Weekly Report": "Report to your P.O. for accountability",
-  "Progress Report": "Track your transformation journey",
-  "Career Building": "Build legitimate income streams",
-  "The Network": "Connect with your community",
-  "Photo Gallery": "View and compare your progress photos",
-};
-
-// Benefit messages for locked tiles
-const lockedBenefits: Record<string, string> = {
-  "The Sentence (12-Week Program)": "Unlock structured 12-week progression",
-  "Chapel (Faith & Mindset)": "Unlock weekly scripture & mindset training",
-  "Work Release (Skill-Building)": "Unlock money-making hustle skills",
-  "The Yard (Community)": "Connect with your community on this journey",
-};
-
-// Week-specific greeting messages for inmates
-function getWeekSpecificGreeting(week: number): string {
-  if (week === 1) return "Welcome to the block.";
-  if (week === 12) return "Final week. Finish strong.";
-  return `Week ${week} of your sentence.`;
-}
-
-// Week-specific body message
-function getWeekSpecificMessage(week: number, isCoaching: boolean, isMembership: boolean): React.ReactNode {
-  if (isCoaching) {
-    return (
-      <>
-        Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Orientation</Link> to get set up, 
-        then head to <Link to="/dashboard/program" className="text-primary hover:underline font-medium">your custom workout plan</Link> to see your personalized programming.
-      </>
-    );
-  }
-  
-  if (isMembership) {
-    return (
-      <>
-        Start with <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Intake Processing</Link> to get oriented, 
-        then head to <Link to="/dashboard/workouts" className="text-primary hover:underline font-medium">Iron Pile</Link> to start your first workout.
-      </>
-    );
-  }
-  
-  // Gen Pop / Transformation
-  if (week === 1) {
-    return (
-      <>
-        Complete your <Link to="/dashboard/start-here" className="text-primary hover:underline font-medium">Intake Processing</Link>, 
-        then start <Link to="/dashboard/program" className="text-primary hover:underline font-medium">The Sentence</Link> to begin your 12-week transformation.
-      </>
-    );
-  }
-  if (week === 12) {
-    return (
-      <>
-        This is it. <Link to="/dashboard/program" className="text-primary hover:underline font-medium">Finish The Sentence</Link> and complete your transformation.
-      </>
-    );
-  }
-  return (
-    <>
-      Week {week} is waiting. Continue <Link to="/dashboard/program" className="text-primary hover:underline font-medium">The Sentence</Link> and keep building momentum.
-    </>
-  );
-}
 
 const Dashboard = () => {
   const { profile } = useAuth();
@@ -470,57 +367,9 @@ const Dashboard = () => {
         {/* Daily Mission Card - prioritized next-step guidance */}
         <RollCallToday />
 
-        {/* Simple Warden Tip */}
-        <WardenTip 
-          tip={isCoaching 
-            ? "You're on the outside now. Stay disciplined, stay focused, stay free."
-            : isMembership
-              ? "This is your daily grind. Yard time, discipline, nutrition — lock it in."
-              : "Every rep, every routine, every choice — it all adds up. Stay the course."}
-          className="mb-6"
-        />
-
-        {/* Solitary Progress Card - shows days served and progression path */}
-        {isMembership && subscription?.started_at && (
-          <div className="mb-6 p-5 rounded-lg bg-gradient-to-br from-charcoal to-charcoal/80 border border-primary/30">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-display text-lg text-primary">
-                    Day {Math.max(1, Math.floor((Date.now() - new Date(subscription.started_at).getTime()) / (1000 * 60 * 60 * 24)))} in Solitary
-                  </p>
-                  <p className="text-xs text-muted-foreground">Building your foundation one day at a time</p>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-3 mt-3">
-              <div className="text-center p-2 rounded bg-background/50 border border-border">
-                <p className="text-lg font-bold text-foreground">{currentWeek}</p>
-                <p className="text-xs text-muted-foreground">Week</p>
-              </div>
-              <div className="text-center p-2 rounded bg-background/50 border border-border">
-                <p className="text-lg font-bold text-foreground">4</p>
-                <p className="text-xs text-muted-foreground">Workouts</p>
-              </div>
-              <div className="text-center p-2 rounded bg-primary/10 border border-primary/30">
-                <Link to="/checkout?plan=transformation" className="block">
-                  <p className="text-lg font-bold text-primary">Level Up</p>
-                  <p className="text-xs text-primary/70">Gen Pop</p>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Upgrade Nudge for Solitary users in week 2+ */}
-        {currentWeek >= 2 && <UpgradeNudge trigger="week_2" className="mb-6" />}
-
-        {/* Coaching Plan Status Banner */}
+        {/* Coaching Plan Status Banner - important, keep visible */}
         {isCoaching && profile?.coaching_plan_status && profile.coaching_plan_status !== "approved" && profile.coaching_plan_status !== "none" && (
-          <div className="mb-6 p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
+          <div className="mb-4 p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                 {profile.coaching_plan_status === "generating" ? (
@@ -532,128 +381,93 @@ const Dashboard = () => {
               <div>
                 <p className="font-medium text-purple-400">
                   {profile.coaching_plan_status === "generating"
-                    ? "Building Your Plan Options..."
+                    ? "Building Your Plan..."
                     : "Dom is Reviewing Your Plan"}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {profile.coaching_plan_status === "generating"
-                    ? "AI is creating personalized plan approaches based on your intake. This takes a few minutes."
-                    : "Dom is hand-picking the perfect workout and meal plan approach for you. You'll be notified when it's ready."}
+                    ? "Creating personalized plans based on your intake."
+                    : "Dom is picking the perfect plan for you. You'll be notified when ready."}
                 </p>
               </div>
             </div>
           </div>
         )}
 
+        {/* Solitary Progress - compact inline */}
+        {isMembership && subscription?.started_at && (
+          <div className="mb-4 p-4 rounded-lg bg-charcoal border border-primary/20 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="font-display text-base text-primary">
+                  Day {Math.max(1, Math.floor((Date.now() - new Date(subscription.started_at).getTime()) / (1000 * 60 * 60 * 24)))} — Week {currentWeek}
+                </p>
+                <p className="text-xs text-muted-foreground">Building your foundation</p>
+              </div>
+            </div>
+            <Link to="/checkout?plan=transformation" className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30 text-sm font-medium text-primary flex-shrink-0 hover:bg-primary/20 transition-colors">
+              Level Up
+            </Link>
+          </div>
+        )}
+
         {/* Push Notification Prompt */}
         <NotificationPrompt />
-
-        {/* Daily Challenge - Rotating bonus challenges */}
-        <DailyChallenge />
 
         {/* Gamification Card - Streaks, Badges, Accountability Score */}
         <GamificationCard />
 
-        {/* Habit Heatmap - GitHub-style activity grid */}
-        <HabitHeatmap />
-
-        {/* Community Wins Wall */}
-        {!isMembership && <WinsWall />}
-
-        {/* Section Header - Tier-aware */}
-        <div className="mb-6">
+        {/* Section Header */}
+        <div className="mb-4">
           <h2 className="headline-section mb-1">
             {isCoaching ? "Your Dashboard" : "Your Cell Block"}
           </h2>
-          <p className="text-muted-foreground text-sm">
-            {isCoaching 
-              ? "Access your training, coaching, and progress tools."
-              : isMembership
-                ? "Your daily structure — workouts, discipline, and nutrition."
-                : "Track your sentence, build discipline, and earn your freedom."}
-          </p>
         </div>
 
-        {/* Tiles Grid - single column on narrow phones, 2 col on sm, 4 col on lg */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        {/* Tiles Grid - 2 columns on mobile, 2 on sm, 4 on lg */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
           {tiles.map((tile, index) => (
             <Link
               key={index}
               to={tile.locked ? "#" : tile.href}
               onClick={(e) => handleTileClick(tile, e)}
-              className={`block transition-all duration-300 transition-transform relative group active:scale-[0.98] ${
+              className={`block transition-all duration-200 relative group active:scale-[0.97] rounded-xl p-4 ${
                 tile.locked
                   ? tile.isCoachingOnly
-                    ? "tile-locked opacity-80 hover:opacity-90 frosted-lock border-crimson/40 bg-gradient-to-br from-crimson/10 to-transparent"
-                    : "tile-locked opacity-80 hover:opacity-90 frosted-lock"
+                    ? "tile-locked opacity-70 hover:opacity-80 frosted-lock border-crimson/40 bg-gradient-to-br from-crimson/10 to-transparent"
+                    : "tile-locked opacity-70 hover:opacity-80 frosted-lock"
                   : `${tile.color} hover-lift`
               }`}
-              style={{ animationDelay: `${index * 50}ms` }}
             >
-              {/* New User Badge with enhanced animation */}
+              {/* New User Badge */}
               {tile.isNew && (
-                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 z-10">
+                <div className="absolute -top-1 -right-1 z-10">
                   <div className="relative">
                     <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-50" />
-                    <div className="relative px-2.5 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-lg">
-                      START HERE
+                    <div className="relative px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full shadow-lg">
+                      NEW
                     </div>
                   </div>
                 </div>
               )}
-              
+
               {tile.locked && (
-                <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
-                  <Lock className={`w-4 h-4 lock-shake ${tile.isCoachingOnly ? "text-amber-500" : "text-crimson"}`} />
-                  {tile.isCoachingOnly && (
-                    <span className="hidden xs:inline text-xs text-crimson font-medium uppercase tracking-wide">Free World</span>
-                  )}
+                <div className="absolute top-2 right-2 z-10">
+                  <Lock className={`w-3.5 h-3.5 ${tile.isCoachingOnly ? "text-amber-500" : "text-crimson"}`} />
                 </div>
               )}
-              
-              <div className="flex items-start justify-between relative z-10">
-                <tile.icon className={`w-10 h-10 mb-4 transition-transform duration-300 ${
-                  tile.locked 
-                    ? "text-crimson/60" 
-                    : "text-primary group-hover:scale-110"
-                }`} />
-                
-                {/* Tooltip for terminology - use appropriate tooltip map based on tier */}
-                {(() => {
-                  const tooltipMap = isCoaching ? coachingTooltips : prisonTooltips;
-                  const tooltipText = tooltipMap[tile.title];
-                  return tooltipText && !tile.locked && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={(e) => e.preventDefault()}
-                          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground transition-colors -m-2"
-                        >
-                          <Info className="w-5 h-5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[180px] text-center z-50">
-                        <p className="text-sm">{tooltipText}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  );
-                })()}
-              </div>
-              
-              <p className={`text-xs uppercase tracking-wider mb-1 relative z-10 ${tile.locked ? "text-crimson/70" : "text-primary"}`}>
+
+              <tile.icon className={`w-8 h-8 mb-3 ${
+                tile.locked
+                  ? "text-crimson/60"
+                  : "text-primary"
+              }`} />
+
+              <h3 className="font-bold text-sm mb-0.5 relative z-10 leading-tight">{tile.title}</h3>
+              <p className={`text-xs relative z-10 ${tile.locked ? "text-crimson/70" : "text-muted-foreground"}`}>
                 {tile.subtitle}
               </p>
-              <h3 className="headline-card mb-2 relative z-10">{tile.title}</h3>
-              <p className="text-sm text-muted-foreground relative z-10 leading-relaxed line-clamp-2">{tile.description}</p>
-              
-              {tile.locked && tile.featureName && (
-                <div className="mt-3 flex items-center gap-2 relative z-10">
-                  <AlertTriangle className="w-3 h-3 text-crimson" />
-                  <p className="text-xs text-crimson font-semibold">
-                    {lockedBenefits[tile.featureName] || "Requires Upgrade"}
-                  </p>
-                </div>
-              )}
             </Link>
           ))}
         </div>
@@ -664,32 +478,8 @@ const Dashboard = () => {
           feature={lockedFeature}
         />
 
-        {/* Quick Actions - Tier-aware routing */}
-        <div className="mt-8 sm:mt-12 steel-plate p-4 sm:p-8 border border-steel-light/20">
-          <h3 className="headline-card mb-4">Quick Actions</h3>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-            {/* Primary workout action - tier-aware */}
-            <Button variant="gold" size="lg" asChild className="w-full sm:w-auto text-sm sm:text-base">
-              <Link to={isMembership ? "/dashboard/workouts" : "/dashboard/program"}>
-                <Dumbbell className="w-5 h-5 mr-2" />
-                {isCoaching
-                  ? "Start Today's Training"
-                  : isTransformation
-                    ? "Continue The Sentence"
-                    : "Hit Yard Time"}
-              </Link>
-            </Button>
-            <Button variant="goldOutline" asChild className="w-full sm:w-auto text-sm sm:text-base">
-              <Link to="/dashboard/check-in">
-                <ClipboardCheck className="w-4 h-4 mr-2" />
-                {isCoaching ? "Submit Weekly Report" : "Submit Roll Call"}
-              </Link>
-            </Button>
-            <Button variant="steel" asChild className="w-full sm:w-auto text-sm sm:text-base">
-              <Link to="/checkout?plan=coaching">Book a Coaching Call</Link>
-            </Button>
-          </div>
-        </div>
+        {/* Upgrade Nudge for Solitary users in week 2+ */}
+        {isMembership && currentWeek >= 2 && <UpgradeNudge trigger="week_2" className="mt-6" />}
         </div>
       </DashboardPullToRefresh>
     </DashboardLayout>
