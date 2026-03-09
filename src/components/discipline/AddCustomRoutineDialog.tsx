@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { TimeSelect } from "@/components/ui/time-select";
 import { cn } from "@/lib/utils";
 
 interface AddCustomRoutineDialogProps {
@@ -89,16 +90,12 @@ export default function AddCustomRoutineDialog({ routineType, onAdd }: AddCustom
           </div>
 
           <div>
-            <Label htmlFor="timeSlot" className="flex items-center gap-2">
-              <Clock className="w-4 h-4" /> Time (optional)
+            <Label className="flex items-center gap-2 mb-2">
+              <Clock className="w-4 h-4" /> Time
             </Label>
-            <Input
-              id="timeSlot"
-              value={timeSlot}
-              onChange={(e) => setTimeSlot(e.target.value)}
-              placeholder="e.g., 6:00 AM"
-              className="mt-2 bg-charcoal"
-            />
+            <div className="bg-charcoal rounded-lg p-2 border border-border">
+              <TimeSelect value={timeSlot} onChange={setTimeSlot} />
+            </div>
           </div>
 
           <div className="flex gap-3 pt-2">

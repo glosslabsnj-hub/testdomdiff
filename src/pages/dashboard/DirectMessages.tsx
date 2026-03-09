@@ -65,7 +65,7 @@ const DirectMessages = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
       </div>
 
@@ -73,14 +73,14 @@ const DirectMessages = () => {
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
             <Badge className="bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border-primary/30">
-              Free World Exclusive
+              Coaching Exclusive
             </Badge>
           </div>
           <h1 className="headline-section mb-2">
-            Direct Line to <span className="text-primary">Your P.O.</span>
+            Direct Line to <span className="text-primary">Your Coach</span>
           </h1>
           <p className="text-muted-foreground">
-            Direct access to Dom. Ask questions, share wins, get guidance on the outside.
+            Direct access to Dom. Ask questions, share wins, and get guidance anytime.
           </p>
         </div>
 

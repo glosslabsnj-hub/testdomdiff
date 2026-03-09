@@ -18,88 +18,88 @@ import { useOnboardingVideo } from "@/hooks/useOnboardingVideo";
 // Tier-specific checklist configurations with improved descriptions
 const SOLITARY_CHECKLIST = [
   {
-    category: "Cell Assignment",
+    category: "Step 1: Set Up Your Routines",
     timeEstimate: "5 min",
     items: [
-      { id: "solitary-1", label: "Review your discipline templates in Settings", href: "/dashboard/discipline", description: "See the morning and evening routines available to you" },
-      { id: "solitary-2", label: "Set your wake-up and bedtime in Discipline", href: "/dashboard/discipline", description: "Customize when your routines start" },
-      { id: "solitary-3", label: "Browse the bodyweight workout library", href: "/dashboard/workouts", description: "See all 4 workout templates you can use" },
+      { id: "solitary-1", label: "Check out your morning and evening routines", href: "/dashboard/discipline", description: "Go to Lights On/Off and see what's on your daily checklist" },
+      { id: "solitary-2", label: "Set your wake-up and bedtime", href: "/dashboard/discipline", description: "Tell us when you wake up and go to bed so we can set your schedule" },
+      { id: "solitary-3", label: "Browse the workout library", href: "/dashboard/workouts", description: "Look through the available workouts and pick one for today" },
     ],
   },
   {
-    category: "Daily Protocol",
+    category: "Step 2: Do Your First Day",
     timeEstimate: "15 min",
     items: [
-      { id: "solitary-4", label: "Complete your morning routine checklist", href: "/dashboard/discipline", description: "Mark each item complete as you do it" },
-      { id: "solitary-5", label: "Finish your first bodyweight workout", href: "/dashboard/workouts", description: "Pick any workout and complete it" },
-      { id: "solitary-6", label: "Submit your first weekly check-in at Roll Call", href: "/dashboard/check-in", description: "Report your weight, wins, and struggles" },
+      { id: "solitary-4", label: "Complete your morning routine", href: "/dashboard/discipline", description: "Open Lights On/Off and check off each item as you do it" },
+      { id: "solitary-5", label: "Finish your first workout", href: "/dashboard/workouts", description: "Pick any workout, follow the exercises, and mark it complete" },
+      { id: "solitary-6", label: "Submit your first weekly check-in", href: "/dashboard/check-in", description: "Go to Roll Call, enter your weight and how the week went" },
     ],
   },
   {
-    category: "Documentation",
+    category: "Step 3: Document Your Start",
     timeEstimate: "5 min",
     items: [
-      { id: "solitary-7", label: "Upload your starting photos in Time Served", href: "/dashboard/progress", description: "Document Day 1 for future comparison" },
+      { id: "solitary-7", label: "Upload your Day 1 photos", href: "/dashboard/progress", description: "Take front, side, and back photos so you can see your progress later" },
     ],
   },
 ];
 
 const GEN_POP_CHECKLIST = [
   {
-    category: "Inmate Registration",
+    category: "Step 1: Explore Your Program",
     timeEstimate: "10 min",
     items: [
-      { id: "genpop-1", label: "Review your 12-week program in The Sentence", href: "/dashboard/program", description: "See all 12 weeks and the 3 phases of your journey" },
-      { id: "genpop-2", label: "Check Week 1 workouts in your program", href: "/dashboard/program", description: "Preview what's coming this week" },
-      { id: "genpop-3", label: "Browse your nutrition templates in Chow Hall", href: "/dashboard/nutrition", description: "See the meal plan matched to your goals" },
+      { id: "genpop-1", label: "Open your 12-week workout program", href: "/dashboard/program", description: "Go to The Sentence and see all 12 weeks laid out for you" },
+      { id: "genpop-2", label: "Preview this week's workouts", href: "/dashboard/program", description: "Tap Week 1 to see each day's exercises, sets, and reps" },
+      { id: "genpop-3", label: "Check out your meal plan", href: "/dashboard/nutrition", description: "Go to Chow Hall and see breakfast, lunch, dinner, and snacks" },
     ],
   },
   {
-    category: "Yard Prep",
+    category: "Step 2: Complete Your First Day",
     timeEstimate: "20 min",
     items: [
-      { id: "genpop-4", label: "Complete Week 1, Day 1 workout", href: "/dashboard/program", description: "Start your 12-week sentence strong" },
-      { id: "genpop-5", label: "Review today's meals in Chow Hall", href: "/dashboard/nutrition", description: "Check your breakfast, lunch, dinner, and snacks" },
-      { id: "genpop-6", label: "Set up your morning routine in Discipline", href: "/dashboard/discipline", description: "Pick a template and customize the times" },
+      { id: "genpop-4", label: "Do your first workout", href: "/dashboard/program", description: "Open Week 1 Day 1, follow the exercises, then tap 'Mark Day Complete'" },
+      { id: "genpop-5", label: "Follow today's meal plan", href: "/dashboard/nutrition", description: "See exactly what to eat for each meal today" },
+      { id: "genpop-6", label: "Set up your daily routines", href: "/dashboard/discipline", description: "Go to Lights On/Off and set your morning and evening checklists" },
     ],
   },
   {
-    category: "Block Integration",
+    category: "Step 3: Join the Community",
     timeEstimate: "15 min",
     items: [
-      { id: "genpop-7", label: "Introduce yourself in The Yard community", href: "/dashboard/community", description: "Share your goals with the community" },
-      { id: "genpop-8", label: "Upload your starting photos in Progress", href: "/dashboard/progress", description: "Front, side, and back photos for comparison later" },
-      { id: "genpop-9", label: "Read Week 1 faith lesson in Chapel", href: "/dashboard/faith", description: "Start building your spiritual foundation" },
+      { id: "genpop-7", label: "Introduce yourself", href: "/dashboard/community", description: "Go to The Yard and share your goals with others on the same journey" },
+      { id: "genpop-8", label: "Upload your Day 1 photos", href: "/dashboard/progress", description: "Take front, side, and back photos to track your transformation" },
+      { id: "genpop-9", label: "Read your first mindset lesson", href: "/dashboard/faith", description: "Go to Chapel for a short lesson on faith and mental toughness" },
     ],
   },
 ];
 
 const FREE_WORLD_CHECKLIST = [
   {
-    category: "Orientation",
+    category: "Step 1: Meet Your Coach",
     timeEstimate: "10 min",
     items: [
-      { id: "freeworld-1", label: "Review your personalized training plan", href: "/dashboard/program", description: "See the custom program built for you" },
-      { id: "freeworld-2", label: "Schedule your first coaching call with Dom", href: "/dashboard/coaching", description: "Book a 1:1 video call to kick things off" },
-      { id: "freeworld-3", label: "Send Dom a message via Direct Line", href: "/dashboard/messages", description: "Introduce yourself and share your goals" },
+      { id: "freeworld-1", label: "Open your custom training plan", href: "/dashboard/program", description: "See the personalized 12-week program Dom built just for you" },
+      { id: "freeworld-2", label: "Book your first coaching call", href: "/dashboard/coaching", description: "Schedule a 1-on-1 video call with Dom to kick things off" },
+      { id: "freeworld-3", label: "Send Dom a message", href: "/dashboard/messages", description: "Introduce yourself, share your goals, and ask any questions" },
     ],
   },
   {
-    category: "Foundation Setup",
+    category: "Step 2: Start Training",
     timeEstimate: "25 min",
     items: [
-      { id: "freeworld-4", label: "Complete your first workout from the program", href: "/dashboard/program", description: "Start building momentum on day 1" },
-      { id: "freeworld-5", label: "Review your custom nutrition plan", href: "/dashboard/nutrition", description: "See the meals tailored to your TDEE" },
-      { id: "freeworld-6", label: "Set your discipline routines", href: "/dashboard/discipline", description: "Morning and evening structure for success" },
+      { id: "freeworld-4", label: "Do your first workout", href: "/dashboard/program", description: "Open your program, follow Day 1, and mark it complete when done" },
+      { id: "freeworld-5", label: "Check out your meal plan", href: "/dashboard/nutrition", description: "See exactly what to eat for each meal, tailored to your goals" },
+      { id: "freeworld-6", label: "Set up your daily routines", href: "/dashboard/discipline", description: "Choose your morning and evening checklists to build daily discipline" },
     ],
   },
   {
-    category: "Elite Integration",
+    category: "Step 3: Go Deeper",
     timeEstimate: "20 min",
     items: [
-      { id: "freeworld-7", label: "Explore the Entrepreneur Track", href: "/dashboard/advanced-skills", description: "Advanced business and income strategies" },
-      { id: "freeworld-8", label: "Upload your starting progress photos", href: "/dashboard/progress", description: "Document where you're starting from" },
-      { id: "freeworld-9", label: "Submit your first Weekly Report", href: "/dashboard/check-in", description: "Share your wins, struggles, and reflections" },
+      { id: "freeworld-7", label: "Explore the Entrepreneur Track", href: "/dashboard/advanced-skills", description: "Business and income-building courses for your life outside" },
+      { id: "freeworld-8", label: "Upload your Day 1 photos", href: "/dashboard/progress", description: "Take front, side, and back photos to track your transformation" },
+      { id: "freeworld-9", label: "Submit your first weekly report", href: "/dashboard/check-in", description: "Share your wins, struggles, and what you learned this week" },
     ],
   },
 ];
@@ -120,7 +120,7 @@ const StartHere = () => {
   const [videoLoading, setVideoLoading] = useState(true);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [videoWatched, setVideoWatched] = useState(false);
-  const [walkthroughExpanded, setWalkthroughExpanded] = useState(false);
+  const [walkthroughExpanded, setWalkthroughExpanded] = useState(true);
 
   // planType comes from useEffectiveSubscription which respects admin preview mode
   const effectivePlanType = planType || "membership";
@@ -153,8 +153,8 @@ const StartHere = () => {
           accentClass: "text-primary",
           bgClass: "from-primary/20",
           borderClass: "border-primary/30",
-          backLabel: "Back to Cell Block",
-          ctaLabel: "Begin The Sentence",
+          backLabel: "Back to Dashboard",
+          ctaLabel: "Start Your Program",
           ctaHref: "/dashboard/program",
         };
       default:

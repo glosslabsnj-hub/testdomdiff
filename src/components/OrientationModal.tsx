@@ -27,56 +27,56 @@ interface OrientationStep {
 // Steps for Solitary Confinement (membership tier) - 5 steps
 const solitarySteps: OrientationStep[] = [
   {
-    title: "Welcome to Solitary Confinement",
-    description: "You're starting your sentence in isolation. This is where discipline is forged.",
+    title: "Welcome to DomDifferent",
+    description: "This is where your transformation begins. Discipline is built one day at a time.",
     icon: Play,
     items: [
-      { label: "Your Tier", description: "Solitary Confinement - self-serve discipline foundation" },
+      { label: "Your Plan", description: "Membership tier - your discipline foundation" },
       { label: "What's Included", description: "Bodyweight workouts, morning/evening routines, basic nutrition" },
       { label: "Your Mission", description: "Build unshakable discipline through consistency" },
     ],
   },
   {
-    title: "Your Cell Operations",
-    description: "Here's what you have access to in Solitary Confinement",
+    title: "What You Have Access To",
+    description: "Here's everything included in your plan",
     icon: Dumbbell,
     items: [
-      { label: "Intake Processing", description: "Your orientation hub - you're here now" },
-      { label: "Iron Pile", description: "4 bodyweight workout templates - no equipment needed" },
-      { label: "Lights On/Out", description: "Morning and evening discipline routines" },
-      { label: "Roll Call", description: "Weekly check-ins to track your progress" },
+      { label: "Start Here", description: "Your orientation hub - you're here now" },
+      { label: "Workouts", description: "4 bodyweight workout templates - no equipment needed" },
+      { label: "Daily Routines", description: "Morning and evening discipline routines" },
+      { label: "Weekly Check-In", description: "Weekly check-ins to track your progress" },
     ],
   },
   {
-    title: "Daily Cell Block Routine",
+    title: "Your Daily Routine",
     description: "Structure builds discipline, discipline builds freedom",
     icon: Clock,
     items: [
       { label: "Morning Routine", description: "Wake up with purpose - cold shower, prayer, movement" },
       { label: "Evening Routine", description: "Wind down right - reflection, gratitude, rest" },
-      { label: "Time Served", description: "Track progress photos and measurements" },
-      { label: "Basic Nutrition", description: "Simple meal guidance for your goals" },
+      { label: "Progress Tracking", description: "Track progress photos and measurements" },
+      { label: "Nutrition Basics", description: "Simple meal guidance for your goals" },
     ],
   },
   {
     title: "The 3 Non-Negotiables",
-    description: "Every day, no excuses. This is how you serve your time.",
+    description: "Every day, no excuses. This is how you build the life you want.",
     icon: Camera,
     items: [
       { label: "1. Complete Your Routine", description: "Morning or evening - pick one and never miss" },
-      { label: "2. Move Your Body", description: "Hit Yard Time at least 3x per week" },
-      { label: "3. Submit Roll Call", description: "Weekly check-in every Friday-Sunday" },
+      { label: "2. Move Your Body", description: "Work out at least 3x per week" },
+      { label: "3. Submit Your Check-In", description: "Weekly check-in every Friday-Sunday" },
     ],
   },
   {
-    title: "Upgrading Your Status",
-    description: "Ready for more? Here's what's waiting in Gen Pop",
+    title: "Ready to Level Up?",
+    description: "Here's what's available when you upgrade",
     icon: Users,
     items: [
-      { label: "The Sentence", description: "Upgrade to unlock the 12-week structured program" },
-      { label: "Chapel", description: "Faith lessons and spiritual growth - Gen Pop only" },
-      { label: "The Yard", description: "Community with your people - Gen Pop only" },
-      { label: "Chow Hall", description: "Complete meal plans with macros - Gen Pop only" },
+      { label: "12-Week Program", description: "Unlock the full structured transformation program" },
+      { label: "Mindset", description: "Faith lessons and spiritual growth" },
+      { label: "Community", description: "Connect with others on the same journey" },
+      { label: "Full Meal Plans", description: "Complete personalized meal plans with macros" },
     ],
   },
 ];
@@ -84,13 +84,13 @@ const solitarySteps: OrientationStep[] = [
 // Steps for Gen Pop (transformation tier) - 5 steps
 const genPopSteps: OrientationStep[] = [
   {
-    title: "Welcome to General Population",
-    description: "You've committed to the full 12-week sentence. Let's get you set up.",
+    title: "Welcome to Your Transformation",
+    description: "You've committed to the full 12-week program. Let's get you set up.",
     icon: Play,
     items: [
-      { label: "Your Tier", description: "General Population - full transformation program" },
-      { label: "What's Included", description: "12-week program, nutrition plans, faith lessons, community" },
-      { label: "Your Mission", description: "Complete your sentence and transform body, mind, and spirit" },
+      { label: "Your Plan", description: "Transformation tier - full 12-week program" },
+      { label: "What's Included", description: "12-week program, nutrition plans, mindset lessons, community" },
+      { label: "Your Mission", description: "Transform your body, mind, and spirit over 12 weeks" },
     ],
   },
   {
@@ -98,56 +98,56 @@ const genPopSteps: OrientationStep[] = [
     description: "You've got access to the full program. Here's how it works.",
     icon: Dumbbell,
     items: [
-      { label: "Intake Processing", description: "Your orientation hub - you're here now" },
-      { label: "The Sentence", description: "Your 12-week transformation program" },
-      { label: "Iron Pile", description: "Access your workout library and training" },
-      { label: "Roll Call", description: "Weekly check-ins to track compliance" },
+      { label: "Start Here", description: "Your orientation hub - you're here now" },
+      { label: "My Program", description: "Your 12-week transformation program" },
+      { label: "Workouts", description: "Access your workout library and training" },
+      { label: "Weekly Check-In", description: "Weekly check-ins to track your progress" },
     ],
   },
   {
-    title: "Daily Operations",
+    title: "Your Daily Routine",
     description: "Structure builds discipline, discipline builds freedom",
     icon: Clock,
     items: [
-      { label: "Lights On/Out", description: "Morning and evening routines to stay disciplined" },
-      { label: "Chow Hall", description: "Complete nutrition plans with macros and recipes" },
-      { label: "Chapel", description: "Weekly faith lessons and spiritual growth" },
-      { label: "Time Served", description: "Track your progress over 12 weeks" },
+      { label: "Routines", description: "Morning and evening routines to stay disciplined" },
+      { label: "Meal Plan", description: "Complete nutrition plans with macros and recipes" },
+      { label: "Mindset", description: "Weekly faith lessons and spiritual growth" },
+      { label: "Progress", description: "Track your progress over 12 weeks" },
     ],
   },
   {
     title: "The 3 Non-Negotiables",
-    description: "Every day, no excuses. This is how you serve your sentence.",
+    description: "Every day, no excuses. This is how you build the life you want.",
     icon: Camera,
     items: [
-      { label: "1. Follow The Sentence", description: "Complete each week's assigned workouts" },
+      { label: "1. Follow Your Program", description: "Complete each week's assigned workouts" },
       { label: "2. Stay Disciplined", description: "Morning/evening routines - never skip" },
-      { label: "3. Submit Roll Call", description: "Weekly accountability every Friday-Sunday" },
+      { label: "3. Submit Your Check-In", description: "Weekly accountability every Friday-Sunday" },
     ],
   },
   {
-    title: "Your Brotherhood",
-    description: "You're not alone in here",
+    title: "Your Community",
+    description: "You're not doing this alone",
     icon: Users,
     items: [
-      { label: "The Yard", description: "Connect with other inmates on the same journey" },
-      { label: "The Warden", description: "Your AI coach - tap the shield icon anytime" },
+      { label: "Community", description: "Connect with others on the same journey" },
+      { label: "Your Coach", description: "Your personal coach - tap the shield icon anytime" },
       { label: "Progress Photos", description: "Document your transformation" },
-      { label: "Work Release", description: "Skill-building for life on the outside" },
+      { label: "Skills", description: "Career and finance skill-building" },
     ],
   },
 ];
 
-// Steps for Coaching (Free World tier) - 5 steps
+// Steps for Coaching tier - 5 steps
 const coachingSteps: OrientationStep[] = [
   {
-    title: "Welcome Home, You're on Probation",
-    description: "You made it out. Now Dom's your P.O. and he's got your back.",
+    title: "Welcome to Coaching",
+    description: "Dom is your coach. He's got your back every step of the way.",
     icon: Play,
     items: [
-      { label: "Your Tier", description: "Free World - premium 1:1 coaching" },
+      { label: "Your Plan", description: "Coaching tier - premium 1:1 coaching" },
       { label: "What's Included", description: "Custom program, direct access to Dom, VIP support" },
-      { label: "Your Mission", description: "Build a life of freedom with elite accountability" },
+      { label: "Your Mission", description: "Build the life you want with elite accountability" },
     ],
   },
   {

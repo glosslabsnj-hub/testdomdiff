@@ -18,7 +18,8 @@ import {
   Moon,
   Lock,
   Info,
-  RefreshCw
+  RefreshCw,
+  TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -112,7 +113,7 @@ const ProgramEmptyState = ({ onRefresh }: { onRefresh: () => void }) => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
 
         <div className="max-w-xl mx-auto text-center py-16">
@@ -120,10 +121,10 @@ const ProgramEmptyState = ({ onRefresh }: { onRefresh: () => void }) => {
             <Loader2 className="w-10 h-10 text-primary animate-spin" />
           </div>
           <h1 className="font-display text-3xl mb-4">
-            Building Your <span className="text-primary">Program</span>
+            Your Program Is <span className="text-primary">Coming Soon</span>
           </h1>
           <p className="text-muted-foreground mb-6">
-            Your personalized 12-week workout program is being generated based on your profile, goals, and equipment. This typically takes 2-5 minutes after completing intake.
+            Dom is customizing your 12-week program to your goals, experience, and equipment. Every circuit, every rep, every finisher — built for you. Hang tight.
           </p>
 
           {/* Auto-refresh countdown */}
@@ -392,59 +393,128 @@ const Program = () => {
       .sort((a, b) => DAYS_ORDER.indexOf(a.day_of_week) - DAYS_ORDER.indexOf(b.day_of_week));
   };
 
-  // View-only exercise row (no checkbox)
-  const ExerciseRow = ({ 
-    exercise, 
+  // Expandable exercise row with inline details
+  const ExerciseRow = ({
+    exercise,
     isMain = false
-  }: { 
-    exercise: ProgramDayExercise; 
-    isMain?: boolean; 
+  }: {
+    exercise: ProgramDayExercise;
+    isMain?: boolean;
   }) => {
+    const [expanded, setExpanded] = useState(false);
+
+    const hasInlineDetails = exercise.scaling_options || exercise.instructions || exercise.form_tips;
+
     return (
-      <div
-        className={cn(
-          "flex items-start gap-3 p-3 sm:p-3 rounded transition-all cursor-pointer group min-h-[48px] active:bg-muted/30",
-          isMain ? "bg-charcoal hover:bg-charcoal/80" : "bg-charcoal/50 hover:bg-charcoal/70"
-        )}
-        onClick={() => setSelectedExercise(exercise)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedExercise(exercise); } }}
-      >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className={cn(
-              "font-medium text-sm sm:text-base",
-              isMain ? "text-foreground" : "text-muted-foreground"
-            )}>
-              {exercise.exercise_name}
-            </p>
-            <Info className="w-4 h-4 text-primary flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
+      <div className={cn(
+        "rounded overflow-hidden transition-all",
+        isMain ? "bg-charcoal" : "bg-charcoal/50"
+      )}>
+        {/* Main row — tap to expand inline details, long-press / icon for full dialog */}
+        <div
+          className={cn(
+            "flex items-start gap-3 p-3 sm:p-3 transition-all cursor-pointer group min-h-[48px] active:bg-muted/30",
+            isMain ? "hover:bg-charcoal/80" : "hover:bg-charcoal/70"
+          )}
+          onClick={() => hasInlineDetails ? setExpanded(!expanded) : setSelectedExercise(exercise)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hasInlineDetails ? setExpanded(!expanded) : setSelectedExercise(exercise); } }}
+        >
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className={cn(
+                "font-medium text-sm sm:text-base",
+                isMain ? "text-foreground" : "text-muted-foreground"
+              )}>
+                {exercise.exercise_name}
+              </p>
+              {hasInlineDetails && (
+                <ChevronDown className={cn("w-4 h-4 text-primary flex-shrink-0 transition-transform", expanded && "rotate-180")} />
+              )}
+            </div>
+            {exercise.muscles_targeted && (
+              <p className="text-xs text-primary/70 mt-0.5">{exercise.muscles_targeted}</p>
+            )}
+            {exercise.notes && (
+              <p className={cn("text-xs text-muted-foreground mt-1", !expanded && "line-clamp-1")}>{exercise.notes}</p>
+            )}
           </div>
-          {exercise.muscles_targeted && (
-            <p className="text-xs text-primary/70 mt-0.5">{exercise.muscles_targeted}</p>
-          )}
-          {exercise.notes && (
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{exercise.notes}</p>
-          )}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 flex-wrap justify-end">
+            {exercise.sets && (
+              <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                {exercise.sets}
+              </Badge>
+            )}
+            {exercise.reps_or_time && (
+              <Badge variant="outline" className="text-xs px-2 py-0.5">
+                {exercise.reps_or_time}
+              </Badge>
+            )}
+            {exercise.rest && (
+              <Badge variant="outline" className="text-xs px-2 py-0.5 text-muted-foreground hidden sm:inline-flex">
+                {exercise.rest}
+              </Badge>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 flex-wrap justify-end">
-          {exercise.sets && (
-            <Badge variant="secondary" className="text-xs px-2 py-0.5">
-              {exercise.sets} sets
-            </Badge>
-          )}
-          {exercise.reps_or_time && (
-            <Badge variant="outline" className="text-xs px-2 py-0.5">
-              {exercise.reps_or_time}
-            </Badge>
-          )}
-          {exercise.rest && (
-            <Badge variant="outline" className="text-xs px-2 py-0.5 text-muted-foreground hidden sm:inline-flex">
-              {exercise.rest}
-            </Badge>
-          )}
-        </div>
+
+        {/* Inline expanded details — scaling, how-to, form tips */}
+        {expanded && hasInlineDetails && (
+          <div className="px-3 pb-3 space-y-3 border-t border-border/30 pt-3">
+            {/* Quick instructions */}
+            {exercise.instructions && (
+              <div>
+                <p className="text-xs font-semibold text-primary mb-1.5 flex items-center gap-1">
+                  <Target className="w-3.5 h-3.5" /> How To Do It
+                </p>
+                <div className="space-y-1">
+                  {exercise.instructions.split('\n').filter(Boolean).map((step, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <span className="text-primary font-bold shrink-0">{i + 1}.</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Form tips */}
+            {exercise.form_tips && (
+              <div>
+                <p className="text-xs font-semibold text-green-400 mb-1.5 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Form Tips
+                </p>
+                <div className="space-y-1">
+                  {exercise.form_tips.split('\n').filter(Boolean).map((tip, i) => (
+                    <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-green-400/60 shrink-0 mt-0.5" />
+                      {tip}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Scaling options */}
+            {exercise.scaling_options && (
+              <div className="bg-primary/5 border border-primary/15 rounded p-2.5">
+                <p className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
+                  <TrendingUp className="w-3.5 h-3.5" /> Scaling Options
+                </p>
+                <p className="text-xs text-muted-foreground">{exercise.scaling_options}</p>
+              </div>
+            )}
+
+            {/* Link to full detail dialog */}
+            <button
+              onClick={(e) => { e.stopPropagation(); setSelectedExercise(exercise); }}
+              className="text-xs text-primary hover:underline flex items-center gap-1 pt-1"
+            >
+              <Info className="w-3.5 h-3.5" /> View full details, demo video & rest timer
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -528,8 +598,8 @@ const Program = () => {
           }, 200);
           
           toast({
-            title: "Day Served",
-            description: `${workout.workout_name} locked in.`,
+            title: "Workout Complete!",
+            description: `${workout.workout_name} — done and recorded.`,
           });
         }
       }
@@ -754,7 +824,7 @@ const Program = () => {
             {finisherExercises.length > 0 && (
               <div>
                 <h5 className="text-xs sm:text-sm uppercase tracking-wider text-destructive font-semibold mb-2 flex items-center gap-2 px-1">
-                  <Flame className="w-3.5 h-3.5" /> Finisher
+                  <Flame className="w-3.5 h-3.5" /> Finisher — Max Effort
                 </h5>
                 <div className="space-y-2">
                   {finisherExercises.map((ex) => (
@@ -818,7 +888,7 @@ const Program = () => {
                 ) : (
                   <CheckCircle2 className="w-5 h-5" />
                 )}
-                {isCompleted ? "UNDO COMPLETION" : "MARK DAY COMPLETE"}
+                {isCompleted ? "Undo" : "I Finished This Workout"}
               </Button>
             </div>
           </div>
@@ -1046,7 +1116,7 @@ const Program = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
 
         {/* Hero Section */}

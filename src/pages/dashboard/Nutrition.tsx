@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { 
+import {
   ChefHat, Flame, Beef, Wheat, Droplet,
-  ShoppingCart, Printer, ChevronDown
+  ShoppingCart, Printer, ChevronDown, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +42,19 @@ const Nutrition = () => {
   const [selectedDay, setSelectedDay] = useState("1");
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [mealToSwap, setMealToSwap] = useState<MealPlanMeal | null>(null);
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+
+  const toggleCheckedItem = useCallback((item: string) => {
+    setCheckedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(item)) {
+        next.delete(item);
+      } else {
+        next.add(item);
+      }
+      return next;
+    });
+  }, []);
 
   // Get all meals from the plan for swap options - must be before early return
   const allMeals = useMemo(() => {
@@ -344,7 +357,10 @@ const Nutrition = () => {
                   <Badge variant="secondary" className="ml-auto text-xs">{shoppingList.length} items</Badge>
                   <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedMeals.has("shopping-list") ? "rotate-180" : ""}`} />
                 </CardTitle>
-                <p className="text-sm text-muted-foreground ml-10">Tap to {expandedMeals.has("shopping-list") ? "collapse" : "view"} this week's grocery list</p>
+                <p className="text-sm text-muted-foreground ml-10">
+                  Tap to {expandedMeals.has("shopping-list") ? "collapse" : "view"} this week's grocery list
+                  {checkedItems.size > 0 && ` (${checkedItems.size}/${shoppingList.length} checked)`}
+                </p>
               </CardHeader>
               {expandedMeals.has("shopping-list") && (
                 <CardContent>
@@ -353,19 +369,46 @@ const Nutrition = () => {
                       Shopping list will appear once meals are added.
                     </p>
                   ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {shoppingList.map((item, i) => (
-                        <div
-                          key={i}
-                          className="p-3 sm:p-4 rounded bg-background border border-border text-sm break-words"
-                        >
-                          <span className="font-medium">{item.item}</span>
-                          {item.amount && (
-                            <span className="text-muted-foreground ml-1">({item.amount})</span>
-                          )}
+                    <>
+                      {checkedItems.size > 0 && (
+                        <div className="flex justify-end mb-2">
+                          <button
+                            onClick={() => setCheckedItems(new Set())}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            Clear all checks
+                          </button>
                         </div>
-                      ))}
-                    </div>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5">
+                        {shoppingList.map((item, i) => {
+                          const isChecked = checkedItems.has(item.item);
+                          return (
+                            <button
+                              key={i}
+                              onClick={() => toggleCheckedItem(item.item)}
+                              className={`flex items-center gap-2.5 p-3 rounded text-left text-sm break-words border transition-all ${
+                                isChecked
+                                  ? "bg-green-500/10 border-green-500/30 line-through text-muted-foreground/50"
+                                  : "bg-background border-border hover:border-primary/30"
+                              }`}
+                            >
+                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all ${
+                                isChecked ? "bg-green-500 border-green-500" : "border-muted-foreground/40"
+                              }`}>
+                                {isChecked && <Check className="w-3 h-3 text-white" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <span className="font-medium">{item.item}</span>
+                                {item.amount && (
+                                  <span className="text-muted-foreground ml-1 text-xs">({item.amount})</span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
                   )}
                 </CardContent>
               )}

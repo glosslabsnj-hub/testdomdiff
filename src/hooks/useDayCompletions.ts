@@ -11,6 +11,38 @@ export interface DayCompletion {
   created_at: string;
 }
 
+const LOCAL_STORAGE_KEY = "day_completions_local";
+
+// AI-mode IDs start with "ai-day-" and can't be stored in the DB
+// because of the foreign key constraint on program_day_workouts
+function isAIModeId(id: string): boolean {
+  return id.startsWith("ai-day-") || id.startsWith("ai-");
+}
+
+function getLocalCompletions(userId: string, weekNumber: number): Set<string> {
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (!stored) return new Set();
+    const parsed = JSON.parse(stored);
+    const key = `${userId}_${weekNumber}`;
+    return new Set(parsed[key] || []);
+  } catch {
+    return new Set();
+  }
+}
+
+function setLocalCompletions(userId: string, weekNumber: number, ids: Set<string>) {
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const parsed = stored ? JSON.parse(stored) : {};
+    const key = `${userId}_${weekNumber}`;
+    parsed[key] = Array.from(ids);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+  } catch (e) {
+    console.error("Error saving local completions:", e);
+  }
+}
+
 export function useDayCompletions(weekNumber: number | null) {
   const { user } = useAuth();
   const [completions, setCompletions] = useState<DayCompletion[]>([]);
@@ -26,6 +58,7 @@ export function useDayCompletions(weekNumber: number | null) {
     }
 
     try {
+      // Fetch DB completions (for template-mode workouts)
       const { data, error } = await supabase
         .from("day_completions")
         .select("*")
@@ -35,10 +68,23 @@ export function useDayCompletions(weekNumber: number | null) {
       if (error) throw error;
 
       const completionData = (data || []) as DayCompletion[];
+      const dbIds = new Set(completionData.map((c) => c.day_workout_id));
+
+      // Also load local completions (for AI-mode workouts)
+      const localIds = getLocalCompletions(user.id, weekNumber);
+
+      // Merge both sets
+      const merged = new Set([...dbIds, ...localIds]);
+
       setCompletions(completionData);
-      setCompletedDayIds(new Set(completionData.map((c) => c.day_workout_id)));
+      setCompletedDayIds(merged);
     } catch (e: any) {
       console.error("Error fetching day completions:", e);
+      // Still try to load local completions even if DB fails
+      if (user) {
+        const localIds = getLocalCompletions(user.id, weekNumber!);
+        setCompletedDayIds(localIds);
+      }
     } finally {
       setLoading(false);
     }
@@ -51,10 +97,37 @@ export function useDayCompletions(weekNumber: number | null) {
     if (!user) return false;
 
     const isCompleted = completedDayIds.has(dayWorkoutId);
+    const isAI = isAIModeId(dayWorkoutId);
 
     try {
+      if (isAI) {
+        // AI-mode: use localStorage (no FK in DB for synthetic IDs)
+        const localIds = getLocalCompletions(user.id, weekNum);
+
+        if (isCompleted) {
+          localIds.delete(dayWorkoutId);
+        } else {
+          localIds.add(dayWorkoutId);
+        }
+
+        setLocalCompletions(user.id, weekNum, localIds);
+
+        // Update state
+        setCompletedDayIds((prev) => {
+          const next = new Set(prev);
+          if (isCompleted) {
+            next.delete(dayWorkoutId);
+          } else {
+            next.add(dayWorkoutId);
+          }
+          return next;
+        });
+
+        return true;
+      }
+
+      // Template-mode: use Supabase DB
       if (isCompleted) {
-        // Remove completion
         const { error } = await supabase
           .from("day_completions")
           .delete()
@@ -73,7 +146,6 @@ export function useDayCompletions(weekNumber: number | null) {
           prev.filter((c) => c.day_workout_id !== dayWorkoutId)
         );
       } else {
-        // Add completion
         const { data, error } = await supabase
           .from("day_completions")
           .insert({

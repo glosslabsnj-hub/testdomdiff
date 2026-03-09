@@ -187,7 +187,7 @@ const Progress = () => {
             {/* Workout Heatmap */}
             <WorkoutHeatmap />
         <div className="bg-card p-4 sm:p-8 rounded-lg border border-border mb-8">
-          <h2 className="headline-card mb-4 sm:mb-6">Sentence Progress Grid</h2>
+          <h2 className="headline-card mb-4 sm:mb-6">12-Week Progress</h2>
 
           {/* Mobile: stacked card layout */}
           <div className="space-y-3 md:hidden">
@@ -347,7 +347,7 @@ const Progress = () => {
             <h2 className="headline-card">Daily Compliance Tracker</h2>
             <div className="text-right">
               <p className="text-xl sm:text-2xl font-bold text-primary">{weeklyCompliance}%</p>
-              <p className="text-xs text-muted-foreground">Block Compliance Rate</p>
+              <p className="text-xs text-muted-foreground">Weekly Compliance</p>
             </div>
           </div>
 
@@ -523,7 +523,7 @@ const Progress = () => {
 
         <div className="mt-8">
           <Button variant="goldOutline" asChild className="min-h-[44px]">
-            <Link to="/dashboard">Back to {isCoaching ? "Dashboard" : "Cell Block"}</Link>
+            <Link to="/dashboard">Back to Dashboard</Link>
           </Button>
         </div>
       </div>

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Clock, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { TimeSelect } from "@/components/ui/time-select";
 import { cn } from "@/lib/utils";
 
 interface RoutineTimeEditorProps {
@@ -15,10 +15,10 @@ interface RoutineTimeEditorProps {
   disabled?: boolean;
 }
 
-export default function RoutineTimeEditor({ 
-  currentTime, 
-  onSave, 
-  disabled = false 
+export default function RoutineTimeEditor({
+  currentTime,
+  onSave,
+  disabled = false
 }: RoutineTimeEditorProps) {
   const [open, setOpen] = useState(false);
   const [time, setTime] = useState(currentTime);
@@ -46,7 +46,10 @@ export default function RoutineTimeEditor({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(o) => {
+      if (o) setTime(currentTime);
+      setOpen(o);
+    }}>
       <PopoverTrigger asChild>
         <button
           disabled={disabled}
@@ -60,27 +63,21 @@ export default function RoutineTimeEditor({
           <Clock className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>
       </PopoverTrigger>
-      <PopoverContent 
-        className="w-48 p-3" 
+      <PopoverContent
+        className="w-auto p-3"
         align="start"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="space-y-3">
-          <p className="text-xs font-medium text-muted-foreground">Edit Time</p>
-          <Input
-            type="text"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            placeholder="e.g. 6:00 AM"
-            className="text-sm h-8"
-          />
+          <p className="text-xs font-medium text-muted-foreground">Set Time</p>
+          <TimeSelect value={time} onChange={setTime} />
           <div className="flex gap-2">
             <Button
               size="sm"
               variant="ghost"
               onClick={handleCancel}
               disabled={saving}
-              className="flex-1 h-7 text-xs"
+              className="flex-1 h-8 text-xs"
             >
               <X className="w-3 h-3 mr-1" />
               Cancel
@@ -90,7 +87,7 @@ export default function RoutineTimeEditor({
               variant="gold"
               onClick={handleSave}
               disabled={saving || !time.trim()}
-              className="flex-1 h-7 text-xs"
+              className="flex-1 h-8 text-xs"
             >
               <Check className="w-3 h-3 mr-1" />
               {saving ? "..." : "Save"}

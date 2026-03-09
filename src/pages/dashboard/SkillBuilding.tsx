@@ -39,7 +39,7 @@ const SkillBuilding = () => {
 
   // Only transformation and coaching users can access
   if (isMembership) {
-    return <UpgradePrompt feature="Work Release Program" upgradeTo="transformation" />;
+    return <UpgradePrompt feature="Skill Building" upgradeTo="transformation" />;
   }
 
   // Filter out advanced lessons for non-coaching users
@@ -59,42 +59,42 @@ const SkillBuilding = () => {
     {
       id: "resume",
       icon: FileText,
-      title: "Release Documents",
+      title: "Resume Builder",
       description: "Create a professional resume that gets you hired",
       tab: "resume"
     },
     {
       id: "interview",
       icon: Users,
-      title: "Parole Board Prep",
+      title: "Interview Prep",
       description: "Practice common questions and ace your interviews",
       tab: "interview"
     },
     {
       id: "jobs",
       icon: Target,
-      title: "Employment Office",
+      title: "Job Search",
       description: "Find opportunities and track your applications",
       tab: "jobs"
     },
     {
       id: "hustle",
       icon: DollarSign,
-      title: "Yard Businesses",
+      title: "Side Hustles",
       description: "Start making money while you build your career",
       tab: "hustle"
     },
     {
       id: "finance",
       icon: Wallet,
-      title: "Commissary to Commerce",
+      title: "Personal Finance",
       description: "Personal finance from zero to financially free",
       tab: "finance"
     },
     {
       id: "tech",
       icon: Monitor,
-      title: "Digital Yard",
+      title: "Tech Skills",
       description: "Modern tech skills, AI tools, and coding",
       tab: "tech"
     }
@@ -112,7 +112,7 @@ const SkillBuilding = () => {
 
         <div className="mb-8">
           <Badge className="mb-2 bg-primary/20 text-primary border-primary/30">
-            Work Release Program
+            Skill Building
           </Badge>
           <h1 className="headline-section mb-2">
             Skill <span className="text-primary">Building</span>

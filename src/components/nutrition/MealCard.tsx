@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { 
-  Flame, Beef, Wheat, Droplet, Clock, Users, 
-  ChevronDown, ChevronUp, Heart, SkipForward, 
-  Check, RefreshCw, Star
+import {
+  Flame, Beef, Wheat, Droplet, Clock, Users,
+  ChevronDown, ChevronUp, Heart, SkipForward,
+  Check, RefreshCw, Star, Lightbulb, ChefHat, ShoppingCart as ShoppingCartIcon
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -125,8 +125,107 @@ export function MealCard({
 
         <CollapsibleContent>
           <div className="px-4 pb-4 border-t border-border pt-4 space-y-4">
+            {/* Tip / Coach Notes — shown first for visibility */}
+            {meal.notes && (
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <p className="text-sm text-foreground flex items-start gap-2">
+                  <Lightbulb className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <span><span className="font-semibold text-primary">Tip:</span> {meal.notes}</span>
+                </p>
+              </div>
+            )}
+
+            {/* Prep & Cook Time Visual */}
+            {(meal.prep_time_min > 0 || meal.cook_time_min > 0 || meal.servings > 1) && (
+              <div className="grid grid-cols-3 gap-2">
+                {meal.prep_time_min > 0 && (
+                  <div className="text-center p-2.5 rounded-lg bg-charcoal border border-border">
+                    <Clock className="h-4 w-4 mx-auto mb-1 text-blue-400" />
+                    <p className="text-sm font-bold">{meal.prep_time_min} min</p>
+                    <p className="text-[10px] text-muted-foreground">Prep</p>
+                  </div>
+                )}
+                {meal.cook_time_min > 0 && (
+                  <div className="text-center p-2.5 rounded-lg bg-charcoal border border-border">
+                    <Flame className="h-4 w-4 mx-auto mb-1 text-orange-400" />
+                    <p className="text-sm font-bold">{meal.cook_time_min} min</p>
+                    <p className="text-[10px] text-muted-foreground">Cook</p>
+                  </div>
+                )}
+                {meal.servings > 0 && (
+                  <div className="text-center p-2.5 rounded-lg bg-charcoal border border-border">
+                    <Users className="h-4 w-4 mx-auto mb-1 text-green-400" />
+                    <p className="text-sm font-bold">{meal.servings}</p>
+                    <p className="text-[10px] text-muted-foreground">{meal.servings === 1 ? "Serving" : "Servings"}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Ingredients */}
+            {meal.ingredients.length > 0 && (
+              <div>
+                <h5 className="font-medium text-foreground mb-2 text-sm flex items-center gap-1.5">
+                  <ShoppingCartIcon className="h-4 w-4 text-primary" />
+                  Ingredients
+                </h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  {meal.ingredients.map((ing, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 p-2 rounded bg-charcoal border border-border text-sm"
+                    >
+                      <span className="font-medium text-primary min-w-fit">{ing.amount}</span>
+                      <span className="flex-1">{ing.item}</span>
+                      {ing.notes && (
+                        <span className="text-xs text-muted-foreground italic">({ing.notes})</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step-by-Step Instructions */}
+            {meal.instructions && (
+              <div>
+                <h5 className="font-medium text-foreground mb-2 text-sm flex items-center gap-1.5">
+                  <ChefHat className="h-4 w-4 text-primary" />
+                  Step-by-Step Instructions
+                </h5>
+                <div className="space-y-2">
+                  {meal.instructions.split('\n').filter(l => l.trim()).map((step, i) => {
+                    // Strip existing numbering like "1.", "1)", "Step 1:" etc.
+                    const cleaned = step.replace(/^\s*(?:step\s*)?\d+[.):\-]\s*/i, '').trim();
+                    return (
+                      <div key={i} className="flex items-start gap-2.5 text-sm">
+                        <div className="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                          {i + 1}
+                        </div>
+                        <p className="text-muted-foreground pt-0.5">{cleaned}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+              <Button
+                variant={hasMade ? "default" : "outline"}
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAction(onMade!, "made");
+                }}
+                disabled={actionLoading !== null}
+                className={`min-h-[44px] ${hasMade ? "bg-green-600 hover:bg-green-700" : ""}`}
+              >
+                <Check className="h-4 w-4 mr-1" />
+                {hasMade ? "Made It!" : "I Made This"}
+              </Button>
+
               <Button
                 variant={hasLiked ? "default" : "outline"}
                 size="sm"
@@ -139,34 +238,6 @@ export function MealCard({
               >
                 <Heart className={`h-4 w-4 mr-1 ${hasLiked ? "fill-current" : ""}`} />
                 {hasLiked ? "Liked" : "Like"}
-              </Button>
-
-              <Button
-                variant={hasMade ? "default" : "outline"}
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAction(onMade!, "made");
-                }}
-                disabled={actionLoading !== null}
-                className={`min-h-[44px] ${hasMade ? "bg-green-600 hover:bg-green-700" : ""}`}
-              >
-                <Check className="h-4 w-4 mr-1" />
-                {hasMade ? "Made It!" : "Made It"}
-              </Button>
-
-              <Button
-                variant={hasSkipped ? "secondary" : "outline"}
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAction(onSkip!, "skip");
-                }}
-                disabled={actionLoading !== null}
-                className="min-h-[44px]"
-              >
-                <SkipForward className="h-4 w-4 mr-1" />
-                {hasSkipped ? "Skipped" : "Skip"}
               </Button>
 
               {onSwap && !isSwapped && (
@@ -184,6 +255,20 @@ export function MealCard({
                 </Button>
               )}
 
+              <Button
+                variant={hasSkipped ? "secondary" : "outline"}
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAction(onSkip!, "skip");
+                }}
+                disabled={actionLoading !== null}
+                className="min-h-[44px]"
+              >
+                <SkipForward className="h-4 w-4 mr-1" />
+                {hasSkipped ? "Skipped" : "Skip"}
+              </Button>
+
               {isSwapped && onRevert && (
                 <Button
                   variant="outline"
@@ -200,68 +285,6 @@ export function MealCard({
                 </Button>
               )}
             </div>
-
-            {/* Prep Info */}
-            <div className="flex flex-wrap gap-4 text-sm">
-              {meal.prep_time_min > 0 && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>Prep: {meal.prep_time_min} min</span>
-                </div>
-              )}
-              {meal.cook_time_min > 0 && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>Cook: {meal.cook_time_min} min</span>
-                </div>
-              )}
-              {meal.servings > 1 && (
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>Servings: {meal.servings}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Ingredients */}
-            {meal.ingredients.length > 0 && (
-              <div>
-                <h5 className="font-medium text-foreground mb-2">Ingredients</h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {meal.ingredients.map((ing, i) => (
-                    <div 
-                      key={i} 
-                      className="flex items-center gap-2 p-2 rounded bg-charcoal border border-border text-sm"
-                    >
-                      <span className="font-medium text-primary">{ing.amount}</span>
-                      <span>{ing.item}</span>
-                      {ing.notes && (
-                        <span className="text-muted-foreground">({ing.notes})</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Instructions */}
-            {meal.instructions && (
-              <div>
-                <h5 className="font-medium text-foreground mb-2">Instructions</h5>
-                <div className="text-sm text-muted-foreground whitespace-pre-line">
-                  {meal.instructions}
-                </div>
-              </div>
-            )}
-
-            {/* Notes */}
-            {meal.notes && (
-              <div className="p-3 rounded bg-primary/10 border border-primary/20">
-                <p className="text-sm text-foreground">
-                  <span className="font-medium">💡 Tip:</span> {meal.notes}
-                </p>
-              </div>
-            )}
           </div>
         </CollapsibleContent>
       </Collapsible>

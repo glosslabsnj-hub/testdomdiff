@@ -14,27 +14,27 @@ export interface TooltipConfig {
 const SOLITARY_TOOLTIPS: Record<string, TooltipConfig> = {
   dashboard: {
     id: "dashboard",
-    title: "Your Cell Block",
-    description: "This is your home base. Complete your Start Here checklist, then head to Yard Time for bodyweight workouts.",
+    title: "Your Dashboard",
+    description: "This is your home base. Complete the Start Here checklist, then head to Workouts to get started.",
   },
   workouts: {
     id: "workouts",
-    title: "Iron Pile",
+    title: "Workouts",
     description: "4 bodyweight workout templates you can do anywhere. Pick one and get after it.",
   },
   discipline: {
     id: "discipline",
-    title: "Lights On / Lights Out",
+    title: "Daily Routines",
     description: "Morning and evening routines build discipline. Check them off daily to grow your streak.",
   },
   nutrition: {
     id: "nutrition",
-    title: "Basic Nutrition",
-    description: "Simple meal guidance matched to your goals. Upgrade to Gen Pop for complete meal plans.",
+    title: "Nutrition Basics",
+    description: "Simple meal guidance matched to your goals. Upgrade for complete personalized meal plans.",
   },
   progress: {
     id: "progress",
-    title: "Time Served",
+    title: "My Progress",
     description: "Upload progress photos and track your measurements. See how far you've come.",
   },
 };
@@ -42,12 +42,12 @@ const SOLITARY_TOOLTIPS: Record<string, TooltipConfig> = {
 const GEN_POP_TOOLTIPS: Record<string, TooltipConfig> = {
   dashboard: {
     id: "dashboard",
-    title: "Your Cell Block",
-    description: "Complete your Start Here checklist first, then start The Sentence - your 12-week program.",
+    title: "Your Dashboard",
+    description: "Complete the Start Here checklist first, then start your 12-week program.",
   },
   program: {
     id: "program",
-    title: "The Sentence",
+    title: "My Program",
     description: "Your 12-week transformation program. Each week has structured workouts - mark days complete as you go.",
   },
   workouts: {

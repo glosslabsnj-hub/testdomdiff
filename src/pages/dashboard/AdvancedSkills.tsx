@@ -53,13 +53,13 @@ const AdvancedSkills = () => {
           to="/dashboard"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Cell Block
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
 
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Badge className="bg-gradient-to-r from-primary/20 to-amber-500/20 text-primary border-primary/30">
-              Free World Exclusive
+              Coaching Exclusive
             </Badge>
           </div>
           <h1 className="headline-section mb-2">
@@ -264,7 +264,7 @@ const AdvancedSkills = () => {
             <Link to="/dashboard/skills">View All Work Release Lessons</Link>
           </Button>
           <Button variant="goldOutline" asChild>
-            <Link to="/dashboard">Back to Cell Block</Link>
+            <Link to="/dashboard">Back to Dashboard</Link>
           </Button>
         </div>
       </div>

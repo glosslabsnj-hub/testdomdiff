@@ -10,18 +10,8 @@ export function DashboardBackLink({ className = "" }: DashboardBackLinkProps) {
   const { subscription } = useAuth();
   const planType = subscription?.plan_type;
   
-  // Tier-aware label
-  const getLabel = () => {
-    switch (planType) {
-      case "coaching":
-        return "Back to Dashboard";
-      case "transformation":
-        return "Back to Cell Block";
-      case "membership":
-      default:
-        return "Back to Cell";
-    }
-  };
+  // All tiers use same clear label
+  const getLabel = () => "Back to Dashboard";
 
   return (
     <Link

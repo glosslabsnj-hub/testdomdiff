@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { X, Mail, Phone, Calendar, Target, Dumbbell, Heart, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { X, Mail, Phone, Calendar, Target, Dumbbell, Heart, AlertTriangle, ChevronDown, ChevronUp, Activity, Flame, Camera, ClipboardCheck, Send, Loader2, MessageSquare } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 import SubscriptionManager from "./SubscriptionManager";
+import { useClientProgress } from "@/hooks/useClientProgress";
+import { useDirectMessages } from "@/hooks/useDirectMessages";
+import { useAuth } from "@/contexts/AuthContext";
 import type { ClientWithSubscription } from "@/hooks/useClientAnalytics";
 
 interface ClientDetailPanelProps {
@@ -17,9 +21,34 @@ interface ClientDetailPanelProps {
 }
 
 const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPanelProps) => {
+  const { user } = useAuth();
   const [intakeExpanded, setIntakeExpanded] = useState(false);
+  const [progressExpanded, setProgressExpanded] = useState(true);
+  const [messagesExpanded, setMessagesExpanded] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const { data: progressData, loading: progressLoading } = useClientProgress(client?.user_id ?? null);
+  const { messages, sendMessage, markAsRead } = useDirectMessages(client?.user_id ?? null);
 
   if (!client) return null;
+
+  // Filter messages for this conversation
+  const conversationMessages = messages
+    .filter(
+      (m) =>
+        (m.sender_id === client.user_id && m.recipient_id === user?.id) ||
+        (m.sender_id === user?.id && m.recipient_id === client.user_id)
+    )
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || sending || !client.user_id) return;
+    setSending(true);
+    const success = await sendMessage(client.user_id, newMessage.trim());
+    if (success) setNewMessage("");
+    setSending(false);
+  };
 
   const getInitials = () => {
     const first = client.first_name?.[0] || "";
@@ -43,11 +72,11 @@ const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPane
   const getPlanBadge = (planType: string) => {
     switch (planType) {
       case "transformation":
-        return <Badge className="bg-primary/20 text-primary border-primary/30">General Population</Badge>;
+        return <Badge className="bg-primary/20 text-primary border-primary/30">Transformation</Badge>;
       case "membership":
-        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Solitary Confinement</Badge>;
+        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Membership</Badge>;
       case "coaching":
-        return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Free World Coaching</Badge>;
+        return <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Coaching</Badge>;
       default:
         return <Badge variant="secondary">{planType}</Badge>;
     }
@@ -268,6 +297,196 @@ const ClientDetailPanel = ({ client, open, onClose, onUpdate }: ClientDetailPane
               </div>
             </>
           )}
+
+          <Separator />
+
+          {/* Progress Overview */}
+          <div>
+            <button
+              type="button"
+              className="flex items-center justify-between w-full min-h-[44px] text-left"
+              onClick={() => setProgressExpanded(!progressExpanded)}
+            >
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <Activity className="h-4 w-4" /> Progress Overview
+              </h3>
+              {progressExpanded ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            {progressExpanded && (
+              <div className="mt-3">
+                {progressLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : progressData ? (
+                  <div className="space-y-4">
+                    {/* Quick Stats Grid */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <Dumbbell className="h-4 w-4 mx-auto mb-1 text-primary" />
+                        <p className="text-lg font-bold">{progressData.stats.totalWorkoutsCompleted}</p>
+                        <p className="text-xs text-muted-foreground">Total Workouts</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <Flame className="h-4 w-4 mx-auto mb-1 text-orange-500" />
+                        <p className="text-lg font-bold">{progressData.stats.currentStreak}</p>
+                        <p className="text-xs text-muted-foreground">Day Streak</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <ClipboardCheck className="h-4 w-4 mx-auto mb-1 text-green-500" />
+                        <p className="text-lg font-bold">{progressData.checkIns.length}</p>
+                        <p className="text-xs text-muted-foreground">Check-ins</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <Camera className="h-4 w-4 mx-auto mb-1 text-blue-500" />
+                        <p className="text-lg font-bold">{progressData.progressPhotos.length}</p>
+                        <p className="text-xs text-muted-foreground">Photos</p>
+                      </div>
+                    </div>
+
+                    {/* This Week + Weight */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <p className="text-xs text-muted-foreground mb-1">This Week</p>
+                        <p className="font-semibold">{progressData.stats.currentWeekWorkouts} workouts</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3">
+                        <p className="text-xs text-muted-foreground mb-1">Weight</p>
+                        <p className="font-semibold">
+                          {progressData.stats.latestWeight
+                            ? `${progressData.stats.latestWeight} lbs`
+                            : "No data"}
+                          {progressData.stats.weightChange != null && (
+                            <span className={progressData.stats.weightChange < 0 ? "text-green-400 ml-1" : "text-yellow-400 ml-1"}>
+                              ({progressData.stats.weightChange > 0 ? "+" : ""}{progressData.stats.weightChange})
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Recent Check-ins */}
+                    {progressData.checkIns.length > 0 && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-2">Recent Check-ins</p>
+                        <div className="space-y-2">
+                          {progressData.checkIns.slice(0, 3).map((ci: any) => (
+                            <div key={ci.id} className="bg-muted/30 rounded p-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="font-medium">Week {ci.week_number}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {format(new Date(ci.created_at), "MMM d")}
+                                </span>
+                              </div>
+                              {ci.wins && (
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{ci.wins}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No progress data yet</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Direct Messages */}
+          <div>
+            <button
+              type="button"
+              className="flex items-center justify-between w-full min-h-[44px] text-left"
+              onClick={() => setMessagesExpanded(!messagesExpanded)}
+            >
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" /> Messages
+                {conversationMessages.filter(m => m.recipient_id === user?.id && !m.read_at).length > 0 && (
+                  <Badge className="bg-primary text-primary-foreground text-xs px-1.5 py-0">
+                    {conversationMessages.filter(m => m.recipient_id === user?.id && !m.read_at).length}
+                  </Badge>
+                )}
+              </h3>
+              {messagesExpanded ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            {messagesExpanded && (
+              <div className="mt-3 space-y-3">
+                {/* Message History */}
+                <div className="max-h-[300px] overflow-y-auto space-y-2">
+                  {conversationMessages.length > 0 ? (
+                    conversationMessages.map((msg) => {
+                      const isFromMe = msg.sender_id === user?.id;
+                      // Mark unread messages as read
+                      if (msg.recipient_id === user?.id && !msg.read_at) {
+                        markAsRead(msg.id);
+                      }
+                      return (
+                        <div key={msg.id} className={`flex ${isFromMe ? "justify-end" : "justify-start"}`}>
+                          <div className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                            isFromMe
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-charcoal border border-border"
+                          }`}>
+                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                            <p className={`text-xs mt-1 ${isFromMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                              {format(new Date(msg.created_at), "MMM d, h:mm a")}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No messages yet. Start the conversation below.
+                    </p>
+                  )}
+                </div>
+
+                {/* Send Message */}
+                <div className="flex gap-2">
+                  <Textarea
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    placeholder="Type a message..."
+                    className="min-h-[50px] resize-none text-sm"
+                    rows={2}
+                  />
+                  <Button
+                    variant="gold"
+                    size="icon"
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim() || sending}
+                    className="h-[50px] w-[50px] shrink-0"
+                  >
+                    {sending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Enter to send, Shift+Enter for new line</p>
+              </div>
+            )}
+          </div>
 
           <Separator />
 

@@ -53,14 +53,14 @@ export function DashboardSidebar() {
   // Core navigation items available to all tiers
   const coreItems: NavItem[] = [
     {
-      title: "Cell Block",
+      title: "Home",
       subtitle: "Dashboard",
       href: "/dashboard",
       icon: Home,
     },
     {
-      title: isCoaching ? "Orientation" : "Intake",
-      subtitle: "Start Here",
+      title: "Start Here",
+      subtitle: "Get set up",
       href: "/dashboard/start-here",
       icon: Play,
     },
@@ -86,8 +86,8 @@ export function DashboardSidebar() {
   // Non-coaching program items
   const programItems: NavItem[] = !isCoaching ? [
     {
-      title: "The Sentence",
-      subtitle: "12-Week",
+      title: "My Program",
+      subtitle: "12-Week Plan",
       href: "/dashboard/program",
       icon: Calendar,
       locked: isMembership,
@@ -97,14 +97,14 @@ export function DashboardSidebar() {
   // Training items
   const trainingItems: NavItem[] = [
     {
-      title: isCoaching ? "Training" : isMembership ? "Iron Pile" : "Workout Library",
-      subtitle: isMembership ? "Your Workouts" : "All Workouts",
+      title: "Workouts",
+      subtitle: "All Workouts",
       href: "/dashboard/workouts",
       icon: Dumbbell,
     },
     {
-      title: isCoaching ? "Structure" : "Lights On/Out",
-      subtitle: "Discipline",
+      title: "Routines",
+      subtitle: "Morning & Evening",
       href: "/dashboard/discipline",
       icon: Clock,
     },
@@ -113,14 +113,14 @@ export function DashboardSidebar() {
   // Lifestyle items
   const lifestyleItems: NavItem[] = [
     {
-      title: isCoaching ? "Meal Planning" : isMembership ? "Basic Nutrition" : "Chow Hall",
-      subtitle: isMembership ? "Basics" : "Nutrition",
+      title: "Meal Plan",
+      subtitle: "Nutrition",
       href: "/dashboard/nutrition",
       icon: Utensils,
     },
     {
-      title: isCoaching ? "Faith & Mindset" : "Chapel",
-      subtitle: "Faith",
+      title: "Mindset",
+      subtitle: "Faith & Growth",
       href: "/dashboard/faith",
       icon: BookOpen,
       locked: isMembership,
@@ -130,14 +130,14 @@ export function DashboardSidebar() {
   // Accountability items
   const accountabilityItems: NavItem[] = [
     {
-      title: isCoaching ? "Weekly Report" : "Roll Call",
-      subtitle: "Check-In",
+      title: "Weekly Check-In",
+      subtitle: "Report",
       href: "/dashboard/check-in",
       icon: ClipboardCheck,
     },
     {
-      title: isCoaching ? "Progress" : "Time Served",
-      subtitle: "Progress",
+      title: "My Progress",
+      subtitle: "Stats & Trends",
       href: "/dashboard/progress",
       icon: TrendingUp,
     },
@@ -152,15 +152,15 @@ export function DashboardSidebar() {
   // Growth items
   const growthItems: NavItem[] = [
     {
-      title: isCoaching ? "Career Building" : "Work Release",
-      subtitle: "Skills",
+      title: "Skills",
+      subtitle: "Career & Finance",
       href: "/dashboard/skills",
       icon: Briefcase,
       locked: isMembership,
     },
     {
-      title: isCoaching ? "The Network" : "The Yard",
-      subtitle: "Community",
+      title: "Community",
+      subtitle: "Connect",
       href: "/dashboard/community",
       icon: Users,
       locked: isMembership,

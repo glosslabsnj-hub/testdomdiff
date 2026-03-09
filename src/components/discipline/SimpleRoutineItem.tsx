@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { TimeSelect } from "@/components/ui/time-select";
 import jailSounds from "@/lib/sounds";
 
 interface SimpleRoutineItemProps {
@@ -109,37 +109,30 @@ export default function SimpleRoutineItem({
       {/* Editable time display */}
       {timeSlot && !completed && (
         onSaveTime && displayOrder !== undefined ? (
-          <Popover open={editingTime} onOpenChange={setEditingTime}>
+          <Popover open={editingTime} onOpenChange={(open) => {
+            if (open) setTempTime(timeSlot);
+            setEditingTime(open);
+          }}>
             <PopoverTrigger asChild>
-              <button 
-                className="text-xs text-muted-foreground/60 hover:text-primary transition-colors flex-shrink-0"
-                onClick={() => {
-                  setTempTime(timeSlot);
-                  setEditingTime(true);
-                }}
+              <button
+                className="text-xs text-muted-foreground/60 hover:text-primary transition-colors flex-shrink-0 flex items-center gap-1"
               >
+                <Clock className="w-3 h-3" />
                 {timeSlot}
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-48 p-3" align="end">
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Edit time</p>
-                <Input
+            <PopoverContent className="w-auto p-3" align="end">
+              <div className="space-y-3">
+                <p className="text-xs font-medium text-muted-foreground">Set time</p>
+                <TimeSelect
                   value={tempTime}
-                  onChange={(e) => setTempTime(e.target.value)}
-                  placeholder="e.g., 6:00 AM"
-                  className="h-8 text-sm"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSaveTime();
-                    if (e.key === "Escape") setEditingTime(false);
-                  }}
+                  onChange={setTempTime}
                 />
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="flex-1 h-7"
+                    className="flex-1 h-8"
                     onClick={() => setEditingTime(false)}
                   >
                     Cancel
@@ -147,7 +140,7 @@ export default function SimpleRoutineItem({
                   <Button
                     size="sm"
                     variant="gold"
-                    className="flex-1 h-7"
+                    className="flex-1 h-8"
                     onClick={handleSaveTime}
                   >
                     Save
