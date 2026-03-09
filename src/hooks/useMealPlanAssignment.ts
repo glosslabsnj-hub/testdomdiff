@@ -62,7 +62,7 @@ export interface AssignedMealPlan {
 }
 
 export function useMealPlanAssignment() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [templates, setTemplates] = useState<MealPlanTemplate[]>([]);
   const [assignedPlan, setAssignedPlan] = useState<AssignedMealPlan | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,7 +109,7 @@ export function useMealPlanAssignment() {
     fetchTemplates();
   }, []);
 
-  // Find and load the assigned meal plan
+  // Find and load the assigned meal plan (prefer user-specific AI plan, fallback to generic)
   useEffect(() => {
     const loadAssignedPlan = async () => {
       if (!profile || !userCalories || templates.length === 0) {
@@ -118,12 +118,24 @@ export function useMealPlanAssignment() {
       }
 
       try {
-        const goal = profile.goal || "Both - lose fat and build muscle";
-        const matchedTemplate = findMatchingTemplate(
-          templates,
-          userCalories.targetCalories,
-          goal
-        );
+        // First check for a user-specific AI-generated plan
+        let matchedTemplate: MealPlanTemplate | null = null;
+        if (user?.id) {
+          const userSpecific = templates.find(t => (t as any).user_id === user.id);
+          if (userSpecific) {
+            matchedTemplate = userSpecific;
+          }
+        }
+
+        // Fallback to generic template matched by calorie range
+        if (!matchedTemplate) {
+          const goal = profile.goal || "Both - lose fat and build muscle";
+          matchedTemplate = findMatchingTemplate(
+            templates,
+            userCalories.targetCalories,
+            goal
+          );
+        }
 
         if (!matchedTemplate) {
           setLoading(false);
