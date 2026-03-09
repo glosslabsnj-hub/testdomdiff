@@ -200,155 +200,113 @@ Deno.serve(async (req) => {
       tierContext = "\n\nTHIS IS A GENERAL POPULATION CLIENT. Generate solid, practical meal plans with clear instructions and macros.";
     }
 
-    const prompt = `${DOM_NUTRITION_PHILOSOPHY}
+    // Split generation into individual day calls to stay within Haiku's 8192 token output limit
+    const batches = [
+      { days: [1], label: "Mon" },
+      { days: [2], label: "Tue" },
+      { days: [3], label: "Wed" },
+      { days: [4], label: "Thu" },
+      { days: [5], label: "Fri" },
+      { days: [6], label: "Sat" },
+      { days: [7], label: "Sun" },
+    ];
+    const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    const buildMealPrompt = (dayRange: number[], isFirst: boolean, prevMeals?: string): string => {
+      const dayLabels = dayRange.map(d => dayNames[d - 1]).join(", ");
+      const mealSchema = `{"meal_type":"breakfast|lunch|dinner|snack","meal_name":"string","calories":0,"protein_g":0,"carbs_g":0,"fats_g":0,"prep_time_min":0,"cook_time_min":0,"servings":1,"ingredients":[{"item":"string","amount":"string"}],"instructions":"string","notes":"string"}`;
+      return `${DOM_NUTRITION_PHILOSOPHY}
 ${tierContext}
 
 USER PROFILE:
 ${nutritionContext}
 
-Generate a COMPLETE 7-day meal plan for this user. Each day needs 4 meals: breakfast, lunch, dinner, snack.
+Generate meals for ${dayLabels}. This day needs exactly 4 meals: breakfast, lunch, dinner, snack.
+${!isFirst && prevMeals ? `\nPREVIOUS DAYS' MEALS (do NOT repeat any of these):\n${prevMeals}\n` : ""}
+REQUIREMENTS:
+- REAL ingredients with exact measurements (oz, cups, tbsp)
+- Brief cooking instructions in Dom's voice (2-3 sentences max per meal)
+- Accurate macros per meal that sum to appropriate daily totals for this user
+- Practical meals, most under 30 min
+- NO repeated meals from previous days
+- Respect dietary restrictions
 
-CRITICAL REQUIREMENTS:
-- Every meal has REAL, SPECIFIC ingredients with exact measurements (oz, cups, tbsp — never "some" or "a little")
-- Every meal has DETAILED step-by-step cooking instructions in Dom's voice — written so someone who has NEVER cooked can follow them perfectly. Include heat levels, visual cues ("until golden brown"), timing, and tips
-- Every meal has accurate macros (calories, protein, carbs, fats)
-- Meals should be PRACTICAL — most take 30 min or less to make
-- Include meal prep tips, storage instructions, and reheat instructions where relevant
-- Respect any dietary restrictions or food dislikes completely
-- Aim for the appropriate calorie/macro targets based on their goal
-- CRITICAL: For EACH day, the sum of all 4 meals' calories/protein/carbs/fats MUST EXACTLY equal the daily_targets. Calculate each meal's macros so they add up precisely. Do NOT generate daily_targets separately — build meals first, then set daily_targets to match. If daily target is 2200 cal, then breakfast + lunch + dinner + snack MUST total exactly 2200 cal. Same for protein, carbs, and fats.
-- Variety across the 7 days — don't repeat the same meal twice
-- Include at least 2-3 meals that can be batch-prepped
-- Every meal MUST include 1-2 SWAP OPTIONS — alternative meals with similar macros that the user can substitute if they don't like the original or want variety. Each swap must include the meal name, brief description, and matching macros.
-
-COOKING INSTRUCTION REQUIREMENTS:
-- Number every step
-- Include EXACT temperatures ("medium-high heat, about 375F")
-- Include visual/sensory cues ("cook until the edges are golden and crispy, about 3-4 minutes")
-- Include what utensils/equipment they need
-- Include food safety tips where relevant ("chicken must reach 165F internal temp")
-- Include storage instructions ("stores in fridge for 4 days in airtight container")
-- Write in Dom's voice — direct, no-nonsense, with motivational drops woven in naturally
-
-GROCERY LIST REQUIREMENT:
-Include a COMPLETE weekly grocery list organized by store section (Produce, Protein/Meat, Dairy, Pantry/Dry Goods, Frozen, Condiments/Spices). Combine amounts across all 7 days so the user can do ONE shopping trip.
-
-Respond ONLY with valid JSON:
-{
-  "plan_name": "string — e.g., 'Fat Loss Fuel Plan' or 'Muscle Building Protocol'",
-  "goal_type": "${userGoal}",
-  "daily_targets": {
-    "calories": number,
-    "protein_g": number,
-    "carbs_g": number,
-    "fats_g": number
-  },
-  "plan_notes": "string — Dom's voice, 2-3 sentences about this plan's approach",
-  "grocery_list": {
-    "produce": [{ "item": "string", "amount": "string" }],
-    "protein_meat": [{ "item": "string", "amount": "string" }],
-    "dairy": [{ "item": "string", "amount": "string" }],
-    "pantry_dry_goods": [{ "item": "string", "amount": "string" }],
-    "frozen": [{ "item": "string", "amount": "string" }],
-    "condiments_spices": [{ "item": "string", "amount": "string" }]
-  },
-  "meal_prep_day_instructions": "string — what to batch-prep on Sunday, step by step, in Dom's voice",
-  "days": [
-    {
-      "day_number": 1,
-      "day_name": "Monday",
-      "daily_total": { "calories": number, "protein_g": number, "carbs_g": number, "fats_g": number },
-      "meals": [
-        {
-          "meal_type": "breakfast|lunch|dinner|snack",
-          "meal_name": "string",
-          "calories": number,
-          "protein_g": number,
-          "carbs_g": number,
-          "fats_g": number,
-          "prep_time_min": number,
-          "cook_time_min": number,
-          "servings": number,
-          "ingredients": [
-            { "item": "string", "amount": "string", "notes": "string or null" }
-          ],
-          "instructions": "string — DETAILED step-by-step cooking instructions in Dom's voice. Number every step. Include temperatures, timing, visual cues, equipment needed.",
-          "storage_instructions": "string — how to store leftovers, how long it lasts, how to reheat",
-          "notes": "string — meal prep tips, best time to eat, Dom's take on this meal",
-          "swap_options": [
-            {
-              "meal_name": "string",
-              "description": "string — 1 sentence what it is",
-              "calories": number,
-              "protein_g": number,
-              "carbs_g": number,
-              "fats_g": number
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-Generate all 7 days with 4 meals each (28 total meals). Every meal must be UNIQUE. Every meal must have at least 1 swap option.`;
+Respond ONLY with valid JSON — no markdown, no comments:
+${isFirst ? `{"plan_name":"string","plan_notes":"string (1 sentence)","daily_targets":{"calories":0,"protein_g":0,"carbs_g":0,"fats_g":0},"days":[{"day_number":${dayRange[0]},"day_name":"${dayNames[dayRange[0] - 1]}","meals":[${mealSchema}]}]}` : `{"days":[{"day_number":${dayRange[0]},"day_name":"${dayNames[dayRange[0] - 1]}","meals":[${mealSchema}]}]}`}`;
+    };
 
     console.log(`Generating ${planType} meal plan for user ${userId} — goal: ${userGoal}`);
 
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 16000,
-      messages: [{ role: "user", content: prompt }],
-    });
+    const allDays: any[] = [];
+    let planMeta: any = {};
+    let prevMealNames: string[] = [];
+    const batchErrors: string[] = [];
 
-    const stopReason = response.stop_reason;
-    const aiText = response.content[0].type === "text" ? response.content[0].text : "";
-    console.log(`Meal plan AI response: stop=${stopReason}, length=${aiText.length}`);
+    for (const batch of batches) {
+      const isFirst = batch.days[0] === 1;
+      const prevMeals = prevMealNames.length > 0 ? prevMealNames.join(", ") : undefined;
+      const prompt = buildMealPrompt(batch.days, isFirst, prevMeals);
 
-    if (stopReason === "max_tokens") {
-      console.warn("Meal plan response was truncated — attempting to fix JSON");
-    }
+      let response;
+      try {
+        response = await client.messages.create({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 8192,
+          messages: [{ role: "user", content: prompt }],
+        });
+      } catch (apiErr: any) {
+        const errMsg = `API error for batch ${batch.label}: ${apiErr?.message || apiErr}`;
+        console.error(errMsg);
+        batchErrors.push(errMsg);
+        continue;
+      }
 
-    // Try to extract valid JSON, even if truncated
-    let jsonStr = "";
-    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      jsonStr = jsonMatch[0];
-    } else {
-      // If truncated, try to close the JSON
-      const openBrace = aiText.indexOf("{");
-      if (openBrace >= 0) {
-        jsonStr = aiText.substring(openBrace);
-        // Attempt to close truncated arrays/objects
-        const openBraces = (jsonStr.match(/\{/g) || []).length;
-        const closeBraces = (jsonStr.match(/\}/g) || []).length;
-        const openBrackets = (jsonStr.match(/\[/g) || []).length;
-        const closeBrackets = (jsonStr.match(/\]/g) || []).length;
-        jsonStr += "]".repeat(Math.max(0, openBrackets - closeBrackets));
-        jsonStr += "}".repeat(Math.max(0, openBraces - closeBraces));
+      const aiText = response.content[0].type === "text" ? response.content[0].text : "";
+      console.log(`Meal batch ${batch.label}: stop=${response.stop_reason}, len=${aiText.length}`);
+
+      const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        const errMsg = `No JSON for batch ${batch.label}. First 500 chars: ${aiText.substring(0, 500)}`;
+        console.error(errMsg);
+        batchErrors.push(errMsg);
+        continue;
+      }
+
+      let batchParsed;
+      try {
+        batchParsed = JSON.parse(jsonMatch[0]);
+      } catch (e) {
+        const errMsg = `Parse error for batch ${batch.label}: ${(e as Error).message}. First 500 chars: ${jsonMatch[0].substring(0, 500)}`;
+        console.error(errMsg);
+        batchErrors.push(errMsg);
+        continue;
+      }
+
+      if (isFirst) {
+        planMeta = {
+          plan_name: batchParsed.plan_name,
+          plan_notes: batchParsed.plan_notes,
+          daily_targets: batchParsed.daily_targets,
+        };
+      }
+
+      for (const day of batchParsed.days || []) {
+        allDays.push(day);
+        for (const meal of day.meals || []) {
+          prevMealNames.push(meal.meal_name);
+        }
       }
     }
 
-    if (!jsonStr) {
-      console.error("Failed to parse meal plan AI response:", aiText.substring(0, 500));
+    if (allDays.length === 0) {
       return new Response(
-        JSON.stringify({ error: "AI response parsing failed" }),
+        JSON.stringify({ error: "Failed to generate any meal days", details: batchErrors }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    let parsed;
-    try {
-      parsed = JSON.parse(jsonStr);
-    } catch (e) {
-      console.error("Meal plan JSON parse error:", (e as Error).message, "first 300 chars:", jsonStr.substring(0, 300));
-      return new Response(
-        JSON.stringify({ error: "Failed to parse meal plan response" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log(`Meal plan parsed: ${(parsed.days || []).length} days, plan: ${parsed.plan_name}`);
+    const parsed = { ...planMeta, days: allDays };
+    console.log(`Meal plan parsed: ${allDays.length} days, plan: ${parsed.plan_name}`);
 
     // Calculate ACTUAL daily targets from the meal data (not the AI's separate targets)
     // This ensures displayed targets always match what the meals add up to
@@ -419,7 +377,6 @@ Generate all 7 days with 4 meals each (28 total meals). Every meal must be UNIQU
 
     // Insert days and meals
     let totalMeals = 0;
-    const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
     for (const day of parsed.days || []) {
       const { data: dayRow, error: dayError } = await supabase
