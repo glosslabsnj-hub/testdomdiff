@@ -18,7 +18,7 @@ import { useDailyDiscipline } from "@/hooks/useDailyDiscipline";
 import { useEffectiveSubscription } from "@/hooks/useEffectiveSubscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCheckIns } from "@/hooks/useCheckIns";
-import { useWorkoutCompletions } from "@/hooks/useWorkoutCompletions";
+import { useDayCompletions } from "@/hooks/useDayCompletions";
 
 interface MissionItem {
   id: string;
@@ -54,9 +54,13 @@ export function RollCallToday() {
     return getCurrentWeekNumber();
   }, [authSubscription, getCurrentWeekNumber]);
 
-  // Check if today's workout is completed
-  const { completions: workoutCompletions } = useWorkoutCompletions(currentWeek);
-  const todayWorkoutComplete = workoutCompletions.some(c => c.day_of_week === todayDayName);
+  // Check if today's workout is completed (day_completions table, matching AI day IDs)
+  const { completedDayIds } = useDayCompletions(currentWeek);
+  // AI day IDs use Monday=0..Sunday=6, JS getDay() uses Sunday=0..Saturday=6
+  const jsDay = new Date().getDay();
+  const aiDayIndex = jsDay === 0 ? 6 : jsDay - 1; // Convert: Sun(0)->6, Mon(1)->0, etc.
+  const todayDayId = `ai-day-${currentWeek}-${aiDayIndex}`;
+  const todayWorkoutComplete = completedDayIds.has(todayDayId);
 
   // Calculate routine completions
   const morningComplete = morningRoutines.every(r => completions.has(r.id));

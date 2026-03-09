@@ -11,6 +11,7 @@ import {
 
 export interface MealPlanTemplate {
   id: string;
+  user_id: string | null;
   name: string;
   goal_type: string;
   calorie_range_min: number;
@@ -121,7 +122,7 @@ export function useMealPlanAssignment() {
         // First check for a user-specific AI-generated plan
         let matchedTemplate: MealPlanTemplate | null = null;
         if (user?.id) {
-          const userSpecific = templates.find(t => (t as any).user_id === user.id);
+          const userSpecific = templates.find(t => t.user_id === user.id);
           if (userSpecific) {
             matchedTemplate = userSpecific;
           }
