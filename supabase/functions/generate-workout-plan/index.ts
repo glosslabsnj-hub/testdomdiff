@@ -152,41 +152,7 @@ function getDayNames(trainingDays: number): string[] {
   }
 }
 
-// Apply progressive overload for weeks 2-4 within a phase
-function applyProgression(exercises: any[], weekOffset: number, _phaseKey: string): any[] {
-  if (weekOffset === 0) return exercises;
-
-  return exercises.map(ex => {
-    const modified = { ...ex };
-
-    // Increase reps (e.g., "12-15" → "14-17" for week 2)
-    if (modified.reps_or_time && /^\d+(-\d+)?$/.test(modified.reps_or_time)) {
-      const parts = modified.reps_or_time.split('-');
-      const increase = weekOffset * 2;
-      modified.reps_or_time = parts.map((p: string) => String(parseInt(p) + increase)).join('-');
-    }
-
-    // Decrease rest (e.g., "45s" → "40s" for week 2)
-    if (modified.rest) {
-      const restMatch = modified.rest.match(/(\d+)/);
-      if (restMatch) {
-        const baseRest = parseInt(restMatch[1]);
-        const newRest = Math.max(15, baseRest - (weekOffset * 5));
-        modified.rest = modified.rest.replace(/\d+/, String(newRest));
-      }
-    }
-
-    // Add sets on week 3+ for main exercises
-    if (weekOffset >= 2 && modified.section_type === 'main' && modified.sets) {
-      const baseSets = parseInt(modified.sets);
-      if (!isNaN(baseSets)) {
-        modified.sets = String(baseSets + 1);
-      }
-    }
-
-    return modified;
-  });
-}
+// No longer used — AI now generates all 4 weeks with unique exercises per week
 
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
@@ -328,17 +294,26 @@ Deno.serve(async (req) => {
       }
 
       // Generate all days in PARALLEL to stay within edge function timeout
+      // Each call now produces 4 UNIQUE weekly workouts (not clones)
       const dayPromises = dayNames.map(async (dayName) => {
         const dayIndex = DAY_TO_INDEX[dayName];
         if (dayIndex === undefined) return [];
 
-        const prompt = `You are Dom Different — built his body in a federal prison cell. High intensity. High reps. No bullshit. Generate ${dayName}'s workout.
+        const prompt = `You are Dom Different — built his body in a federal prison cell. High intensity. High reps. No bullshit.
+
+Generate 4 UNIQUE weekly workouts for ${dayName} across this 4-week phase. Each week MUST have DIFFERENT main exercises — swap movements, change grips, vary angles, rotate muscle emphasis. The warmup and cooldown can share some staples (push-ups, burpees, stretches) but the MAIN WORK and FINISHER must be distinctly different each week. This is REAL progressive programming, not the same workout with different numbers.
 
 USER: ${profile.experience || "Intermediate"} | ${profile.weight || "N/A"} | Equipment: ${profile.equipment || "Bodyweight only"} | Goal: ${userGoal} | Session: ${profile.session_length_preference || "45-60 min"}${profile.injuries ? ` | Injuries: ${profile.injuries}` : ''}
 ${tierContext}
 
 PHASE: ${phase.title} — ${phase.description}
 INTENSITY: ${phase.intensity}
+
+=== WEEKLY PROGRESSION RULES ===
+Week 1 of phase: Introduce the movement patterns. ${phaseKey === "foundation" ? "3 sets, moderate reps (12-15), 45-60s rest." : phaseKey === "build" ? "4 sets, higher reps (15-20), 30-45s rest." : "4-5 sets, max reps, 20-30s rest."}
+Week 2: Rotate ~50% of main exercises to variations (e.g., flat bench -> incline, back squat -> front squat, pull-ups -> chin-ups). Add 1-2 reps or reduce rest by 5-10s.
+Week 3: Introduce new movement patterns or intensity techniques (drop sets, supersets, tempo work). Different finisher circuit. Push harder.
+Week 4: Peak week for this phase. Hardest variations, highest volume, least rest. Test their limits before the next phase begins.
 
 === DOM'S NON-NEGOTIABLE RULES ===
 1. PUSH-UPS IN EVERY WARMUP. Wall push-ups if they're 500 lbs, decline diamonds if they're advanced. Non-negotiable.
@@ -348,20 +323,21 @@ INTENSITY: ${phase.intensity}
 5. SUPERSETS EVERYTHING: Pair exercises. Push/pull, upper/lower. Keep the heart rate up.
 6. BODYWEIGHT IS KING: Even with full gym, every session has bodyweight work. Equipment adds to the foundation, never replaces it.
 7. FINISHER IS BRUTAL: AMRAP, Tabata, or timed circuit. Burpees, mountain climbers, squat jumps. Leave nothing.
-8. DIFFERENT EXERCISES EACH DAY: ${dayName} must NOT repeat the same lead exercises as other days. Vary movements, grips, angles, tempos.
-9. PROGRESSIVE OVERLOAD: ${phaseKey === "foundation" ? "Build the base. 3-4 sets. Learn form." : phaseKey === "build" ? "Push harder. 4-5 sets. Less rest. Harder variations." : "Maximum intensity. 4-5 sets. Drop sets, giant sets, AMRAP. Empty the tank."}
+8. DIFFERENT EXERCISES EACH DAY: ${dayName} must NOT repeat the same lead exercises as other training days. Vary movements, grips, angles, tempos.
 
-STRUCTURE: warmup (4-6 exercises w/ mobility + push-ups + burpees), main (4-6 exercises in supersets), finisher (1-2 AMRAP/circuits), cooldown (2-3 stretches).
+STRUCTURE per week: warmup (4-6 exercises w/ mobility + push-ups + burpees), main (4-6 exercises in supersets), finisher (1-2 AMRAP/circuits), cooldown (2-3 stretches).
 
 Dom's voice in notes: "No half reps." / "30 seconds rest. Not 31." / "This is where most people quit. You're not most people."
 
-Respond ONLY with valid JSON — no markdown, no explanation:
-{"exercises":[{"exercise_name":"string","section_type":"warmup|main|finisher|cooldown","sets":"string","reps_or_time":"string","rest":"string","notes":"Dom's voice, 1 sentence","instructions":"Form breakdown","form_tips":"Common mistakes","muscles_targeted":"comma separated","scaling_options":"Beginner: X | Intermediate: X | Advanced: X | Beast Mode: X"}]}`;
+Respond ONLY with valid JSON — no markdown, no explanation. Return an object with keys "week_1", "week_2", "week_3", "week_4", each containing an "exercises" array:
+{"week_1":{"exercises":[...]},"week_2":{"exercises":[...]},"week_3":{"exercises":[...]},"week_4":{"exercises":[...]}}
+
+Each exercise object: {"exercise_name":"string","section_type":"warmup|main|finisher|cooldown","sets":"string","reps_or_time":"string","rest":"string","notes":"Dom's voice, 1 sentence","instructions":"Form breakdown","form_tips":"Common mistakes","muscles_targeted":"comma separated","scaling_options":"Beginner: X | Intermediate: X | Advanced: X | Beast Mode: X"}`;
 
         try {
           const response = await client.messages.create({
             model: "claude-haiku-4-5-20251001",
-            max_tokens: 4000,
+            max_tokens: 16000,
             messages: [{ role: "user", content: prompt }],
           });
 
@@ -375,20 +351,23 @@ Respond ONLY with valid JSON — no markdown, no explanation:
           }
 
           const parsed = JSON.parse(jsonMatch[0]);
-          const dayExercises = parsed.exercises;
-          if (!Array.isArray(dayExercises) || dayExercises.length === 0) {
-            console.error(`No exercises for ${phaseKey}/${dayName}`);
-            return [];
-          }
-
-          console.log(`${phaseKey}/${dayName}: ${dayExercises.length} exercises`);
 
           const results: any[] = [];
           for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
             const weekNumber = startWeek + weekOffset;
-            const progressedExercises = applyProgression(dayExercises, weekOffset, phaseKey);
+            const weekKey = `week_${weekOffset + 1}`;
+            let weekData = parsed[weekKey];
 
-            const finalExercises = progressedExercises.map((ex: any, idx: number) => ({
+            // Fallback: if AI returned flat "exercises" array (old format), use it for all weeks
+            if (!weekData && parsed.exercises && weekOffset === 0) {
+              weekData = { exercises: parsed.exercises };
+            }
+            if (!weekData || !Array.isArray(weekData.exercises) || weekData.exercises.length === 0) {
+              console.warn(`No exercises for ${phaseKey}/${dayName}/week_${weekOffset + 1}`);
+              continue;
+            }
+
+            const finalExercises = weekData.exercises.map((ex: any, idx: number) => ({
               original_exercise_name: ex.exercise_name,
               exercise_name: ex.exercise_name,
               section_type: ex.section_type,
@@ -403,6 +382,8 @@ Respond ONLY with valid JSON — no markdown, no explanation:
               scaling_options: ex.scaling_options,
               instructions: ex.instructions,
             }));
+
+            console.log(`${phaseKey}/${dayName}/week${weekOffset + 1}: ${finalExercises.length} exercises`);
 
             results.push({
               user_id: userId,

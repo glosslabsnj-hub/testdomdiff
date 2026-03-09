@@ -39,7 +39,7 @@ export function RollCallToday() {
   const { checkIns, getCurrentWeekNumber } = useCheckIns();
 
   const [currentHour] = useState(() => new Date().getHours());
-  const todayDayName = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
+  const todayDayName = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()];
   const isMorning = currentHour < 12;
   const isEvening = currentHour >= 18;
   
